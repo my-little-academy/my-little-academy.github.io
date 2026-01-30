@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>لعبة ترتيب القصة</title>
+  <style>
+    body {
+      background-color: #fff8e6;
+      font-family: 'Cairo', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 50px auto;
+      background-color: #ffffff;
+      border: 3px dashed #f4c66a;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #d17d00;
+      margin-bottom: 10px;
+    }
+
+    p.instructions {
+      text-align: center;
+      font-weight: bold;
+      color: #444;
+    }
+
+    #story-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .story-item {
+      background-color: #fff5d1;
+      padding: 15px;
+      border: 2px solid #f1d38a;
+      border-radius: 8px;
+      cursor: grab;
+      transition: background 0.3s, transform 0.3s;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    .story-item:hover {
+      background-color: #fff1b8;
+      transform: scale(1.02);
+    }
+
+    .feedback {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      display: none;
+    }
+
+    .correct {
+      color: green;
+    }
+
+    .wrong {
+      color: red;
+    }
+
+    button {
+      display: block;
+      margin: 20px auto 0;
+      padding: 10px 20px;
+      background-color: #f4b400;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #e0a000;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>🎯 لعبة ترتيب أحداث القصة</h1>
+    <p class="instructions">اسحب البطاقات لترتيب أحداث القصة، ثم اضغط تحقق</p>
+
+    <div id="story-list">
+      <div class="story-item" draggable="true" data-order="3">🔶 عاد النبي ﷺ إلى أمه آمنة</div>
+      <div class="story-item" draggable="true" data-order="1">🔶 أخذت حليمة السعدية النبي ﷺ لترضعه</div>
+      <div class="story-item" draggable="true" data-order="2">🔶 حلول البركة في بيت حليمة</div>
+      <div class="story-item" draggable="true" data-order="4">🔶 حادثة شق الصدر</div>
+    </div>
+
+    <button onclick="checkOrder()">✅ تحقق من الترتيب</button>
+    <div id="feedback" class="feedback"></div>
+  </div>
+
+  <script>
+    let draggedItem = null;
+
+    // بدء التفاعل
+    document.querySelectorAll('.story-item').forEach(item => {
+      item.addEventListener('dragstart', function () {
+        draggedItem = this;
+      });
+
+      item.addEventListener('dragover', function (e) {
+        e.preventDefault();
+      });
+
+      item.addEventListener('drop', function (e) {
+        e.preventDefault();
+        if (draggedItem !== this) {
+          const container = document.getElementById('story-list');
+          const children = Array.from(container.children);
+          const draggedIndex = children.indexOf(draggedItem);
+          const targetIndex = children.indexOf(this);
+
+          if (draggedIndex < targetIndex) {
+            container.insertBefore(draggedItem, this.nextSibling);
+          } else {
+            container.insertBefore(draggedItem, this);
+          }
+        }
+      });
+    });
+
+    function checkOrder() {
+      const items = document.querySelectorAll('.story-item');
+      let correct = true;
+      items.forEach((item, index) => {
+        if (parseInt(item.dataset.order) !== index + 1) {
+          correct = false;
+        }
+      });
+
+      const feedback = document.getElementById('feedback');
+      if (correct) {
+        feedback.textContent = '🎉 أحسنت! الترتيب صحيح.';
+        feedback.className = 'feedback correct';
+      } else {
+        feedback.textContent = '❌ الترتيب غير صحيح. حاول مرة أخرى!';
+        feedback.className = 'feedback wrong';
+      }
+      feedback.style.display = 'block';
+    }
+
+    // خلط البطاقات عند البداية
+    window.addEventListener('DOMContentLoaded', () => {
+      const list = document.getElementById('story-list');
+      const items = Array.from(list.children);
+      items.sort(() => Math.random() - 0.5);
+      items.forEach(item => list.appendChild(item));
+    });
+  </script>
+
+</body>
+</html>

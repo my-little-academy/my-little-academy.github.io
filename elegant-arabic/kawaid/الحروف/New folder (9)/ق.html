@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تعلم حرف اللام - عالم الحروف العربية</title>
+    <style>
+        /* ... (الأسلوب السابق يبقى كما هو مع هذه الإضافات) ... */
+        
+        .tajweed-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            direction: rtl;
+        }
+        .tajweed-table th {
+            position: sticky;
+            top: 0;
+        }
+        .sound-column {
+            position: fixed;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #4CAF50;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 100;
+        }
+        .sound-btn {
+            display: block;
+            background-color: white;
+            color: #4CAF50;
+            border: none;
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            text-align: center;
+        }
+        .sound-btn:hover {
+            background-color: #e8f5e9;
+        }
+    </style>
+</head>
+<body>
+    <!-- ... (بقية الهيكل كما هو) ... -->
+
+    <div class="sound-column" id="sound-column">
+        <h3 style="color:white; text-align:center; margin-top:0;">استمع</h3>
+        <button class="sound-btn" onclick="playSound('la')">لَ</button>
+        <button class="sound-btn" onclick="playSound('lu')">لُ</button>
+        <button class="sound-btn" onclick="playSound('li')">لِ</button>
+        <button class="sound-btn" onclick="playSound('lan')">لًا</button>
+        <button class="sound-btn" onclick="playSound('lin')">لٍ</button>
+        <button class="sound-btn" onclick="playSound('lun')">لٌ</button>
+        <button class="sound-btn" onclick="playSound('laa')">لا</button>
+        <button class="sound-btn" onclick="playSound('loo')">لو</button>
+        <button class="sound-btn" onclick="playSound('lee')">لي</button>
+    </div>
+
+    <script>
+        // تحسينات قسم الكتابة
+        function initWritingCanvas() {
+            const canvas = document.getElementById('writing-canvas');
+            const ctx = canvas.getContext('2d');
+            let isDrawing = false;
+            let progress = 0;
+            
+            function resizeCanvas() {
+                const container = canvas.parentElement;
+                canvas.width = container.offsetWidth;
+                canvas.height = container.offsetHeight;
+                ctx.lineWidth = 8;
+                ctx.lineCap = 'round';
+                ctx.strokeStyle = '#4CAF50';
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // رسم مثال لحرف اللام
+                ctx.beginPath();
+                ctx.moveTo(canvas.width * 0.3, canvas.height * 0.7);
+                ctx.lineTo(canvas.width * 0.7, canvas.height * 0.7);
+                ctx.strokeStyle = '#e0e0e0';
+                ctx.stroke();
+            }
+            
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // بدء الرسم
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('touchstart', handleTouch);
+            
+            function handleTouch(e) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent("mousedown", {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            }
+            
+            function startDrawing(e) {
+                isDrawing = true;
+                const pos = getPosition(e);
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+                ctx.strokeStyle = '#4CAF50';
+                e.preventDefault();
+            }
+            
+            // الرسم
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('touchmove', handleTouchMove);
+            
+            function handleTouchMove(e) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent("mousemove", {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            }
+            
+            function draw(e) {
+                if (!isDrawing) return;
+                
+                const pos = getPosition(e);
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+                
+                // زيادة التقدم
+                if (progress < 100) {
+                    progress += 0.5;
+                    document.getElementById('writing-progress').style.width = progress + '%';
+                    
+                    if (progress >= 100) {
+                        showFeedback('أحسنت! لقد أكملت كتابة حرف اللام', 'positive');
+                    }
+                }
+                
+                e.preventDefault();
+            }
+            
+            // إنهاء الرسم
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('touchend', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+            
+            function stopDrawing() {
+                isDrawing = false;
+            }
+            
+            function getPosition(e) {
+                const rect = canvas.getBoundingClientRect();
+                return {
+                    x: (e.clientX || e.touches[0].clientX) - rect.left,
+                    y: (e.clientY || e.touches[0].clientY) - rect.top
+                };
+            }
+        }
+
+        // تحسينات لعبة الذاكرة
+        function setupMemoryGame() {
+            const gameContainer = document.getElementById('memory-game');
+            gameContainer.innerHTML = '';
+            flippedCards = [];
+            matchedPairs = 0;
+            
+            // خلط الأوراق
+            const shuffledCards = [...memoryCards].sort(() => Math.random() - 0.5);
+            
+            shuffledCards.forEach((card, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'memory-card';
+                cardElement.dataset.index = index;
+                cardElement.dataset.value = card;
+                
+                // إضافة وجه الخلفية للبطاقة
+                const backFace = document.createElement('div');
+                backFace.className = 'back-face';
+                backFace.textContent = '؟';
+                cardElement.appendChild(backFace);
+                
+                // إضافة وجه الأمام للبطاقة
+                const frontFace = document.createElement('div');
+                frontFace.className = 'front-face';
+                
+                if (card === 'ل') {
+                    frontFace.textContent = card;
+                    frontFace.style.fontSize = '40px';
+                    frontFace.style.color = '#2E7D32';
+                } else {
+                    // إذا كانت كلمة، نبحث عن الصورة المناسبة
+                    const img = document.createElement('img');
+                    img.src = getImageForWord(card);
+                    img.style.width = '80px';
+                    img.style.height = '80px';
+                    frontFace.appendChild(img);
+                }
+                
+                cardElement.appendChild(frontFace);
+                cardElement.addEventListener('click', flipCard);
+                gameContainer.appendChild(cardElement);
+            });
+        }
+
+        function getImageForWord(word) {
+            const images = {
+                'ليمون': 'https://cdn.pixabay.com/photo/2017/02/05/12/31/lemons-2039830_640.jpg',
+                'أسد': 'https://cdn.pixabay.com/photo/2017/07/24/19/57/tiger-2535888_640.jpg',
+                'قمر': 'https://cdn.pixabay.com/photo/2017/08/30/01/05/moon-2694769_640.jpg'
+            };
+            return images[word] || '';
+        }
+
+        function flipCard() {
+            if (flippedCards.length >= 2 || this.classList.contains('flipped')) return;
+            
+            this.classList.add('flipped');
+            flippedCards.push(this);
+            
+            if (flippedCards.length === 2) {
+                checkForMatch();
+            }
+        }
+
+        // ... (بقية الدوال تبقى كما هي مع تحسينات الصوت) ...
+
+        function playSound(type) {
+            // في تطبيق حقيقي، ستكون هناك أصوات مسجلة مسبقاً
+            console.log('تشغيل صوت: ' + type);
+            const feedback = document.getElementById('writing-feedback');
+            feedback.textContent = `استمع إلى: ${type}`;
+            feedback.className = 'feedback positive';
+            
+            // إخفاء التعليق بعد ثانيتين
+            setTimeout(() => {
+                feedback.textContent = '';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

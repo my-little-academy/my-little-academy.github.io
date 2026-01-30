@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>لعبة الطرح العشري مع الاستلاف</title>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --success: #4cc9f0;
+            --danger: #f72585;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #dfe7f5 100%);
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .game-container {
+            max-width: 850px;
+            margin: 30px auto;
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+            padding: 40px;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .card {
+            width: 60px;
+            height: 60px;
+            margin: 0 5px;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 10px;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2px solid #ccc;
+        }
+
+        .card.editable {
+            background-color: #ffffff;
+            border: 2px dashed #999;
+        }
+
+        .message {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .success {
+            color: var(--success);
+        }
+
+        .error {
+            color: var(--danger);
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--primary);
+            color: white;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="game-container">
+        <div id="place-row" class="row"></div>
+        <div id="minuend-row" class="row"></div>
+        <div id="subtrahend-row" class="row"></div>
+        <div id="result-row" class="row"></div>
+        <button onclick="checkAnswer()">تحقق من الإجابة</button>
+        <div id="message" class="message"></div>
+    </div>
+
+    <script>
+        const places = ["عشرات", "آحاد", "فاصلة", "أعشار", "أجزاء المئة", "أجزاء الألف"];
+        let minuends = [0, 0, '.', 0, 0, 0];
+        let subtrahends = [0, 0, '.', 0, 0, 0];
+        let results = ['', '', '.', '', '', ''];
+
+        function createRow(id, values, editable = false) {
+            const container = document.getElementById(id);
+            container.innerHTML = '';
+            values.forEach((val, i) => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                if (editable && val !== '.') {
+                    card.contentEditable = true;
+                    card.classList.add('editable');
+                    card.addEventListener('input', () => {
+                        results[i] = card.innerText.trim();
+                    });
+                }
+                card.textContent = val;
+                container.appendChild(card);
+            });
+        }
+
+        function generateRandomNumbers() {
+            // توليد أرقام عشوائية بسيطة
+            minuends = [
+                getRandomDigit(1, 9), // عشرات
+                getRandomDigit(0, 9), // آحاد
+                '.',                  // فاصلة
+                getRandomDigit(0, 9), // أعشار
+                getRandomDigit(0, 9), // أجزاء المئة
+                getRandomDigit(0, 9)  // أجزاء الألف
+            ];
+            subtrahends = [
+                getRandomDigit(0, minuends[0]), // عشرات
+                getRandomDigit(0, 9),           // آحاد
+                '.',                            // فاصلة
+                getRandomDigit(0, 9),           // أعشار
+                getRandomDigit(0, 9),           // أجزاء المئة
+                getRandomDigit(0, 9)            // أجزاء الألف
+            ];
+        }
+
+        function getRandomDigit(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function convertToNumber(digits) {
+            const getDigit = (val) => {
+                if (val === '.' || val === undefined || val === '') return '0';
+                return isNaN(val) ? '0' : val;
+            };
+
+            const integerPart = parseInt(`${getDigit(digits[0])}${getDigit(digits[1])}`) || 0;
+            const decimalPart = parseInt(`${getDigit(digits[3])}${getDigit(digits[4])}${getDigit(digits[5])}`) || 0;
+            return integerPart + (decimalPart / 1000);
+        }
+
+        function checkAnswer() {
+            const playerResult = convertToNumber(results);
+            const minuendValue = convertToNumber(minuends);
+            const subtrahendValue = convertToNumber(subtrahends);
+            const correctResult = parseFloat((minuendValue - subtrahendValue).toFixed(3));
+
+            const messageBox = document.getElementById('message');
+            if (Math.abs(playerResult - correctResult) < 0.0001) {
+                messageBox.textContent = 'رائع! إجابتك صحيحة! 🌟';
+                messageBox.className = 'message success';
+            } else {
+                messageBox.textContent = `إجابة خاطئة! الجواب الصحيح هو: ${correctResult}`;
+                messageBox.className = 'message error';
+            }
+        }
+
+        function startGame() {
+            generateRandomNumbers();
+            results = ['', '', '.', '', '', ''];
+            createRow('place-row', places);
+            createRow('minuend-row', minuends);
+            createRow('subtrahend-row', subtrahends);
+            createRow('result-row', results, true);
+            document.getElementById('message').textContent = '';
+        }
+
+        window.onload = startGame;
+    </script>
+</body>
+</html>

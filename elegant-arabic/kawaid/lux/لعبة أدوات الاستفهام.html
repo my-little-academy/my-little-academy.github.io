@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>لعبة أدوات الاستفهام</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@600&display=swap');
+
+  body {
+    margin: 0;
+    font-family: 'Cairo', sans-serif;
+    background: linear-gradient(135deg, #a8edea, #fed6e3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    direction: rtl;
+  }
+
+  .game-container {
+    background: #fff;
+    padding: 25px 30px;
+    border-radius: 20px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    width: 380px;
+    text-align: center;
+  }
+
+  h1 {
+    color: #ff4081;
+    margin-bottom: 20px;
+  }
+
+  .question {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    min-height: 60px;
+    color: #333;
+  }
+
+  .options {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+
+  button.option-btn {
+    background: #ff80ab;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    flex: 1 1 100px;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 4px 8px #ff80abaa;
+  }
+  button.option-btn:hover {
+    background: #f50057;
+  }
+  button.option-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .feedback {
+    font-size: 1.2rem;
+    min-height: 40px;
+    margin-bottom: 15px;
+    font-weight: 700;
+  }
+  .correct {
+    color: #388e3c;
+  }
+  .incorrect {
+    color: #d32f2f;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 15px;
+    background: #eee;
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 15px;
+  }
+  .progress {
+    height: 100%;
+    background: #ff4081;
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+
+  .restart-btn {
+    padding: 12px 25px;
+    background: #1976d2;
+    border: none;
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    border-radius: 12px;
+    cursor: pointer;
+    display: none;
+    margin-top: 10px;
+    box-shadow: 0 5px 15px #1976d266;
+  }
+  .restart-btn:hover {
+    background: #0d47a1;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="game-container" role="main" aria-label="لعبة أدوات الاستفهام التعليمية">
+
+  <h1>لعبة أدوات الاستفهام</h1>
+
+  <div class="progress-bar" aria-hidden="true">
+    <div class="progress"></div>
+  </div>
+
+  <div class="question" id="question" aria-live="polite"></div>
+
+  <div class="options" id="options" role="list"></div>
+
+  <div class="feedback" id="feedback" aria-live="assertive"></div>
+
+  <button class="restart-btn" id="restartBtn" aria-label="إعادة بدء اللعبة">إعادة اللعب</button>
+
+</div>
+
+<script>
+  // بيانات الأسئلة: كل سؤال مع الإجابة الصحيحة والخيارات
+  const questions = [
+    {
+      question: "_____ تذهب إلى المدرسة؟",
+      correct: "متى",
+      options: ["من", "ماذا", "متى", "كيف"]
+    },
+    {
+      question: "_____ اسمك؟",
+      correct: "ما",
+      options: ["كم", "ما", "لماذا", "من"]
+    },
+    {
+      question: "_____ هذا؟",
+      correct: "من",
+      options: ["كيف", "من", "أين", "ماذا"]
+    },
+    {
+      question: "_____ تحب الفواكه؟",
+      correct: "هل",
+      options: ["هل", "لماذا", "متى", "ما"]
+    },
+    {
+      question: "_____ تدرس؟",
+      correct: "أين",
+      options: ["أين", "من", "متى", "كم"]
+    },
+    {
+      question: "_____ عدد إخوتك؟",
+      correct: "كم",
+      options: ["ما", "كم", "لماذا", "هل"]
+    },
+    {
+      question: "_____ تأكل التفاح؟",
+      correct: "لماذا",
+      options: ["كيف", "متى", "لماذا", "من"]
+    }
+  ];
+
+  let currentIndex = 0;
+  const totalQuestions = questions.length;
+
+  const questionEl = document.getElementById("question");
+  const optionsEl = document.getElementById("options");
+  const feedbackEl = document.getElementById("feedback");
+  const progressBar = document.querySelector(".progress");
+  const restartBtn = document.getElementById("restartBtn");
+
+  // تهيئة عرض السؤال
+  function showQuestion() {
+    const current = questions[currentIndex];
+    questionEl.textContent = current.question;
+    feedbackEl.textContent = "";
+    optionsEl.innerHTML = "";
+
+    // عرض الخيارات بشكل عشوائي لتفادي الترتيب الثابت
+    const shuffledOptions = current.options
+      .map(value => ({ value, sort: Math.random() }))
+      .sort((a, b) => a.sort - b.sort)
+      .map(({value}) => value);
+
+    shuffledOptions.forEach(option => {
+      const btn = document.createElement("button");
+      btn.classList.add("option-btn");
+      btn.textContent = option;
+      btn.setAttribute("role", "listitem");
+      btn.addEventListener("click", () => selectAnswer(option));
+      optionsEl.appendChild(btn);
+    });
+
+    // تحديث شريط التقدم
+    progressBar.style.width = `${(currentIndex / totalQuestions) * 100}%`;
+  }
+
+  // عند اختيار إجابة
+  function selectAnswer(selected) {
+    const current = questions[currentIndex];
+    const buttons = optionsEl.querySelectorAll("button");
+
+    // تعطيل جميع الأزرار بعد الاختيار
+    buttons.forEach(b => b.disabled = true);
+
+    if (selected === current.correct) {
+      feedbackEl.textContent = "إجابة صحيحة! أحسنت 😊";
+      feedbackEl.className = "feedback correct";
+
+      // تقدم للسؤال التالي بعد 1.5 ثانية
+      setTimeout(() => {
+        currentIndex++;
+        if (currentIndex < totalQuestions) {
+          showQuestion();
+        } else {
+          endGame();
+        }
+      }, 1500);
+    } else {
+      feedbackEl.textContent = "خطأ، حاول مرة أخرى.";
+      feedbackEl.className = "feedback incorrect";
+
+      // إعادة تفعيل الأزرار بعد 1.2 ثانية
+      setTimeout(() => {
+        feedbackEl.textContent = "";
+        buttons.forEach(b => b.disabled = false);
+      }, 1200);
+    }
+  }
+
+  // نهاية اللعبة
+  function endGame() {
+    questionEl.textContent = "🎉 لقد أكملت اللعبة بنجاح! 🎉";
+    optionsEl.innerHTML = "";
+    feedbackEl.textContent = "";
+    progressBar.style.width = "100%";
+    restartBtn.style.display = "inline-block";
+  }
+
+  // إعادة التشغيل
+  restartBtn.addEventListener("click", () => {
+    currentIndex = 0;
+    restartBtn.style.display = "none";
+    showQuestion();
+  });
+
+  // بدء اللعبة
+  showQuestion();
+</script>
+
+</body>
+</html>

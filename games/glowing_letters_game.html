@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الحروف المتوهجة</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Amiri', serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #667eea 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .stars-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.3; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 900px;
+            width: 95%;
+            border: 2px solid rgba(255,255,255,0.2);
+            position: relative;
+            z-index: 10;
+        }
+
+        h1 {
+            color: #ffffff;
+            font-size: 3rem;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(255,255,255,0.5);
+            animation: titleGlow 3s infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            0% { text-shadow: 0 0 20px rgba(255,255,255,0.5); }
+            100% { text-shadow: 0 0 30px rgba(255,255,255,0.8), 0 0 40px rgba(102, 126, 234, 0.5); }
+        }
+
+        .letters-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 15px;
+            margin: 40px 0;
+            padding: 30px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .letter {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: rgba(255,255,255,0.7);
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: default;
+        }
+
+        .letter::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .letter:hover::before {
+            left: 100%;
+        }
+
+        .letter.glowing {
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1, #f9ca24, #6c5ce7);
+            background-size: 300% 300%;
+            animation: gradientShift 2s ease-in-out infinite, letterGlow 1.5s ease-in-out infinite, letterPulse 1s ease-in-out infinite;
+            color: white;
+            text-shadow: 0 0 20px rgba(255,255,255,0.8);
+            border: 3px solid rgba(255,255,255,0.8);
+            box-shadow: 
+                0 0 30px rgba(255, 107, 107, 0.6),
+                0 0 60px rgba(78, 205, 196, 0.4),
+                0 0 90px rgba(69, 183, 209, 0.3);
+            transform: scale(1.2);
+            z-index: 100;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes letterGlow {
+            0% { box-shadow: 0 0 20px rgba(255, 107, 107, 0.6), 0 0 40px rgba(78, 205, 196, 0.4); }
+            25% { box-shadow: 0 0 30px rgba(78, 205, 196, 0.6), 0 0 50px rgba(69, 183, 209, 0.4); }
+            50% { box-shadow: 0 0 40px rgba(69, 183, 209, 0.6), 0 0 60px rgba(249, 202, 36, 0.4); }
+            75% { box-shadow: 0 0 35px rgba(249, 202, 36, 0.6), 0 0 55px rgba(108, 92, 231, 0.4); }
+            100% { box-shadow: 0 0 25px rgba(108, 92, 231, 0.6), 0 0 45px rgba(255, 107, 107, 0.4); }
+        }
+
+        @keyframes letterPulse {
+            0%, 100% { transform: scale(1.2); }
+            50% { transform: scale(1.3); }
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            color: white;
+            border: none;
+            padding: 18px 35px;
+            border-radius: 50px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 35px rgba(255, 107, 107, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .btn.reset-btn {
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            box-shadow: 0 8px 25px rgba(108, 92, 231, 0.4);
+        }
+
+        .btn.reset-btn:hover {
+            box-shadow: 0 12px 35px rgba(108, 92, 231, 0.6);
+        }
+
+        .result-display {
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            font-weight: bold;
+        }
+
+        .result-display.show-result {
+            animation: resultAppear 0.8s ease-out;
+        }
+
+        @keyframes resultAppear {
+            0% {
+                opacity: 0;
+                transform: translateY(30px) scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            gap: 20px;
+        }
+
+        .stat-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px 20px;
+            border-radius: 15px;
+            color: white;
+            font-weight: bold;
+            flex: 1;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            animation: particleFloat 3s ease-out infinite;
+        }
+
+        @keyframes particleFloat {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--random-x), var(--random-y)) scale(0);
+            }
+        }
+
+        .magic-sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            animation: sparkle 1s ease-out forwards;
+        }
+
+        @keyframes sparkle {
+            0% {
+                opacity: 0;
+                transform: scale(0) rotate(0deg);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.5) rotate(180deg);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0) rotate(360deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .letters-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+            }
+            
+            .letter {
+                width: 60px;
+                height: 60px;
+                font-size: 2rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars-bg" id="starsBg"></div>
+    <div class="particles" id="particles"></div>
+    
+    <div class="game-container">
+        <h1>✨ لعبة الحروف المتوهجة ✨</h1>
+        
+        <div class="result-display" id="resultDisplay">
+            اضغط على "أظهر الحرف" لرؤية الحرف المتوهج!
+        </div>
+        
+        <div class="letters-grid" id="lettersGrid">
+            <!-- سيتم إنشاء الحروف هنا بـ JavaScript -->
+        </div>
+        
+        <div class="controls">
+            <button class="btn" id="showLetterBtn" onclick="showRandomLetter()">
+                🌟 أظهر الحرف 🌟
+            </button>
+            <button class="btn reset-btn" id="resetBtn" onclick="resetGame()">
+                🔄 لعبة جديدة 🔄
+            </button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                عدد المحاولات: <span id="attempts">0</span>
+            </div>
+            <div class="stat-item">
+                الحرف الحالي: <span id="currentLetter">---</span>
+            </div>
+            <div class="stat-item">
+                الحروف المعروضة: <span id="lettersShown">0</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const arabicLetters = [
+            'ا', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 
+            'ز', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 
+            'ق', 'ك', 'ل', 'م', 'ن', 'ه', 'و', 'ي'
+        ];
+
+        let attempts = 0;
+        let lettersShown = 0;
+        let currentGlowingLetter = null;
+        let usedLetters = [];
+
+        function initializeGame() {
+            createStars();
+            createLettersGrid();
+            updateStats();
+        }
+
+        function createStars() {
+            const starsBg = document.getElementById('starsBg');
+            starsBg.innerHTML = '';
+            
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = star.style.height = (Math.random() * 3 + 1) + 'px';
+                star.style.animationDelay = Math.random() * 2 + 's';
+                star.style.animationDuration = (2 + Math.random() * 2) + 's';
+                starsBg.appendChild(star);
+            }
+        }
+
+        function createLettersGrid() {
+            const grid = document.getElementById('lettersGrid');
+            grid.innerHTML = '';
+            
+            // إنشاء نسخة مخلوطة من الحروف لملء الشبكة
+            let gridLetters = [...arabicLetters];
+            
+            // إضافة المزيد من الحروف لملء 28 مكان (4x7)
+            while (gridLetters.length < 28) {
+                gridLetters = gridLetters.concat(arabicLetters.slice(0, 28 - gridLetters.length));
+            }
+            
+            // خلط الحروف
+            gridLetters = shuffleArray(gridLetters.slice(0, 28));
+            
+            gridLetters.forEach((letter, index) => {
+                const letterDiv = document.createElement('div');
+                letterDiv.className = 'letter';
+                letterDiv.textContent = letter;
+                letterDiv.id = `letter-${index}`;
+                letterDiv.dataset.letter = letter;
+                grid.appendChild(letterDiv);
+            });
+        }
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function showRandomLetter() {
+            const showBtn = document.getElementById('showLetterBtn');
+            const resultDisplay = document.getElementById('resultDisplay');
+            
+            // إزالة التوهج من الحرف السابق
+            if (currentGlowingLetter) {
+                currentGlowingLetter.classList.remove('glowing');
+            }
+            
+            // تعطيل الزر مؤقتاً
+            showBtn.disabled = true;
+            showBtn.textContent = '⏳ جاري الاختيار... ⏳';
+            
+            setTimeout(() => {
+                // اختيار حرف عشوائي من الشبكة
+                const letterElements = document.querySelectorAll('.letter');
+                const randomIndex = Math.floor(Math.random() * letterElements.length);
+                const selectedLetterElement = letterElements[randomIndex];
+                const selectedLetter = selectedLetterElement.dataset.letter;
+                
+                // جعل الحرف متوهجاً
+                selectedLetterElement.classList.add('glowing');
+                currentGlowingLetter = selectedLetterElement;
+                
+                // تحديث النتيجة
+                resultDisplay.innerHTML = `🎯 الحرف المختار: <strong style="font-size: 2rem; color: #ff6b6b;">${selectedLetter}</strong> 🎯`;
+                resultDisplay.classList.add('show-result');
+                
+                // إنشاء تأثيرات بصرية
+                createMagicEffect(selectedLetterElement);
+                createParticleExplosion();
+                
+                // تحديث الإحصائيات
+                attempts++;
+                lettersShown++;
+                document.getElementById('currentLetter').textContent = selectedLetter;
+                updateStats();
+                
+                // إعادة تفعيل الزر
+                showBtn.disabled = false;
+                showBtn.textContent = '🌟 أظهر حرف آخر 🌟';
+                
+                setTimeout(() => {
+                    resultDisplay.classList.remove('show-result');
+                }, 3000);
+                
+            }, 1000);
+        }
+
+        function createMagicEffect(element) {
+            const rect = element.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'magic-sparkle';
+                    sparkle.style.left = (centerX + (Math.random() - 0.5) * 200) + 'px';
+                    sparkle.style.top = (centerY + (Math.random() - 0.5) * 200) + 'px';
+                    document.body.appendChild(sparkle);
+                    
+                    setTimeout(() => {
+                        if (sparkle.parentNode) {
+                            sparkle.parentNode.removeChild(sparkle);
+                        }
+                    }, 1000);
+                }, i * 50);
+            }
+        }
+
+        function createParticleExplosion() {
+            const particlesContainer = document.getElementById('particles');
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7', '#ff7675'];
+            
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.top = Math.random() * 100 + '%';
+                    particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    particle.style.setProperty('--random-x', (Math.random() - 0.5) * 400 + 'px');
+                    particle.style.setProperty('--random-y', (Math.random() - 0.5) * 400 + 'px');
+                    
+                    particlesContainer.appendChild(particle);
+                    
+                    setTimeout(() => {
+                        if (particle.parentNode) {
+                            particle.parentNode.removeChild(particle);
+                        }
+                    }, 3000);
+                }, Math.random() * 500);
+            }
+        }
+
+        function resetGame() {
+            // إزالة التوهج
+            if (currentGlowingLetter) {
+                currentGlowingLetter.classList.remove('glowing');
+                currentGlowingLetter = null;
+            }
+            
+            // إعادة تعيين الإحصائيات
+            attempts = 0;
+            lettersShown = 0;
+            usedLetters = [];
+            
+            // إعادة إنشاء الشبكة
+            createLettersGrid();
+            
+            // إعادة تعيين النتيجة
+            const resultDisplay = document.getElementById('resultDisplay');
+            resultDisplay.innerHTML = 'اضغط على "أظهر الحرف" لرؤية الحرف المتوهج!';
+            resultDisplay.classList.remove('show-result');
+            
+            // تحديث الإحصائيات
+            document.getElementById('currentLetter').textContent = '---';
+            updateStats();
+            
+            // تأثير بصري للإعادة
+            createResetEffect();
+        }
+
+        function createResetEffect() {
+            const letters = document.querySelectorAll('.letter');
+            letters.forEach((letter, index) => {
+                setTimeout(() => {
+                    letter.style.animation = 'none';
+                    letter.offsetHeight; // trigger reflow
+                    letter.style.animation = 'fadeInUp 0.5s ease-out forwards';
+                }, index * 50);
+            });
+        }
+
+        function updateStats() {
+            document.getElementById('attempts').textContent = attempts;
+            document.getElementById('lettersShown').textContent = lettersShown;
+        }
+
+        // إضافة تأثير fadeInUp
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInUp {
+                0% {
+                    opacity: 0;
+                    transform: translateY(30px) scale(0.8);
+                }
+                100% {
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // تهيئة اللعبة عند تحميل الصفحة
+        initializeGame();
+
+        // إضافة تأثيرات إضافية كل فترة
+        setInterval(() => {
+            if (Math.random() < 0.3) {
+                createRandomSparkle();
+            }
+        }, 2000);
+
+        function createRandomSparkle() {
+            const sparkle = document.createElement('div');
+            sparkle.className = 'magic-sparkle';
+            sparkle.style.left = Math.random() * 100 + '%';
+            sparkle.style.top = Math.random() * 100 + '%';
+            sparkle.style.zIndex = '1001';
+            document.body.appendChild(sparkle);
+            
+            setTimeout(() => {
+                if (sparkle.parentNode) {
+                    sparkle.parentNode.removeChild(sparkle);
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الطرح العشري التفاعلي</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f9ff;
+            text-align: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #4a6baf;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        
+        .math-problem {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin: 20px auto;
+            width: fit-content;
+        }
+        
+        .math-row {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 5px;
+        }
+        
+        .card {
+            width: 65px;
+            height: 85px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            font-weight: bold;
+            border-radius: 8px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .decimal-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #6c757d;
+            color: #495057;
+        }
+        
+        .top-card {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 2px solid #4a6baf;
+            color: #2c3e6b;
+        }
+        
+        .bottom-card {
+            background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+            border: 2px solid #757575;
+            color: #424242;
+        }
+        
+        .result-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #adb5bd;
+            cursor: pointer;
+        }
+        
+        .result-card.selected {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 2px solid #4a6baf;
+            transform: translateY(-5px);
+        }
+        
+        .borrow-hint {
+            position: absolute;
+            top: -15px;
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #FFD54F 0%, #FFB300 100%);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 2;
+            border: 2px solid #FFA000;
+        }
+        
+        .line {
+            height: 2px;
+            background: linear-gradient(to right, transparent 0%, #333 50%, transparent 100%);
+            margin: 5px 0;
+        }
+        
+        .buttons {
+            margin-top: 25px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .check-btn {
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            color: white;
+        }
+        
+        .new-btn {
+            background: linear-gradient(135deg, #17a2b8 0%, #117a8b 100%);
+            color: white;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 15px;
+            display: none;
+        }
+        
+        .success {
+            background: linear-gradient(135deg, #d4edda 0%, #a7d7b8 100%);
+            color: #155724;
+            display: block;
+        }
+        
+        .error {
+            background: linear-gradient(135deg, #f8d7da 0%, #e9b7bf 100%);
+            color: #721c24;
+            display: block;
+        }
+        
+        .place-value {
+            font-size: 14px;
+            color: #555;
+            padding: 6px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 لعبة الطرح العشري (الفاصلة تحت الفاصلة) 🎮</h1>
+        
+        <div class="math-problem" id="mathProblem"></div>
+        
+        <div class="message" id="message"></div>
+        
+        <div class="buttons">
+            <button class="check-btn" id="checkBtn">✅ تحقق من الإجابة</button>
+            <button class="new-btn" id="newBtn">🔄 مسألة جديدة</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mathProblem = document.getElementById('mathProblem');
+            const checkBtn = document.getElementById('checkBtn');
+            const newBtn = document.getElementById('newBtn');
+            const message = document.getElementById('message');
+            
+            let topNumber = 0;
+            let bottomNumber = 0;
+            let correctAnswer = 0;
+            let selectedResultPosition = null;
+            let resultValues = [0, 0, 0, 0, '.', 0, 0, 0]; // 4 أعمدة قبل الفاصلة
+            const decimalColumn = 3; // الفاصلة في العمود الرابع (بعد 3 أعمدة للأجزاء العشرية)
+            let borrowHints = []; // لتخزين أماكن الاستلاف
+            
+            function createNewProblem() {
+                // إنشاء عددين عشريين عشوائيين (4 أرقام صحيحة كحد أقصى)
+                topNumber = Math.floor(1000 + Math.random() * 9000) + Math.random();
+                bottomNumber = Math.floor(1000 + Math.random() * 9000) + Math.random();
+                correctAnswer = parseFloat((topNumber - bottomNumber).toFixed(3));
+                
+                // تقليل الأرقام إذا كانت أكبر من 4 أرقام صحيحة
+                while (Math.floor(topNumber).toString().length > 4 || 
+                       Math.floor(bottomNumber).toString().length > 4) {
+                    topNumber = Math.floor(1000 + Math.random() * 9000) + Math.random();
+                    bottomNumber = Math.floor(1000 + Math.random() * 9000) + Math.random();
+                    correctAnswer = parseFloat((topNumber - bottomNumber).toFixed(3));
+                }
+                
+                resultValues = [0, 0, 0, 0, '.', 0, 0, 0];
+                selectedResultPosition = null;
+                calculateBorrowHints();
+                displayProblem();
+                message.style.display = 'none';
+            }
+            
+            function calculateBorrowHints() {
+                borrowHints = [];
+                const topStr = topNumber.toString().split('.');
+                const bottomStr = bottomNumber.toString().split('.');
+                
+                const topInt = topStr[0].padStart(4, '0');
+                const bottomInt = bottomStr[0].padStart(4, '0');
+                const topDec = (topStr[1] || '000').padEnd(3, '0').slice(0, 3);
+                const bottomDec = (bottomStr[1] || '000').padEnd(3, '0').slice(0, 3);
+                
+                // حساب الاستلاف للأجزاء العشرية (المواضع 0-2)
+                for (let i = 2; i >= 0; i--) {
+                    const topDigit = parseInt(topDec[i] || '0');
+                    const bottomDigit = parseInt(bottomDec[i] || '0');
+                    
+                    if (topDigit < bottomDigit) {
+                        borrowHints.push(i); // إضافة موضع الاستلاف
+                    }
+                }
+                
+                // حساب الاستلاف للأجزاء الصحيحة (المواضع 4-7)
+                for (let i = 3; i >= 0; i--) {
+                    const topDigit = parseInt(topInt[i] || '0');
+                    const bottomDigit = parseInt(bottomInt[i] || '0');
+                    
+                    if (topDigit < bottomDigit) {
+                        borrowHints.push(i + 4); // إضافة موضع الاستلاف (بعد الفاصلة)
+                    }
+                }
+            }
+            
+            function displayProblem() {
+                mathProblem.innerHTML = '';
+                
+                // إنشاء ترويسة الأعمدة
+                const headerRow = document.createElement('div');
+                headerRow.className = 'math-row';
+                
+                const placeNames = ['جزء من ألف', 'جزء من مئة', 'جزء من عشرة', 'الفاصلة', 'الآحاد', 'العشرات', 'المئات', 'الآلاف'];
+                
+                placeNames.forEach(name => {
+                    const placeValue = document.createElement('div');
+                    placeValue.className = 'place-value';
+                    placeValue.textContent = name;
+                    headerRow.appendChild(placeValue);
+                });
+                
+                mathProblem.appendChild(headerRow);
+                
+                // السطر العلوي (الرقم الأول)
+                const topRow = document.createElement('div');
+                topRow.className = 'math-row';
+                fillNumberRow(topRow, topNumber, 'top-card');
+                mathProblem.appendChild(topRow);
+                
+                // السطر الأوسط (الرقم الثاني)
+                const bottomRow = document.createElement('div');
+                bottomRow.className = 'math-row';
+                fillNumberRow(bottomRow, bottomNumber, 'bottom-card');
+                mathProblem.appendChild(bottomRow);
+                
+                // الخط الفاصل
+                const line = document.createElement('div');
+                line.className = 'line';
+                mathProblem.appendChild(line);
+                
+                // سطر النتيجة
+                const resultRow = document.createElement('div');
+                resultRow.className = 'math-row';
+                
+                for (let i = 0; i < 8; i++) {
+                    if (i === decimalColumn) {
+                        const decimalCard = document.createElement('div');
+                        decimalCard.className = 'card decimal-card';
+                        decimalCard.textContent = '.';
+                        resultRow.appendChild(decimalCard);
+                        continue;
+                    }
+                    
+                    const card = document.createElement('div');
+                    card.className = 'card result-card';
+                    
+                    if (i === selectedResultPosition) {
+                        card.classList.add('selected');
+                    }
+                    
+                    card.textContent = resultValues[i];
+                    card.onclick = function() {
+                        selectResultPosition(i);
+                    };
+                    
+                    // إضافة دوائر الاستلاف إذا كانت موجودة في هذا الموضع
+                    if (borrowHints.includes(i)) {
+                        const borrowCircle = document.createElement('div');
+                        borrowCircle.className = 'borrow-hint';
+                        borrowCircle.textContent = '1';
+                        borrowCircle.title = 'يجب استلاف 1 من الخانة التالية';
+                        card.appendChild(borrowCircle);
+                    }
+                    
+                    resultRow.appendChild(card);
+                }
+                mathProblem.appendChild(resultRow);
+            }
+            
+            function fillNumberRow(row, number, cardClass) {
+                const numStr = number.toString();
+                const parts = numStr.split('.');
+                const integerPart = parts[0].padStart(4, '0').slice(-4); // تأكد من 4 أرقام صحيحة
+                const decimalPart = (parts[1] || '000').padEnd(3, '0').slice(0, 3); // تأكد من 3 أرقام عشرية
+                
+                // إضافة الأرقام العشرية (3 أرقام) - تظهر أولاً من اليمين
+                for (let i = 2; i >= 0; i--) {
+                    const card = document.createElement('div');
+                    card.className = `card ${cardClass}`;
+                    card.textContent = decimalPart[i];
+                    row.appendChild(card);
+                }
+                
+                // إضافة الفاصلة
+                const decimalCard = document.createElement('div');
+                decimalCard.className = `card decimal-card ${cardClass}`;
+                decimalCard.textContent = '.';
+                row.appendChild(decimalCard);
+                
+                // إضافة الأرقام الصحيحة (4 أرقام) - من اليمين إلى اليسار
+                for (let i = 3; i >= 0; i--) {
+                    const card = document.createElement('div');
+                    card.className = `card ${cardClass}`;
+                    card.textContent = integerPart[i];
+                    row.appendChild(card);
+                }
+            }
+            
+            function selectResultPosition(position) {
+                if (position === decimalColumn) return; // تخطي الفاصلة
+                
+                if (selectedResultPosition !== null) {
+                    const prevCards = document.querySelectorAll('.result-card');
+                    prevCards.forEach(card => card.classList.remove('selected'));
+                }
+                
+                selectedResultPosition = position;
+                const cards = document.querySelectorAll('.result-card');
+                cards.forEach((card, index) => {
+                    if (index === position) {
+                        card.classList.add('selected');
+                    }
+                });
+            }
+            
+            function checkAnswer() {
+                // تجميع الأجزاء العشرية (الموجودة في المواضع 0-2)
+                const decimalPart = resultValues.slice(0, 3).reverse().join('');
+                
+                // تجميع الأجزاء الصحيحة (الموجودة في المواضع 4-7)
+                const integerPart = resultValues.slice(4, 8).reverse().join('');
+                
+                const userAnswer = parseFloat(integerPart + '.' + decimalPart);
+                
+                if (Math.abs(userAnswer - correctAnswer) < 0.0001) {
+                    message.textContent = '🎉 إجابة صحيحة! أحسنت!';
+                    message.className = 'message success';
+                } else {
+                    message.textContent = `❌ إجابة خاطئة! الإجابة الصحيحة هي ${correctAnswer}`;
+                    message.className = 'message error';
+                }
+                message.style.display = 'block';
+            }
+            
+            document.addEventListener('keydown', function(e) {
+                if (selectedResultPosition !== null) {
+                    if (e.key === 'ArrowUp') {
+                        resultValues[selectedResultPosition] = (resultValues[selectedResultPosition] + 1) % 10;
+                    } else if (e.key === 'ArrowDown') {
+                        resultValues[selectedResultPosition] = (resultValues[selectedResultPosition] - 1 + 10) % 10;
+                    } else if (e.key >= '0' && e.key <= '9') {
+                        resultValues[selectedResultPosition] = parseInt(e.key);
+                    }
+                    displayProblem();
+                }
+            });
+            
+            newBtn.addEventListener('click', createNewProblem);
+            checkBtn.addEventListener('click', checkAnswer);
+            
+            createNewProblem();
+        });
+    </script>
+</body>
+</html>

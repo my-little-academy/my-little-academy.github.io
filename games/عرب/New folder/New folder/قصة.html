@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رحلة الإيمان في السيرة النبوية</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #1a3a8f 0%, #0d1b3e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            padding: 30px;
+            max-width: 950px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .game-title {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            font-weight: 900;
+            background: linear-gradient(to right, #1a5e3e, #2e7d32);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .board {
+            width: 650px;
+            height: 650px;
+            margin: 0 auto 30px;
+            position: relative;
+            background: #f5f5f5;
+            border: 4px solid #2c3e50;
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+
+        .property {
+            position: absolute;
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            border: 2px solid #34495e;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+            color: #333;
+            z-index: 5;
+        }
+
+        .property:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+
+        .property-icon {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .property.discovered-1 {
+            background: linear-gradient(145deg, #1abc9c, #16a085);
+            color: white;
+            box-shadow: 0 3px 8px rgba(26, 188, 156, 0.3);
+        }
+
+        .property.discovered-2 {
+            background: linear-gradient(145deg, #f39c12, #e67e22);
+            color: white;
+            box-shadow: 0 3px 8px rgba(243, 156, 18, 0.3);
+        }
+
+        .corner {
+            width: 90px;
+            height: 90px;
+            font-size: 10px;
+            background: linear-gradient(145deg, #34495e, #2c3e50);
+            color: white;
+            z-index: 8;
+        }
+
+        .side {
+            width: 80px;
+            height: 60px;
+            font-size: 10px;
+        }
+
+        /* مواضع الخصائص */
+        /* الصف السفلي (من اليمين إلى اليسار) */
+        .start { top: 560px; right: 560px; }
+        .prop1 { top: 560px; right: 480px; }
+        .prop2 { top: 560px; right: 400px; }
+        .prop3 { top: 560px; right: 320px; }
+        .prop4 { top: 560px; right: 240px; }
+        .prop5 { top: 560px; right: 160px; }
+        .prop6 { top: 560px; right: 80px; }
+        .jail { top: 560px; right: 0px; }
+        
+        /* الصف الأيمن (من الأسفل إلى الأعلى) */
+        .prop7 { top: 500px; right: 0px; }
+        .prop8 { top: 440px; right: 0px; }
+        .prop9 { top: 380px; right: 0px; }
+        .prop10 { top: 320px; right: 0px; }
+        .prop11 { top: 260px; right: 0px; }
+        .prop12 { top: 200px; right: 0px; }
+        .parking { top: 0px; right: 0px; }
+        
+        /* الصف العلوي (من اليمين إلى اليسار) */
+        .prop13 { top: 0px; right: 80px; }
+        .prop14 { top: 0px; right: 160px; }
+        .prop15 { top: 0px; right: 240px; }
+        .prop16 { top: 0px; right: 320px; }
+        .prop17 { top: 0px; right: 400px; }
+        .prop18 { top: 0px; right: 480px; }
+        .go-jail { top: 0px; right: 560px; }
+        
+        /* الصف الأيسر (من الأعلى إلى الأسفل) */
+        .prop19 { top: 200px; right: 560px; }
+        .prop20 { top: 260px; right: 560px; }
+        .prop21 { top: 320px; right: 560px; }
+        .prop22 { top: 380px; right: 560px; }
+        .prop23 { top: 440px; right: 560px; }
+        .prop24 { top: 500px; right: 560px; }
+
+        .player {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+            transition: all 0.7s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .player1 {
+            background: #1abc9c;
+            transform: translate(-35px, 10px);
+        }
+
+        .player2 {
+            background: #f39c12;
+            transform: translate(-10px, 10px);
+        }
+
+        .center-area {
+            position: absolute;
+            top: 130px;
+            right: 130px;
+            width: 390px;
+            height: 390px;
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            box-shadow: inset 0 8px 20px rgba(0, 0, 0, 0.3);
+            border: 4px solid #1a3a8f;
+            z-index: 1;
+        }
+
+        .center-logo {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5);
+            background: linear-gradient(to right, #fff, #e0f7fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            gap: 25px;
+        }
+
+        .player-info {
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            flex: 1;
+            text-align: center;
+            border: 3px solid;
+            transition: all 0.3s ease;
+        }
+
+        .player-info.player1 {
+            border-color: #1abc9c;
+        }
+
+        .player-info.player2 {
+            border-color: #f39c12;
+        }
+
+        .player-info.current-player {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .player-info h3 {
+            margin-bottom: 15px;
+            font-size: 1.4em;
+            color: #2c3e50;
+        }
+
+        .player-info p {
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .controls {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            background: linear-gradient(145deg, #1abc9c, #16a085);
+            color: white;
+            border: none;
+            padding: 16px 35px;
+            border-radius: 30px;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 0 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(45deg);
+            transition: all 0.5s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+        }
+
+        .btn:hover::after {
+            left: 100%;
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+            background: #95a5a6;
+        }
+
+        .btn.danger {
+            background: linear-gradient(145deg, #e74c3c, #c0392b);
+        }
+
+        .btn.secondary {
+            background: linear-gradient(145deg, #3498db, #2980b9);
+        }
+
+        .dice-area {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .dice {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            border: 3px solid #2c3e50;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+            color: #2c3e50;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+            transition: transform 0.2s ease;
+        }
+
+        .dice.rolling {
+            animation: roll 0.7s ease-in-out;
+        }
+
+        @keyframes roll {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            20% { transform: rotate(90deg) scale(1.1); }
+            40% { transform: rotate(180deg) scale(0.9); }
+            60% { transform: rotate(270deg) scale(1.1); }
+            80% { transform: rotate(360deg) scale(0.95); }
+        }
+
+        .log {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 18px;
+            max-height: 220px;
+            overflow-y: auto;
+            box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.1);
+            direction: rtl;
+            text-align: right;
+            border: 2px solid #e0e0e0;
+        }
+
+        .log-entry {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 15px;
+            transition: all 0.2s ease;
+        }
+
+        .log-entry:hover {
+            background-color: #f9f9f9;
+        }
+
+        .log-entry strong {
+            color: #2c3e50;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            direction: rtl;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 18px;
+            width: 85%;
+            max-width: 550px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            animation: slideIn 0.4s ease;
+            position: relative;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-content h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+        }
+
+        .modal-content p {
+            margin-bottom: 20px;
+            font-size: 1.15em;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .question-options {
+            margin: 25px 0;
+        }
+
+        .question-options button {
+            display: block;
+            width: 95%;
+            padding: 15px;
+            margin: 12px auto;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.05em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+        }
+
+        .question-options button:hover {
+            background-color: #2980b9;
+            transform: translateX(-5px);
+        }
+
+        .close {
+            color: #aaa;
+            float: left;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: absolute;
+            left: 20px;
+            top: 15px;
+        }
+
+        .close:hover {
+            color: #e74c3c;
+            transform: rotate(90deg);
+        }
+
+        .current-player {
+            border: 3px solid #f1c40f !important;
+            box-shadow: 0 0 25px rgba(241, 196, 15, 0.6);
+        }
+
+        .property-price {
+            font-size: 9px;
+            color: #7f8c8d;
+            margin-top: 5px;
+            font-weight: normal;
+        }
+
+        .timer {
+            width: 100%;
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .timer-bar {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(to right, #2ecc71, #27ae60);
+            transition: width 0.1s linear;
+        }
+
+        #station-info-modal .modal-content {
+            max-width: 650px;
+            text-align: right;
+            padding: 35px;
+        }
+        
+        #station-info-modal h2 {
+            font-size: 2em;
+            color: #1a5e3e;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        
+        #station-info-modal p {
+            text-align: justify;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        
+        #station-info-modal strong {
+            color: #34495e;
+            font-weight: 700;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .info-value {
+            color: #1a5e3e;
+            font-weight: 500;
+        }
+
+        /* أنيميشن للاعب عند الحركة */
+        @keyframes playerMove {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .player-move {
+            animation: playerMove 0.5s ease;
+        }
+
+        /* تأثيرات صوتية (سيتم التحكم بها عبر JS) */
+        .sound-effects {
+            display: none;
+        }
+
+        /* رسائل التأكيد */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: #f39c12;
+            opacity: 0;
+            z-index: 9999;
+            animation: confetti 3s ease-out;
+        }
+
+        @keyframes confetti {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* ستايل للأسئلة الصعبة */
+        .difficulty-hard {
+            border-left: 5px solid #e74c3c;
+        }
+        
+        .difficulty-medium {
+            border-left: 5px solid #f39c12;
+        }
+        
+        .difficulty-easy {
+            border-left: 5px solid #2ecc71;
+        }
+
+        /* رسائل النجاح/الفشل */
+        .feedback-correct {
+            color: #27ae60 !important;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .feedback-wrong {
+            color: #e74c3c !important;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        /* بطاقات الإنجاز */
+        .achievement-card {
+            background: linear-gradient(135deg, #f1c40f, #f39c12);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.3);
+            display: none;
+        }
+
+        /* التكيف مع الشاشات الصغيرة */
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 15px;
+            }
+            
+            .board {
+                width: 100%;
+                height: auto;
+                aspect-ratio: 1/1;
+            }
+            
+            .property {
+                font-size: 8px;
+            }
+            
+            .center-area {
+                width: 60%;
+                height: 60%;
+                top: 20%;
+                right: 20%;
+            }
+            
+            .controls {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .btn {
+                margin: 5px 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="game-title"><i class="fas fa-mosque"></i> رحلة الإيمان في السيرة النبوية <i class="fas fa-book-quran"></i></h1>
+        
+        <div class="game-info">
+            <div class="player-info player1 current-player" id="player-info-1">
+                <h3><i class="fas fa-user"></i> اللاعب الأول</h3>
+                <p><i class="fas fa-star"></i> نقاط الإيمان: <span id="player1-faithPoints">15000</span> نقطة</p>
+                <p><i class="fas fa-map-marker-alt"></i> محطات مكتشفة: <span id="player1-discoveredStations">0</span></p>
+                <p><i class="fas fa-lock"></i> دور في السجن: <span id="player1-jailTurns">0</span></p>
+                <p><i class="fas fa-trophy"></i> الإنجازات: <span id="player1-achievements">0</span></p>
+            </div>
+            <div class="player-info player2" id="player-info-2">
+                <h3><i class="fas fa-user"></i> اللاعب الثاني</h3>
+                <p><i class="fas fa-star"></i> نقاط الإيمان: <span id="player2-faithPoints">15000</span> نقطة</p>
+                <p><i class="fas fa-map-marker-alt"></i> محطات مكتشفة: <span id="player2-discoveredStations">0</span></p>
+                <p><i class="fas fa-lock"></i> دور في السجن: <span id="player2-jailTurns">0</span></p>
+                <p><i class="fas fa-trophy"></i> الإنجازات: <span id="player2-achievements">0</span></p>
+            </div>
+        </div>
+
+        <div class="board">
+            <div class="property corner start"><i class="fas fa-kaaba"></i><br>البعثة النبوية<br>نور الوحي 2000</div>
+            <div class="property corner jail"><i class="fas fa-lock"></i><br>اختبار الصبر<br>انتظار</div>
+            <div class="property corner parking"><i class="fas fa-spa"></i><br>واحة التأمل<br>استراحة</div>
+            <div class="property corner go-jail"><i class="fas fa-exclamation-triangle"></i><br>وقوع في محنة<br>لـ اختبار الصبر</div>
+
+            <div class="property side prop1" data-id="1"><i class="fas fa-elephant"></i><br>عام الفيل<br><span class="property-price">600 نقطة</span></div>
+            <div class="property side prop2" data-id="2"><i class="fas fa-baby"></i><br>مولد النبوة<br><span class="property-price">600 نقطة</span></div>
+            <div class="property side prop3" data-id="3"><i class="fas fa-heart"></i><br>زواج الرسول ﷺ بخديجة<br><span class="property-price">800 نقطة</span></div>
+            <div class="property side prop4" data-id="4"><i class="fas fa-cube"></i><br>بناء الكعبة<br><span class="property-price">800 نقطة</span></div>
+            <div class="property side prop5" data-id="5"><i class="fas fa-quran"></i><br>بعثة النبي ﷺ<br><span class="property-price">1000 نقطة</span></div>
+            <div class="property side prop6" data-id="6"><i class="fas fa-user-secret"></i><br>السرية بالدعوة<br><span class="property-price">1000 نقطة</span></div>
+
+            <div class="property side prop7" data-id="7"><i class="fas fa-bullhorn"></i><br>جهر بالدعوة<br><span class="property-price">1200 نقطة</span></div>
+            <div class="property side prop8" data-id="8"><i class="fas fa-handshake-slash"></i><br>مقاطعة قريش<br><span class="property-price">1200 نقطة</span></div>
+            <div class="property side prop9" data-id="9"><i class="fas fa-sad-tear"></i><br>عام الحزن<br><span class="property-price">1400 نقطة</span></div>
+            <div class="property side prop10" data-id="10"><i class="fas fa-mountain"></i><br>الإسراء والمعراج<br><span class="property-price">1400 نقطة</span></div>
+            <div class="property side prop11" data-id="11"><i class="fas fa-hands-helping"></i><br>بيعة العقبة الأولى<br><span class="property-price">1600 نقطة</span></div>
+            <div class="property side prop12" data-id="12"><i class="fas fa-hands"></i><br>بيعة العقبة الثانية<br><span class="property-price">1600 نقطة</span></div>
+
+            <div class="property side prop13" data-id="13"><i class="fas fa-walking"></i><br>الهجرة إلى المدينة<br><span class="property-price">1800 نقطة</span></div>
+            <div class="property side prop14" data-id="14"><i class="fas fa-mosque"></i><br>بناء المسجد النبوي<br><span class="property-price">1800 نقطة</span></div>
+            <div class="property side prop15" data-id="15"><i class="fas fa-people-arrows"></i><br>المؤاخاة بين المهاجرين والأنصار<br><span class="property-price">2000 نقطة</span></div>
+            <div class="property side prop16" data-id="16"><i class="fas fa-prayer"></i><br>تشريع الأذان<br><span class="property-price">2000 نقطة</span></div>
+            <div class="property side prop17" data-id="17"><i class="fas fa-shield-alt"></i><br>غزوة بدر الكبرى<br><span class="property-price">2200 نقطة</span></div>
+            <div class="property side prop18" data-id="18"><i class="fas fa-swords"></i><br>غزوة أحد<br><span class="property-price">2200 نقطة</span></div>
+
+            <div class="property side prop19" data-id="19"><i class="fas fa-trench"></i><br>غزوة الخندق<br><span class="property-price">2400 نقطة</span></div>
+            <div class="property side prop20" data-id="20"><i class="fas fa-peace"></i><br>صلح الحديبية<br><span class="property-price">2400 نقطة</span></div>
+            <div class="property side prop21" data-id="21"><i class="fas fa-flag"></i><br>فتح مكة<br><span class="property-price">2600 نقطة</span></div>
+            <div class="property side prop22" data-id="22"><i class="fas fa-kaaba"></i><br>حجة الوداع<br><span class="property-price">2600 نقطة</span></div>
+            <div class="property side prop23" data-id="23"><i class="fas fa-heartbeat"></i><br>وفاة النبي ﷺ<br><span class="property-price">2800 نقطة</span></div>
+            <div class="property side prop24" data-id="24"><i class="fas fa-landmark"></i><br>تأسيس الدولة الإسلامية<br><span class="property-price">2800 نقطة</span></div>
+
+            <div class="center-area">
+                <div class="center-logo">السيرة النبوية</div>
+                <p>رحلة الإيمان</p>
+                <div class="dice-area">
+                    <div class="dice" id="dice">1</div>
+                </div>
+                <p>المجموع: <span id="dice-total">1</span></p>
+                <div id="achievement-display"></div>
+            </div>
+
+            <div class="player player1" id="player1">1</div>
+            <div class="player player2" id="player2">2</div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="roll-dice"><i class="fas fa-dice"></i> ارم النرد</button>
+            <button class="btn danger" id="end-turn" disabled><i class="fas fa-forward"></i> أنهِ الدور</button>
+            <button class="btn secondary" id="reset-game"><i class="fas fa-redo"></i> ابدأ رحلة جديدة</button>
+            <button class="btn" id="sound-toggle"><i class="fas fa-volume-up"></i> الصوت</button>
+        </div>
+
+        <div class="log" id="game-log">
+            <div class="log-entry"><strong><i class="fas fa-info-circle"></i> مرحباً بكم في رحلة الإيمان في السيرة النبوية!</strong></div>
+            <div class="log-entry"><i class="fas fa-user-circle"></i> 🔵 دور اللاعب الأول</div>
+        </div>
+    </div>
+
+    <!-- النوافذ المنبثقة -->
+    <div id="buy-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="property-name-buy"><i class="fas fa-map-marked-alt"></i> اسم المحطة</h2>
+            <p>هل تريد اكتشاف هذه المحطة التاريخية؟</p>
+            <p>القيمة: <span id="property-price-modal">0</span> نقطة إيمان</p>
+            <button class="btn" id="buy-yes"><i class="fas fa-check"></i> اكتشاف</button>
+            <button class="btn danger" id="buy-no"><i class="fas fa-times"></i> تجاهل</button>
+        </div>
+    </div>
+
+    <div id="rent-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2><i class="fas fa-hand-holding-usd"></i> زكاة المعرفة</h2>
+            <p id="rent-message">يجب دفع زكاة معرفة</p>
+            <button class="btn danger" id="pay-rent"><i class="fas fa-coins"></i> ادفع</button>
+        </div>
+    </div>
+
+    <div id="question-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="question-title"><i class="fas fa-question-circle"></i> سؤال المعرفة النبوية</h2>
+            <p id="question-text">نص السؤال هنا؟</p>
+            <div class="timer">
+                <div class="timer-bar" id="question-timer"></div>
+            </div>
+            <div id="question-options" class="question-options"></div>
+            <p id="question-feedback"></p>
+            <div id="achievement-card" class="achievement-card" style="display: none;">
+                <h3><i class="fas fa-trophy"></i> إنجاز جديد!</h3>
+                <p id="achievement-text"></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="station-info-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-station-info-modal">&times;</span>
+            <h2 id="info-station-name"><i class="fas fa-info-circle"></i> اسم المحطة</h2>
+            <p id="info-station-description">وصف المحطة هنا.</p>
+            
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-coins"></i> قيمة الاكتشاف:</span>
+                <span class="info-value" id="info-discovery-value">0 نقطة إيمان</span>
+            </div>
+            
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-hand-holding-usd

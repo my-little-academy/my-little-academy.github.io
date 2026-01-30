@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة البحث عن الاختلافات</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .score, .timer, .found-counter {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .game-area {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .image-container {
+            position: relative;
+            border: 3px solid #333;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .image-container:hover {
+            transform: scale(1.02);
+        }
+
+        .game-image {
+            width: 400px;
+            height: 300px;
+            cursor: crosshair;
+            display: block;
+        }
+
+        .difference-marker {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #ff4757;
+            border-radius: 50%;
+            background: rgba(255, 71, 87, 0.3);
+            pointer-events: none;
+            animation: pulse 1s infinite;
+            display: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .message {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .success {
+            color: #27ae60;
+            animation: bounce 0.5s ease;
+        }
+
+        .error {
+            color: #e74c3c;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .game-completed {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .fireworks {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .firework {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            animation: explode 1s ease-out forwards;
+        }
+
+        @keyframes explode {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(20); opacity: 0; }
+        }
+
+        @media (max-width: 768px) {
+            .game-area {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .game-image {
+                width: 300px;
+                height: 225px;
+            }
+            
+            .title {
+                font-size: 2em;
+            }
+            
+            .game-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <h1 class="title">🔍 لعبة البحث عن الاختلافات</h1>
+            <div class="game-info">
+                <div class="score">النقاط: <span id="score">0</span></div>
+                <div class="timer">الوقت: <span id="timer">00:00</span></div>
+                <div class="found-counter">تم العثور على: <span id="found">0</span> من <span id="total">5</span></div>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div class="image-container">
+                <svg class="game-image" id="image1" viewBox="0 0 400 300">
+                    <!-- المشهد الأساسي -->
+                    <rect width="400" height="300" fill="#87CEEB"/>
+                    
+                    <!-- الشمس -->
+                    <circle cx="80" cy="60" r="25" fill="#FFD700" id="sun1"/>
+                    
+                    <!-- الغيوم -->
+                    <ellipse cx="200" cy="50" rx="40" ry="20" fill="white"/>
+                    <ellipse cx="320" cy="70" rx="35" ry="18" fill="white"/>
+                    
+                    <!-- الجبال -->
+                    <polygon points="0,200 100,120 200,200" fill="#8B4513"/>
+                    <polygon points="150,200 250,100 350,200" fill="#A0522D"/>
+                    
+                    <!-- الأشجار -->
+                    <rect x="50" y="180" width="8" height="40" fill="#8B4513"/>
+                    <circle cx="54" cy="175" r="15" fill="#228B22" id="tree1"/>
+                    
+                    <rect x="150" y="170" width="10" height="50" fill="#8B4513"/>
+                    <circle cx="155" cy="165" r="18" fill="#32CD32" id="tree2"/>
+                    
+                    <!-- البيت -->
+                    <rect x="250" y="150" width="60" height="50" fill="#FF6347"/>
+                    <polygon points="250,150 280,120 310,150" fill="#8B4513"/>
+                    <rect x="270" y="170" width="8" height="15" fill="#8B4513" id="door1"/>
+                    <rect x="285" y="160" width="8" height="8" fill="#87CEEB" id="window1"/>
+                    
+                    <!-- الطيور -->
+                    <path d="M 120 80 Q 125 75 130 80" stroke="#000" stroke-width="2" fill="none" id="bird1"/>
+                    <path d="M 340 90 Q 345 85 350 90" stroke="#000" stroke-width="2" fill="none" id="bird2"/>
+                    
+                    <!-- الأرض -->
+                    <rect x="0" y="200" width="400" height="100" fill="#90EE90"/>
+                    
+                    <!-- الزهور -->
+                    <circle cx="100" cy="220" r="3" fill="#FF69B4" id="flower1"/>
+                    <circle cx="180" cy="230" r="3" fill="#FF1493" id="flower2"/>
+                    <circle cx="300" cy="210" r="3" fill="#FF69B4" id="flower3"/>
+                </svg>
+                
+                <!-- علامات الاختلافات للصورة الأولى -->
+                <div class="difference-marker" id="diff1-1" style="top: 35px; left: 55px;"></div>
+                <div class="difference-marker" id="diff2-1" style="top: 150px; left: 39px;"></div>
+                <div class="difference-marker" id="diff3-1" style="top: 145px; left: 250px;"></div>
+                <div class="difference-marker" id="diff4-1" style="top: 135px; left: 285px;"></div>
+                <div class="difference-marker" id="diff5-1" style="top: 195px; left: 175px;"></div>
+            </div>
+
+            <div class="image-container">
+                <svg class="game-image" id="image2" viewBox="0 0 400 300">
+                    <!-- المشهد الأساسي -->
+                    <rect width="400" height="300" fill="#87CEEB"/>
+                    
+                    <!-- الشمس - مختلفة -->
+                    <circle cx="80" cy="60" r="25" fill="#FF6347" id="sun2"/>
+                    
+                    <!-- الغيوم -->
+                    <ellipse cx="200" cy="50" rx="40" ry="20" fill="white"/>
+                    <ellipse cx="320" cy="70" rx="35" ry="18" fill="white"/>
+                    
+                    <!-- الجبال -->
+                    <polygon points="0,200 100,120 200,200" fill="#8B4513"/>
+                    <polygon points="150,200 250,100 350,200" fill="#A0522D"/>
+                    
+                    <!-- الأشجار -->
+                    <rect x="50" y="180" width="8" height="40" fill="#8B4513"/>
+                    <circle cx="54" cy="175" r="15" fill="#FF6347" id="tree1-diff"/>
+                    
+                    <rect x="150" y="170" width="10" height="50" fill="#8B4513"/>
+                    <circle cx="155" cy="165" r="18" fill="#32CD32"/>
+                    
+                    <!-- البيت -->
+                    <rect x="250" y="150" width="60" height="50" fill="#FF6347"/>
+                    <polygon points="250,150 280,120 310,150" fill="#8B4513"/>
+                    <rect x="270" y="170" width="8" height="15" fill="#FF6347" id="door2"/>
+                    <rect x="285" y="160" width="8" height="8" fill="#FFD700" id="window2"/>
+                    
+                    <!-- الطيور -->
+                    <path d="M 120 80 Q 125 75 130 80" stroke="#000" stroke-width="2" fill="none"/>
+                    <path d="M 340 90 Q 345 85 350 90" stroke="#000" stroke-width="2" fill="none"/>
+                    
+                    <!-- الأرض -->
+                    <rect x="0" y="200" width="400" height="100" fill="#90EE90"/>
+                    
+                    <!-- الزهور -->
+                    <circle cx="100" cy="220" r="3" fill="#FF69B4"/>
+                    <!-- زهرة مفقودة -->
+                    <circle cx="300" cy="210" r="3" fill="#FF69B4"/>
+                </svg>
+                
+                <!-- علامات الاختلافات للصورة الثانية -->
+                <div class="difference-marker" id="diff1-2" style="top: 35px; left: 55px;"></div>
+                <div class="difference-marker" id="diff2-2" style="top: 150px; left: 39px;"></div>
+                <div class="difference-marker" id="diff3-2" style="top: 145px; left: 250px;"></div>
+                <div class="difference-marker" id="diff4-2" style="top: 135px; left: 285px;"></div>
+                <div class="difference-marker" id="diff5-2" style="top: 195px; left: 175px;"></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" onclick="startNewGame()">لعبة جديدة</button>
+            <button class="btn btn-secondary" onclick="showHint()">تلميح</button>
+            <button class="btn btn-primary" onclick="resetGame()">إعادة تشغيل</button>
+        </div>
+
+        <div class="message" id="message"></div>
+        
+        <div class="game-completed" id="gameCompleted" style="display: none;">
+            <h2>🎉 تهانينا! لقد أكملت اللعبة!</h2>
+            <p>لقد عثرت على جميع الاختلافات في وقت قدره: <span id="finalTime"></span></p>
+            <p>النقاط النهائية: <span id="finalScore"></span></p>
+        </div>
+    </div>
+
+    <script>
+        let score = 0;
+        let foundDifferences = 0;
+        let totalDifferences = 5;
+        let gameStartTime = Date.now();
+        let gameActive = true;
+        let timerInterval;
+        let hintCount = 0;
+        let maxHints = 3;
+
+        const differences = [
+            { id: 'diff1', description: 'لون الشمس مختلف' },
+            { id: 'diff2', description: 'لون الشجرة الأولى مختلف' },
+            { id: 'diff3', description: 'لون الباب مختلف' },
+            { id: 'diff4', description: 'لون النافذة مختلف' },
+            { id: 'diff5', description: 'زهرة مفقودة' }
+        ];
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                document.getElementById('timer').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function updateScore(points) {
+            score += points;
+            document.getElementById('score').textContent = score;
+        }
+
+        function updateFoundCounter() {
+            document.getElementById('found').textContent = foundDifferences;
+        }
+
+        function showMessage(text, className) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = `message ${className}`;
+            setTimeout(() => {
+                messageEl.className = 'message';
+                messageEl.textContent = '';
+            }, 2000);
+        }
+
+        function markDifference(diffId) {
+            const marker1 = document.getElementById(diffId + '-1');
+            const marker2 = document.getElementById(diffId + '-2');
+            marker1.style.display = 'block';
+            marker2.style.display = 'block';
+            
+            foundDifferences++;
+            updateFoundCounter();
+            updateScore(100);
+            
+            const diff = differences.find(d => d.id === diffId);
+            showMessage(`أحسنت! ${diff.description}`, 'success');
+            
+            if (foundDifferences === totalDifferences) {
+                gameComplete();
+            }
+        }
+
+        function gameComplete() {
+            gameActive = false;
+            clearInterval(timerInterval);
+            
+            const finalTime = document.getElementById('timer').textContent;
+            document.getElementById('finalTime').textContent = finalTime;
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameCompleted').style.display = 'block';
+            
+            createFireworks();
+        }
+
+        function createFireworks() {
+            const fireworksContainer = document.createElement('div');
+            fireworksContainer.className = 'fireworks';
+            document.body.appendChild(fireworksContainer);
+            
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const firework = document.createElement('div');
+                    firework.className = 'firework';
+                    firework.style.left = Math.random() * 100 + '%';
+                    firework.style.top = Math.random() * 100 + '%';
+                    firework.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 50%)`;
+                    fireworksContainer.appendChild(firework);
+                    
+                    setTimeout(() => {
+                        firework.remove();
+                    }, 1000);
+                }, i * 100);
+            }
+            
+            setTimeout(() => {
+                fireworksContainer.remove();
+            }, 3000);
+        }
+
+        function checkClick(event, imageId) {
+            if (!gameActive) return;
+            
+            const rect = event.currentTarget.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            
+            // تحويل الإحداثيات إلى إحداثيات SVG
+            const svgX = (x / rect.width) * 400;
+            const svgY = (y / rect.height) * 300;
+            
+            let found = false;
+            
+            // فحص الاختلافات
+            if (svgX >= 55 && svgX <= 105 && svgY >= 35 && svgY <= 85) {
+                if (!document.getElementById('diff1-1').style.display || document.getElementById('diff1-1').style.display === 'none') {
+                    markDifference('diff1');
+                    found = true;
+                }
+            }
+            else if (svgX >= 39 && svgX <= 69 && svgY >= 150 && svgY <= 190) {
+                if (!document.getElementById('diff2-1').style.display || document.getElementById('diff2-1').style.display === 'none') {
+                    markDifference('diff2');
+                    found = true;
+                }
+            }
+            else if (svgX >= 250 && svgX <= 290 && svgY >= 145 && svgY <= 185) {
+                if (!document.getElementById('diff3-1').style.display || document.getElementById('diff3-1').style.display === 'none') {
+                    markDifference('diff3');
+                    found = true;
+                }
+            }
+            else if (svgX >= 285 && svgX <= 305 && svgY >= 135 && svgY <= 175) {
+                if (!document.getElementById('diff4-1').style.display || document.getElementById('diff4-1').style.display === 'none') {
+                    markDifference('diff4');
+                    found = true;
+                }
+            }
+            else if (svgX >= 175 && svgX <= 185 && svgY >= 195 && svgY <= 235) {
+                if (!document.getElementById('diff5-1').style.display || document.getElementById('diff5-1').style.display === 'none') {
+                    markDifference('diff5');
+                    found = true;
+                }
+            }
+            
+            if (!found) {
+                updateScore(-10);
+                showMessage('ليس هناك اختلاف هنا. حاول مرة أخرى!', 'error');
+            }
+        }
+
+        function showHint() {
+            if (hintCount >= maxHints) {
+                showMessage('لقد استخدمت جميع التلميحات!', 'error');
+                return;
+            }
+            
+            hintCount++;
+            const undiscoveredDiffs = differences.filter(diff => {
+                const marker = document.getElementById(diff.id + '-1');
+                return !marker.style.display || marker.style.display === 'none';
+            });
+            
+            if (undiscoveredDiffs.length > 0) {
+                const randomDiff = undiscoveredDiffs[Math.floor(Math.random() * undiscoveredDiffs.length)];
+                showMessage(`تلميح: ${randomDiff.description}`, 'success');
+                updateScore(-25);
+            }
+        }
+
+        function startNewGame() {
+            resetGame();
+            // يمكن إضافة مشاهد جديدة هنا
+        }
+
+        function resetGame() {
+            score = 0;
+            foundDifferences = 0;
+            gameStartTime = Date.now();
+            gameActive = true;
+            hintCount = 0;
+            
+            document.getElementById('score').textContent = score;
+            document.getElementById('found').textContent = foundDifferences;
+            document.getElementById('gameCompleted').style.display = 'none';
+            
+            // إخفاء جميع علامات الاختلافات
+            for (let i = 1; i <= totalDifferences; i++) {
+                document.getElementById(`diff${i}-1`).style.display = 'none';
+                document.getElementById(`diff${i}-2`).style.display = 'none';
+            }
+            
+            clearInterval(timerInterval);
+            startTimer();
+        }
+
+        // إضافة مستمعي الأحداث
+        document.getElementById('image1').addEventListener('click', (e) => checkClick(e, 'image1'));
+        document.getElementById('image2').addEventListener('click', (e) => checkClick(e, 'image2'));
+
+        // بدء اللعبة
+        startTimer();
+    </script>
+</body>
+</html>

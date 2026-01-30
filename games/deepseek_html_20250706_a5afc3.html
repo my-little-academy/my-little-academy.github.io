@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jouons avec les Syllabes!</title>
+    <style>
+        :root {
+            --couleur-primaire: #4ECDC4;
+            --couleur-secondaire: #FF6B6B;
+            --couleur-tertiaire: #45B7D1;
+            --couleur-fond: #f0f9ff;
+            --couleur-texte: #2c3e50;
+        }
+        
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background-color: var(--couleur-fond);
+            color: var(--couleur-texte);
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .game-container {
+            width: 95%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: var(--couleur-secondaire);
+            margin-bottom: 30px;
+        }
+        
+        /* Zone de jeu */
+        .game-area {
+            margin: 20px 0;
+        }
+        
+        .syllabe-animation {
+            display: inline-block;
+            font-size: 80px;
+            margin: 30px 0;
+            min-height: 100px;
+        }
+        
+        .particule {
+            display: inline-block;
+            color: var(--couleur-secondaire);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            margin: 0 5px;
+        }
+        
+        /* Options de réponse */
+        .options {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .option {
+            background-color: var(--couleur-primaire);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            font-size: 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 80px;
+        }
+        
+        .option:hover {
+            transform: scale(1.1);
+            background-color: var(--couleur-secondaire);
+        }
+        
+        /* Feedback */
+        .feedback-container {
+            min-height: 100px;
+            margin: 20px 0;
+        }
+        
+        .feedback {
+            font-size: 24px;
+            padding: 15px;
+            border-radius: 10px;
+            display: inline-block;
+            margin: 10px 0;
+        }
+        
+        .feedback-correct {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .feedback-incorrect {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        
+        .explanation {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+        
+        /* Barre de progression */
+        .progress-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 30px auto;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--couleur-primaire), var(--couleur-tertiaire));
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+        
+        .progress-milestones {
+            position: relative;
+            height: 30px;
+        }
+        
+        .milestone {
+            position: absolute;
+            top: 0;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 30px;
+            background-color: var(--couleur-secondaire);
+        }
+        
+        .milestone:after {
+            content: attr(data-level);
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            font-size: 12px;
+            color: var(--couleur-secondaire);
+            font-weight: bold;
+        }
+        
+        /* Score et streak */
+        .score-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        
+        .score-box {
+            background-color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .score-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--couleur-secondaire);
+        }
+        
+        .streak-meter {
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .streak-fill {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .points-notification {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--couleur-secondaire);
+            opacity: 0;
+        }
+        
+        /* Animations */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pointsFloat {
+            0% { opacity: 0; transform: translateY(0); }
+            20% { opacity: 1; transform: translateY(-20px); }
+            100% { opacity: 0; transform: translateY(-40px); }
+        }
+        
+        /* Niveaux de difficulté */
+        .difficulty-selector {
+            margin: 20px 0;
+        }
+        
+        .difficulty-btn {
+            background-color: white;
+            border: 2px solid var(--couleur-primaire);
+            color: var(--couleur-primaire);
+            padding: 8px 15px;
+            margin: 0 5px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .difficulty-btn.active {
+            background-color: var(--couleur-primaire);
+            color: white;
+        }
+        
+        /* Responsive */
+        @media (max-width: 600px) {
+            .syllabe-animation {
+                font-size: 60px;
+            }
+            
+            .option {
+                padding: 12px 20px;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎯 Jouons avec les Syllabes! 🎯</h1>
+        
+        <div class="difficulty-selector">
+            <button class="difficulty-btn active" data-level="easy">Facile</button>
+            <button class="difficulty-btn" data-level="medium">Moyen</button>
+            <button class="difficulty-btn" data-level="hard">Difficile</button>
+        </div>
+        
+        <div class="score-container">
+            <div class="score-box">
+                <div>Score</div>
+                <div class="score-value" id="score">0</div>
+            </div>
+            <div class="score-box">
+                <div>Combo</div>
+                <div class="score-value" id="streak">0</div>
+                <div class="streak-meter">
+                    <div class="streak-fill" id="streak-fill"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="points-notification" id="points-notification"></div>
+        
+        <div class="progress-container">
+            <div class="progress-label">
+                <span>Progrès:</span>
+                <span id="progress-percent">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <div class="progress-milestones">
+                <div class="milestone" style="left: 25%;" data-level="Niveau 1"></div>
+                <div class="milestone" style="left: 50%;" data-level="Niveau 2"></div>
+                <div class="milestone" style="left: 75%;" data-level="Niveau 3"></div>
+            </div>
+        </div>
+        
+        <div class="game-area">
+            <div class="syllabe-animation" id="syllabe-animation"></div>
+            
+            <div class="options" id="options-container"></div>
+            
+            <div class="feedback-container">
+                <div class="feedback" id="feedback"></div>
+                <div class="explanation" id="explanation"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Données du jeu
+        const syllabes = {
+            easy: ['ba', 'be', 'bi', 'bo', 'bu', 'la', 'le', 'li', 'lo', 'lu', 
+                   'ma', 'me', 'mi', 'mo', 'mu', 'sa', 'se', 'si', 'so', 'su'],
+            medium: ['bra', 'bre', 'bri', 'bro', 'bru', 'pla', 'ple', 'pli', 'plo', 'plu',
+                     'tra', 'tre', 'tri', 'tro', 'tru', 'fla', 'fle', 'fli', 'flo', 'flu'],
+            hard: ['stran', 'splou', 'tress', 'drou', 'flein', 'gno', 'phra', 'schle', 'zwie', 'quat']
+        };
+        
+        const pronunciations = {
+            'ba': 'comme dans "banane"',
+            'be': 'comme dans "bébé"',
+            'bi': 'comme dans "biberon"',
+            'bo': 'comme dans "bonbon"',
+            'bu': 'comme dans "bureau"',
+            'bra': 'comme dans "branche"',
+            'bre': 'comme dans "briller"',
+            'stran': 'comme dans "étrange"',
+            'splou': 'comme dans "splendide"'
+            // Ajouter d'autres prononciations au besoin
+        };
+        
+        // État du jeu
+        const gameState = {
+            score: 0,
+            streak: 0,
+            progress: 0,
+            currentLevel: 'easy',
+            currentSyllabe: '',
+            correctAnswer: ''
+        };
+        
+        // Initialisation du jeu
+        document.addEventListener('DOMContentLoaded', function() {
+            initGame();
+            setupEventListeners();
+        });
+        
+        function initGame() {
+            updateScoreDisplay();
+            updateStreakMeter();
+            updateProgressBar();
+            loadNewSyllabe();
+        }
+        
+        function setupEventListeners() {
+            // Boutons de difficulté
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    gameState.currentLevel = this.getAttribute('data-level');
+                    gameState.streak = 0;
+                    updateStreakMeter();
+                    loadNewSyllabe();
+                });
+            });
+        }
+        
+        function loadNewSyllabe() {
+            const levelSyllabes = syllabes[gameState.currentLevel];
+            gameState.correctAnswer = levelSyllabes[Math.floor(Math.random() * levelSyllabes.length)];
+            gameState.currentSyllabe = gameState.correctAnswer;
+            
+            // Afficher l'animation de la syllabe
+            displayAnimatedSyllabe(gameState.currentSyllabe);
+            
+            // Générer les options de réponse
+            generateOptions(gameState.currentSyllabe, levelSyllabes);
+            
+            // Effacer le feedback précédent
+            clearFeedback();
+        }
+        
+        function displayAnimatedSyllabe(syllabe) {
+            const container = document.getElementById('syllabe-animation');
+            container.innerHTML = '';
+            
+            // Créer une particule pour chaque lettre
+            const letters = syllabe.split('');
+            letters.forEach((letter, index) => {
+                const particule = document.createElement('span');
+                particule.className = 'particule';
+                particule.textContent = letter;
+                particule.style.animation = `bounce 0.5s ${index * 0.1}s`;
+                container.appendChild(particule);
+            });
+        }
+        
+        function generateOptions(correctSyllabe, allSyllabes) {
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            // Créer un tableau avec la bonne réponse + 3 mauvaises réponses aléatoires
+            let options = [correctSyllabe];
+            while (options.length < 4) {
+                const randomSyllabe = allSyllabes[Math.floor(Math.random() * allSyllabes.length)];
+                if (!options.includes(randomSyllabe)) {
+                    options.push(randomSyllabe);
+                }
+            }
+            
+            // Mélanger les options
+            options = shuffleArray(options);
+            
+            // Créer les boutons
+            options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option';
+                button.textContent = option;
+                button.addEventListener('click', function() {
+                    checkAnswer(option);
+                });
+                container.appendChild(button);
+            });
+        }
+        
+        function checkAnswer(selectedAnswer) {
+            const isCorrect = selectedAnswer === gameState.correctAnswer;
+            
+            // Afficher le feedback
+            showFeedback(isCorrect);
+            
+            // Mettre à jour le score et le streak
+            if (isCorrect) {
+                updateScore();
+                updateProgress(5); // +5% par bonne réponse
+                
+                // Passer à la syllabe suivante après un délai
+                setTimeout(loadNewSyllabe, 1500);
+            } else {
+                resetStreak();
+            }
+        }
+        
+        function showFeedback(isCorrect) {
+            const feedback = document.getElementById('feedback');
+            const explanation = document.getElementById('explanation');
+            
+            if (isCorrect) {
+                feedback.className = 'feedback feedback-correct';
+                feedback.innerHTML = '✓ Bravo!';
+                explanation.textContent = pronunciations[gameState.correctAnswer] || `La syllabe "${gameState.correctAnswer}" est correcte!`;
+                
+                // Animation
+                feedback.style.animation = 'fadeIn 0.5s';
+            } else {
+                feedback.className = 'feedback feedback-incorrect';
+                feedback.innerHTML = '✗ Essaie encore';
+                explanation.innerHTML = `La bonne réponse était <strong>${gameState.correctAnswer}</strong>. ${pronunciations[gameState.correctAnswer] || ''}`;
+                
+                // Animation
+                feedback.style.animation = 'fadeIn 0.5s';
+            }
+        }
+        
+        function clearFeedback() {
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('feedback').innerHTML = '';
+            document.getElementById('explanation').innerHTML = '';
+        }
+        
+        function updateScore() {
+            const basePoints = 10;
+            const multiplier = Math.min(5, gameState.streak + 1);
+            const difficultyBonus = {
+                'easy': 0,
+                'medium': 5,
+                'hard': 10
+            };
+            
+            const pointsEarned = basePoints * multiplier + difficultyBonus[gameState.currentLevel];
+            gameState.score += pointsEarned;
+            gameState.streak++;
+            
+            updateScoreDisplay();
+            showPointsNotification(pointsEarned);
+            updateStreakMeter();
+        }
+        
+        function resetStreak() {
+            gameState.streak = 0;
+            updateStreakMeter();
+        }
+        
+        function updateScoreDisplay() {
+            document.getElementById('score').textContent = gameState.score;
+        }
+        
+        function updateStreakMeter() {
+            document.getElementById('streak').textContent = gameState.streak;
+            const fillPercentage = Math.min(100, gameState.streak * 20);
+            document.getElementById('streak-fill').style.width = `${fillPercentage}%`;
+            
+            // Changer la couleur en fonction du streak
+            const colors = ['#FF5252', '#FF9800', '#FFEB3B', '#4CAF50', '#2196F3'];
+            const colorIndex = Math.min(gameState.streak, colors.length - 1);
+            document.getElementById('streak-fill').style.backgroundColor = colors[colorIndex];
+        }
+        
+        function showPointsNotification(points) {
+            const notification = document.getElementById('points-notification');
+            notification.textContent = `+${points}`;
+            
+            // Animation
+            notification.style.animation = 'none';
+            void notification.offsetWidth; // Trigger reflow
+            notification.style.animation = 'pointsFloat 1s';
+        }
+        
+        function updateProgress(percent) {
+            gameState.progress = Math.min(100, gameState.progress + percent);
+            document.getElementById('progress-fill').style.width = `${gameState.progress}%`;
+            document.getElementById('progress-percent').textContent = `${gameState.progress}%`;
+            
+            // Vérifier les jalons atteints
+            checkMilestones();
+        }
+        
+        function checkMilestones() {
+            const milestones = [25, 50, 75];
+            milestones.forEach(m => {
+                if (gameState.progress >= m && gameState.progress - 5 < m) {
+                    // Animation spéciale pour les jalons
+                    const feedback = document.getElementById('feedback');
+                    feedback.innerHTML = `🎉 Félicitations! Niveau ${milestones.indexOf(m) + 1} atteint!`;
+                    feedback.className = 'feedback feedback-correct';
+                    feedback.style.animation = 'fadeIn 0.5s';
+                }
+            });
+        }
+        
+        // Fonction utilitaire pour mélanger un tableau
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+    </script>
+</body>
+</html>

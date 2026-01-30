@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة مراحل الوضوء</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #2b6cb0;
+            margin-bottom: 30px;
+        }
+        
+        .instructions {
+            background-color: #ebf8ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 18px;
+            border-right: 5px solid #4299e1;
+        }
+        
+        .stages-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stage {
+            background-color: #f7fafc;
+            border: 2px dashed #cbd5e0;
+            border-radius: 10px;
+            padding: 15px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #4a5568;
+            transition: all 0.3s;
+        }
+        
+        .stage.correct {
+            background-color: #f0fff4;
+            border-color: #68d391;
+            border-style: solid;
+            color: #276749;
+        }
+        
+        .stage.incorrect {
+            background-color: #fff5f5;
+            border-color: #fc8181;
+            border-style: solid;
+            color: #c53030;
+        }
+        
+        .items-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        .item {
+            background-color: #4299e1;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: grab;
+            user-select: none;
+            font-size: 16px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+        }
+        
+        .item:hover {
+            background-color: #3182ce;
+            transform: translateY(-2px);
+        }
+        
+        .item:active {
+            cursor: grabbing;
+            transform: translateY(0);
+        }
+        
+        .item.placed {
+            opacity: 0.5;
+            cursor: default;
+            background-color: #a0aec0;
+        }
+        
+        .feedback {
+            font-size: 18px;
+            margin: 20px 0;
+            min-height: 27px;
+            font-weight: bold;
+        }
+        
+        .correct-feedback {
+            color: #38a169;
+        }
+        
+        .incorrect-feedback {
+            color: #e53e3e;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        button {
+            background-color: #4299e1;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #3182ce;
+        }
+        
+        button:disabled {
+            background-color: #cbd5e0;
+            cursor: not-allowed;
+        }
+        
+        .progress-container {
+            width: 100%;
+            background-color: #edf2f7;
+            border-radius: 10px;
+            margin: 20px 0;
+            height: 20px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: #4299e1;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        
+        .completion-message {
+            font-size: 24px;
+            color: #2b6cb0;
+            margin: 20px 0;
+            font-weight: bold;
+            display: none;
+        }
+        
+        @media (max-width: 600px) {
+            .items-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .item {
+                width: 80%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>لعبة ترتيب مراحل الوضوء</h1>
+        
+        <div class="instructions">
+            اسحب كل خطوة من خطوات الوضوء وضَعها في الترتيب الصحيح
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        
+        <div class="stages-container" id="stages-container">
+            <!-- مراحل الوضوء ستضاف هنا بالجافاسكريبت -->
+        </div>
+        
+        <div class="feedback" id="feedback"></div>
+        
+        <div class="items-container" id="items-container">
+            <!-- خطوات الوضوء ستضاف هنا بالجافاسكريبت -->
+        </div>
+        
+        <div class="controls">
+            <button id="check-btn">تحقق</button>
+            <button id="reset-btn">إعادة</button>
+        </div>
+        
+        <div class="completion-message" id="completion-message">
+            أحسنت! لقد أكملت ترتيب مراحل الوضوء بشكل صحيح!
+        </div>
+    </div>
+
+    <script>
+        // خطوات الوضوء بالترتيب الصحيح
+        const wuduSteps = [
+            "النية",
+            "غسل الكفين ثلاثاً",
+            "المضمضة ثلاثاً",
+            "الاستنشاق ثلاثاً",
+            "غسل الوجه ثلاثاً",
+            "غسل اليدين إلى المرفقين ثلاثاً",
+            "مسح الرأس مرة واحدة",
+            "مسح الأذنين",
+            "غسل الرجلين إلى الكعبين ثلاثاً"
+        ];
+        
+        // حالة اللعبة
+        let gameState = {
+            steps: [],
+            placedSteps: Array(wuduSteps.length).fill(null),
+            draggedItem: null,
+            correctOrder: false
+        };
+        
+        // عناصر واجهة المستخدم
+        const ui = {
+            stagesContainer: document.getElementById("stages-container"),
+            itemsContainer: document.getElementById("items-container"),
+            feedback: document.getElementById("feedback"),
+            checkBtn: document.getElementById("check-btn"),
+            resetBtn: document.getElementById("reset-btn"),
+            progressBar: document.getElementById("progress-bar"),
+            completionMessage: document.getElementById("completion-message")
+        };
+        
+        // تهيئة اللعبة
+        function initGame() {
+            // خلط خطوات الوضوء عشوائياً
+            gameState.steps = [...wuduSteps].sort(() => Math.random() - 0.5);
+            gameState.placedSteps = Array(wuduSteps.length).fill(null);
+            gameState.correctOrder = false;
+            
+            // مسح الواجهة
+            ui.stagesContainer.innerHTML = '';
+            ui.itemsContainer.innerHTML = '';
+            ui.feedback.textContent = '';
+            ui.feedback.className = 'feedback';
+            ui.completionMessage.style.display = 'none';
+            ui.checkBtn.disabled = true;
+            
+            // إنشاء مراحل الوضوء الفارغة
+            for (let i = 0; i < wuduSteps.length; i++) {
+                const stageElement = document.createElement('div');
+                stageElement.className = 'stage';
+                stageElement.dataset.index = i;
+                
+                // جعل المراحل قابلة لإسقاط العناصر
+                stageElement.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                });
+                
+                stageElement.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    if (gameState.draggedItem && !gameState.placedSteps[parseInt(e.target.dataset.index)]) {
+                        placeStep(gameState.draggedItem, parseInt(e.target.dataset.index));
+                    }
+                });
+                
+                ui.stagesContainer.appendChild(stageElement);
+            }
+            
+            // إنشاء عناصر خطوات الوضوء القابلة للسحب
+            gameState.steps.forEach((step, index) => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'item';
+                itemElement.textContent = step;
+                itemElement.draggable = true;
+                itemElement.dataset.step = step;
+                itemElement.dataset.index = index;
+                
+                itemElement.addEventListener('dragstart', (e) => {
+                    gameState.draggedItem = e.target;
+                    e.dataTransfer.setData('text/plain', step);
+                });
+                
+                ui.itemsContainer.appendChild(itemElement);
+            });
+            
+            // تحديث شريط التقدم
+            updateProgress();
+        }
+        
+        // وضع خطوة في المرحلة المحددة
+        function placeStep(itemElement, stageIndex) {
+            const step = itemElement.dataset.step;
+            
+            // وضع الخطوة في المرحلة
+            gameState.placedSteps[stageIndex] = step;
+            ui.stagesContainer.children[stageIndex].textContent = `${stageIndex + 1}. ${step}`;
+            
+            // تعطيل العنصر الذي تم سحبه
+            itemElement.classList.add('placed');
+            itemElement.draggable = false;
+            
+            // تفعيل زر التحقق إذا تم ملء جميع المراحل
+            checkAllStagesFilled();
+            
+            // تحديث شريط التقدم
+            updateProgress();
+        }
+        
+        // التحقق من اكتمال جميع المراحل
+        function checkAllStagesFilled() {
+            const allFilled = gameState.placedSteps.every(step => step !== null);
+            ui.checkBtn.disabled = !allFilled;
+            return allFilled;
+        }
+        
+        // التحقق من الترتيب الصحيح
+        function checkOrder() {
+            let allCorrect = true;
+            
+            for (let i = 0; i < wuduSteps.length; i++) {
+                if (gameState.placedSteps[i] === wuduSteps[i]) {
+                    ui.stagesContainer.children[i].classList.add('correct');
+                    ui.stagesContainer.children[i].classList.remove('incorrect');
+                } else {
+                    ui.stagesContainer.children[i].classList.add('incorrect');
+                    ui.stagesContainer.children[i].classList.remove('correct');
+                    allCorrect = false;
+                }
+            }
+            
+            if (allCorrect) {
+                ui.feedback.textContent = 'أحسنت! الترتيب صحيح!';
+                ui.feedback.className = 'feedback correct-feedback';
+                ui.completionMessage.style.display = 'block';
+                ui.checkBtn.disabled = true;
+                gameState.correctOrder = true;
+            } else {
+                ui.feedback.textContent = 'هناك أخطاء في الترتيب، حاول مرة أخرى!';
+                ui.feedback.className = 'feedback incorrect-feedback';
+            }
+        }
+        
+        // تحديث شريط التقدم
+        function updateProgress() {
+            const filledCount = gameState.placedSteps.filter(step => step !== null).length;
+            const progress = (filledCount / wuduSteps.length) * 100;
+            ui.progressBar.style.width = `${progress}%`;
+        }
+        
+        // إعداد واجهة المستخدم
+        function setupUI() {
+            ui.checkBtn.addEventListener('click', checkOrder);
+            ui.resetBtn.addEventListener('click', initGame);
+        }
+        
+        // بدء اللعبة عند تحميل الصفحة
+        window.onload = function() {
+            setupUI();
+            initGame();
+        };
+    </script>
+</body>
+</html>

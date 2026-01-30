@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رحلة الأعداد: صعودًا وهبوطًا</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            color: #333;
+        }
+        
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border: 5px solid #4CAF50;
+        }
+        
+        h1 {
+            color: #FF6B6B;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .game-description {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        button:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .number-line {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin: 20px 0;
+        }
+        
+        .number {
+            width: 60px;
+            height: 60px;
+            background-color: #FFD166;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 3px solid transparent;
+        }
+        
+        .number:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .number.selected {
+            background-color: #06D6A0;
+            color: white;
+            border: 3px solid #045762;
+        }
+        
+        .number.correct {
+            background-color: #06D6A0;
+            color: white;
+            animation: pulse 0.5s;
+        }
+        
+        .number.wrong {
+            background-color: #EF476F;
+            color: white;
+            animation: shake 0.5s;
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .info-box {
+            text-align: center;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            font-size: 1.5em;
+            color: #333;
+        }
+        
+        .stars {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin: 10px 0;
+        }
+        
+        .star {
+            font-size: 2em;
+            color: #FFD700;
+            opacity: 0.3;
+        }
+        
+        .star.active {
+            opacity: 1;
+        }
+        
+        .timer {
+            height: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .timer-bar {
+            height: 100%;
+            background-color: #4CAF50;
+            width: 100%;
+            transition: width 1s linear;
+        }
+        
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+            display: none;
+        }
+        
+        .firework {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            box-shadow: 0 0 10px 5px rgba(255, 215, 0, 0.7);
+            animation: explode 1s ease-out forwards;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        @keyframes explode {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(20); opacity: 0; }
+        }
+        
+        .level-selection {
+            margin: 20px 0;
+        }
+        
+        .level-btn {
+            background-color: #118AB2;
+            margin: 5px;
+        }
+        
+        .mode-btn {
+            background-color: #073B4C;
+        }
+        
+        .active-mode {
+            background-color: #EF476F;
+            transform: scale(1.05);
+        }
+        
+        @media (max-width: 600px) {
+            .number {
+                width: 40px;
+                height: 40px;
+                font-size: 1em;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>رحلة الأعداد: صعودًا وهبوطًا</h1>
+        <p class="game-description">ساعد البطل في صعود الجبل بالعد التصاعدي أو النزول بالعد التنازلي!</p>
+        
+        <div class="level-selection">
+            <h3>اختر مستوى الصعوبة:</h3>
+            <div class="controls">
+                <button class="level-btn" data-step="2">عد بمقدار 2</button>
+                <button class="level-btn" data-step="5">عد بمقدار 5</button>
+                <button class="level-btn" data-step="10">عد بمقدار 10</button>
+                <button class="level-btn" data-step="20">عد بمقدار 20</button>
+                <button class="level-btn" data-step="50">عد بمقدار 50</button>
+                <button class="level-btn" data-step="100">عد بمقدار 100</button>
+                <button class="level-btn" data-step="1000">عد بمقدار 1000</button>
+            </div>
+        </div>
+        
+        <div class="mode-selection">
+            <h3>اختر نمط اللعب:</h3>
+            <div class="controls">
+                <button class="mode-btn" data-mode="asc">عد تصاعدي ⬆</button>
+                <button class="mode-btn" data-mode="desc">عد تنازلي ⬇</button>
+                <button class="mode-btn" data-mode="timed">تحدي الوقت ⏱</button>
+            </div>
+        </div>
+        
+        <div class="game-info">
+            <div class="info-box">
+                <div class="info-label">الخطوة الحالية</div>
+                <div class="info-value" id="current-step">0</div>
+            </div>
+            <div class="info-box">
+                <div class="info-label">النقاط</div>
+                <div class="info-value" id="score">0</div>
+            </div>
+            <div class="info-box">
+                <div class="info-label">المحاولات</div>
+                <div class="info-value" id="attempts">0</div>
+            </div>
+        </div>
+        
+        <div class="timer" id="timer-container" style="display: none;">
+            <div class="timer-bar" id="timer-bar"></div>
+        </div>
+        
+        <div class="stars" id="stars-container">
+            <div class="star">★</div>
+            <div class="star">★</div>
+            <div class="star">★</div>
+            <div class="star">★</div>
+            <div class="star">★</div>
+        </div>
+        
+        <div class="number-line" id="number-line">
+            <!-- الأرقام سيتم توليدها بواسطة الجافاسكريبت -->
+        </div>
+        
+        <div class="controls">
+            <button id="start-btn">بدء اللعبة</button>
+            <button id="reset-btn" disabled>إعادة الضبط</button>
+            <button id="hint-btn" disabled>مساعدة</button>
+        </div>
+        
+        <div class="celebration" id="celebration"></div>
+    </div>
+    
+    <audio id="correct-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3"></audio>
+    <audio id="wrong-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3"></audio>
+    <audio id="win-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"></audio>
+    
+    <script>
+        // عناصر DOM
+        const numberLine = document.getElementById('number-line');
+        const startBtn = document.getElementById('start-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const hintBtn = document.getElementById('hint-btn');
+        const currentStepDisplay = document.getElementById('current-step');
+        const scoreDisplay = document.getElementById('score');
+        const attemptsDisplay = document.getElementById('attempts');
+        const starsContainer = document.getElementById('stars-container');
+        const timerContainer = document.getElementById('timer-container');
+        const timerBar = document.getElementById('timer-bar');
+        const celebration = document.getElementById('celebration');
+        const correctSound = document.getElementById('correct-sound');
+        const wrongSound = document.getElementById('wrong-sound');
+        const winSound = document.getElementById('win-sound');
+        const levelButtons = document.querySelectorAll('.level-btn');
+        const modeButtons = document.querySelectorAll('.mode-btn');
+        
+        // متغيرات اللعبة
+        let currentStep = 0;
+        let stepSize = 2;
+        let score = 0;
+        let attempts = 0;
+        let stars = 0;
+        let gameMode = 'asc'; // 'asc', 'desc', 'timed'
+        let gameActive = false;
+        let nextNumber = 0;
+        let numbers = [];
+        let timerInterval;
+        let timeLeft = 60;
+        
+        // تهيئة اللعبة
+        function initGame() {
+            // إنشاء مصفوفة الأرقام بناء على حجم الخطوة
+            numbers = [];
+            let start, end;
+            
+            if (gameMode === 'timed') {
+                timeLeft = 60;
+                timerContainer.style.display = 'block';
+                startTimer();
+            } else {
+                timerContainer.style.display = 'none';
+            }
+            
+            if (stepSize <= 10) {
+                start = 0;
+                end = 100;
+            } else if (stepSize <= 100) {
+                start = 0;
+                end = 1000;
+            } else {
+                start = 0;
+                end = 10000;
+            }
+            
+            for (let i = start; i <= end; i += stepSize) {
+                numbers.push(i);
+            }
+            
+            // عكس الأرقام إذا كان النمط تنازلي
+            if (gameMode === 'desc') {
+                numbers.reverse();
+            }
+            
+            // عرض الأرقام
+            renderNumbers();
+            
+            // تعيين الرقم التالي
+            nextNumber = numbers[0];
+            currentStep = 0;
+            updateCurrentStepDisplay();
+            
+            // تفعيل الأزرار
+            resetBtn.disabled = false;
+            hintBtn.disabled = false;
+            gameActive = true;
+        }
+        
+        // عرض الأرقام
+        function renderNumbers() {
+            numberLine.innerHTML = '';
+            
+            numbers.forEach(num => {
+                const numberElement = document.createElement('div');
+                numberElement.className = 'number';
+                numberElement.textContent = num;
+                numberElement.dataset.value = num;
+                
+                numberElement.addEventListener('click', () => {
+                    if (gameActive) {
+                        checkNumber(num);
+                    }
+                });
+                
+                numberLine.appendChild(numberElement);
+            });
+        }
+        
+        // التحقق من الرقم المختار
+        function checkNumber(selectedNum) {
+            if (selectedNum === nextNumber) {
+                // إجابة صحيحة
+                const numberElements = document.querySelectorAll('.number');
+                numberElements.forEach(el => {
+                    if (parseInt(el.dataset.value) === selectedNum) {
+                        el.classList.add('correct');
+                        setTimeout(() => {
+                            el.classList.remove('correct');
+                            el.classList.add('selected');
+                        }, 500);
+                    }
+                });
+                
+                correctSound.play();
+                score += 10;
+                attempts++;
+                updateScoreDisplay();
+                
+                // تحديث الرقم التالي
+                currentStep++;
+                if (currentStep < numbers.length) {
+                    nextNumber = numbers[currentStep];
+                    updateCurrentStepDisplay();
+                    
+                    // إضافة نجمة كل 5 خطوات صحيحة
+                    if (currentStep % 5 === 0) {
+                        addStar();
+                    }
+                } else {
+                    // انتهت الجولة
+                    endGame(true);
+                }
+            } else {
+                // إجابة خاطئة
+                const numberElements = document.querySelectorAll('.number');
+                numberElements.forEach(el => {
+                    if (parseInt(el.dataset.value) === selectedNum) {
+                        el.classList.add('wrong');
+                        setTimeout(() => el.classList.remove('wrong'), 500);
+                    }
+                });
+                
+                wrongSound.play();
+                attempts++;
+                updateScoreDisplay();
+            }
+        }
+        
+        // تحديث عرض الخطوة الحالية
+        function updateCurrentStepDisplay() {
+            currentStepDisplay.textContent = nextNumber;
+        }
+        
+        // تحديث عرض النقاط
+        function updateScoreDisplay() {
+            scoreDisplay.textContent = score;
+            attemptsDisplay.textContent = attempts;
+        }
+        
+        // إضافة نجمة
+        function addStar() {
+            stars++;
+            if (stars > 5) stars = 5;
+            
+            const starElements = document.querySelectorAll('.star');
+            starElements.forEach((star, index) => {
+                if (index < stars) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+        
+        // بدء المؤقت
+        function startTimer() {
+            clearInterval(timerInterval);
+            timeLeft = 60;
+            timerBar.style.width = '100%';
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerBar.style.width = `${(timeLeft / 60) * 100}%`;
+                
+                if (timeLeft <= 0) {
+                    endGame(false);
+                }
+            }, 1000);
+        }
+        
+        // إنهاء اللعبة
+        function endGame(success) {
+            gameActive = false;
+            clearInterval(timerInterval);
+            
+            if (success) {
+                winSound.play();
+                celebrate();
+            }
+            
+            // تعطيل أزرار المساعدة
+            hintBtn.disabled = true;
+        }
+        
+        // عرض احتفال
+        function celebrate() {
+            celebration.style.display = 'block';
+            
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const firework = document.createElement('div');
+                    firework.className = 'firework';
+                    firework.style.left = `${Math.random() * 100}%`;
+                    firework.style.top = `${Math.random() * 100}%`;
+                    firework.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                    celebration.appendChild(firework);
+                    
+                    setTimeout(() => {
+                        firework.remove();
+                    }, 1000);
+                }, i * 100);
+            }
+            
+            setTimeout(() => {
+                celebration.style.display = 'none';
+                celebration.innerHTML = '';
+            }, 5000);
+        }
+        
+        // عرض تلميح
+        function showHint() {
+            if (!gameActive) return;
+            
+            const numberElements = document.querySelectorAll('.number');
+            numberElements.forEach(el => {
+                if (parseInt(el.dataset.value) === nextNumber) {
+                    el.style.boxShadow = '0 0 20px 10px rgba(255, 215, 0, 0.7)';
+                    setTimeout(() => {
+                        el.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+                    }, 1000);
+                }
+            });
+        }
+        
+        // إعادة تعيين اللعبة
+        function resetGame() {
+            currentStep = 0;
+            score = 0;
+            attempts = 0;
+            stars = 0;
+            
+            updateScoreDisplay();
+            
+            const starElements = document.querySelectorAll('.star');
+            starElements.forEach(star => {
+                star.classList.remove('active');
+            });
+            
+            clearInterval(timerInterval);
+            timerContainer.style.display = 'none';
+            
+            initGame();
+        }
+        
+        // استماع للأحداث
+        startBtn.addEventListener('click', initGame);
+        resetBtn.addEventListener('click', resetGame);
+        hintBtn.addEventListener('click', showHint);
+        
+        levelButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                levelButtons.forEach(b => b.style.backgroundColor = '#118AB2');
+                btn.style.backgroundColor = '#EF476F';
+                stepSize = parseInt(btn.dataset.step);
+            });
+        });
+        
+        modeButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                modeButtons.forEach(b => b.classList.remove('active-mode'));
+                btn.classList.add('active-mode');
+                gameMode = btn.dataset.mode;
+            });
+        });
+        
+        // تهيئة أولية
+        levelButtons[0].style.backgroundColor = '#EF476F';
+        modeButtons[0].classList.add('active-mode');
+    </script>
+</body>
+</html>

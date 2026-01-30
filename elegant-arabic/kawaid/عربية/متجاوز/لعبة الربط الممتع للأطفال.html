@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الربط للأطفال</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #cbebff 100%);
+            margin: 0;
+            padding: 10px;
+            min-height: 100vh;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #ff6b6b;
+            margin-bottom: 20px;
+            font-size: 2em;
+            text-shadow: 2px 2px 0px #fff;
+        }
+        
+        .game-container {
+            display: flex;
+            justify-content: space-between;
+            margin: 0 auto;
+            max-width: 1200px;
+            position: relative;
+            gap: 80px; /* زيادة الفراغ بين العمودين 4 مرات */
+        }
+        
+        .card-column {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 40%;
+        }
+        
+        .card {
+            width: 100%;
+            min-height: 60px; /* تصغير حجم البطاقات بالنصف */
+            border-radius: 15px;
+            position: relative;
+            cursor: pointer;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 3px solid transparent;
+        }
+        
+        .left-column .card {
+            background: linear-gradient(135deg, #fff9c4 0%, #ffecb3 100%);
+        }
+        
+        .right-column .card {
+            background: linear-gradient(135deg, #bbdefb 0%, #90caf9 100%);
+        }
+        
+        .card:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.15);
+        }
+        
+        .card.selected {
+            border: 3px dashed #ff9800;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .card.correct {
+            border: 3px solid #4caf50;
+            background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
+        }
+        
+        .card.wrong {
+            border: 3px solid #f44336;
+            background: linear-gradient(135deg, #ffcdd2 0%, #ef9a9a 100%);
+        }
+        
+        .card-title {
+            font-weight: bold;
+            font-size: 1em;
+            margin-bottom: 5px;
+            color: #d32f2f;
+            text-align: center;
+        }
+        
+        .card-content {
+            font-size: 0.9em;
+            color: #333;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+        }
+        
+        .card-emoji {
+            font-size: 1.5em;
+            margin-left: 8px;
+        }
+        
+        .line {
+            position: absolute;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            z-index: -1;
+            height: 5px;
+            border-radius: 8px;
+            transform-origin: 0 0;
+            pointer-events: none;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            transition: all 0.5s ease;
+        }
+        
+        .controls {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        button {
+            background-color: #ff7043;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            margin: 0 8px;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            background-color: #ff5722;
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+        
+        .score-container {
+            text-align: center;
+            font-size: 1.2em;
+            margin-top: 15px;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 50px;
+            display: inline-block;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            margin: 15px auto;
+        }
+        
+        #score {
+            color: #ff5722;
+            font-weight: bold;
+            font-size: 1.5em;
+        }
+        
+        .feedback {
+            text-align: center;
+            font-size: 1.2em;
+            margin: 15px 0;
+            min-height: 30px;
+            color: #ff5722;
+            font-weight: bold;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes confetti {
+            0% { transform: translateY(0) rotate(0); opacity: 1; }
+            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 12px;
+            height: 12px;
+            background-color: #f00;
+            border-radius: 50%;
+            animation: confetti 1s ease-out forwards;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎮 لعبة الربط الممتعة للأطفال 🎨</h1>
+    
+    <div style="text-align: center;">
+        <div class="score-container">
+            النقاط: <span id="score">0</span> 🌟
+        </div>
+    </div>
+    
+    <div class="feedback" id="feedback"></div>
+    
+    <div class="game-container">
+        <div class="card-column left-column" id="left-column">
+            <div class="card" data-card="1">
+                <div class="card-title">الحيوانات</div>
+                <div class="card-content">من يقول "مواء"؟ <span class="card-emoji">🐱</span></div>
+            </div>
+            <div class="card" data-card="2">
+                <div class="card-title">الفواكه</div>
+                <div class="card-content">فاكهة صفراء طويلة <span class="card-emoji">🍌</span></div>
+            </div>
+            <div class="card" data-card="3">
+                <div class="card-title">الطقس</div>
+                <div class="card-content">تسقط عندما تمطر <span class="card-emoji">💧</span></div>
+            </div>
+            <div class="card" data-card="4">
+                <div class="card-title">المواصلات</div>
+                <div class="card-content">تطير في السماء <span class="card-emoji">✈️</span></div>
+            </div>
+            <div class="card" data-card="5">
+                <div class="card-title">الألوان</div>
+                <div class="card-content">لون العشب <span class="card-emoji">🟢</span></div>
+            </div>
+            <div class="card" data-card="6">
+                <div class="card-title">الأرقام</div>
+                <div class="card-content">أيام الأسبوع <span class="card-emoji">7️⃣</span></div>
+            </div>
+        </div>
+        
+        <div class="card-column right-column" id="right-column">
+            <div class="card" data-card="A" data-match="1">
+                <div class="card-title">القط</div>
+                <div class="card-content">حيوان أليف <span class="card-emoji">😺</span></div>
+            </div>
+            <div class="card" data-card="B" data-match="4">
+                <div class="card-title">الطائرة</div>
+                <div class="card-content">تنقل الناس <span class="card-emoji">🛫</span></div>
+            </div>
+            <div class="card" data-card="C" data-match="2">
+                <div class="card-title">الموز</div>
+                <div class="card-content">فاكهة لذيذة <span class="card-emoji">🍌</span></div>
+            </div>
+            <div class="card" data-card="D" data-match="5">
+                <div class="card-title">الأخضر</div>
+                <div class="card-content">لون الطبيعة <span class="card-emoji">🌿</span></div>
+            </div>
+            <div class="card" data-card="E" data-match="3">
+                <div class="card-title">قطرات الماء</div>
+                <div class="card-content">تسقي النباتات <span class="card-emoji">🌧️</span></div>
+            </div>
+            <div class="card" data-card="F" data-match="6">
+                <div class="card-title">سبعة</div>
+                <div class="card-content">من الأحد للسبت <span class="card-emoji">📅</span></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="controls">
+        <button id="check-btn">🔍 تحقق</button>
+        <button id="reset-btn">🔄 إعادة</button>
+        <button id="hint-btn">💡 مساعدة</button>
+    </div>
+
+    <script>
+        // نفس كود الجافاسكريبت السابق...
+        // يرجى نسخه من التصميم الأصلي حيث أنه لم يتغير
+    </script>
+</body>
+</html>

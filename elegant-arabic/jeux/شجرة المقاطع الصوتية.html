@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شجرة المقاطع الصوتية - تعليم العربية للأطفال</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+        
+        :root {
+            --primary: #FF9F1C;
+            --secondary: #2EC4B6;
+            --accent: #E71D36;
+            --light: #FDFFFC;
+            --dark: #011627;
+            --shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 0;
+            color: var(--dark);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeIn 1s ease-in-out;
+        }
+        
+        h1 {
+            color: var(--accent);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .subtitle {
+            color: var(--secondary);
+            font-size: 1.2rem;
+        }
+        
+        .tree-container {
+            background: url('https://i.imgur.com/JQJQJQJ.png') no-repeat center;
+            background-size: contain;
+            height: 600px;
+            position: relative;
+            margin: 40px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .branch {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background-color: var(--light);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+            text-align: center;
+            padding: 10px;
+        }
+        
+        .branch:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        
+        .branch .content {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        .branch .example {
+            position: absolute;
+            bottom: -25px;
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+        
+        /* مواضع الفروع */
+        .branch-1 { top: 50px; left: 100px; background-color: #FFD166; }
+        .branch-2 { top: 80px; right: 100px; background-color: #06D6A0; }
+        .branch-3 { top: 150px; left: 200px; background-color: #118AB2; }
+        .branch-4 { top: 200px; right: 200px; background-color: #EF476F; }
+        .branch-5 { top: 300px; left: 150px; background-color: #FFD166; }
+        .branch-6 { top: 350px; right: 150px; background-color: #06D6A0; }
+        .branch-7 { top: 400px; left: 250px; background-color: #118AB2; }
+        .branch-8 { top: 450px; right: 250px; background-color: #EF476F; }
+        .branch-9 { top: 500px; left: 100px; background-color: #FFD166; }
+        .branch-10 { top: 550px; right: 100px; background-color: #06D6A0; }
+        .branch-11 { bottom: 50px; left: 50%; transform: translateX(-50%); background-color: #073B4C; color: white; }
+        
+        /* تأثيرات الحركات */
+        .damma { animation: float 3s ease-in-out infinite; }
+        .kasra { animation: shake 0.5s ease-in-out infinite alternate; }
+        .fatha { animation: pulse 1.5s ease-in-out infinite; }
+        
+        /* نافذة المعلومات */
+        .info-window {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            max-width: 500px;
+            width: 90%;
+            display: none;
+            animation: popUp 0.4s ease-out;
+        }
+        
+        .info-window h2 {
+            color: var(--primary);
+            margin-top: 0;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+        }
+        
+        .info-window .close-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--accent);
+        }
+        
+        .audio-player {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .play-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+        
+        .play-btn:hover {
+            background-color: var(--accent);
+            transform: scale(1.05);
+        }
+        
+        .progress-container {
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .stars {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .star {
+            font-size: 2rem;
+            color: #ddd;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .star.filled {
+            color: #FFD700;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            background-color: var(--dark);
+            color: white;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes popUp {
+            from { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        @keyframes shake {
+            from { transform: translateX(-5px); }
+            to { transform: translateX(5px); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .tree-container {
+                height: 400px;
+                background-size: cover;
+            }
+            
+            .branch {
+                width: 80px;
+                height: 80px;
+                font-size: 0.8rem;
+            }
+            
+            .branch .content {
+                font-size: 1.2rem;
+            }
+            
+            .branch .example {
+                font-size: 1rem;
+                bottom: -20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>شجرة المقاطع الصوتية</h1>
+            <p class="subtitle">تعلم العربية بطريقة ممتعة وتفاعلية</p>
+        </header>
+        
+        <div class="tree-container">
+            <!-- تنوين الضم -->
+            <div class="branch branch-1 damma" onclick="showInfo(1)">
+                <div class="content">تنوين الضم (ٌ)</div>
+                <div class="example">دٌ</div>
+            </div>
+            
+            <!-- تنوين الكسر -->
+            <div class="branch branch-2 kasra" onclick="showInfo(2)">
+                <div class="content">تنوين الكسر (ٍ)</div>
+                <div class="example">دٍ</div>
+            </div>
+            
+            <!-- تنوين الفتح -->
+            <div class="branch branch-3 fatha" onclick="showInfo(3)">
+                <div class="content">تنوين الفتح (ً)</div>
+                <div class="example">داً</div>
+            </div>
+            
+            <!-- مد الياء في الوسط -->
+            <div class="branch branch-4" onclick="showInfo(4)">
+                <div class="content">مد الياء (وسط)</div>
+                <div class="example">ديـ</div>
+            </div>
+            
+            <!-- مد الياء في الآخر -->
+            <div class="branch branch-5" onclick="showInfo(5)">
+                <div class="content">مد الياء (آخر)</div>
+                <div class="example">دي</div>
+            </div>
+            
+            <!-- مد الواو -->
+            <div class="branch branch-6" onclick="showInfo(6)">
+                <div class="content">مد الواو</div>
+                <div class="example">دو</div>
+            </div>
+            
+            <!-- مد الألف -->
+            <div class="branch branch-7" onclick="showInfo(7)">
+                <div class="content">مد الألف</div>
+                <div class="example">دا</div>
+            </div>
+            
+            <!-- الكسرة -->
+            <div class="branch branch-8 kasra" onclick="showInfo(8)">
+                <div class="content">الكسرة (ِ)</div>
+                <div class="example">دِ</div>
+            </div>
+            
+            <!-- الضمة -->
+            <div class="branch branch-9 damma" onclick="showInfo(9)">
+                <div class="content">الضمة (ُ)</div>
+                <div class="example">دُ</div>
+            </div>
+            
+            <!-- الفتحة -->
+            <div class="branch branch-10 fatha" onclick="showInfo(10)">
+                <div class="content">الفتحة (َ)</div>
+                <div class="example">دَ</div>
+            </div>
+            
+            <!-- الأصوات -->
+            <div class="branch branch-11" onclick="showInfo(11)">
+                <div class="content">الأصوات</div>
+                <div class="example">[د]</div>
+            </div>
+        </div>
+        
+        <div class="progress-container">
+            <h3>تقدمك في التعلم</h3>
+            <div class="stars">
+                <div class="star">★</div>
+                <div class="star">★</div>
+                <div class="star">★</div>
+                <div class="star">★</div>
+                <div class="star">★</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- نافذة المعلومات -->
+    <div class="info-window" id="infoWindow">
+        <button class="close-btn" onclick="closeInfo()">×</button>
+        <h2 id="infoTitle">تنوين الضم (ٌ)</h2>
+        <div id="infoContent">
+            <p>التنوين هو نون ساكنة زائدة تلحق آخر الاسم لفظاً لا كتابةً</p>
+            <div class="audio-player">
+                <button class="play-btn" onclick="playAudio()">
+                    <span>تشغيل الصوت</span>
+                    <span style="margin-right: 5px;">▶</span>
+                </button>
+            </div>
+            <p><strong>مثال:</strong> <span id="exampleText" style="font-size: 1.5rem;">دٌ</span></p>
+            <p id="additionalInfo">يظهر تنوين الضم على شكل ضمتين فوق الحرف الأخير</p>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2023 شجرة المقاطع الصوتية - صممت بحب لتعليم الأطفال</p>
+    </footer>
+    
+    <script>
+        // بيانات المقاطع الصوتية
+        const soundsData = [
+            {
+                title: "تنوين الضم (ٌ)",
+                example: "دٌ",
+                info: "التنوين هو نون ساكنة زائدة تلحق آخر الاسم لفظاً لا كتابةً. تنوين الضم يظهر على شكل ضمتين فوق الحرف الأخير.",
+                audio: "https://example.com/audio/dammah.mp3"
+            },
+            {
+                title: "تنوين الكسر (ٍ)",
+                example: "دٍ",
+                info: "تنوين الكسر يظهر على شكل كسرتين تحت الحرف الأخير. ينطق بحركة الكسر مع غنة خفيفة.",
+                audio: "https://example.com/audio/kasrah.mp3"
+            },
+            {
+                title: "تنوين الفتح (ً)",
+                example: "داً",
+                info: "تنوين الفتح يظهر على شكل فتحتين فوق الحرف الأخير. ينطق بحركة الفتح مع مد خفيف.",
+                audio: "https://example.com/audio/fathah.mp3"
+            },
+            {
+                title: "مد الياء في الوسط",
+                example: "ديـ",
+                info: "مد الياء في وسط الكلمة يظهر عندما تتبع الياء حرفاً ساكناً. يتم مد الصوت عند النطق.",
+                audio: "https://example.com/audio/ya-middle.mp3"
+            },
+            {
+                title: "مد الياء في الآخر",
+                example: "دي",
+                info: "مد الياء في آخر الكلمة يظهر عندما تكون الياء ساكنة وما قبلها مفتوح. يتم مد الصوت بشكل واضح.",
+                audio: "https://example.com/audio/ya-end.mp3"
+            },
+            {
+                title: "مد الواو",
+                example: "دو",
+                info: "مد الواو يحدث عندما تكون الواو ساكنة وما قبلها مضموم. ينطق الصوت مع مد في الواو.",
+                audio: "https://example.com/audio/waw.mp3"
+            },
+            {
+                title: "مد الألف",
+                example: "دا",
+                info: "مد الألف يحدث عندما تكون الألف ساكنة وما قبلها مفتوح. ينطق الصوت مع مد واضح في الألف.",
+                audio: "https://example.com/audio/alif.mp3"
+            },
+            {
+                title: "الكسرة (ِ)",
+                example: "دِ",
+                info: "الكسرة هي حركة قصيرة توضع تحت الحرف وتنطق بصوت قصير مكسور.",
+                audio: "https://example.com/audio/kasra.mp3"
+            },
+            {
+                title: "الضمة (ُ)",
+                example: "دُ",
+                info: "الضمة هي حركة قصيرة توضع فوق الحرف وتنطق بصوت قصير مضموم.",
+                audio: "https://example.com/audio/damma.mp3"
+            },
+            {
+                title: "الفتحة (َ)",
+                example: "دَ",
+                info: "الفتحة هي حركة قصيرة توضع فوق الحرف وتنطق بصوت قصير مفتوح.",
+                audio: "https://example.com/audio/fatha.mp3"
+            },
+            {
+                title: "الأصوات",
+                example: "[د]",
+                info: "الأصوات الأساسية للحروف العربية بدون حركات. هذا هو الصوت الأصلي للحرف.",
+                audio: "https://example.com/audio/base.mp3"
+            }
+        ];
+        
+        let currentSoundIndex = 0;
+        let starsEarned = 0;
+        const stars = document.querySelectorAll('.star');
+        
+        // عرض معلومات المقطع الصوتي
+        function showInfo(index) {
+            currentSoundIndex = index - 1;
+            const sound = soundsData[currentSoundIndex];
+            
+            document.getElementById('infoTitle').textContent = sound.title;
+            document.getElementById('exampleText').textContent = sound.example;
+            document.getElementById('additionalInfo').textContent = sound.info;
+            
+            document.getElementById('infoWindow').style.display = 'block';
+            
+            // زيادة النجوم عند التعلم
+            if (starsEarned < 5 && !stars[currentSoundIndex].classList.contains('filled')) {
+                stars[currentSoundIndex].classList.add('filled');
+                starsEarned++;
+                
+                // تأثير عند الحصول على نجمة
+                stars[currentSoundIndex].style.transform = 'scale(1.5)';
+                setTimeout(() => {
+                    stars[currentSoundIndex].style.transform = 'scale(1)';
+                }, 300);
+            }
+        }
+        
+        // إغلاق نافذة المعلومات
+        function closeInfo() {
+            document.getElementById('infoWindow').style.display = 'none';
+        }
+        
+        // تشغيل الصوت
+        function playAudio() {
+            // في الواقع، سيتم تشغيل ملف صوتي
+            // هنا فقط لمحاكاة التشغيل
+            alert('جاري تشغيل الصوت: ' + soundsData[currentSoundIndex].title);
+            
+            // يمكن استخدام كود مثل هذا لتشغيل الصوت الفعلي:
+            // const audio = new Audio(soundsData[currentSoundIndex].audio);
+            // audio.play();
+        }
+        
+        // إغلاق النافذة عند النقر خارجها
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('infoWindow')) {
+                closeInfo();
+            }
+        }
+    </script>
+</body>
+</html>

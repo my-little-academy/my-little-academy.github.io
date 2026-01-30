@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رحلة الحج الكاملة - لعبة تعليمية للأطفال</title>
+    <style>
+        /* التنسيقات العامة */
+        :root {
+            --primary-color: #2e7d32;
+            --secondary-color: #ffab00;
+            --accent-color: #1565c0;
+            --text-color: #333;
+            --light-bg: #f5f5f5;
+        }
+        
+        body {
+            font-family: 'Tajawal', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-bg);
+            color: var(--text-color);
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color), #1b5e20);
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 2.2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        /* منطقة الشخصية */
+        .character-section {
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        
+        .character-options {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .character-option {
+            width: 120px;
+            height: 180px;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+            position: relative;
+        }
+        
+        .character-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        
+        .character-option.selected {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.3);
+        }
+        
+        .character-option img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .character-name {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0,0,0,0.6);
+            color: white;
+            padding: 5px;
+            font-size: 0.9rem;
+        }
+        
+        /* مراحل الحج */
+        .hajj-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .step {
+            background-color: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            display: none;
+        }
+        
+        .step.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        .step-header {
+            background: linear-gradient(135deg, var(--primary-color), #1b5e20);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .step-number {
+            background-color: white;
+            color: var(--primary-color);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .step-title {
+            font-size: 1.3rem;
+            margin: 0;
+            flex-grow: 1;
+        }
+        
+        .step-content {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .step-description {
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+        
+        .step-media {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .step-image {
+            flex: 1;
+            min-width: 300px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .step-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .step-game {
+            flex: 1;
+            min-width: 300px;
+            background-color: var(--light-bg);
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        /* ألعاب المراحل */
+        .ihram-game {
+            text-align: center;
+        }
+        
+        .ihram-items {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        .ihram-item {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .ihram-item:hover {
+            transform: scale(1.1);
+        }
+        
+        .ihram-character {
+            width: 150px;
+            height: 200px;
+            margin: 0 auto;
+            position: relative;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+        }
+        
+        /* لعبة الطواف المربعة */
+        .tawaf-game {
+            width: 100%;
+            text-align: center;
+        }
+        
+        .kaaba-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 20px auto;
+            border: 2px dashed #ccc;
+        }
+        
+        .kaaba {
+            width: 150px;
+            height: 150px;
+            background-color: #333;
+            position: absolute;
+            top: 75px;
+            left: 75px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .hajji {
+            width: 30px;
+            height: 30px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            position: absolute;
+            transition: all 1s;
+            z-index: 10;
+        }
+        
+        .tawaf-counter {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 15px 0;
+        }
+        
+        .path-marker {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: var(--secondary-color);
+            border-radius: 50%;
+        }
+        
+        .saee-game {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .saee-path {
+            width: 100%;
+            height: 80px;
+            background-color: #f0f0f0;
+            border-radius: 40px;
+            position: relative;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .safa, .marwa {
+            width: 60px;
+            height: 60px;
+            background-color: var(--secondary-color);
+            border-radius: 50%;
+            position: absolute;
+            top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .safa {
+            left: 20px;
+        }
+        
+        .marwa {
+            right: 20px;
+        }
+        
+        .saee-runner {
+            width: 30px;
+            height: 30px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            position: absolute;
+            top: 25px;
+            left: 100px;
+            transition: all 0.5s;
+        }
+        
+        .saee-counter {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 15px 0;
+        }
+        
+        .jamarat-game {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .jamarat-targets {
+            display: flex;
+            gap: 30px;
+            margin: 20px 0;
+        }
+        
+        .jamarat {
+            width: 60px;
+            height: 100px;
+            background-color: #8d6e63;
+            border-radius: 5px;
+            position: relative;
+        }
+        
+        .stone {
+            width: 20px;
+            height: 20px;
+            background-color: #78909c;
+            border-radius: 50%;
+            position: absolute;
+            bottom: -30px;
+            left: 20px;
+            cursor: pointer;
+        }
+        
+        .thrown-stone {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: white;
+            border-radius: 50%;
+        }
+        
+        .jamarat-counter {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        /* عناصر التحكم */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #1b5e20;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #ff8f00;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .btn:disabled {
+            background-color: #e0e0e0;
+            color: #9e9e9e;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* شريط التقدم */
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin: 30px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            width: 0%;
+            transition: width 0.5s;
+        }
+        
+        /* النتائج والمكافآت */
+        .reward {
+            text-align: center;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .reward-icon {
+            font-size: 4rem;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+        }
+        
+        .reward-message {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        
+        /* الرسوم المتحركة */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .bounce {
+            animation: bounce 1s infinite;
+        }
+        
+        /* التكيف مع الشاشات الصغيرة */
+        @media (max-width: 768px) {
+            .step-media {
+                flex-direction: column;
+            }
+            
+            .step-image, .step-game {
+                min-width: 100%;
+            }
+            
+            .character-options {
+                gap: 10px;
+            }
+            
+            .character-option {
+                width: 90px;
+                height: 135px;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>رحلة الحج الكاملة</h1>
+            <div class="subtitle">لعبة تعليمية ممتعة للأطفال</div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- قسم اختيار الشخصية -->
+        <div class="character-section" id="characterSection">
+            <h2>اختر شخصيتك للرحلة</h2>
+            <div class="character-options">
+                <div class="character-option" onclick="selectCharacter(this, 'أحمد')">
+                    <img src="../../images/New folder (4)/pngegg(154).png" alt="ولد">
+                    <div class="character-name">أحمد</div>
+                </div>
+                <div class="character-option" onclick="selectCharacter(this, 'فاطمة')">
+                    <img src="../../images/New folder (4)/Picture2 (2).png" alt="بنت">
+                    <div class="character-name">فاطمة</div>
+                </div>
+                <div class="character-option" onclick="selectCharacter(this, 'جدو')">
+                    <img src="https://i.imgur.com/mV8Zxj3.png" alt="جد">
+                    <div class="character-name">جدو</div>
+                </div>
+                <div class="character-option" onclick="selectCharacter(this, 'سارة')">
+                    <img src="https://i.imgur.com/5WZwX6p.png" alt="جدة">
+                    <div class="character-name">سارة</div>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="startHajj()" id="startBtn" disabled>ابدأ الرحلة</button>
+        </div>
+        
+        <!-- مراحل الحج -->
+        <div class="hajj-steps" id="hajjSteps" style="display: none;">
+            <!-- 1. الإحرام -->
+            <div class="step" id="step1">
+                <div class="step-header">
+                    <div class="step-number">1</div>
+                    <h3 class="step-title">الإحرام</h3>
+                </div>
+                <div class="step-content">
+                    <p class="step-description">
+                        الإحرام هو نية الدخول في مناسك الحج. يقوم المحرم بارتداء ملابس الإحرام البسيطة والتلبية قائلاً:
+                        <strong>"لبيك اللهم لبيك، لبيك لا شريك لك لبيك، إن الحمد والنعمة لك والملك، لا شريك لك"</strong>
+                    </p>
+                    <div class="step-media">
+                        <div class="step-image">
+                            <img src="https://i.imgur.com/7Vv4T9j.jpg" alt="ملابس الإحرام">
+                        </div>
+                        <div class="step-game ihram-game">
+                            <h3>ساعد الشخصية في ارتداء ملابس الإحرام</h3>
+                            <div class="ihram-character" id="ihramCharacter">
+                                <!-- سيتم إضافة ملابس الإحرام هنا -->
+                            </div>
+                            <div class="ihram-items">
+                                <div class="ihram-item" draggable="true" data-item="izar">
+                                    <img src="https://i.imgur.com/pJjZLqQ.png" alt="إزار" width="50">
+                                </div>
+                                <div class="ihram-item" draggable="true" data-item="rida">
+                                    <img src="https://i.imgur.com/9XkJlZP.png" alt="رداء" width="50">
+                                </div>
+                                <div class="ihram-item" draggable="true" data-item="sandals">
+                                    <img src="https://i.imgur.com/mQ2WzBk.png" alt="نعلين" width="50">
+                                </div>
+                            </div>
+                            <button class="btn btn-secondary" onclick="completeIhram()" id="ihramBtn" disabled>أكملت الإحرام</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 2. الطواف -->
+            <div class="step" id="step2">
+                <div class="step-header">
+                    <div class="step-number">2</div>
+                    <h3 class="step-title">الطواف حول الكعبة</h3>
+                </div>
+                <div class="step-content">
+                    <p class="step-description">
+                        الطواف هو الدوران حول الكعبة المشرفة سبعة أشواط، يبدأ كل شوط من الحجر الأسود وينتهي عنده.
+                        يجب أن يكون الكعبة على يسار المحرم أثناء الطواف.
+                    </p>
+                    <div class="step-media">
+                        <div class="step-image">
+                            <img src="https://i.imgur.com/KY9WBBx.jpg" alt="الطواف حول الكعبة">
+                        </div>
+                        <div class="step-game tawaf-game">
+                            <h3>قم بالطواف حول الكعبة 7 أشواط</h3>
+                            <div class="kaaba-container" id="kaabaContainer">
+                                <div class="kaaba">الكعبة</div>
+                                <div class="hajji" id="hajji"></div>
+                                <!-- نقاط المسار المربع -->
+                                <div class="path-marker" style="top: 45px; left: 75px;"></div>
+                                <div class="path-marker" style="top: 75px; left: 255px;"></div>
+                                <div class="path-marker" style="top: 255px; left: 225px;"></div>
+                                <div class="path-marker" style="top: 225px; left: 45px;"></div>
+                            </div>
+                            <div class="tawaf-counter">الأشواط المكتملة: <span id="tawafCount">0</span>/7</div>
+                            <button class="btn btn-secondary" onclick="doTawaf()" id="tawafBtn">طوّف شوطًا</button>
+                            <div class="reward" id="tawafReward">
+                                <div class="reward-icon"><i class="fas fa-star"></i></div>
+                                <div class="reward-message">أحسنت! أكملت الطواف حول الكعبة</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 3. السعي -->
+            <div class="step" id="step3">
+                <div class="step-header">
+                    <div class="step-number">3</div>
+                    <h3 class="step-title">السعي بين الصفا والمروة</h3>
+                </div>
+                <div class="step-content">
+                    <p class="step-description">
+                        السعي هو المشي بين جبلي الصفا والمروة سبعة أشواط، تذكارًا لسعي السيدة هاجر بينهما بحثًا عن الماء لابنها إسماعيل عليه السلام.
+                        يبدأ السعي من الصفا وينتهي بالمروة.
+                    </p>
+                    <div class="step-media">
+                        <div class="step-image">
+                            <img src="https://i.imgur.com/9jVZJtN.jpg" alt="السعي بين الصفا والمروة">
+                        </div>
+                        <div class="step-game saee-game">
+                            <h3>قم بالسعي بين الصفا والمروة 7 أشواط</h3>
+                            <div class="saee-path">
+                                <div class="safa">الصفا</div>
+                                <div class="marwa">المروة</div>
+                                <div class="saee-runner" id="saeeRunner"></div>
+                            </div>
+                            <div class="saee-counter">الأشواط المكتملة: <span id="saeeCount">0</span>/7</div>
+                            <button class="btn btn-secondary" onclick="doSaee()" id="saeeBtn">ابدأ السعي</button>
+                            <div class="reward" id="saeeReward">
+                                <div class="reward-icon"><i class="fas fa-star"></i></div>
+                                <div class="reward-message">ممتاز! أكملت السعي بنجاح</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 4. الوقوف بعرفة -->
+            <div class="step" id="step4">
+                <div class="step-header">
+                    <div class="step-number">4</div>
+                    <h3 class="step-title">الوقوف بعرفة</h3>
+                </div>
+                <div class="step-content">
+                    <p class="step-description">
+                        الوقوف بعرفة هو الركن الأعظم للحج، حيث يقف الحجاج على جبل عرفة من ظهر يوم التاسع من ذي الحجة حتى فجر يوم النحر.
+                        يدعو الحاج ربه في هذا اليوم العظيم ويستغفره.
+                    </p>
+                    <div class="step-media">
+                        <div class="step-image">
+                            <img src="https://i.imgur.com/5wD4vQx.jpg" alt="الوقوف بعرفة">
+                        </div>
+                        <div class="step-game">
+                            <h3>اكتب دعاءك في عرفة</h3>
+                            <textarea id="arafaDua" rows="5" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"></textarea>
+                            <button class="btn btn-secondary" onclick="completeArafa()" id="arafaBtn">أكملت الوقوف</button>
+                            <div class="reward" id="arafaReward">
+                                <div class="reward-icon"><i class="fas fa-star"></i></div>
+                                <div class="reward-message">الله يتقبل دعاءك!</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 5. رمي الجمرات -->
+            <div class="step" id="step5">
+                <div class="step-header">
+                    <div class="step-number">5</div>
+                    <h3 class="step-title">رمي الجمرات</h3>
+                </div>
+                <div class="step-content">
+                    <p class="step-description">
+                        رمي الجمرات هو رمي سبع حصيات على الجمرات الثلاث (الصغرى، الوسطى، الكبرى) في أيام التشريق.
+                        يرمز هذا الرمي إلى مقاومة الشيطان واتباع أوامر الله.
+                    </p>
+                    <div class="step-media">
+                        <div class="step-image">
+                            <img src="https://i.imgur.com/9jVZJtN.jpg" alt="رمي الجمرات">
+                        </div>
+                        <div class="step-game jamarat-game">
+                            <h3>قم برمي الجمرات</h3>
+                            <div class="jamarat-targets">
+                                <div class="jamarat" id="jamarat1">
+                                    <div class="stone" onclick="throwStone(this, 'jamarat1')"></div>
+                                </div>
+                                <div class="jamarat" id="jamarat2">
+                                    <div class="stone" onclick="throwStone(this, 'jamarat2')"></div>
+                                </div>
+                                <div class="jamarat" id="jamarat3">
+                                    <div class="stone" onclick="throwStone(this, 'jamarat3')"></div>
+                                </div>
+                            </div>
+                            <div class="jamarat-counter">الحصيات المرمية: <span id="stoneCount">0</span>/21</div>
+                            <button class="btn btn-secondary" onclick="resetStones()">إعادة تعيين</button>
+                            <div class="reward" id="jamaratReward">
+                                <div class="reward-icon"><i class="fas fa-star"></i></div>
+                                <div class="reward-message">برافو! أكملت رمي الجمرات</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 6. التحلل والحلاقة -->
+            <div class="step" id="step6">
+                <div class="step-header">
+                    <div class="step-number">6</div>
+                    <h3 class="step-title">التحلل والحلاقة</h3>
+                </div>
+                <div class="step-content">
+                    <p class="step-description">
+                        بعد رمي جمرة العقبة يوم النحر، يحلق الحاج شعره أو يقصره ليحل له ما حرم عليه بالإحرام.
+                        الحلاقة رمز للتخلص من الذنوب والبدء بحياة جديدة.
+                    </p>
+                    <div class="step-media">
+                        <div class="step-image">
+                            <img src="https://i.imgur.com/9jVZJtN.jpg" alt="الحلاقة بعد الحج">
+                        </div>
+                        <div class="step-game">
+                            <h3>اختر قص شعرك أو حلقه</h3>
+                            <div style="display: flex; gap: 20px; justify-content: center; margin: 20px 0;">
+                                <button class="btn btn-secondary" onclick="chooseHaircut('cut')">
+                                    <i class="fas fa-scissors"></i> تقصير
+                                </button>
+                                <button class="btn btn-secondary" onclick="chooseHaircut('shave')">
+                                    <i class="fas fa-shower"></i> حلق
+                                </button>
+                            </div>
+                            <div class="reward" id="haircutReward">
+                                <div class="reward-icon"><i class="fas fa-star"></i></div>
+                                <div class="reward-message">تهانينا! لقد أكملت مناسك الحج</div>
+                                <button class="btn btn-primary" onclick="showCertificate()" style="margin-top: 15px;">
+                                    <i class="fas fa-award"></i> عرض الشهادة
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- شهادة الإتمام -->
+            <div class="step" id="certificate" style="display: none; text-align: center;">
+                <div class="step-header">
+                    <div class="step-number"><i class="fas fa-award"></i></div>
+                    <h3 class="step-title">شهادة إتمام مناسك الحج</h3>
+                </div>
+                <div class="step-content">
+                    <div style="background: url('https://i.imgur.com/ZYzTQzs.png') no-repeat center center; background-size: contain; padding: 50px; margin: 20px 0;">
+                        <h2 style="color: var(--primary-color); margin-top: 100px;">شهادة تقدير</h2>
+                        <p>تمنح هذه الشهادة إلى</p>
+                        <h3 id="certificateName" style="color: var(--accent-color);">[اسم اللاعب]</h3>
+                        <p>لإتمامه مناسك الحج بنجاح</p>
+                        <p style="margin-top: 30px;">___________</p>
+                        <p>التاريخ: <span id="certificateDate"></span></p>
+                    </div>
+                    <button class="btn btn-primary" onclick="printCertificate()">
+                        <i class="fas fa-print"></i> طباعة الشهادة
+                    </button>
+                    <button class="btn btn-secondary" onclick="restartGame()">
+                        <i class="fas fa-redo"></i> البدء من جديد
+                    </button>
+                </div>
+            </div>
+            
+            <!-- شريط التقدم -->
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            
+            <!-- عناصر التحكم -->
+            <div class="controls">
+                <button class="btn btn-primary" id="prevBtn" onclick="prevStep()" disabled>
+                    <i class="fas fa-arrow-right"></i> السابق
+                </button>
+                <button class="btn btn-primary" id="nextBtn" onclick="nextStep()" disabled>
+                    التالي <i class="fas fa-arrow-left"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // بيانات اللعبة
+        const gameState = {
+            currentStep: 1,
+            totalSteps: 6,
+            selectedCharacter: null,
+            characterName: '',
+            completedSteps: {
+                ihram: false,
+                tawaf: false,
+                saee: false,
+                arafa: false,
+                jamarat: false,
+                haircut: false
+            },
+            tawafCount: 0,
+            saeeCount: 0,
+            stonesThrown: 0,
+            currentTawafSide: 0 // 0: أعلى، 1: يمين، 2: أسفل، 3: يسار
+        };
+        
+        // اختيار الشخصية
+        function selectCharacter(element, name) {
+            const options = document.querySelectorAll('.character-option');
+            options.forEach(opt => opt.classList.remove('selected'));
+            
+            element.classList.add('selected');
+            gameState.selectedCharacter = element.querySelector('img').src;
+            gameState.characterName = name;
+            document.getElementById('startBtn').disabled = false;
+        }
+        
+        // بدء الرحلة
+        function startHajj() {
+            document.getElementById('characterSection').style.display = 'none';
+            document.getElementById('hajjSteps').style.display = 'block';
+            document.getElementById(`step${gameState.currentStep}`).classList.add('active');
+            document.getElementById('nextBtn').disabled = false;
+            setupIhramGame();
+            setupTawafGame();
+        }
+        
+        // الانتقال بين الخطوات
+        function nextStep() {
+            if (gameState.currentStep < gameState.totalSteps) {
+                document.getElementById(`step${gameState.currentStep}`).classList.remove('active');
+                gameState.currentStep++;
+                document.getElementById(`step${gameState.currentStep}`).classList.add('active');
+                updateControls();
+                updateProgress();
+            }
+        }
+        
+        function prevStep() {
+            if (gameState.currentStep > 1) {
+                document.getElementById(`step${gameState.currentStep}`).classList.remove('active');
+                gameState.currentStep--;
+                document.getElementById(`step${gameState.currentStep}`).classList.add('active');
+                updateControls();
+                updateProgress();
+            }
+        }
+        
+        function updateControls() {
+            document.getElementById('prevBtn').disabled = gameState.currentStep === 1;
+            document.getElementById('nextBtn').disabled = gameState.currentStep === gameState.totalSteps || 
+                (gameState.currentStep === 1 && !gameState.completedSteps.ihram) ||
+                (gameState.currentStep === 2 && !gameState.completedSteps.tawaf) ||
+                (gameState.currentStep === 3 && !gameState.completedSteps.saee) ||
+                (gameState.currentStep === 4 && !gameState.completedSteps.arafa) ||
+                (gameState.currentStep === 5 && !gameState.completedSteps.jamarat);
+        }
+        
+        function updateProgress() {
+            const progress = (gameState.currentStep / gameState.totalSteps) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+        }
+        
+        // لعبة الإحرام
+        function setupIhramGame() {
+            const ihramCharacter = document.getElementById('ihramCharacter');
+            ihramCharacter.innerHTML = `<img src="${gameState.selectedCharacter}" alt="الشخصية" style="width: 100%; height: 100%; object-fit: cover;">`;
+            
+            const items = document.querySelectorAll('.ihram-item');
+            items.forEach(item => {
+                item.addEventListener('dragstart', handleDragStart);
+            });
+            
+            ihramCharacter.addEventListener('dragover', handleDragOver);
+            ihramCharacter.addEventListener('drop', handleDrop);
+        }
+        
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.dataset.item);
+        }
+        
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+        
+        function handleDrop(e) {
+            e.preventDefault();
+            const itemType = e.dataTransfer.getData('text/plain');
+            const ihramCharacter = document.getElementById('ihramCharacter');
+            
+            // هنا يمكنك إضافة منطق لمعاينة الملابس على الشخصية
+            alert(`تم ارتداء ${itemType === 'izar' ? 'الإزار' : itemType === 'rida' ? 'الرداء' : 'النعلين'}`);
+            
+            // تفعيل زر الإكمال بعد ارتداء جميع الملابس
+            document.getElementById('ihramBtn').disabled = false;
+        }
+        
+        function completeIhram() {
+            gameState.completedSteps.ihram = true;
+            updateControls();
+            alert('مبروك! لقد أكملت منسك الإحرام');
+        }
+        
+        // لعبة الطواف المربعة
+        function setupTawafGame() {
+            // وضع الحاج في نقطة البداية (أعلى الوسط)
+            const hajji = document.getElementById('hajji');
+            hajji.style.left = '135px';
+            hajji.style.top = '45px';
+        }
+        
+        function doTawaf() {
+            if (gameState.tawafCount < 7) {
+                gameState.tawafCount++;
+                document.getElementById('tawafCount').textContent = gameState.tawafCount;
+                
+                const hajji = document.getElementById('hajji');
+                const container = document.getElementById('kaabaContainer');
+                const containerWidth = container.offsetWidth;
+                const containerHeight = container.offsetHeight;
+                const kaabaSize = 150;
+                const padding = 30;
+                
+                // تحديد المواقع على أضلاع المربع
+                let x, y;
+                
+                // حساب التقدم على الضلع الحالي (0-1)
+                const progressOnSide = ((gameState.tawafCount - 1) % 1) / 1;
+                
+                switch(gameState.currentTawafSide) {
+                    case 0: // الضلع العلوي (من اليسار إلى اليمين)
+                        x = 75 + progressOnSide * (kaabaSize + 2*padding);
+                        y = 45;
+                        if (progressOnSide >= 1) gameState.currentTawafSide = 1;
+                        break;
+                    case 1: // الضلع الأيمن (من الأعلى إلى الأسفل)
+                        x = 255;
+                        y = 75 + progressOnSide * (kaabaSize + 2*padding);
+                        if (progressOnSide >= 1) gameState.currentTawafSide = 2;
+                        break;
+                    case 2: // الضلع السفلي (من اليمين إلى اليسار)
+                        x = 225 - progressOnSide * (kaabaSize + 2*padding);
+                        y = 255;
+                        if (progressOnSide >= 1) gameState.currentTawafSide = 3;
+                        break;
+                    case 3: // الضلع الأيسر (من الأسفل إلى الأعلى)
+                        x = 45;
+                        y = 225 - progressOnSide * (kaabaSize + 2*padding);
+                        if (progressOnSide >= 1) gameState.currentTawafSide = 0;
+                        break;
+                }
+                
+                hajji.style.left = `${x - 15}px`;
+                hajji.style.top = `${y - 15}px`;
+                
+                if (gameState.tawafCount === 7) {
+                    gameState.completedSteps.tawaf = true;
+                    document.getElementById('tawafReward').style.display = 'block';
+                    document.getElementById('tawafBtn').disabled = true;
+                    updateControls();
+                }
+            }
+        }
+        
+        // لعبة السعي
+        function doSaee() {
+            if (gameState.saeeCount < 7) {
+                gameState.saeeCount++;
+                document.getElementById('saeeCount').textContent = gameState.saeeCount;
+                
+                // تحريك الحاج بين الصفا والمروة
+                const runner = document.getElementById('saeeRunner');
+                const pathWidth = document.querySelector('.saee-path').offsetWidth - 140;
+                
+                if (gameState.saeeCount % 2 === 1) {
+                    // الذهاب إلى المروة
+                    runner.style.left = `${pathWidth}px`;
+                    runner.style.backgroundColor = 'var(--accent-color)';
+                } else {
+                    // العودة إلى الصفا
+                    runner.style.left = '100px';
+                    runner.style.backgroundColor = 'var(--primary-color)';
+                }
+                
+                if (gameState.saeeCount === 7) {
+                    gameState.completedSteps.saee = true;
+                    document.getElementById('saeeReward').style.display = 'block';
+                    document.getElementById('saeeBtn').disabled = true;
+                    updateControls();
+                }
+            }
+        }
+        
+        // لعبة عرفة
+        function completeArafa() {
+            const dua = document.getElementById('arafaDua').value;
+            if (dua.trim().length > 0) {
+                gameState.completedSteps.arafa = true;
+                document.getElementById('arafaReward').style.display = 'block';
+                document.getElementById('arafaBtn').disabled = true;
+                updateControls();
+            } else {
+                alert('الرجاء كتابة دعاء في عرفة');
+            }
+        }
+        
+        // لعبة رمي الجمرات
+        function throwStone(element, targetId) {
+            if (gameState.stonesThrown < 21) {
+                gameState.stonesThrown++;
+                document.getElementById('stoneCount').textContent = gameState.stonesThrown;
+                
+                // إنشاء حصاة مرمية
+                const target = document.getElementById(targetId);
+                const stone = document.createElement('div');
+                stone.className = 'thrown-stone';
+                stone.style.left = `${Math.random() * 40 + 10}px`;
+                stone.style.top = `${Math.random() * 60 + 10}px`;
+                target.appendChild(stone);
+                
+                if (gameState.stonesThrown === 21) {
+                    gameState.completedSteps.jamarat = true;
+                    document.getElementById('jamaratReward').style.display = 'block';
+                    updateControls();
+                }
+            }
+        }
+        
+        function resetStones() {
+            const stones = document.querySelectorAll('.thrown-stone');
+            stones.forEach(stone => stone.remove());
+            gameState.stonesThrown = 0;
+            document.getElementById('stoneCount').textContent = '0';
+            document.getElementById('jamaratReward').style.display = 'none';
+            gameState.completedSteps.jamarat = false;
+            updateControls();
+        }
+        
+        // لعبة الحلاقة
+        function chooseHaircut(type) {
+            gameState.completedSteps.haircut = true;
+            document.getElementById('haircutReward').style.display = 'block';
+            updateControls();
+        }
+        
+        // عرض الشهادة
+        function showCertificate() {
+            document.getElementById(`step${gameState.currentStep}`).classList.remove('active');
+            document.getElementById('certificate').style.display = 'block';
+            document.getElementById('certificateName').textContent = gameState.characterName;
+            
+            const today = new Date();
+            const dateStr = today.toLocaleDateString('ar-EG', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            document.getElementById('certificateDate').textContent = dateStr;
+            
+            document.getElementById('prevBtn').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'none';
+        }
+        
+        function printCertificate() {
+            window.print();
+        }
+        
+        function restartGame() {
+            if (confirm('هل تريد البدء من جديد؟')) {
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>

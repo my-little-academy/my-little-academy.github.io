@@ -1,0 +1,115 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>لعبة أركان الإيمان</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #fefbe9;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #376e6f;
+        }
+        .game-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .pillars, .slots {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .item, .slot {
+            width: 160px;
+            height: 50px;
+            line-height: 50px;
+            background-color: #e9edc9;
+            border: 2px dashed #ccd5ae;
+            border-radius: 8px;
+            cursor: grab;
+            padding: 5px;
+        }
+        .slot.filled {
+            background-color: #a3b18a;
+            color: white;
+        }
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎮 لعبة أركان الإيمان للأطفال</h1>
+    <p>اسحب كل ركن وضعه في مكانه الصحيح!</p>
+    <div class="game-area">
+        <div class="pillars">
+            <div class="item" draggable="true" id="item1">الإيمان بالله</div>
+            <div class="item" draggable="true" id="item2">الإيمان بالملائكة</div>
+            <div class="item" draggable="true" id="item3">الإيمان بالكتب</div>
+            <div class="item" draggable="true" id="item4">الإيمان بالرسل</div>
+            <div class="item" draggable="true" id="item5">الإيمان باليوم الآخر</div>
+            <div class="item" draggable="true" id="item6">الإيمان بالقدر</div>
+        </div>
+        <div class="slots">
+            <div class="slot" data-match="item1">1</div>
+            <div class="slot" data-match="item2">2</div>
+            <div class="slot" data-match="item3">3</div>
+            <div class="slot" data-match="item4">4</div>
+            <div class="slot" data-match="item5">5</div>
+            <div class="slot" data-match="item6">6</div>
+        </div>
+    </div>
+    <div id="result"></div>
+
+    <script>
+        const items = document.querySelectorAll('.item');
+        const slots = document.querySelectorAll('.slot');
+        let score = 0;
+
+        items.forEach(item => {
+            item.addEventListener('dragstart', dragStart);
+        });
+
+        slots.forEach(slot => {
+            slot.addEventListener('dragover', dragOver);
+            slot.addEventListener('drop', dropItem);
+        });
+
+        function dragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.id);
+        }
+
+        function dragOver(e) {
+            e.preventDefault();
+        }
+
+        function dropItem(e) {
+            const draggedId = e.dataTransfer.getData('text/plain');
+            const draggedItem = document.getElementById(draggedId);
+            const matchId = e.target.getAttribute('data-match');
+
+            if (draggedId === matchId && !e.target.classList.contains('filled')) {
+                e.target.textContent = draggedItem.textContent;
+                e.target.classList.add('filled');
+                draggedItem.style.display = 'none';
+                score++;
+                if (score === 6) {
+                    document.getElementById('result').textContent = "أحسنت! أكملت أركان الإيمان 🌟";
+                    new Audio('correct.mp3').play();
+                }
+            } else {
+                new Audio('wrong.mp3').play();
+            }
+        }
+    </script>
+</body>
+</html>

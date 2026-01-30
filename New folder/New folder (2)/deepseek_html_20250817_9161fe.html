@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قطار زمن الأفعال</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Cairo', 'Amiri', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* خلفية السماء مع النجوم */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .star {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.8);
+            animation: twinkle 2s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        
+        /* القمر */
+        .moon {
+            position: fixed;
+            top: 10%;
+            right: 10%;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle at 30% 30%, #fff, #f0f0f0);
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+            animation: moonGlow 4s ease-in-out infinite;
+            z-index: 2;
+        }
+        
+        @keyframes moonGlow {
+            0%, 100% { box-shadow: 0 0 30px rgba(255, 255, 255, 0.5); }
+            50% { box-shadow: 0 0 50px rgba(255, 255, 255, 0.8); }
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+        
+        .title {
+            font-size: 3.5em;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+            margin-bottom: 15px;
+            animation: titlePulse 3s ease-in-out infinite;
+            font-weight: 700;
+        }
+        
+        @keyframes titlePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .subtitle {
+            font-size: 1.4em;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .score-board {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        .score-item {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-size: 1.2em;
+            font-weight: 600;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            animation: scoreFloat 3s ease-in-out infinite;
+        }
+        
+        @keyframes scoreFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        /* منطقة القطار */
+        .train-area {
+            position: relative;
+            margin: 50px 0;
+            padding: 40px 0;
+        }
+        
+        .train-tracks {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(90deg, #8B4513 0%, #A0522D 50%, #8B4513 100%);
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .train-tracks::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, transparent 0%, #666 10%, #666 90%, transparent 100%);
+            background-size: 30px 4px;
+            background-repeat: repeat-x;
+        }
+        
+        .train-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 20px;
+            margin-bottom: 40px;
+            perspective: 1000px;
+        }
+        
+        .train-car {
+            width: 280px;
+            height: 200px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+        }
+        
+        .train-car:hover {
+            transform: translateY(-15px) scale(1.05);
+            z-index: 100;
+        }
+        
+        .car-body {
+            width: 100%;
+            height: 150px;
+            border-radius: 20px 20px 5px 5px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .past-car {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+        
+        .present-car {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+        }
+        
+        .future-car {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+        }
+        
+        .car-title {
+            text-align: center;
+            font-size: 1.6em;
+            font-weight: 700;
+            color: white;
+            padding: 20px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .car-window {
+            position: absolute;
+            top: 60px;
+            left: 20px;
+            right: 20px;
+            bottom: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(5px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            overflow: hidden;
+            color: white;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .wheels {
+            position: absolute;
+            bottom: -25px;
+            left: 20px;
+            right: 20px;
+            height: 50px;
+        }
+        
+        .wheel {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: radial-gradient(circle, #333, #666);
+            border-radius: 50%;
+            border: 3px solid #444;
+            animation: wheelRotate 2s linear infinite;
+        }
+        
+        @keyframes wheelRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .wheel:first-child { left: 0; }
+        .wheel:last-child { right: 0; }
+        
+        .train-car.active {
+            transform: translateY(-25px) scale(1.1);
+            z-index: 200;
+        }
+        
+        .train-car.active .car-body {
+            box-shadow: 0 25px 50px rgba(255, 255, 255, 0.3), 0 0 50px rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .train-car.active .wheel {
+            animation-duration: 0.3s;
+        }
+        
+        /* منطقة الأفعال */
+        .verbs-area {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            padding: 40px;
+            margin: 40px 0;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .verbs-title {
+            text-align: center;
+            font-size: 2.2em;
+            color: white;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            font-weight: 600;
+        }
+        
+        .verbs-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .verb-card {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1.3em;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .verb-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s;
+        }
+        
+        .verb-card:hover::before {
+            left: 100%;
+        }
+        
+        .verb-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: #4facfe;
+        }
+        
+        .verb-card.selected {
+            animation: verbSelect 0.6s ease-out;
+            transform: scale(0.95);
+        }
+        
+        @keyframes verbSelect {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15) rotate(3deg); }
+            100% { transform: scale(0.95); }
+        }
+        
+        .verb-card.correct {
+            background: linear-gradient(135deg, #56ab2f, #a8e6cf);
+            animation: correctAnswer 1s ease-out;
+            color: white;
+        }
+        
+        @keyframes correctAnswer {
+            0% { transform: scale(0.95); }
+            25% { transform: scale(1.2) rotate(10deg); }
+            50% { transform: scale(1.1) rotate(-5deg); }
+            75% { transform: scale(1.15) rotate(5deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+        
+        .verb-card.wrong {
+            background: linear-gradient(135deg, #ff416c, #ff4757);
+            animation: wrongAnswer 0.8s ease-out;
+            color: white;
+        }
+        
+        @keyframes wrongAnswer {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-10px); }
+            40% { transform: translateX(10px); }
+            60% { transform: translateX(-10px); }
+            80% { transform: translateX(10px); }
+        }
+        
+        /* منطقة العرض */
+        .display-area {
+            text-align: center;
+            margin: 40px 0;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .instruction {
+            font-size: 1.8em;
+            color: white;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            font-weight: 600;
+            animation: instructionGlow 2s ease-in-out infinite;
+        }
+        
+        @keyframes instructionGlow {
+            0%, 100% { text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); }
+            50% { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 2px 4px rgba(0, 0, 0, 0.5); }
+        }
+        
+        .message {
+            font-size: 1.4em;
+            font-weight: 600;
+            padding: 20px 40px;
+            border-radius: 25px;
+            margin: 20px 0;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+        
+        .message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .message.success {
+            background: rgba(86, 171, 47, 0.8);
+            color: white;
+        }
+        
+        .message.error {
+            background: rgba(255, 65, 108, 0.8);
+            color: white;
+        }
+        
+        .message.info {
+            background: rgba(79, 172, 254, 0.8);
+            color: white;
+        }
+        
+        /* أزرار التحكم */
+        .controls {
+            text-align: center;
+            margin: 40px 0;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 18px 35px;
+            border-radius: 30px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .control-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .control-btn:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+        
+        /* تأثيرات الجسيمات */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        .particle {
+            position: absolute;
+            color: #FFD700;
+            font-size: 2em;
+            animation: particleFloat 3s ease-out forwards;
+            opacity: 0;
+        }
+        
+        @keyframes particleFloat {
+            0% {
+                opacity: 1;
+                transform: translateY(0) rotate(0deg) scale(0.5);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-200px) rotate(360deg) scale(1.5);
+            }
+        }
+        
+        /* استجابة للأجهزة المحمولة */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2.5em;
+            }
+            
+            .train-container {
+                flex-direction: column;
+                gap: 30px;
+            }
+            
+            .train-car {
+                width: 250px;
+                height: 180px;
+            }
+            
+            .car-body {
+                height: 130px;
+            }
+            
+            .score-board {
+                gap: 15px;
+            }
+            
+            .verbs-container {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                gap: 15px;
+            }
+            
+            .controls {
+                gap: 15px;
+            }
+            
+            .control-btn {
+                padding: 15px 25px;
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    <div class="moon"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🚂 قطار زمن الأفعال 🚂</h1>
+            <p class="subtitle">رحلة ممتعة عبر أزمنة الأفعال العربية</p>
+            
+            <div class="score-board">
+                <div class="score-item">
+                    � النقاط: <span id="score">0</span>
+                </div>
+                <div class="score-item">
+                    ✅ صحيحة: <span id="correct">0</span>
+                </div>
+                <div class="score-item">
+                    🎯 المستوى: <span id="level">1</span>
+                </div>
+                <div class="score-item">
+                    ⭐ النجوم: <span id="stars-count">0</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="train-area">
+            <div class="train-tracks"></div>
+            <div class="train-container">
+                <div class="train-car" data-time="past" id="pastCar">
+                    <div class="car-body past-car">
+                        <div class="car-title">🏛️ الماضي</div>
+                        <div class="car-window">
+                            <div>حدث من قبل</div>
+                            <div style="font-size: 0.9em; opacity: 0.8;">كتبَ - لعبَ - درسَ</div>
+                        </div>
+                    </div>
+                    <div class="wheels">
+                        <div class="wheel"></div>
+                        <div class="wheel"></div>
+                    </div>
+                </div>
+                
+                <div class="train-car" data-time="present" id="presentCar">
+                    <div class="car-body present-car">
+                        <div class="car-title">⚡ الحاضر</div>
+                        <div class="car-window">
+                            <div>يحدث الآن</div>
+                            <div style="font-size: 0.9em; opacity: 0.8;">يكتبُ - يلعبُ - يدرسُ</div>
+                        </div>
+                    </div>
+                    <div class="wheels">
+                        <div class="wheel"></div>
+                        <div class="wheel"></div>
+                    </div>
+                </div>
+                
+                <div class="train-car" data-time="command" id="commandCar">
+                    <div class="car-body future-car">
+                        <div class="car-title">👑 الأمر</div>
+                        <div class="car-window">
+                            <div>طلب أو توجيه</div>
+                            <div style="font-size: 0.9em; opacity: 0.8;">اكتبْ - العبْ - ادرسْ</div>
+                        </div>
+                    </div>
+                    <div class="wheels">
+                        <div class="wheel"></div>
+                        <div class="wheel"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="display-area">
+            <div class="instruction" id="instruction">اختر نوع الزمن أولاً! 🎯</div>
+            <div class="message" id="message"></div>
+        </div>
+        
+        <div class="verbs-area">
+            <h2 class="verbs-title">🌟 اختر الفعل المناسب 🌟</h2>
+            <div class="verbs-container" id="verbsContainer">
+                <!-- الأفعال ستظهر هنا -->
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="control-btn" onclick="newGame()">🎮 لعبة جديدة</button>
+            <button class="control-btn" onclick="showHint()">💡 تلميح</button>
+            <button class="control-btn" onclick="nextLevel()">⬆️ المستوى التالي</button>
+            <button class="control-btn" onclick="showExamples()">📚 أمثلة</button>
+        </div>
+    </div>
+    
+    <div class="particles" id="particles"></div>
+    
+    <script>
+        const verbs = {
+            past: [
+                "كتبَ", "قرأَ", "لعبَ", "درسَ", "أكلَ", "شربَ", "نامَ", "استيقظَ",
+                "ذهبَ", "جاءَ", "رسمَ", "غنّى", "رقصَ", "ضحكَ", "بكى", "جرى",
+                "قفزَ", "سبحَ", "طارَ", "مشى", "ركبَ", "سافرَ", "عملَ", "فكّرَ"
+            ],
+            present: [
+                "يكتبُ", "يقرأُ", "يلعبُ", "يدرسُ", "يأكلُ", "يشربُ", "ينامُ", "يستيقظُ",
+                "يذهبُ", "يجيءُ", "يرسمُ", "يغنّي", "يرقصُ", "يضحكُ", "يبكي", "يجري",
+                "يقفزُ", "يسبحُ", "يطيرُ", "يمشي", "يركبُ", "يسافرُ", "يعملُ", "يفكّرُ"
+            ],
+            command: [
+                "اكتبْ", "اقرأْ", "العبْ", "ادرسْ", "كلْ", "اشربْ", "نمْ", "استيقظْ",
+                "اذهبْ", "تعالَ", "ارسمْ", "غنِّ", "ارقصْ", "اضحكْ", "لا تبكِ", "اجرِ",
+                "اقفزْ", "اسبحْ", "طرْ", "امشِ", "اركبْ", "سافرْ", "اعملْ", "فكّرْ"
+            ]
+        };
+        
+        let gameState = {
+            score: 0,
+            correct: 0,
+            level: 1,
+            starsCount: 0,
+            selectedTime: null,
+            currentVerbs: [],
+            usedVerbs: new Set()
+        };
+        
+        const timeNames = {
+            past: "الماضي",
+            present: "الحاضر", 
+            command: "الأمر"
+        };
+        
+        const hints = {
+            past: "الفعل الماضي يدل على حدث حصل في الزمن الماضي، مثل: كتبَ، لعبَ، درسَ",
+            present: "الفعل المضارع يدل على حدث يحصل الآن أو بشكل متكرر، مثل: يكتبُ، يلعبُ، يدرسُ", 
+            command: "فعل الأمر يستخدم لطلب شيء أو إعطاء توجيه، مثل: اكتبْ، العبْ، ادرسْ"
+        };
+        
+        function initGame() {
+            generateStars();
+            setupTrainEvents();
+            updateDisplay();
+            generateVerbs();
+        }
+        
+        function generateStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.textContent = '✨';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 2 + 's';
+                star.style.fontSize = (Math.random() * 1 + 0.5) + 'em';
+                starsContainer.appendChild(star);
+            }
+        }
+        
+        function setupTrainEvents() {
+            document.querySelectorAll('.train-car').forEach(car => {
+                car.addEventListener('click', () => selectTime(car.dataset.time));
+            });
+        }
+        
+        function selectTime(time) {
+            gameState.selectedTime = time;
+            
+            // إزالة التفعيل من جميع العربات
+            document.querySelectorAll('.train-car').forEach(car => {
+                car.classList.remove('active');
+            });
+            
+            // تفعيل العربة المختارة
+            document.getElementById(time + 'Car').classList.add('active');
+            
+            // تحديث التعليمات
+            document.getElementById('instruction').textContent = 
+                `اختر الأفعال من زمن ${timeNames[time]}! 🎯`;
+            
+            showMessage(`تم اختيار قطار ${timeNames[time]}! ابحث عن الأفعال المناسبة! 🚂`, 'success');
+            
+            // إعادة تعيين ألوان الأفعال
+            resetVerbCards();
+        }
+        
+        function generateVerbs() {
+            const container = document.getElementById('verbsContainer');
+            container.innerHTML = '';
+            
+            // خلط جميع الأفعال
+            const allVerbs = [...verbs.past, ...verbs.present, ...verbs.command];
+            const shuffledVerbs = allVerbs.sort(() => Math.random() - 0.5);
+            
+            // اختيار عدد محدد حسب المستوى
+            const verbCount = Math.min(12 + gameState.level * 2, 24);
+            gameState.currentVerbs = shuffledVerbs.slice(0, verbCount);
+            
+            gameState.currentVerbs.forEach((verb, index) => {
+                const verbCard = document.createElement('div');
+                verbCard.className = 'verb-card';
+                verbCard.textContent = verb;
+                verbCard.dataset.verb = verb;
+                verbCard.dataset.index = index;
+                
+                verbCard.addEventListener('click', () => selectVerb(verbCard, verb));
+                container.appendChild(verbCard);
+            });
+        }
+        
+        function selectVerb(card, verb) {
+            if (!gameState.selectedTime) {
+                showMessage('الرجاء اختيار زمن الفعل أولاً!', 'error');
+                return;
+            }
+
+            const isCorrect = verbs[gameState.selectedTime].includes(verb);
+            
+            if (isCorrect) {
+                card.classList.add('correct');
+                gameState.score += 10 * gameState.level;
+                gameState.correct++;
+                gameState.starsCount++;
+                showMessage('إجابة صحيحة! أحسنت! 🎉', 'success');
+                createParticles(card);
+            } else {
+                card.classList.add('wrong');
+                showMessage('إجابة خاطئة! حاول مرة أخرى! ❌', 'error');
+            }
+            
+            updateDisplay();
+            
+            // إزالة الفعل من القائمة بعد الاختيار
+            setTimeout(() => {
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0)';
+                setTimeout(() => {
+                    card.remove();
+                }, 500);
+            }, 1000);
+        }
+        
+        function createParticles(element) {
+            const particlesContainer = document.getElementById('particles');
+            const rect = element.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+            
+            for (let i = 0; i < 10; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.textContent = ['✨', '🌟', '⭐', '🎉', '💫'][Math.floor(Math.random() * 5)];
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.animationDelay = (Math.random() * 0.5) + 's';
+                particlesContainer.appendChild(particle);
+                
+                setTimeout(() => {
+                    particle.remove();
+                }, 3000);
+            }
+        }
+        
+        function showMessage(text, type) {
+            const message = document.getElementById('message');
+            message.textContent = text;
+            message.className = 'message show ' + type;
+            setTimeout(() => {
+                message.classList.remove('show');
+            }, 3000);
+        }
+        
+        function resetVerbCards() {
+            document.querySelectorAll('.verb-card').forEach(card => {
+                card.className = 'verb-card';
+            });
+        }
+        
+        function updateDisplay() {
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('correct').textContent = gameState.correct;
+            document.getElementById('level').textContent = gameState.level;
+            document.getElementById('stars-count').textContent = gameState.starsCount;
+        }
+        
+        function newGame() {
+            gameState = {
+                score: 0,
+                correct: 0,
+                level: 1,
+                starsCount: 0,
+                selectedTime: null,
+                currentVerbs: [],
+                usedVerbs: new Set()
+            };
+            
+            document.querySelectorAll('.train-car').forEach(car => {
+                car.classList.remove('active');
+            });
+            
+            document.getElementById('instruction').textContent = 'اختر نوع الزمن أولاً! 🎯';
+            showMessage('تم بدء لعبة جديدة! هيا نبدأ! 🚀', 'info');
+            
+            updateDisplay();
+            generateVerbs();
+        }
+        
+        function showHint() {
+            if (!gameState.selectedTime) {
+                showMessage('الرجاء اختيار زمن الفعل أولاً للحصول على تلميح!', 'error');
+                return;
+            }
+            
+            showMessage(hints[gameState.selectedTime], 'info');
+        }
+        
+        function nextLevel() {
+            gameState.level++;
+            gameState.selectedTime = null;
+            
+            document.querySelectorAll('.train-car').forEach(car => {
+                car.classList.remove('active');
+            });
+            
+            document.getElementById('instruction').textContent = 'اختر نوع الزمن أولاً! 🎯';
+            showMessage(`تهانينا! انتقلت إلى المستوى ${gameState.level}! 🎉`, 'success');
+            
+            updateDisplay();
+            generateVerbs();
+        }
+        
+        function showExamples() {
+            let examples = "";
+            if (gameState.selectedTime) {
+                const sampleVerbs = verbs[gameState.selectedTime].slice(0, 5).join(' - ');
+                examples = `أمثلة على أفعال ${timeNames[gameState.selectedTime]}: ${sampleVerbs}`;
+            } else {
+                examples = "أمثلة على الأفعال: \nالماضي: كتبَ - لعبَ - درسَ \nالحاضر: يكتبُ - يلعبُ - يدرسُ \nالأمر: اكتبْ - العبْ - ادرسْ";
+            }
+            
+            showMessage(examples, 'info');
+        }
+        
+        // Initialize the game when the page loads
+        window.onload = initGame;
+    </script>
+</body>
+</html>

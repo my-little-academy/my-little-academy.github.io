@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ألعاب سورة الشمس للأطفال</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ffcc00, #ff9500);
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        
+        .game-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            border: 3px solid #ff6b00;
+        }
+        
+        .game-title {
+            color: #ff6b00;
+            margin-top: 0;
+            font-size: 1.8em;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        button {
+            background: linear-gradient(45deg, #ff9500, #ffcc00);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 18px;
+            margin: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            font-weight: bold;
+        }
+        
+        button:hover {
+            transform: scale(1.1) translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+        
+        .verse {
+            font-size: 26px;
+            color: #d35400;
+            margin: 20px 0;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .option {
+            background: linear-gradient(45deg, #ffbb00, #ffdd00);
+            padding: 15px 20px;
+            margin: 10px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 18px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            color: white;
+            font-weight: bold;
+        }
+        
+        .option:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+        
+        .correct {
+            background: linear-gradient(45deg, #27ae60, #2ecc71) !important;
+            animation: bounce 0.5s;
+        }
+        
+        .wrong {
+            background: linear-gradient(45deg, #e74c3c, #c0392b) !important;
+            animation: shake 0.5s;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        .feedback {
+            font-size: 24px;
+            margin: 20px 0;
+            min-height: 40px;
+            color: #d35400;
+            font-weight: bold;
+        }
+        
+        .score {
+            font-size: 22px;
+            font-weight: bold;
+            color: #ff6b00;
+            margin: 15px 0;
+        }
+        
+        .kofte {
+            font-size: 40px;
+            animation: float 2s infinite;
+            display: none;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        #sun-container {
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+            position: relative;
+        }
+        
+        .sun {
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, #ffcc00, #ff9500);
+            border-radius: 50%;
+            box-shadow: 0 0 50px #ff9500;
+            position: relative;
+            animation: pulse 2s infinite alternate;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 50px #ff9500; }
+            100% { transform: scale(1.05); box-shadow: 0 0 70px #ff9500; }
+        }
+        
+        .ray {
+            position: absolute;
+            background: linear-gradient(to bottom, rgba(255,204,0,0.8), rgba(255,149,0,0));
+            width: 10px;
+            height: 60px;
+            border-radius: 5px;
+            top: -60px;
+            left: 95px;
+            transform-origin: bottom center;
+        }
+        
+        .cloud {
+            position: absolute;
+            color: white;
+            font-size: 30px;
+            animation: float 3s infinite;
+        }
+        
+        .star {
+            position: absolute;
+            font-size: 30px;
+            color: gold;
+            animation: twinkle 1s;
+            display: none;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+        }
+        
+        @keyframes twinkle {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.5); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .puzzle-piece {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(45deg, #ff9500, #ffcc00);
+            color: white;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 15px;
+            font-size: 18px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .puzzle-piece:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        
+        #puzzle-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        #puzzle-solution {
+            min-height: 120px;
+            border: 3px dashed #d35400;
+            border-radius: 15px;
+            margin: 20px 0;
+            padding: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tab-button {
+            background: linear-gradient(45deg, #ff9500, #ffcc00);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            cursor: pointer;
+            margin: 0 5px 10px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        
+        .tab-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+        
+        .tab-button.active {
+            background: linear-gradient(45deg, #ff6b00, #ff9500);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            border-radius: 50%;
+            animation: confetti-fall 5s linear forwards;
+            z-index: 1000;
+        }
+        
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .moon {
+            width: 80px;
+            height: 80px;
+            background-color: #f1c40f;
+            border-radius: 50%;
+            position: absolute;
+            box-shadow: 0 0 20px #f1c40f;
+            display: none;
+        }
+        
+        .day-night-container {
+            width: 300px;
+            height: 150px;
+            margin: 20px auto;
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
+            border: 3px solid #d35400;
+        }
+        
+        .sky {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: background 1s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌞 ألعاب سورة الشمس للأطفال 🌞</h1>
+        
+        <div class="tab-buttons">
+            <button class="tab-button active" onclick="showGame(1)">الشمس والقمر 🌞🌙</button>
+            <button class="tab-button" onclick="showGame(2)">ترتيب الآيات 🧩</button>
+            <button class="tab-button" onclick="showGame(3)">أكمل الآية ✏️</button>
+        </div>
+        
+        <!-- لعبة الشمس والقمر -->
+        <div id="game1" class="game-container">
+            <h2 class="game-title">🌞 الشمس والقمر في القرآن 🌙</h2>
+            <p>تعلم سورة الشمس مع لعبة الشمس والقمر التفاعلية!</p>
+            
+            <div id="sun-container">
+                <div class="sun" id="sun"></div>
+                <div class="moon" id="moon"></div>
+            </div>
+            
+            <div class="verse" id="current-verse"></div>
+            
+            <div id="options" class="options"></div>
+            
+            <div class="feedback" id="feedback1"></div>
+            <div class="score">النقاط: <span id="score1">0</span> 🌟</div>
+            <div class="kofte" id="kofte1">🎖️ كوفيتي لك! 🎖️</div>
+            
+            <button onclick="startSunMoonGame()">ابدأ اللعبة!</button>
+        </div>
+        
+        <!-- لعبة ترتيب الآيات -->
+        <div id="game2" class="game-container hidden">
+            <h2 class="game-title">🧩 ترتيب آيات سورة الشمس 🧩</h2>
+            <p>رتب الآيات بالترتيب الصحيح لترى صورة جميلة!</p>
+            
+            <div class="verse">سورة الشمس</div>
+            
+            <div id="puzzle-container"></div>
+            
+            <div style="font-size: 20px; color: #d35400; margin: 10px 0;">الحل:</div>
+            <div id="puzzle-solution"></div>
+            
+            <div class="feedback" id="feedback2"></div>
+            <div class="kofte" id="kofte2">🎖️ كوفيتي لك! 🎖️</div>
+            
+            <button onclick="startPuzzleGame()">ابدأ اللعبة!</button>
+        </div>
+        
+        <!-- لعبة أكمل الآية -->
+        <div id="game3" class="game-container hidden">
+            <h2 class="game-title">✏️ أكمل آيات سورة الشمس ✏️</h2>
+            <p>أكمل الآيات الناقصة من سورة الشمس!</p>
+            
+            <div class="verse" id="partial-verse"></div>
+            
+            <div id="word-options" class="options"></div>
+            
+            <div class="feedback" id="feedback3"></div>
+            <div class="score">النقاط: <span id="score3">0</span> 🌟</div>
+            <div class="kofte" id="kofte3">🎖️ كوفيتي لك! 🎖️</div>
+            
+            <button onclick="startWordGame()">ابدأ اللعبة!</button>
+        </div>
+    </div>
+
+    <script>
+        // آيات سورة الشمس
+        const verses = [
+            "وَالشَّمْسِ وَضُحَاهَا",
+            "وَالْقَمَرِ إِذَا تَلَاهَا",
+            "وَالنَّهَارِ إِذَا جَلَّاهَا",
+            "وَاللَّيْلِ إِذَا يَغْشَاهَا",
+            "وَالسَّمَاءِ وَمَا بَنَاهَا",
+            "وَالْأَرْضِ وَمَا طَحَاهَا",
+            "وَنَفْسٍ وَمَا سَوَّاهَا",
+            "فَأَلْهَمَهَا فُجُورَهَا وَتَقْوَاهَا",
+            "قَدْ أَفْلَحَ مَنْ زَكَّاهَا",
+            "وَقَدْ خَابَ مَنْ دَسَّاهَا"
+        ];
+        
+        // لعرض لعبة معينة وإخفاء الأخرى
+        function showGame(gameNumber) {
+            document.querySelectorAll('.game-container').forEach(game => {
+                game.classList.add('hidden');
+            });
+            
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            document.getElementById('game' + gameNumber).classList.remove('hidden');
+            document.querySelectorAll('.tab-button')[gameNumber-1].classList.add('active');
+        }
+        
+        // ============= لعبة الشمس والقمر =============
+        let currentVerseIndex = 0;
+        let score = 0;
+        
+        function startSunMoonGame() {
+            currentVerseIndex = 0;
+            score = 0;
+            document.getElementById('score1').textContent = '0';
+            document.getElementById('feedback1').textContent = '';
+            document.getElementById('kofte1').style.display = 'none';
+            
+            // إظهار الشمس وإخفاء القمر
+            document.getElementById('sun').style.display = 'block';
+            document.getElementById('moon').style.display = 'none';
+            
+            // إنشاء أشعة الشمس
+            createSunRays();
+            
+            nextVerseSunMoonGame();
+        }
+        
+        function createSunRays() {
+            // إزالة الأشعة القديمة
+            document.querySelectorAll('.ray').forEach(ray => {
+                ray.remove();
+            });
+            
+            // إنشاء 12 شعاع للشمس
+            for (let i = 0; i < 12; i++) {
+                const ray = document.createElement('div');
+                ray.className = 'ray';
+                ray.style.transform = `rotate(${i * 30}deg)`;
+                document.getElementById('sun').appendChild(ray);
+            }
+        }
+        
+        function nextVerseSunMoonGame() {
+            if (currentVerseIndex >= verses.length) {
+                document.getElementById('feedback1').textContent = '🎉 أحسنت! لقد أكملت سورة الشمس!';
+                document.getElementById('kofte1').style.display = 'block';
+                document.getElementById('options').innerHTML = '';
+                createConfetti();
+                return;
+            }
+            
+            const currentVerse = verses[currentVerseIndex];
+            document.getElementById('current-verse').textContent = currentVerse;
+            
+            // تغيير المشهد حسب الآية
+            if (currentVerse.includes('الشَّمْسِ')) {
+                document.getElementById('sun').style.display = 'block';
+                document.getElementById('moon').style.display = 'none';
+            } else if (currentVerse.includes('الْقَمَرِ')) {
+                document.getElementById('sun').style.display = 'none';
+                document.getElementById('moon').style.display = 'block';
+                document.getElementById('moon').style.left = '60px';
+                document.getElementById('moon').style.top = '60px';
+            } else if (currentVerse.includes('النَّهَارِ')) {
+                document.getElementById('sun').style.display = 'block';
+                document.getElementById('moon').style.display = 'none';
+            } else if (currentVerse.includes('اللَّيْلِ')) {
+                document.getElementById('sun').style.display = 'none';
+                document.getElementById('moon').style.display = 'block';
+                document.getElementById('moon').style.left = '60px';
+                document.getElementById('moon').style.top = '60px';
+            }
+            
+            // إنشاء خيارات (آيات صحيحة وخاطئة)
+            const options = [currentVerse];
+            while (options.length < 3) {
+                const randomIndex = Math.floor(Math.random() * verses.length);
+                if (verses[randomIndex] !== currentVerse && !options.includes(verses[randomIndex])) {
+                    options.push(verses[randomIndex]);
+                }
+            }
+            
+            // خلط الخيارات
+            options.sort(() => Math.random() - 0.5);
+            
+            // عرض الخيارات
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+            
+            options.forEach(option => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.textContent = option;
+                
+                optionElement.addEventListener('click', function() {
+                    if (option === currentVerse) {
+                        // إجابة صحيحة
+                        optionElement.classList.add('correct');
+                        document.getElementById('feedback1').textContent = '🎯 أحسنت! إجابة صحيحة';
+                        score += 10;
+                        document.getElementById('score1').textContent = score;
+                        
+                        // تأثيرات بصرية
+                        if (currentVerse.includes('الشَّمْسِ') || currentVerse.includes('النَّهَارِ')) {
+                            document.getElementById('sun').style.animation = 'pulse 0.5s 3';
+                        } else {
+                            document.getElementById('moon').style.animation = 'bounce 0.5s 3';
+                        }
+                        
+                        // إظهار نجمة
+                        const star = document.createElement('div');
+                        star.className = 'star';
+                        star.textContent = '🌟';
+                        star.style.left = '50%';
+                        star.style.top = '20%';
+                        document.getElementById('sun-container').appendChild(star);
+                        
+                        setTimeout(() => {
+                            star.style.display = 'block';
+                            setTimeout(() => {
+                                document.getElementById('sun-container').removeChild(star);
+                            }, 1000);
+                        }, 100);
+                        
+                        setTimeout(() => {
+                            currentVerseIndex++;
+                            nextVerseSunMoonGame();
+                        }, 1000);
+                    } else {
+                        // إجابة خاطئة
+                        optionElement.classList.add('wrong');
+                        document.getElementById('feedback1').textContent = '🤔 حاول مرة أخرى!';
+                        
+                        // تأثير اهتزاز
+                        if (currentVerse.includes('الشَّمْسِ') || currentVerse.includes('النَّهَارِ')) {
+                            document.getElementById('sun').style.animation = 'shake 0.5s';
+                        } else {
+                            document.getElementById('moon').style.animation = 'shake 0.5s';
+                        }
+                    }
+                });
+                
+                optionsContainer.appendChild(optionElement);
+            });
+        }
+        
+        // ============= لعبة ترتيب الآيات =============
+        function startPuzzleGame() {
+            document.getElementById('feedback2').textContent = '';
+            document.getElementById('kofte2').style.display = 'none';
+            document.getElementById('puzzle-solution').innerHTML = '';
+            
+            // خلط الآيات
+            const shuffledVerses = [...verses].sort(() => Math.random() - 0.5);
+            
+            // عرض الآيات المخلوطة
+            const puzzleContainer = document.getElementById('puzzle-container');
+            puzzleContainer.innerHTML = '';
+            
+            shuffledVerses.forEach((verse, index) => {
+                const piece = document.createElement('div');
+                piece.className = 'puzzle-piece';
+                piece.textContent = verse;
+                piece.dataset.index = index;
+                
+                piece.addEventListener('click', function() {
+                    const solution = document.getElementById('puzzle-solution');
+                    if (!solution.querySelector(`[data-index="${index}"]`)) {
+                        const clone = piece.cloneNode(true);
+                        solution.appendChild(clone);
+                        
+                        // التحقق من الحل
+                        checkPuzzleSolution();
+                    }
+                });
+                
+                puzzleContainer.appendChild(piece);
+            });
+        }
+        
+        function checkPuzzleSolution() {
+            const solutionPieces = document.getElementById('puzzle-solution').children;
+            if (solutionPieces.length !== verses.length) return;
+            
+            let isCorrect = true;
+            for (let i = 0; i < solutionPieces.length; i++) {
+                if (solutionPieces[i].textContent !== verses[i]) {
+                    isCorrect = false;
+                    break;
+                }
+            }
+            
+            if (isCorrect) {
+                document.getElementById('feedback2').textContent = '🎉 أحسنت! لقد رتبت السورة بشكل صحيح!';
+                document.getElementById('kofte2').style.display = 'block';
+                createConfetti();
+                
+                // تلوين القطع باللون الأخضر
+                for (let i = 0; i < solutionPieces.length; i++) {
+                    solutionPieces[i].classList.add('correct');
+                }
+            } else {
+                document.getElementById('feedback2').textContent = 'ليس تماماً، حاول مرة أخرى!';
+            }
+        }
+        
+        // ============= لعبة أكمل الآية =============
+        let currentPartialVerse = '';
+        let missingWord = '';
+        let wordScore = 0;
+        
+        function startWordGame() {
+            wordScore = 0;
+            document.getElementById('score3').textContent = '0';
+            document.getElementById('feedback3').textContent = '';
+            document.getElementById('kofte3').style.display = 'none';
+            
+            nextWordGame();
+        }
+        
+        function nextWordGame() {
+            // اختيار آية عشوائية
+            const randomVerseIndex = Math.floor(Math.random() * verses.length);
+            const verse = verses[randomVerseIndex];
+            
+            // تقسيم الآية إلى كلمات
+            const words = verse.split(' ');
+            
+            // اختيار كلمة عشوائية لإخفائها (وليس أول كلمة)
+            const wordIndex = Math.floor(Math.random() * (words.length - 1)) + 1;
+            missingWord = words[wordIndex];
+            
+            // إنشاء الآية مع كلمة ناقصة
+            words[wordIndex] = '______';
+            currentPartialVerse = words.join(' ');
+            
+            document.getElementById('partial-verse').textContent = currentPartialVerse;
+            
+            // إنشاء خيارات للكلمة الناقصة
+            const options = [missingWord];
+            
+            // إضافة كلمات خاطئة من آيات أخرى
+            while (options.length < 4) {
+                const randomVerse = verses[Math.floor(Math.random() * verses.length)];
+                const randomWords = randomVerse.split(' ');
+                if (randomWords.length > 1) {
+                    const randomWord = randomWords[Math.floor(Math.random() * randomWords.length)];
+                    
+                    if (randomWord !== missingWord && !options.includes(randomWord) && randomWord.length > 2) {
+                        options.push(randomWord);
+                    }
+                }
+            }
+            
+            // خلط الخيارات
+            options.sort(() => Math.random() - 0.5);
+            
+            // عرض الخيارات
+            const optionsContainer = document.getElementById('word-options');
+            optionsContainer.innerHTML = '';
+            
+            options.forEach(option => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.textContent = option;
+                
+                optionElement.addEventListener('click', function() {
+                    if (option === missingWord) {
+                        // إجابة صحيحة
+                        optionElement.classList.add('correct');
+                        document.getElementById('feedback3').textContent = '🎯 أحسنت! إجابة صحيحة';
+                        wordScore += 10;
+                        document.getElementById('score3').textContent = wordScore;
+                        
+                        if (wordScore >= 30) {
+                            document.getElementById('kofte3').style.display = 'block';
+                            createConfetti();
+                        }
+                        
+                        setTimeout(() => {
+                            nextWordGame();
+                        }, 1000);
+                    } else {
+                        // إجابة خاطئة
+                        optionElement.classList.add('wrong');
+                        document.getElementById('feedback3').textContent = '🤔 حاول مرة أخرى!';
+                    }
+                });
+                
+                optionsContainer.appendChild(optionElement);
+            });
+        }
+        
+        // إنشاء تأثير الكونفيتي
+        function createConfetti() {
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+            
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.width = (Math.random() * 10 + 5) + 'px';
+                confetti.style.height = (Math.random() * 10 + 5) + 'px';
+                confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => {
+                    document.body.removeChild(confetti);
+                }, 5000);
+            }
+        }
+        
+        // عرض اللعبة الأولى عند تحميل الصفحة
+        window.onload = function() {
+            showGame(1);
+        };
+    </script>
+</body>
+</html>

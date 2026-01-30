@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الحروف العربية المتشابهة</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Amiri', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            backdrop-filter: blur(10px);
+            border: 3px solid rgba(255,255,255,0.3);
+        }
+
+        h1 {
+            color: #4a5568;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .subtitle {
+            color: #718096;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .players-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            gap: 20px;
+        }
+
+        .player {
+            background: linear-gradient(135deg, #ff6b6b, #ffa726);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 20px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            flex: 1;
+            transition: all 0.3s ease;
+        }
+
+        .player.active {
+            animation: glow 1s infinite alternate;
+            transform: scale(1.05);
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4); }
+            to { box-shadow: 0 8px 30px rgba(255, 167, 38, 0.6); }
+        }
+
+        .player.win {
+            background: linear-gradient(135deg, #48bb78, #38b2ac);
+            animation: victory 0.5s ease-in-out;
+        }
+
+        @keyframes victory {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1.1); }
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 30px auto;
+            max-width: 300px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 15px;
+            border-radius: 20px;
+            box-shadow: inset 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .cell {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 2.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cell::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+            transition: left 0.5s;
+        }
+
+        .cell:hover::before {
+            left: 100%;
+        }
+
+        .cell:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        }
+
+        .cell.jim {
+            color: #ff6b6b;
+            text-shadow: 2px 2px 4px rgba(255, 107, 107, 0.3);
+        }
+
+        .cell.ha {
+            color: #4299e1;
+            text-shadow: 2px 2px 4px rgba(66, 153, 225, 0.3);
+        }
+
+        .cell.win {
+            background: linear-gradient(135deg, #48bb78, #38b2ac);
+            color: white;
+            animation: winCell 1s ease-in-out;
+        }
+
+        @keyframes winCell {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3) rotate(10deg); }
+            100% { transform: scale(1.1); }
+        }
+
+        .status {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4a5568;
+            margin: 20px 0;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .score {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .score-item {
+            background: rgba(255,255,255,0.8);
+            padding: 10px 20px;
+            border-radius: 15px;
+            color: #4a5568;
+        }
+
+        .confetti {
+            position: fixed;
+            top: -10px;
+            left: 50%;
+            width: 10px;
+            height: 10px;
+            background: #ff6b6b;
+            animation: confetti-fall 3s linear infinite;
+            z-index: 1000;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateX(0) translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(100px) translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #ffa726;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particle-burst 0.8s ease-out forwards;
+        }
+
+        @keyframes particle-burst {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0) translate(var(--x), var(--y));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <div class="game-container">
+        <h1>🌟 لعبة الحروف المتشابهة 🌟</h1>
+        <p class="subtitle">جيم 🔴 ضد حاء 🔵</p>
+        
+        <div class="players-info">
+            <div class="player" id="player1">
+                اللاعب الأول: جيم ج
+            </div>
+            <div class="player" id="player2">
+                اللاعب الثاني: حاء ح
+            </div>
+        </div>
+
+        <div class="game-board" id="gameBoard">
+            <button class="cell" data-index="0"></button>
+            <button class="cell" data-index="1"></button>
+            <button class="cell" data-index="2"></button>
+            <button class="cell" data-index="3"></button>
+            <button class="cell" data-index="4"></button>
+            <button class="cell" data-index="5"></button>
+            <button class="cell" data-index="6"></button>
+            <button class="cell" data-index="7"></button>
+            <button class="cell" data-index="8"></button>
+        </div>
+
+        <div class="status" id="status">دور اللاعب الأول - جيم ج</div>
+        
+        <div class="buttons">
+            <button onclick="resetGame()">🔄 لعبة جديدة</button>
+            <button onclick="changePlayers()">🔀 تغيير الحروف</button>
+        </div>
+
+        <div class="score">
+            <div class="score-item">جيم: <span id="score1">0</span></div>
+            <div class="score-item">حاء: <span id="score2">0</span></div>
+        </div>
+    </div>
+
+    <script>
+        const letterPairs = [
+            ['ج', 'ح'], ['ب', 'ت'], ['د', 'ذ'], ['ر', 'ز'], 
+            ['س', 'ش'], ['ص', 'ض'], ['ط', 'ظ'], ['ع', 'غ'],
+            ['ف', 'ق'], ['ك', 'ل'], ['م', 'ن'], ['ه', 'و']
+        ];
+        
+        let currentPair = 0;
+        let currentPlayer = 1;
+        let gameBoard = Array(9).fill('');
+        let gameActive = true;
+        let scores = [0, 0];
+
+        const winPatterns = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ];
+
+        function initializeGame() {
+            createStars();
+            updatePlayerDisplay();
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.addEventListener('click', handleCellClick);
+            });
+        }
+
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = star.style.height = Math.random() * 4 + 2 + 'px';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        function handleCellClick(e) {
+            const cell = e.target;
+            const index = parseInt(cell.dataset.index);
+
+            if (gameBoard[index] !== '' || !gameActive) return;
+
+            const currentLetter = letterPairs[currentPair][currentPlayer - 1];
+            gameBoard[index] = currentPlayer;
+            cell.textContent = currentLetter;
+            cell.classList.add(currentPlayer === 1 ? 'jim' : 'ha');
+            
+            createParticles(cell);
+
+            if (checkWin()) {
+                handleWin();
+            } else if (gameBoard.every(cell => cell !== '')) {
+                handleDraw();
+            } else {
+                switchPlayer();
+            }
+        }
+
+        function createParticles(cell) {
+            const rect = cell.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            for (let i = 0; i < 8; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = centerX + 'px';
+                particle.style.top = centerY + 'px';
+                particle.style.setProperty('--x', (Math.random() - 0.5) * 200 + 'px');
+                particle.style.setProperty('--y', (Math.random() - 0.5) * 200 + 'px');
+                particle.style.background = currentPlayer === 1 ? '#ff6b6b' : '#4299e1';
+                document.body.appendChild(particle);
+
+                setTimeout(() => particle.remove(), 800);
+            }
+        }
+
+        function checkWin() {
+            return winPatterns.some(pattern => {
+                const [a, b, c] = pattern;
+                return gameBoard[a] !== '' && 
+                       gameBoard[a] === gameBoard[b] && 
+                       gameBoard[b] === gameBoard[c];
+            });
+        }
+
+        function handleWin() {
+            gameActive = false;
+            const winPattern = winPatterns.find(pattern => {
+                const [a, b, c] = pattern;
+                return gameBoard[a] !== '' && 
+                       gameBoard[a] === gameBoard[b] && 
+                       gameBoard[b] === gameBoard[c];
+            });
+
+            winPattern.forEach(index => {
+                document.querySelector(`[data-index="${index}"]`).classList.add('win');
+            });
+
+            const winner = currentPlayer === 1 ? 'جيم' : 'حاء';
+            const winnerLetter = letterPairs[currentPair][currentPlayer - 1];
+            document.getElementById('status').textContent = `🎉 فاز ${winner} (${winnerLetter})! 🎉`;
+            
+            document.getElementById(`player${currentPlayer}`).classList.add('win');
+            scores[currentPlayer - 1]++;
+            document.getElementById(`score${currentPlayer}`).textContent = scores[currentPlayer - 1];
+            
+            createConfetti();
+        }
+
+        function handleDraw() {
+            gameActive = false;
+            document.getElementById('status').textContent = '🤝 تعادل! 🤝';
+        }
+
+        function switchPlayer() {
+            currentPlayer = currentPlayer === 1 ? 2 : 1;
+            updatePlayerDisplay();
+        }
+
+        function updatePlayerDisplay() {
+            const player1 = document.getElementById('player1');
+            const player2 = document.getElementById('player2');
+            const currentLetters = letterPairs[currentPair];
+            
+            player1.textContent = `اللاعب الأول: ${currentLetters[0]}`;
+            player2.textContent = `اللاعب الثاني: ${currentLetters[1]}`;
+            
+            player1.classList.toggle('active', currentPlayer === 1);
+            player2.classList.toggle('active', currentPlayer === 2);
+            
+            if (gameActive) {
+                const currentLetter = currentLetters[currentPlayer - 1];
+                const playerName = currentPlayer === 1 ? 'الأول' : 'الثاني';
+                document.getElementById('status').textContent = `دور اللاعب ${playerName} - ${currentLetter}`;
+            }
+        }
+
+        function createConfetti() {
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.background = ['#ff6b6b', '#4299e1', '#48bb78', '#ffa726'][Math.floor(Math.random() * 4)];
+                    confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 100);
+            }
+        }
+
+        function resetGame() {
+            gameBoard = Array(9).fill('');
+            gameActive = true;
+            currentPlayer = 1;
+            
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.textContent = '';
+                cell.classList.remove('jim', 'ha', 'win');
+            });
+            
+            document.querySelectorAll('.player').forEach(player => {
+                player.classList.remove('win');
+            });
+            
+            updatePlayerDisplay();
+        }
+
+        function changePlayers() {
+            currentPair = (currentPair + 1) % letterPairs.length;
+            resetGame();
+        }
+
+        initializeGame();
+    </script>
+</body>
+</html>

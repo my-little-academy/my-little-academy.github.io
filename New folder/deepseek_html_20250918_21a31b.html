@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎡 عجلة الأعداد - تعلم الرياضيات بطريقة ممتعة</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Cairo', 'Comic Sans MS', sans-serif;
+      background: linear-gradient(to bottom right, #3a0ca3 0%, #4361ee 100%);
+      text-align: center;
+      color: #fff;
+      overflow-x: hidden;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      margin-bottom: 30px;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    h1 {
+      font-size: 3.5rem;
+      margin-top: 15px;
+      color: white;
+      text-shadow: 3px 3px 0 #ff9d00, 6px 6px 0 rgba(0,0,0,0.15);
+      animation: bounce 2s infinite alternate;
+    }
+    
+    .subtitle {
+      font-size: 1.8rem;
+      margin-top: 10px;
+      color: #ffeb3b;
+      font-weight: bold;
+    }
+    
+    .game-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    
+    .circle-container {
+      position: relative;
+      margin: 30px auto;
+      width: 450px;
+      height: 450px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 50%;
+      box-shadow: 0 0 40px rgba(255, 255, 255, 0.25), 
+                  inset 0 0 40px rgba(255, 255, 255, 0.15);
+      padding: 15px;
+    }
+    
+    .circle {
+      position: absolute;
+      border-radius: 50%;
+      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+    
+    .hundreds {
+      width: 420px;
+      height: 420px;
+      background: linear-gradient(to bottom right, #ff9d00, #ffcc00);
+      border: 6px solid #ff5252;
+      animation: pulse 3s infinite;
+    }
+    
+    .tens {
+      width: 280px;
+      height: 280px;
+      background: linear-gradient(to bottom right, #00c853, #64dd17);
+      border: 6px solid #4caf50;
+      top: 70px;
+      left: 70px;
+      animation: pulse 2.5s infinite;
+    }
+    
+    .units {
+      width: 140px;
+      height: 140px;
+      background: linear-gradient(to bottom right, #ff5252, #ff7b7b);
+      border: 6px solid #2196f3;
+      top: 150px;
+      left: 150px;
+      animation: pulse 2s infinite;
+    }
+    
+    .circle-label {
+      position: absolute;
+      bottom: -40px;
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+      background: rgba(0,0,0,0.4);
+      padding: 5px 15px;
+      border-radius: 20px;
+    }
+    
+    .dot {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      position: absolute;
+      transition: all 0.5s ease;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+      border: 3px solid white;
+    }
+    
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 25px;
+      margin: 40px 0;
+    }
+    
+    .control-group {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 20px;
+      border-radius: 25px;
+      min-width: 220px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    .control-title {
+      font-size: 1.8rem;
+      margin-bottom: 15px;
+      color: #ffeb3b;
+      font-weight: bold;
+    }
+    
+    .btn {
+      padding: 15px 25px;
+      font-size: 1.5rem;
+      border: none;
+      border-radius: 50px;
+      background: linear-gradient(to right, #ff9d00, #ffcc00);
+      color: #333;
+      cursor: pointer;
+      margin: 8px;
+      transition: all 0.3s;
+      font-weight: bold;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
+    }
+    
+    .btn:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .btn:active {
+      transform: translateY(2px);
+    }
+    
+    .input-area {
+      margin: 30px 0;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 25px;
+      border-radius: 25px;
+      width: 100%;
+      max-width: 600px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    input {
+      padding: 20px;
+      font-size: 1.8rem;
+      border-radius: 50px;
+      border: 4px solid #ffeb3b;
+      margin: 20px 0;
+      text-align: center;
+      width: 250px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      font-family: 'Cairo', sans-serif;
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: #ff9d00;
+      box-shadow: 0 0 20px rgba(255, 157, 0, 0.6);
+    }
+    
+    #checkBtn {
+      background: linear-gradient(to right, #00c853, #64dd17);
+      color: white;
+      padding: 18px 35px;
+      font-size: 1.6rem;
+    }
+    
+    #message {
+      margin-top: 30px;
+      font-size: 2.2rem;
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      min-height: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 800px;
+    }
+    
+    .counter {
+      font-size: 1.8rem;
+      margin-top: 15px;
+      color: #fff;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+      background: rgba(0,0,0,0.4);
+      padding: 8px 20px;
+      border-radius: 25px;
+    }
+    
+    .success {
+      color: #69f0ae;
+      font-weight: bold;
+    }
+    
+    .error {
+      color: #ff5252;
+    }
+    
+    .hint {
+      margin-top: 30px;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      font-size: 1.6rem;
+      color: #e1f5fe;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      max-width: 800px;
+    }
+    
+    footer {
+      margin-top: 50px;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1.2rem;
+      padding: 15px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 15px;
+    }
+    
+    /* Animations */
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+    
+    @keyframes bounce {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-15px); }
+    }
+    
+    @keyframes appear {
+      0% { transform: scale(0); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    
+    @media (max-width: 1000px) {
+      .circle-container {
+        width: 380px;
+        height: 380px;
+      }
+      
+      .hundreds {
+        width: 350px;
+        height: 350px;
+      }
+      
+      .tens {
+        width: 240px;
+        height: 240px;
+        top: 60px;
+        left: 60px;
+      }
+      
+      .units {
+        width: 120px;
+        height: 120px;
+        top: 125px;
+        left: 125px;
+      }
+    }
+    
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 2.5rem;
+      }
+      
+      .subtitle {
+        font-size: 1.4rem;
+      }
+      
+      .circle-container {
+        width: 300px;
+        height: 300px;
+      }
+      
+      .hundreds {
+        width: 270px;
+        height: 270px;
+      }
+      
+      .tens {
+        width: 180px;
+        height: 180px;
+        top: 55px;
+        left: 55px;
+      }
+      
+      .units {
+        width: 90px;
+        height: 90px;
+        top: 100px;
+        left: 100px;
+      }
+      
+      .controls {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .btn {
+        font-size: 1.3rem;
+        padding: 12px 20px;
+      }
+      
+      #message {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎡 عجلة الأعداد 🎡</h1>
+      <p class="subtitle">تعلم الرياضيات بطريقة ممتعة ومرحة!</p>
+    </header>
+    
+    <div class="game-area">
+      <div class="circle-container">
+        <div class="circle hundreds" id="hundreds">
+          <span class="counter" id="hundreds-count">0</span>
+        </div>
+        <div class="circle tens" id="tens">
+          <span class="counter" id="tens-count">0</span>
+        </div>
+        <div class="circle units" id="units">
+          <span class="counter" id="units-count">0</span>
+        </div>
+        <div class="circle-label">المئات</div>
+        <div class="circle-label" style="left: 150px;">العشرات</div>
+        <div class="circle-label" style="left: 300px;">الوحدات</div>
+      </div>
+      
+      <div class="controls">
+        <div class="control-group">
+          <div class="control-title">المئات (100)</div>
+          <button class="btn" onclick="changeCount('hundreds', 1)">⬆️ زيادة</button>
+          <button class="btn" onclick="changeCount('hundreds', -1)">⬇️ نقصان</button>
+        </div>
+        
+        <div class="control-group">
+          <div class="control-title">العشرات (10)</div>
+          <button class="btn" onclick="changeCount('tens', 1)">⬆️ زيادة</button>
+          <button class="btn" onclick="changeCount('tens', -1)">⬇️ نقصان</button>
+        </div>
+        
+        <div class="control-group">
+          <div class="control-title">الوحدات (1)</div>
+          <button class="btn" onclick="changeCount('units', 1)">⬆️ زيادة</button>
+          <button class="btn" onclick="changeCount('units', -1)">⬇️ نقصان</button>
+        </div>
+      </div>
+      
+      <div class="input-area">
+        <div class="control-title">ما هو العدد الكلي؟</div>
+        <input type="number" id="answer" placeholder="أدخل العدد هنا">
+        <div>
+          <button class="btn" id="checkBtn">✅ تحقق من الإجابة</button>
+        </div>
+      </div>
+      
+      <div id="message">أهلاً! يمكنك البدء بتغيير الأعداد</div>
+      
+      <div class="hint">
+        💡 تلميح: العدد الكلي = (المئات × 100) + (العشرات × 10) + (الوحدات × 1)
+      </div>
+    </div>
+    
+    <footer>
+      <p>صممت بخدمة تعليمية ممتعة للأطفال © 2023</p>
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <script>
+    let counts = { hundreds: 0, tens: 0, units: 0 };
+    const colors = { 
+      hundreds: ['#ff5252', '#d32f2f'], 
+      tens: ['#4caf50', '#2e7d32'], 
+      units: ['#2196f3', '#1565c0'] 
+    };
+
+    function generateDots(container, count, color) {
+      container.innerHTML = "";
+      // إضافة العداد مرة أخرى بعد مسح المحتوى
+      const counterElement = document.createElement("span");
+      counterElement.classList.add("counter");
+      counterElement.id = container.id + '-count';
+      counterElement.textContent = count;
+      container.appendChild(counterElement);
+      
+      const radius = container.offsetWidth / 2 - 40;
+      
+      for (let i = 0; i < count; i++) {
+        const angle = (i / count) * 2 * Math.PI;
+        const x = radius * Math.cos(angle) + container.offsetWidth/2 - 15;
+        const y = radius * Math.sin(angle) + container.offsetHeight/2 - 15;
+        const dot = document.createElement("div");
+        dot.classList.add("dot");
+        dot.style.background = `radial-gradient(circle at 30% 30%, ${color[0]}, ${color[1]})`;
+        dot.style.left = x + "px";
+        dot.style.top = y + "px";
+        dot.style.boxShadow = `0 0 10px ${color[0]}`;
+        dot.style.animation = `appear 0.5s ease ${i * 0.05}s both`;
+        container.appendChild(dot);
+      }
+    }
+
+    function changeCount(type, delta) {
+      counts[type] = Math.max(0, Math.min(9, counts[type] + delta));
+      generateDots(document.getElementById(type), counts[type], colors[type]);
+      document.getElementById('message').textContent = "غيرت العدد! حاول تخمين القيمة الكلية";
+    }
+
+    function checkAnswer() {
+      const correctNumber = counts.hundreds * 100 + counts.tens * 10 + counts.units;
+      const userAnswer = parseInt(document.getElementById("answer").value);
+      
+      if (isNaN(userAnswer)) {
+        document.getElementById("message").innerHTML = '<span class="error">❌ من فضلك أدخل رقماً صحيحاً</span>';
+        return;
+      }
+      
+      if(userAnswer === correctNumber) {
+        document.getElementById("message").innerHTML = '<span class="success">🎉 أحسنت! الإجابة صحيحة</span>';
+        // تأثيرات احتفالية
+        confetti({
+          particleCount: 300,
+          spread: 120,
+          origin: { y: 0.6 }
+        });
+        
+        // تأثيرات إضافية
+        setTimeout(() => {
+          confetti({
+            particleCount: 150,
+            angle: 60,
+            spread: 80,
+            origin: { x: 0 }
+          });
+        }, 250);
+        
+        setTimeout(() => {
+          confetti({
+            particleCount: 150,
+            angle: 120,
+            spread: 80,
+            origin: { x: 1 }
+          });
+        }, 400);
+      } else {
+        document.getElementById("message").innerHTML = '<span class="error">❌ حاول مرة أخرى</span>';
+        
+        // تلميح للمستخدم
+        setTimeout(() => {
+          if (userAnswer < correctNumber) {
+            document.getElementById("message").innerHTML = '<span class="error">🔺 الإجابة التي أدخلتها أقل من العدد الصحيح</span>';
+          } else {
+            document.getElementById("message").innerHTML = '<span class="error">🔻 الإجابة التي أدخلتها أكبر من العدد الصحيح</span>';
+          }
+        }, 1500);
+      }
+    }
+
+    document.getElementById('checkBtn').addEventListener('click', checkAnswer);
+    
+    // السماح بالتحقق باستخدام زر Enter
+    document.getElementById('answer').addEventListener('keyup', function(event) {
+      if (event.key === 'Enter') {
+        checkAnswer();
+      }
+    });
+
+    // تهيئة اللعبة عند التحميل
+    window.onload = function() {
+      // توليد النقاط الأولية
+      generateDots(document.getElementById('hundreds'), counts.hundreds, colors.hundreds);
+      generateDots(document.getElementById('tens'), counts.tens, colors.tens);
+      generateDots(document.getElementById('units'), counts.units, colors.units);
+    };
+  </script>
+</body>
+</html>

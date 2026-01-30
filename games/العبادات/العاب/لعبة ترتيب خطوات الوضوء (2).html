@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>لعبة ترتيب خطوات الوضوء</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f9f9f9;
+    color: #2c3e50;
+    text-align: center;
+    padding: 20px;
+  }
+  h1 {
+    margin-bottom: 10px;
+    color: #2980b9;
+  }
+  #instructions {
+    margin-bottom: 15px;
+    font-size: 1.2em;
+  }
+  #steps, #answer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 400px;
+    margin: 0 auto 20px auto;
+    padding: 10px;
+    border: 2px solid #2980b9;
+    border-radius: 10px;
+    background: #ecf0f1;
+    min-height: 50px;
+  }
+  .step {
+    background: #3498db;
+    color: white;
+    padding: 12px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s ease;
+  }
+  .step:hover {
+    background: #2980b9;
+  }
+  #answer .step {
+    background: #2ecc71;
+  }
+  #btnCheck, #btnReset {
+    background: #2980b9;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    margin: 10px 8px;
+    border-radius: 10px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  #btnCheck:hover, #btnReset:hover {
+    background: #1c5d8b;
+  }
+  #result {
+    font-size: 1.4em;
+    font-weight: bold;
+    min-height: 40px;
+    margin-top: 15px;
+  }
+</style>
+</head>
+<body>
+
+<h1>لعبة ترتيب خطوات الوضوء</h1>
+<p id="instructions">اضغط على الخطوات بالترتيب الصحيح لترتيب مراحل الوضوء.</p>
+
+<div id="steps"></div>
+
+<h3>الخطوات مرتبة:</h3>
+<div id="answer"></div>
+
+<button id="btnCheck">تحقق</button>
+<button id="btnReset">إعادة ترتيب</button>
+
+<div id="result"></div>
+
+<script>
+  // الخطوات الصحيحة بالترتيب
+  const correctSteps = [
+    "النية",
+    "غسل اليدين ثلاث مرات",
+    "المضمضة والاستنشاق",
+    "غسل الوجه ثلاث مرات",
+    "غسل اليدين إلى المرفقين ثلاث مرات",
+    "مسح الرأس مع الاذنين",
+    "غسل القدمين إلى الكعبين ثلاث مرات"
+  ];
+
+  let shuffledSteps = [];
+  const stepsDiv = document.getElementById('steps');
+  const answerDiv = document.getElementById('answer');
+  const resultDiv = document.getElementById('result');
+  const btnCheck = document.getElementById('btnCheck');
+  const btnReset = document.getElementById('btnReset');
+
+  // دالة لخلط عناصر المصفوفة (فيشر-يتس)
+  function shuffleArray(arr) {
+    let array = arr.slice();
+    for(let i = array.length - 1; i > 0; i--) {
+      let j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  function startGame() {
+    resultDiv.textContent = "";
+    answerDiv.innerHTML = "";
+    stepsDiv.innerHTML = "";
+
+    shuffledSteps = shuffleArray(correctSteps);
+
+    // عرض الخطوات مبعثرة
+    shuffledSteps.forEach(step => {
+      const div = document.createElement('div');
+      div.textContent = step;
+      div.classList.add('step');
+      div.addEventListener('click', () => {
+        // إذا لم تكن الخطوة موجودة في الاجابة، أضفها
+        if(!Array.from(answerDiv.children).some(child => child.textContent === step)) {
+          const stepNode = document.createElement('div');
+          stepNode.textContent = step;
+          stepNode.classList.add('step');
+          // عند النقر على الخطوة في الاجابة، يتم إزالتها
+          stepNode.addEventListener('click', () => {
+            answerDiv.removeChild(stepNode);
+          });
+          answerDiv.appendChild(stepNode);
+        }
+      });
+      stepsDiv.appendChild(div);
+    });
+  }
+
+  btnCheck.addEventListener('click', () => {
+    const userSteps = Array.from(answerDiv.children).map(div => div.textContent);
+    if(userSteps.length !== correctSteps.length) {
+      resultDiv.textContent = "يجب ترتيب جميع الخطوات.";
+      resultDiv.style.color = "red";
+      return;
+    }
+    const isCorrect = userSteps.every((step, i) => step === correctSteps[i]);
+    if(isCorrect) {
+      resultDiv.textContent = "أحسنت! ترتيب الخطوات صحيح 🎉";
+      resultDiv.style.color = "green";
+    } else {
+      resultDiv.textContent = "ترتيب الخطوات غير صحيح، حاول مرة أخرى.";
+      resultDiv.style.color = "red";
+    }
+  });
+
+  btnReset.addEventListener('click', () => {
+    startGame();
+  });
+
+  // بداية اللعبة
+  startGame();
+</script>
+
+</body>
+</html>

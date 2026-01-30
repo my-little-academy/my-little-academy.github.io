@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة أقسام الكلمة العربية</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+        
+        :root {
+            --primary: #2c6ecb;
+            --secondary: #f9c541;
+            --correct: #4CAF50;
+            --wrong: #F44336;
+            --light: #f0f7ff;
+            --dark: #1a3a7a;
+        }
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--light);
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            background-color: var(--primary);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 2.2rem;
+        }
+        
+        .intro {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-right: 5px solid var(--secondary);
+        }
+        
+        .game-container {
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .word-display {
+            font-size: 2.5rem;
+            text-align: center;
+            margin: 20px 0;
+            color: var(--dark);
+            min-height: 60px;
+        }
+        
+        .categories {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+        
+        .category {
+            background-color: var(--light);
+            border: 2px dashed var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            width: 28%;
+            min-width: 200px;
+            margin: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .category:hover {
+            background-color: var(--primary);
+            color: white;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        
+        .category-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .progress-container {
+            width: 100%;
+            background-color: #eee;
+            border-radius: 10px;
+            margin: 20px 0;
+            height: 20px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            width: 0%;
+            transition: width 0.5s;
+        }
+        
+        .score-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .score-box {
+            background-color: var(--light);
+            border-radius: 10px;
+            padding: 10px 20px;
+            text-align: center;
+            flex: 1;
+            margin: 0 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .score-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .feedback {
+            text-align: center;
+            font-size: 1.2rem;
+            min-height: 30px;
+            margin: 20px 0;
+        }
+        
+        .correct-feedback {
+            color: var(--correct);
+        }
+        
+        .wrong-feedback {
+            color: var(--wrong);
+        }
+        
+        .next-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: block;
+            margin: 20px auto;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .next-btn:hover {
+            background-color: var(--dark);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+        
+        .next-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result-container {
+            text-align: center;
+            display: none;
+        }
+        
+        .result-icon {
+            font-size: 5rem;
+            color: var(--secondary);
+            margin: 20px 0;
+        }
+        
+        .restart-btn {
+            background-color: var(--secondary);
+            color: var(--dark);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .restart-btn:hover {
+            background-color: #ffd700;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+        
+        .hint-btn {
+            background-color: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-left: 10px;
+        }
+        
+        .hint-btn:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .hint-text {
+            background-color: var(--light);
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 10px;
+            border-right: 3px solid var(--secondary);
+            display: none;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .bounce {
+            animation: bounce 0.5s;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        .shake {
+            animation: shake 0.5s;
+        }
+        
+        @media (max-width: 768px) {
+            .categories {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .category {
+                width: 80%;
+            }
+            
+            .word-display {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>لعبة أقسام الكلمة العربية</h1>
+            <p>تعلم الفرق بين الاسم والفعل والحرف بطريقة ممتعة!</p>
+        </header>
+        
+        <div class="intro">
+            <p>مرحباً بك في لعبة أقسام الكلمة! سوف نعرض عليك كلمات وعليك تصنيفها إلى: اسم، فعل أو حرف. هيا نبدأ!</p>
+        </div>
+        
+        <div class="game-container">
+            <div class="score-container">
+                <div class="score-box">
+                    <div>الإجابات الصحيحة</div>
+                    <div class="score-value" id="correct-score">0</div>
+                </div>
+                <div class="score-box">
+                    <div>الإجابات الخاطئة</div>
+                    <div class="score-value" id="wrong-score">0</div>
+                </div>
+                <div class="score-box">
+                    <div>التقدم</div>
+                    <div class="score-value" id="progress">0/10</div>
+                </div>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            
+            <div class="word-display" id="word-display"></div>
+            
+            <div style="text-align: center;">
+                <button class="hint-btn" id="hint-btn">؟</button>
+                <div class="hint-text" id="hint-text"></div>
+            </div>
+            
+            <div class="categories">
+                <div class="category" data-type="noun">
+                    <div class="category-icon">📔</div>
+                    <h3>اسم</h3>
+                    <p>يدل على شخص، حيوان، نبات، مكان أو شيء</p>
+                </div>
+                <div class="category" data-type="verb">
+                    <div class="category-icon">🏃</div>
+                    <h3>فعل</h3>
+                    <p>يدل على حدث مرتبط بزمن</p>
+                </div>
+                <div class="category" data-type="particle">
+                    <div class="category-icon">🔗</div>
+                    <h3>حرف</h3>
+                    <p>لا معنى له إلا مع غيره من الكلمات</p>
+                </div>
+            </div>
+            
+            <div class="feedback" id="feedback"></div>
+            
+            <button class="next-btn" id="next-btn" disabled>التالية →</button>
+        </div>
+        
+        <div class="result-container" id="result-container">
+            <div class="result-icon">🎉</div>
+            <h2>أحسنت!</h2>
+            <p id="final-score"></p>
+            <p>لقد أكملت اللعبة بنجاح، هل تريد المحاولة مرة أخرى؟</p>
+            <button class="restart-btn" id="restart-btn">إعادة اللعبة</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // عناصر DOM
+            const wordDisplay = document.getElementById('word-display');
+            const hintBtn = document.getElementById('hint-btn');
+            const hintText = document.getElementById('hint-text');
+            const categories = document.querySelectorAll('.category');
+            const feedback = document.getElementById('feedback');
+            const nextBtn = document.getElementById('next-btn');
+            const correctScoreEl = document.getElementById('correct-score');
+            const wrongScoreEl = document.getElementById('wrong-score');
+            const progressEl = document.getElementById('progress');
+            const progressBar = document.getElementById('progress-bar');
+            const resultContainer = document.getElementById('result-container');
+            const finalScore = document.getElementById('final-score');
+            const restartBtn = document.getElementById('restart-btn');
+            
+            // بيانات اللعبة
+            const words = [
+                { word: "مدرسة", type: "noun", hint: "مكان يتعلم فيه الطلاب" },
+                { word: "يقرأ", type: "verb", hint: "عملية النظر إلى الكتاب وفهم محتواه" },
+                { word: "في", type: "particle", hint: "تدل على الظرفية أو المكان" },
+                { word: "قطة", type: "noun", hint: "حيوان أليف مشهور بالمواء" },
+                { word: "يكتب", type: "verb", hint: "عملية إنشاء نص باستخدام القلم أو لوحة المفاتيح" },
+                { word: "على", type: "particle", hint: "تدل على العلوية أو الاستعلاء" },
+                { word: "شمس", type: "noun", hint: "نجم يضيء كوكبنا بالنهار" },
+                { word: "يأكل", type: "verb", hint: "عملية تناول الطعام" },
+                { word: "من", type: "particle", hint: "تدل على الابتداء أو التبعيض" },
+                { word: "كتاب", type: "noun", hint: "مجموعة من الأوراق تحتوي على معلومات" },
+                { word: "يجري", type: "verb", hint: "التحرك بسرعة باستخدام القدمين" },
+                { word: "إلى", type: "particle", hint: "تدل على الانتهاء أو الجهة" },
+                { word: "طالب", type: "noun", hint: "شخص يتعلم في المدرسة أو الجامعة" },
+                { word: "ينام", type: "verb", hint: "حالة الراحة التي نغلق فيها أعيننا" },
+                { word: "لكن", type: "particle", hint: "أداة عطف تفيد الاستدراك" }
+            ];
+            
+            // متغيرات اللعبة
+            let currentWord = null;
+            let selectedType = null;
+            let correctAnswers = 0;
+            let wrongAnswers = 0;
+            let currentQuestion = 0;
+            const totalQuestions = 10;
+            let usedWords = [];
+            
+            // تهيئة اللعبة
+            function initGame() {
+                correctAnswers = 0;
+                wrongAnswers = 0;
+                currentQuestion = 0;
+                usedWords = [];
+                updateScores();
+                nextWord();
+                resultContainer.style.display = 'none';
+                document.querySelector('.game-container').style.display = 'block';
+            }
+            
+            // اختيار كلمة عشوائية
+            function getRandomWord() {
+                const availableWords = words.filter(word => !usedWords.includes(word.word));
+                
+                if (availableWords.length === 0) {
+                    return null;
+                }
+                
+                const randomIndex = Math.floor(Math.random() * availableWords.length);
+                return availableWords[randomIndex];
+            }
+            
+            // عرض كلمة جديدة
+            function nextWord() {
+                if (currentQuestion >= totalQuestions) {
+                    endGame();
+                    return;
+                }
+                
+                currentWord = getRandomWord();
+                
+                if (!currentWord) {
+                    endGame();
+                    return;
+                }
+                
+                usedWords.push(currentWord.word);
+                wordDisplay.textContent = currentWord.word;
+                hintText.textContent = currentWord.hint;
+                hintText.style.display = 'none';
+                feedback.textContent = '';
+                feedback.className = 'feedback';
+                selectedType = null;
+                nextBtn.disabled = true;
+                
+                // إزالة التحديد من جميع الفئات
+                categories.forEach(category => {
+                    category.style.backgroundColor = '';
+                    category.style.color = '';
+                    category.style.transform = '';
+                });
+                
+                currentQuestion++;
+                updateProgress();
+            }
+            
+            // تحديث النتائج
+            function updateScores() {
+                correctScoreEl.textContent = correctAnswers;
+                wrongScoreEl.textContent = wrongAnswers;
+                progressEl.textContent = `${currentQuestion}/${totalQuestions}`;
+                progressBar.style.width = `${(currentQuestion / totalQuestions) * 100}%`;
+            }
+            
+            // تحديث التقدم
+            function updateProgress() {
+                progressEl.textContent = `${currentQuestion}/${totalQuestions}`;
+                progressBar.style.width = `${(currentQuestion / totalQuestions) * 100}%`;
+            }
+            
+            // إنهاء اللعبة
+            function endGame() {
+                document.querySelector('.game-container').style.display = 'none';
+                resultContainer.style.display = 'block';
+                finalScore.textContent = `إجابات صحيحة: ${correctAnswers} - إجابات خاطئة: ${wrongAnswers}`;
+            }
+            
+            // التحقق من الإجابة
+            function checkAnswer(selectedType) {
+                if (!currentWord) return;
+                
+                const isCorrect = selectedType === currentWord.type;
+                
+                if (isCorrect) {
+                    correctAnswers++;
+                    feedback.textContent = 'إجابة صحيحة! أحسنت!';
+                    feedback.className = 'feedback correct-feedback';
+                    wordDisplay.classList.add('bounce');
+                } else {
+                    wrongAnswers++;
+                    feedback.textContent = 'إجابة خاطئة! حاول مرة أخرى.';
+                    feedback.className = 'feedback wrong-feedback';
+                    wordDisplay.classList.add('shake');
+                }
+                
+                updateScores();
+                nextBtn.disabled = false;
+                
+                // إزالة تأثيرات الحركة بعد انتهائها
+                setTimeout(() => {
+                    wordDisplay.classList.remove('bounce', 'shake');
+                }, 500);
+            }
+            
+            // أحداث
+            categories.forEach(category => {
+                category.addEventListener('click', function() {
+                    if (nextBtn.disabled === false) return;
+                    
+                    selectedType = this.dataset.type;
+                    
+                    // إزالة التحديد من جميع الفئات
+                    categories.forEach(c => {
+                        c.style.backgroundColor = '';
+                        c.style.color = '';
+                        c.style.transform = '';
+                    });
+                    
+                    // تحديد الفئة المختارة
+                    this.style.backgroundColor = var(--primary);
+                    this.style.color = 'white';
+                    this.style.transform = 'scale(1.05)';
+                    
+                    checkAnswer(selectedType);
+                });
+            });
+            
+            nextBtn.addEventListener('click', nextWord);
+            
+            hintBtn.addEventListener('click', function() {
+                hintText.style.display = hintText.style.display === 'none' ? 'block' : 'none';
+            });
+            
+            restartBtn.addEventListener('click', initGame);
+            
+            // بدء اللعبة
+            initGame();
+        });
+    </script>
+</body>
+</html>

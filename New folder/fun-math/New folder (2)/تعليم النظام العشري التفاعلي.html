@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تعليم النظام العشري التفاعلي</title>
+    <style>
+        /* التصميم العام */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f9fc;
+            color: #333;
+            margin: 0;
+            padding: 15px;
+            text-align: center;
+            overflow-x: hidden;
+        }
+        
+        h1 {
+            color: #2c7be5;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .instructions {
+            background-color: #e6f0ff;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-right: 4px solid #2c7be5;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        
+        .instructions.highlight {
+            background-color: #ffecb3;
+            border-right-color: #ffa000;
+        }
+        
+        /* لوحة التحكم */
+        .control-panel {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .input-group label {
+            font-weight: bold;
+            color: #2c7be5;
+        }
+        
+        .input-group input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            text-align: center;
+            width: 100px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            background-color: #2c7be5;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .btn:hover {
+            background-color: #1a68d1;
+        }
+        
+        .btn-clear {
+            background-color: #ff5252;
+        }
+        
+        .btn-clear:hover {
+            background-color: #e04141;
+        }
+        
+        .btn-check {
+            background-color: #4caf50;
+        }
+        
+        .btn-check:hover {
+            background-color: #3d8b40;
+        }
+        
+        /* تصميم الشبكة الرئيسية */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .grid-item {
+            background-color: white;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        
+        .grid-item:hover {
+            transform: translateY(-3px);
+        }
+        
+        .grid-item h2 {
+            color: #2c7be5;
+            margin-top: 0;
+            font-size: 1rem;
+        }
+        
+        .grid-item p {
+            font-size: 0.8rem;
+            margin-bottom: 0;
+            color: #666;
+        }
+        
+        /* تصميم المجسمات المصغرة */
+        .clickable-shape {
+            cursor: pointer;
+            margin: 8px auto;
+            transition: transform 0.2s;
+        }
+        
+        .clickable-shape:active {
+            transform: scale(0.95);
+        }
+        
+        .unit-cube {
+            width: 16px;
+            height: 16px;
+            background-color: #4eacff;
+            border-radius: 2px;
+            box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .ten-rod {
+            width: 16px;
+            height: 160px;
+            background: repeating-linear-gradient(
+                to bottom,
+                #3da1ff,
+                #3da1ff 16px,
+                #4eacff 16px,
+                #4eacff 32px
+            );
+            border-radius: 2px;
+            box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .hundred-flat {
+            width: 160px;
+            height: 160px;
+            background: 
+                repeating-linear-gradient(
+                    to right,
+                    #2d96ff,
+                    #2d96ff 16px,
+                    #3da1ff 16px,
+                    #3da1ff 32px
+                ),
+                repeating-linear-gradient(
+                    to bottom,
+                    #2d96ff,
+                    #2d96ff 16px,
+                    #3da1ff 16px,
+                    #3da1ff 32px
+                );
+            background-blend-mode: multiply;
+            border-radius: 4px;
+            box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .thousand-cube {
+            width: 160px;
+            height: 160px;
+            background: 
+                repeating-linear-gradient(
+                    to right,
+                    #1d8bff,
+                    #1d8bff 16px,
+                    #2d96ff 16px,
+                    #2d96ff 32px
+                ),
+                repeating-linear-gradient(
+                    to bottom,
+                    #1d8bff,
+                    #1d8bff 16px,
+                    #2d96ff 16px,
+                    #2d96ff 32px
+                );
+            background-blend-mode: multiply;
+            position: relative;
+            border-radius: 4px;
+            box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .thousand-cube::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    to right,
+                    rgba(0,0,0,0.1),
+                    rgba(0,0,0,0.1) 16px,
+                    rgba(0,0,0,0.2) 16px,
+                    rgba(0,0,0,0.2) 32px
+                ),
+                repeating-linear-gradient(
+                    to bottom,
+                    rgba(0,0,0,0.1),
+                    rgba(0,0,0,0.1) 16px,
+                    rgba(0,0,0,0.2) 16px,
+                    rgba(0,0,0,0.2) 32px
+                );
+            background-blend-mode: overlay;
+            border-radius: 4px;
+        }
+        
+        /* منطقة الإسقاط */
+        .drop-zone {
+            min-height: 200px;
+            border: 2px dashed #2c7be5;
+            border-radius: 8px;
+            padding: 15px;
+            background-color: rgba(44, 123, 229, 0.05);
+            margin-top: 15px;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .drop-zone h2 {
+            color: #2c7be5;
+            margin-top: 0;
+            font-size: 1.1rem;
+        }
+        
+        .drop-zone p {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        /* تصميم النسخ المسحوبة */
+        .dropped-item {
+            display: inline-block;
+            margin: 5px;
+            position: relative;
+        }
+        
+        /* منطقة النتيجة */
+        .result-area {
+            margin-top: 15px;
+            font-weight: bold;
+            color: #2c7be5;
+            min-height: 20px;
+            transition: all 0.3s;
+        }
+        
+        /* تأثيرات الفوز */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            opacity: 0;
+            animation: confetti-fall 3s ease-in-out forwards;
+            z-index: 1000;
+        }
+        
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+        
+        .celebration.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .celebration h2 {
+            font-size: 2.5rem;
+            color: #4caf50;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .celebration p {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .celebration-btn {
+            padding: 12px 24px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .celebration-btn:hover {
+            background-color: #3d8b40;
+        }
+        
+        /* رسالة المحاولة مرة أخرى */
+        .try-again {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            max-width: 80%;
+            text-align: center;
+        }
+        
+        .try-again.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .try-again h3 {
+            color: #ff5252;
+            margin-top: 0;
+        }
+        
+        /* التجاوب مع أحجام الشاشات المختلفة */
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .hundred-flat, .thousand-cube {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .ten-rod {
+                height: 120px;
+            }
+            
+            .control-panel {
+                flex-direction: column;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .hundred-flat, .thousand-cube {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .ten-rod {
+                height: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>تعليم النظام العشري التفاعلي</h1>
+    
+    <div class="instructions" id="instructions">
+        <p id="instruction-text">مرحباً! اكتب عدداً في الحقل أدناه ثم انقر على المجسمات المناسبة لتمثيله</p>
+    </div>
+    
+    <div class="control-panel">
+        <div class="input-group">
+            <label for="number-input">العدد المطلوب:</label>
+            <input type="number" id="number-input" min="1" max="9999" placeholder="أدخل رقماً">
+            <button class="btn" id="represent-btn">تمثيل العدد</button>
+        </div>
+        
+        <div class="input-group">
+            <button class="btn btn-clear" id="clear-btn">مسح المنطقة</button>
+            <button class="btn btn-check" id="check-btn">تحقق من الجواب</button>
+            <button class="btn" id="help-btn">مساعدة</button>
+        </div>
+    </div>
+    
+    <div class="grid-container">
+        <div class="grid-item">
+            <h2>الوحدات</h2>
+            <div class="unit-cube clickable-shape" data-type="unit" data-value="1"></div>
+            <p>تمثل الرقم 1</p>
+        </div>
+        
+        <div class="grid-item">
+            <h2>العشرات</h2>
+            <div class="ten-rod clickable-shape" data-type="ten" data-value="10"></div>
+            <p>تمثل الرقم 10</p>
+        </div>
+        
+        <div class="grid-item">
+            <h2>المئات</h2>
+            <div class="hundred-flat clickable-shape" data-type="hundred" data-value="100"></div>
+            <p>تمثل الرقم 100</p>
+        </div>
+        
+        <div class="grid-item">
+            <h2>الآلاف</h2>
+            <div class="thousand-cube clickable-shape" data-type="thousand" data-value="1000"></div>
+            <p>تمثل الرقم 1000</p>
+        </div>
+    </div>
+    
+    <div class="drop-zone" id="dropZone">
+        <h2>منطقة تركيب العدد</h2>
+        <p id="drop-zone-text">انقر على المجسمات أعلاه لتمثيل العدد</p>
+        <div id="result-area" class="result-area"></div>
+    </div>
+    
+    <!-- رسالة الاحتفال بالفوز -->
+    <div class="celebration" id="celebration">
+        <h2>أحسنت! 🎉</h2>
+        <p>لقد نجحت في تمثيل العدد بشكل صحيح</p>
+        <button class="celebration-btn" id="celebration-btn">حاول بعدد آخر</button>
+    </div>
+    
+    <!-- رسالة المحاولة مرة أخرى -->
+    <div class="try-again" id="tryAgain">
+        <h3>حاول مرة أخرى!</h3>
+        <p id="try-again-message">الجواب غير صحيح، تأكد من عدد المجسمات المستخدمة</p>
+        <button class="btn" id="try-again-btn">حسناً</button>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropZone = document.getElementById('dropZone');
+            const clickableShapes = document.querySelectorAll('.clickable-shape');
+            const numberInput = document.getElementById('number-input');
+            const representBtn = document.getElementById('represent-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const checkBtn = document.getElementById('check-btn');
+            const helpBtn = document.getElementById('help-btn');
+            const instructionText = document.getElementById('instruction-text');
+            const dropZoneText = document.getElementById('drop-zone-text');
+            const resultArea = document.getElementById('result-area');
+            const instructions = document.getElementById('instructions');
+            const celebration = document.getElementById('celebration');
+            const celebrationBtn = document.getElementById('celebration-btn');
+            const tryAgain = document.getElementById('tryAgain');
+            const tryAgainBtn = document.getElementById('try-again-btn');
+            const tryAgainMessage = document.getElementById('try-again-message');
+            
+            let currentNumber = 0;
+            let currentStep = 0;
+            const instructionSteps = [
+                "مرحباً! اكتب عدداً في الحقل ثم اضغط زر 'تمثيل العدد'",
+                "انقر على المجسمات المناسبة لتمثيل العدد",
+                "يمكنك استخدام عدة مجسمات من كل نوع لتمثيل العدد",
+                "اضغط زر 'تحقق من الجواب' للتأكد من صحة تمثيلك للعدد",
+                "اضغط زر 'مسح المنطقة' لبدء تمثيل عدد جديد",
+                "جرب الآن! هل يمكنك تمثيل العدد الذي كتبته؟"
+            ];
+            
+            // إعداد عناصر النقر
+            clickableShapes.forEach(shape => {
+                shape.addEventListener('click', function() {
+                    const type = this.dataset.type;
+                    const value = parseInt(this.dataset.value);
+                    createDroppedItem(type, value);
+                    updateResult();
+                });
+            });
+            
+            // إنشاء نسخة من العنصر المنقور
+            function createDroppedItem(type, value) {
+                let newItem;
+                
+                switch(type) {
+                    case 'unit':
+                        newItem = document.createElement('div');
+                        newItem.className = 'unit-cube';
+                        break;
+                    case 'ten':
+                        newItem = document.createElement('div');
+                        newItem.className = 'ten-rod';
+                        break;
+                    case 'hundred':
+                        newItem = document.createElement('div');
+                        newItem.className = 'hundred-flat';
+                        break;
+                    case 'thousand':
+                        newItem = document.createElement('div');
+                        newItem.className = 'thousand-cube';
+                        break;
+                }
+                
+                newItem.dataset.type = type;
+                newItem.dataset.value = value;
+                
+                // إضافة زر حذف للعنصر
+                const deleteBtn = document.createElement('button');
+                deleteBtn.innerHTML = '×';
+                deleteBtn.style.position = 'absolute';
+                deleteBtn.style.top = '-5px';
+                deleteBtn.style.right = '-5px';
+                deleteBtn.style.background = '#ff5252';
+                deleteBtn.style.color = 'white';
+                deleteBtn.style.border = 'none';
+                deleteBtn.style.borderRadius = '50%';
+                deleteBtn.style.width = '18px';
+                deleteBtn.style.height = '18px';
+                deleteBtn.style.fontSize = '12px';
+                deleteBtn.style.cursor = 'pointer';
+                deleteBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    this.parentElement.remove();
+                    updateResult();
+                });
+                
+                const container = document.createElement('div');
+                container.className = 'dropped-item';
+                container.appendChild(newItem);
+                container.appendChild(deleteBtn);
+                
+                dropZone.insertBefore(container, dropZone.lastElementChild);
+            }
+            
+            // تحديث نتيجة التمثيل
+            function updateResult() {
+                const items = document.querySelectorAll('.dropped-item > div');
+                let total = 0;
+                
+                items.forEach(item => {
+                    total += parseInt(item.dataset.value);
+                });
+                
+                resultArea.textContent = `العدد الحالي: ${total}`;
+                
+                if (currentNumber > 0) {
+                    if (total === currentNumber) {
+                        resultArea.textContent += ' - أحسنت! تم تمثيل العدد بشكل صحيح';
+                        resultArea.style.color = '#4caf50';
+                    } else if (total > currentNumber) {
+                        resultArea.textContent += ' - العدد أكبر من المطلوب';
+                        resultArea.style.color = '#ff5252';
+                    } else {
+                        resultArea.textContent += ' - استمر في إضافة المجسمات';
+                        resultArea.style.color = '#2c7be5';
+                    }
+                }
+            }
+            
+            // تمثيل العدد تلقائياً
+            function representNumber() {
+                const number = parseInt(numberInput.value);
+                
+                if (isNaN(number)) {
+                    showTryAgainMessage('الرجاء إدخال عدد صحيح');
+                    return;
+                }
+                
+                if (number < 1 || number > 9999) {
+                    showTryAgainMessage('الرجاء إدخال عدد بين 1 و 9999');
+                    return;
+                }
+                
+                currentNumber = number;
+                clearDropZone();
+                
+                // تحليل العدد إلى آلاف، مئات، عشرات، وحدات
+                const thousands = Math.floor(number / 1000);
+                const hundreds = Math.floor((number % 1000) / 100);
+                const tens = Math.floor((number % 100) / 10);
+                const units = number % 10;
+                
+                dropZoneText.textContent = `قم بتمثيل العدد ${number} باستخدام المجسمات`;
+                
+                // عرض التعليمات
+                instructionText.textContent = `العدد ${number} يتكون من:
+                ${thousands > 0 ? thousands + ' آلاف' : ''}
+                ${hundreds > 0 ? hundreds + ' مئات' : ''}
+                ${tens > 0 ? tens + ' عشرات' : ''}
+                ${units > 0 ? units + ' وحدات' : ''}`;
+                
+                highlightInstructions();
+            }
+            
+            // مسح منطقة الإسقاط
+            function clearDropZone() {
+                const items = document.querySelectorAll('.dropped-item');
+                items.forEach(item => item.remove());
+                resultArea.textContent = '';
+                currentNumber = 0;
+                numberInput.value = '';
+                dropZoneText.textContent = 'انقر على المجسمات أعلاه لتمثيل العدد';
+                instructionText.textContent = 'مرحباً! اكتب عدداً في الحقل أدناه ثم انقر على المجسمات المناسبة لتمثيله';
+            }
+            
+            // التحقق من الجواب
+            function checkAnswer() {
+                if (currentNumber === 0) {
+                    showTryAgainMessage('الرجاء إدخال عدد أولاً ثم تمثيله');
+                    return;
+                }
+                
+                const items = document.querySelectorAll('.dropped-item > div');
+                
+                if (items.length === 0) {
+                    showTryAgainMessage('الرجاء النقر على بعض المجسمات أولاً');
+                    return;
+                }
+                
+                let total = 0;
+                
+                items.forEach(item => {
+                    total += parseInt(item.dataset.value);
+                });
+                
+                if (total === currentNumber) {
+                    showCelebration();
+                } else {
+                    const difference = Math.abs(currentNumber - total);
+                    let message = 'الجواب غير صحيح، ';
+                    
+                    if (total < currentNumber) {
+                        message += `العدد الحالي أقل من المطلوب بمقدار ${difference}`;
+                    } else {
+                        message += `العدد الحالي أكبر من المطلوب بمقدار ${difference}`;
+                    }
+                    
+                    showTryAgainMessage(message);
+                }
+            }
+            
+            // عرض رسالة الاحتفال بالفوز
+            function showCelebration() {
+                celebration.classList.add('show');
+                createConfetti();
+            }
+            
+            // عرض رسالة المحاولة مرة أخرى
+            function showTryAgainMessage(message) {
+                tryAgainMessage.textContent = message;
+                tryAgain.classList.add('show');
+            }
+            
+            // إنشاء تأثير الأوراق المتطايرة
+            function createConfetti() {
+                const colors = ['#ff5252', '#4caf50', '#2196f3', '#ffeb3b', '#9c27b0', '#ff9800'];
+                const confettiContainer = document.createElement('div');
+                confettiContainer.style.position = 'fixed';
+                confettiContainer.style.top = '0';
+                confettiContainer.style.left = '0';
+                confettiContainer.style.width = '100%';
+                confettiContainer.style.height = '100%';
+                confettiContainer.style.pointerEvents = 'none';
+                confettiContainer.style.zIndex = '1000';
+                document.body.appendChild(confettiContainer);
+                
+                for (let i = 0; i < 100; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.width = Math.random() * 10 + 5 + 'px';
+                    confetti.style.height = Math.random() * 10 + 5 + 'px';
+                    confetti.style.animationDuration = Math.random() * 3 + 2 + 's';
+                    confetti.style.animationDelay = Math.random() * 2 + 's';
+                    confettiContainer.appendChild(confetti);
+                }
+                
+                // إزالة العنصر بعد انتهاء التأثير
+                setTimeout(() => {
+                    confettiContainer.remove();
+                }, 5000);
+            }
+            
+            // عرض التعليمات التفاعلية
+            function showHelp() {
+                if (currentStep >= instructionSteps.length) {
+                    currentStep = 0;
+                }
+                
+                instructionText.textContent = instructionSteps[currentStep];
+                highlightInstructions();
+                currentStep++;
+            }
+            
+            // تسليط الضوء على التعليمات
+            function highlightInstructions() {
+                instructions.classList.add('highlight');
+                setTimeout(() => {
+                    instructions.classList.remove('highlight');
+                }, 3000);
+            }
+            
+            // إضافة الأحداث
+            representBtn.addEventListener('click', representNumber);
+            clearBtn.addEventListener('click', clearDropZone);
+            checkBtn.addEventListener('click', checkAnswer);
+            helpBtn.addEventListener('click', showHelp);
+            celebrationBtn.addEventListener('click', function() {
+                celebration.classList.remove('show');
+                clearDropZone();
+            });
+            tryAgainBtn.addEventListener('click', function() {
+                tryAgain.classList.remove('show');
+            });
+            
+            // السماح بإدخال الأرقام فقط
+            numberInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    representNumber();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

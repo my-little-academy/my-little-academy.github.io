@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أسماء الله الحسنى المصنفة</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+        
+        :root {
+            --primary-color: #2b6cb0;
+            --secondary-color: #4a8fe7;
+            --light-bg: #F8FAFC;
+            --text-color: #2D3748;
+        }
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--light-bg);
+            margin: 0;
+            padding: 0;
+            color: var(--text-color);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            padding: 20px;
+            text-align: center;
+            color: white;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 2.2rem;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        
+        /* نظام التصنيفات */
+        .categories {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .category-btn {
+            background: white;
+            border: 2px solid #E2E8F0;
+            border-radius: 30px;
+            padding: 8px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+        
+        .category-btn:hover, .category-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        /* نظام الصفحات */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 30px 0;
+        }
+        
+        .page-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: white;
+            border: 1px solid #E2E8F0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .page-btn:hover, .page-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        /* بطاقات الأسماء */
+        .names-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .name-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            border: 1px solid #EDF2F7;
+        }
+        
+        .name-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-color: var(--secondary-color);
+        }
+        
+        .name-card h3 {
+            color: var(--primary-color);
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        
+        /* صفحة التفاصيل */
+        .detail-page {
+            display: none;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            margin-top: 30px;
+        }
+        
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #EDF2F7;
+            padding-bottom: 15px;
+        }
+        
+        .detail-header h2 {
+            color: var(--primary-color);
+            margin: 0;
+            font-size: 2rem;
+        }
+        
+        .back-btn {
+            background: var(--light-bg);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .meaning-section {
+            background: #F7FAFC;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-right: 4px solid var(--secondary-color);
+        }
+        
+        @media (max-width: 768px) {
+            .names-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>أسماء الله الحسنى</h1>
+        <div class="subtitle">تصفح الأسماء بطريقة منظمة ومريحة</div>
+    </div>
+    
+    <div class="container">
+        <!-- نظام التصنيفات -->
+        <div class="categories">
+            <button class="category-btn active" data-category="all">الكل</button>
+            <button class="category-btn" data-category="mercy">الرحمة</button>
+            <button class="category-btn" data-category="power">القدرة</button>
+            <button class="category-btn" data-category="knowledge">العلم</button>
+            <button class="category-btn" data-category="creation">الخلق</button>
+        </div>
+        
+        <!-- شبكة عرض الأسماء -->
+        <div class="names-grid" id="namesContainer">
+            <!-- يتم تعبئتها بواسطة JavaScript -->
+        </div>
+        
+        <!-- نظام التقسيم لصفحات -->
+        <div class="pagination" id="pagination">
+            <!-- يتم تعبئتها بواسطة JavaScript -->
+        </div>
+        
+        <!-- صفحة تفاصيل الاسم -->
+        <div class="detail-page" id="detailPage">
+            <div class="detail-header">
+                <h2 id="detailName">الرحمن</h2>
+                <button class="back-btn" id="backBtn">العودة للقائمة</button>
+            </div>
+            <div class="meaning-section">
+                <h3>معنى الاسم:</h3>
+                <p id="detailMeaning">الذي وسعت رحمته كل شيء</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // بيانات أسماء الله الحسنى مع تصنيفات
+        const names = [
+            {name: "الرحمن", meaning: "الذي وسعت رحمته كل شيء", category: "mercy"},
+            {name: "الرحيم", meaning: "الذي يرحم عباده المؤمنين", category: "mercy"},
+            {name: "الملك", meaning: "الذي له الملك كله", category: "power"},
+            {name: "القدوس", meaning: "المنزه عن كل نقص", category: "creation"},
+            {name: "السلام", meaning: "المسلم لعباده من كل آفة", category: "mercy"},
+            {name: "المؤمن", meaning: "الذي صدق عباده وعده", category: "power"},
+            {name: "المهيمن", meaning: "الشهيد على خلقه", category: "power"},
+            {name: "العزيز", meaning: "المنيع الذي لا يغلب", category: "power"},
+            {name: "الجبار", meaning: "الذي يجبر الضعيف ويساعد المظلوم", category: "power"},
+            {name: "المتكبر", meaning: "المتعالي عن صفات الخلق", category: "creation"},
+            {name: "الخالق", meaning: "الذي خلق كل شيء", category: "creation"},
+            {name: "البارئ", meaning: "الذي برأ الخلق من العدم", category: "creation"},
+            {name: "المصور", meaning: "الذي صور المخلوقات في أحسن صورة", category: "creation"},
+            {name: "الغفار", meaning: "الذي يغفر الذنوب كثيراً", category: "mercy"},
+            {name: "القهار", meaning: "الذي قهر كل شيء بقدرته", category: "power"},
+            {name: "الوهاب", meaning: "الذي يهب العطايا بلا حساب", category: "mercy"},
+            {name: "الرزاق", meaning: "الذي يرزق كل الخلائق", category: "mercy"},
+            {name: "الفتاح", meaning: "الذي يفتح أبواب الرزق والخير", category: "power"},
+            {name: "العليم", meaning: "الذي يعلم كل شيء", category: "knowledge"},
+            {name: "القابض", meaning: "الذي يقبض الأرزاق والنفوس", category: "power"},
+            {name: "الباسط", meaning: "الذي يبسط الأرزاق والرحمة", category: "mercy"},
+            {name: "الخافض", meaning: "الذي يخفض الجبارين والمتكبرين", category: "power"},
+            {name: "الرافع", meaning: "الذي يرفع المؤمنين والصالحين", category: "power"},
+            {name: "المعز", meaning: "الذي يعز من يشاء من عباده", category: "power"},
+            {name: "المذل", meaning: "الذي يذل من يشاء من الكافرين", category: "power"},
+            {name: "السميع", meaning: "الذي يسمع كل الأصوات", category: "knowledge"},
+            {name: "البصير", meaning: "الذي يرى كل شيء", category: "knowledge"},
+            {name: "الحكم", meaning: "الذي يحكم بين الخلائق بالعدل", category: "power"},
+            {name: "العدل", meaning: "الذي لا يجور في حكمه", category: "power"},
+            {name: "اللطيف", meaning: "الذي يلطف بعباده في أمورهم", category: "mercy"},
+            {name: "الخبير", meaning: "العالم ببواطن الأمور", category: "knowledge"},
+            {name: "الحليم", meaning: "الذي لا يعجل بالعقوبة", category: "mercy"},
+            {name: "العظيم", meaning: "الذي له العظمة والكبرياء", category: "power"},
+            {name: "الغفور", meaning: "الذي يغفر الذنوب", category: "mercy"},
+            {name: "الشكور", meaning: "الذي يشكر القليل من العمل", category: "mercy"},
+            {name: "العلي", meaning: "الذي له العلو المطلق", category: "power"},
+            {name: "الكبير", meaning: "الذي كبر عن مشابهة المخلوقات", category: "power"},
+            {name: "الحفيظ", meaning: "الذي يحفظ السماوات والأرض", category: "power"},
+            {name: "المقيت", meaning: "الذي يوصل الأقوات إلى الخلائق", category: "mercy"},
+            {name: "الحسيب", meaning: "الذي يكفي عباده المؤمنين", category: "power"},
+            {name: "الجليل", meaning: "الذي له الجلال والعظمة", category: "power"},
+            {name: "الكريم", meaning: "الذي يعطي بلا حساب", category: "mercy"},
+            {name: "الرقيب", meaning: "الذي يراقب أعمال العباد", category: "knowledge"},
+            {name: "المجيب", meaning: "الذي يجيب دعوة الداعين", category: "mercy"},
+            {name: "الواسع", meaning: "الذي وسع رزقه كل الخلائق", category: "power"},
+            {name: "الحكيم", meaning: "الذي يضع الأشياء في مواضعها", category: "knowledge"},
+            {name: "الودود", meaning: "الذي يحب عباده المؤمنين", category: "mercy"},
+            {name: "المجيد", meaning: "الذي له المجد والعظمة", category: "power"},
+            {name: "الباعث", meaning: "الذي يبعث الخلائق يوم القيامة", category: "power"},
+            {name: "الشهيد", meaning: "الذي يشهد على كل شيء", category: "knowledge"},
+            {name: "الحق", meaning: "الذي هو الحق المطلق", category: "power"},
+            {name: "الوكيل", meaning: "الذي يتولى أمور عباده", category: "power"},
+            {name: "القوي", meaning: "الذي له القوة المطلقة", category: "power"},
+            {name: "المتين", meaning: "الشديد الذي لا ينال", category: "power"},
+            {name: "الولي", meaning: "الناصر لأوليائه المؤمنين", category: "power"},
+            {name: "الحميد", meaning: "المستحق للحمد والثناء", category: "creation"},
+            {name: "المحصي", meaning: "الذي أحصى كل شيء بعلمه", category: "knowledge"},
+            {name: "المبدئ", meaning: "الذي بدأ الخلق من العدم", category: "creation"},
+            {name: "المعيد", meaning: "الذي يعيد الخلق بعد الموت", category: "creation"},
+            {name: "المحيي", meaning: "الذي يحيي الموتى", category: "creation"},
+            {name: "المميت", meaning: "الذي يميت الأحياء", category: "power"},
+            {name: "الحي", meaning: "الذي له الحياة الكاملة", category: "creation"},
+            {name: "القيوم", meaning: "القيام على كل شيء", category: "power"},
+            {name: "الواجد", meaning: "الذي لا يعوزه شيء", category: "power"},
+            {name: "الماجد", meaning: "الذي له الكمال والمجد", category: "power"},
+            {name: "الواحد", meaning: "الذي لا شريك له", category: "creation"},
+            {name: "الأحد", meaning: "الذي لا شبيه له ولا نظير", category: "creation"},
+            {name: "الصمد", meaning: "الذي تصمد إليه الخلائق في حاجاتها", category: "power"},
+            {name: "القادر", meaning: "الذي على كل شيء قدير", category: "power"},
+            {name: "المقتدر", meaning: "الذي له القدرة الكاملة", category: "power"},
+            {name: "المقدم", meaning: "الذي يقدم ما يشاء", category: "power"},
+            {name: "المؤخر", meaning: "الذي يؤخر ما يشاء", category: "power"},
+            {name: "الأول", meaning: "الذي ليس قبله شيء", category: "creation"},
+            {name: "الآخر", meaning: "الذي ليس بعده شيء", category: "creation"},
+            {name: "الظاهر", meaning: "الذي ظهر فوق كل شيء", category: "creation"},
+            {name: "الباطن", meaning: "الذي لا يدرك بالحواس", category: "creation"},
+            {name: "الوالي", meaning: "المتصرف في خلقه", category: "power"},
+            {name: "المتعالي", meaning: "المنزه عن صفات الخلق", category: "creation"},
+            {name: "البر", meaning: "الذي وسع بره كل شيء", category: "mercy"},
+            {name: "التواب", meaning: "الذي يقبل توبة التائبين", category: "mercy"},
+            {name: "المنتقم", meaning: "الذي ينتصر من الظالمين", category: "power"},
+            {name: "العفو", meaning: "الذي يعفو عن الذنوب", category: "mercy"},
+            {name: "الرؤوف", meaning: "الذي يرق على عباده", category: "mercy"},
+            {name: "مالك الملك", meaning: "الذي بيده ملكوت كل شيء", category: "power"},
+            {name: "ذو الجلال والإكرام", meaning: "المستحق للتعظيم والإجلال", category: "power"},
+            {name: "المقسط", meaning: "الذي يحكم بالعدل", category: "power"},
+            {name: "الجامع", meaning: "الذي يجمع الخلائق يوم القيامة", category: "power"},
+            {name: "الغني", meaning: "الذي لا يحتاج إلى شيء", category: "power"},
+            {name: "المغني", meaning: "الذي يغني من يشاء من عباده", category: "mercy"},
+            {name: "المانع", meaning: "الذي يمنع العطاء عمن يشاء", category: "power"},
+            {name: "الضار", meaning: "الذي يضر من يشاء بحكمته", category: "power"},
+            {name: "النافع", meaning: "الذي ينفع من يشاء برحمته", category: "mercy"},
+            {name: "النور", meaning: "الذي ينير القلوب بالإيمان", category: "creation"},
+            {name: "الهادي", meaning: "الذي يهدي القلوب إلى الحق", category: "mercy"},
+            {name: "البديع", meaning: "الذي خلق الخلق على غير مثال", category: "creation"},
+            {name: "الباقي", meaning: "الذي لا يفنى", category: "creation"},
+            {name: "الوارث", meaning: "الذي يرث الأرض ومن عليها", category: "power"},
+            {name: "الرشيد", meaning: "الذي يرشد الخلق إلى الصواب", category: "knowledge"},
+            {name: "الصبور", meaning: "الذي لا يعجل بالعقوبة", category: "mercy"}
+        ];
+
+        // المتغيرات العامة
+        let currentPage = 1;
+        const namesPerPage = 12;
+        let currentCategory = "all";
+        
+        // عناصر DOM
+        const namesContainer = document.getElementById('namesContainer');
+        const pagination = document.getElementById('pagination');
+        const detailPage = document.getElementById('detailPage');
+        const detailName = document.getElementById('detailName');
+        const detailMeaning = document.getElementById('detailMeaning');
+        const backBtn = document.getElementById('backBtn');
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        
+        // تصفية الأسماء حسب التصنيف
+        function filterNames(category) {
+            currentCategory = category;
+            currentPage = 1;
+            renderNames();
+            renderPagination();
+        }
+        
+        // عرض الأسماء
+        function renderNames() {
+            namesContainer.innerHTML = '';
+            
+            // تصفية الأسماء حسب التصنيف
+            let filteredNames = names;
+            if (currentCategory !== 'all') {
+                filteredNames = names.filter(name => name.category === currentCategory);
+            }
+            
+            // حساب الأسماء للصفحة الحالية
+            const startIndex = (currentPage - 1) * namesPerPage;
+            const endIndex = startIndex + namesPerPage;
+            const namesToShow = filteredNames.slice(startIndex, endIndex);
+            
+            // إنشاء بطاقات الأسماء
+            namesToShow.forEach(name => {
+                const card = document.createElement('div');
+                card.className = 'name-card';
+                card.innerHTML = `<h3>${name.name}</h3>`;
+                
+                card.addEventListener('click', () => {
+                    showDetail(name);
+                });
+                
+                namesContainer.appendChild(card);
+            });
+        }
+        
+        // عرض تفاصيل الاسم
+        function showDetail(name) {
+            namesContainer.style.display = 'none';
+            pagination.style.display = 'none';
+            detailPage.style.display = 'block';
+            
+            detailName.textContent = name.name;
+            detailMeaning.textContent = name.meaning;
+            
+            // Scroll to top
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+        
+        // العودة للقائمة
+        backBtn.addEventListener('click', () => {
+            namesContainer.style.display = 'grid';
+            pagination.style.display = 'flex';
+            detailPage.style.display = 'none';
+        });
+        
+        // إنشاء أزرار الصفحات
+        function renderPagination() {
+            pagination.innerHTML = '';
+            
+            let filteredNames = names;
+            if (currentCategory !== 'all') {
+                filteredNames = names.filter(name => name.category === currentCategory);
+            }
+            
+            const pageCount = Math.ceil(filteredNames.length / namesPerPage);
+            
+            for (let i = 1; i <= pageCount; i++) {
+                const pageBtn = document.createElement('div');
+                pageBtn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+                pageBtn.textContent = i;
+                
+                pageBtn.addEventListener('click', () => {
+                    currentPage = i;
+                    renderNames();
+                    updatePaginationButtons();
+                });
+                
+                pagination.appendChild(pageBtn);
+            }
+        }
+        
+        // تحديث أزرار الصفحات
+        function updatePaginationButtons() {
+            const buttons = pagination.querySelectorAll('.page-btn');
+            buttons.forEach((btn, index) => {
+                if (index + 1 === currentPage) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+        
+        // إضافة أحداث لأزرار التصنيف
+        categoryBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                categoryBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                filterNames(btn.dataset.category);
+            });
+        });
+        
+        // التهيئة الأولية
+        renderNames();
+        renderPagination();
+    </script>
+</body>
+</html>

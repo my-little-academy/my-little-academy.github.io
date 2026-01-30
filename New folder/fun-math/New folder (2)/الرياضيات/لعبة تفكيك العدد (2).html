@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>لعبة تفكيك العدد - خانات منفصلة</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #e0f7fa;
+      padding: 30px;
+      text-align: center;
+    }
+    h1 {
+      color: #00796b;
+    }
+    .box {
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 15px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      direction: rtl;
+    }
+    input, button, select {
+      padding: 10px;
+      font-size: 16px;
+      margin: 10px auto;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      width: 90%;
+      display: block;
+    }
+    button {
+      background-color: #00796b;
+      color: white;
+      cursor: pointer;
+      width: 200px;
+      margin: 15px auto;
+    }
+    button:hover {
+      background-color: #004d40;
+    }
+    .result {
+      margin-top: 10px;
+      font-weight: bold;
+      font-size: 17px;
+      min-height: 25px;
+    }
+    .success {
+      color: green;
+    }
+    .error {
+      color: red;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 15px;
+      text-align: right;
+      font-size: 18px;
+      color: #004d40;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎯 لعبة تفكيك العدد</h1>
+
+  <div class="box">
+    <label for="level">اختر المستوى:</label>
+    <select id="level">
+      <option value="3">🔢 عدد من 3 أرقام</option>
+      <option value="4" selected>🔢 عدد من 4 أرقام</option>
+      <option value="5">🔢 عدد من 5 أرقام</option>
+    </select>
+
+    <button onclick="generateRandomNumber()">🎲 توليد عدد عشوائي</button>
+
+    <label for="numberInput">العدد:</label>
+    <input type="number" id="numberInput" placeholder="مثال: 3957" />
+
+    <label for="decompositionDigital">تفكيك رقمي (مثال: 3000 + 900 + 50 + 7):</label>
+    <input type="text" id="decompositionDigital" placeholder="اكتب التفكيك الرقمي هنا" />
+
+    <div id="resultDigital" class="result"></div>
+
+    <label for="decompositionVerbal">تفكيك لفظي (مثال: 3 آلاف + 9 مئات + 5 عشرات + 7 وحدات):</label>
+    <input type="text" id="decompositionVerbal" placeholder="اكتب التفكيك اللفظي هنا" />
+
+    <div id="resultVerbal" class="result"></div>
+
+    <button onclick="checkDecompositions()">✅ تحقق التفكيكين</button>
+
+  </div>
+
+  <script>
+    // توليد عدد عشوائي حسب المستوى
+    function generateRandomNumber() {
+      const level = parseInt(document.getElementById("level").value);
+      const min = Math.pow(10, level - 1);
+      const max = Math.pow(10, level) - 1;
+      const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+      document.getElementById("numberInput").value = randomNumber;
+      // مسح نتائج التفكيك عند التوليد الجديد
+      document.getElementById("decompositionDigital").value = "";
+      document.getElementById("decompositionVerbal").value = "";
+      document.getElementById("resultDigital").textContent = "";
+      document.getElementById("resultVerbal").textContent = "";
+    }
+
+    // دالة للتحقق من التفكيك الرقمي
+    function checkDigital(number, input) {
+      try {
+        // إزالة الفراغات وتقييم التعبير
+        const evaluated = eval(input.replace(/\s+/g, ''));
+        return evaluated === number;
+      } catch {
+        return false;
+      }
+    }
+
+    // دالة لتحويل التفكيك اللفظي إلى قيمة رقمية
+    function verbalToNumber(verbalInput) {
+      // إزالة الفراغات
+      let txt = verbalInput.trim();
+
+      // تحويل الأعداد الهندية للعربية
+      txt = txt.replace(/[\u0660-\u0669]/g, d => d.charCodeAt(0) - 0x0660);
+
+      // تحويل كلمات إلى ضرب أرقام
+      txt = txt
+        .replace(/(\d+)\s*آلاف?/g, (m, n) => `${n}*1000`)
+        .replace(/(\d+)\s*ألفاً/g, (m, n) => `${n}*1000`)
+        .replace(/(\d+)\s*مئات?/g, (m, n) => `${n}*100`)
+        .replace(/(\d+)\s*مئة/g, (m, n) => `${n}*100`)
+        .replace(/(\d+)\s*عشرات/g, (m, n) => `${n}*10`)
+        .replace(/(\d+)\s*عشرة/g, (m, n) => `${n}*10`)
+        .replace(/(\d+)\s*وحدات?/g, (m, n) => `${n}*1`);
+
+      // إزالة أي حروف أو رموز أخرى (نسمح فقط للأرقام + و * )
+      txt = txt.replace(/[^0-9+*]/g, '');
+
+      return txt;
+    }
+
+    // التحقق من التفكيكين الرقمي واللفظي
+    function checkDecompositions() {
+      const number = parseInt(document.getElementById("numberInput").value);
+      const digitalInput = document.getElementById("decompositionDigital").value.trim();
+      const verbalInput = document.getElementById("decompositionVerbal").value.trim();
+
+      const resultDigital = document.getElementById("resultDigital");
+      const resultVerbal = document.getElementById("resultVerbal");
+
+      if (!number) {
+        alert("⚠️ الرجاء إدخال العدد أولًا!");
+        return;
+      }
+
+      // التحقق الرقمي
+      if (digitalInput === "") {
+        resultDigital.textContent = "⚠️ الرجاء إدخال التفكيك الرقمي.";
+        resultDigital.className = "result error";
+      } else if (checkDigital(number, digitalInput)) {
+        resultDigital.textContent = "✔️ التفكيك الرقمي صحيح.";
+        resultDigital.className = "result success";
+      } else {
+        resultDigital.textContent = "❌ التفكيك الرقمي غير صحيح.";
+        resultDigital.className = "result error";
+      }
+
+      // التحقق اللفظي
+      if (verbalInput === "") {
+        resultVerbal.textContent = "⚠️ الرجاء إدخال التفكيك اللفظي.";
+        resultVerbal.className = "result error";
+      } else {
+        try {
+          const converted = verbalToNumber(verbalInput);
+          const verbalValue = eval(converted);
+          if (verbalValue === number) {
+            resultVerbal.textContent = "✔️ التفكيك اللفظي صحيح.";
+            resultVerbal.className = "result success";
+          } else {
+            resultVerbal.textContent = "❌ التفكيك اللفظي غير صحيح.";
+            resultVerbal.className = "result error";
+          }
+        } catch {
+          resultVerbal.textContent = "⚠️ خطأ في صيغة التفكيك اللفظي.";
+          resultVerbal.className = "result error";
+        }
+      }
+    }
+  </script>
+
+</body>
+</html>

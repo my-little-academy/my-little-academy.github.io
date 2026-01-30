@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>لعبة الكلمات المبعثرة - تطوير</title>
+<style>
+  body {
+    font-family: 'Arial', sans-serif;
+    background-color: #e0f7fa;
+    text-align: center;
+    padding: 30px;
+  }
+  h1 {
+    color: #00796b;
+  }
+  #image-container img {
+    max-width: 150px;
+    margin: 20px auto;
+    display: block;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+  #shuffled-letters {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .letter {
+    background-color: #009688;
+    color: white;
+    font-size: 32px;
+    padding: 15px 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    transition: background-color 0.3s;
+  }
+  .letter:hover {
+    background-color: #00796b;
+  }
+  #answer {
+    min-height: 50px;
+    font-size: 36px;
+    border: 3px solid #004d40;
+    padding: 12px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    background-color: #b2dfdb;
+    user-select: none;
+    letter-spacing: 10px;
+    cursor: default;
+  }
+  #message {
+    font-size: 26px;
+    font-weight: bold;
+    color: #00796b;
+    min-height: 40px;
+    margin: 10px 0;
+  }
+  button {
+    background-color: #004d40;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 20px;
+    margin: 5px;
+    transition: background-color 0.3s;
+  }
+  button:hover {
+    background-color: #00332a;
+  }
+  #score {
+    font-size: 22px;
+    margin-bottom: 15px;
+    color: #004d40;
+  }
+</style>
+</head>
+<body>
+
+<h1>لعبة الكلمات المبعثرة - تطوير</h1>
+<p>رتب الحروف لتكوين الكلمة الصحيحة!</p>
+
+<div id="image-container"></div>
+<div id="shuffled-letters"></div>
+<div id="answer"></div>
+<div>
+  <button id="check-btn">تحقق من الإجابة</button>
+  <button id="reset-btn" style="display:none;">كلمة جديدة</button>
+</div>
+<div id="message"></div>
+<div id="score">النقاط: 0</div>
+
+<!-- أصوات -->
+<audio id="sound-click" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
+<audio id="sound-correct" src="https://actions.google.com/sounds/v1/cartoon/concussive_hit_guitar_boing.ogg"></audio>
+<audio id="sound-wrong" src="https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg"></audio>
+
+<script>
+  const words = [
+    {word: "الإيمان", img: "https://i.imgur.com/nOE4khZ.png"},
+    {word: "الصلاة", img: "https://i.imgur.com/f1n6yRF.png"},
+    {word: "الزكاة", img: "https://i.imgur.com/4kZd6Cl.png"},
+    {word: "الصوم", img: "https://i.imgur.com/d9bErTX.png"},
+    {word: "الحج", img: "https://i.imgur.com/WMxNGi0.png"}
+  ];
+
+  let currentWordIndex = 0;
+  let score = 0;
+  
+  const shuffledLettersDiv = document.getElementById("shuffled-letters");
+  const answerDiv = document.getElementById("answer");
+  const messageDiv = document.getElementById("message");
+  const checkBtn = document.getElementById("check-btn");
+  const resetBtn = document.getElementById("reset-btn");
+  const scoreDiv = document.getElementById("score");
+  const imageContainer = document.getElementById("image-container");
+
+  const soundClick = document.getElementById("sound-click");
+  const soundCorrect = document.getElementById("sound-correct");
+  const soundWrong = document.getElementById("sound-wrong");
+
+  function shuffleWord(word) {
+    const arr = Array.from(word);
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function renderWord(wordObj) {
+    answerDiv.textContent = "";
+    messageDiv.textContent = "";
+    checkBtn.style.display = "inline-block";
+    resetBtn.style.display = "none";
+    
+    // عرض الصورة
+    imageContainer.innerHTML = `<img src="${wordObj.img}" alt="${wordObj.word}" />`;
+
+    // عرض الحروف المبعثرة
+    shuffledLettersDiv.innerHTML = "";
+    const shuffledLetters = shuffleWord(wordObj.word);
+    shuffledLetters.forEach((letter, index) => {
+      const span = document.createElement("span");
+      span.classList.add("letter");
+      span.textContent = letter;
+      span.dataset.index = index;
+      span.addEventListener("click", () => {
+        if (span.style.visibility === "hidden") return;
+        answerDiv.textContent += letter;
+        span.style.visibility = "hidden";
+        soundClick.play();
+      });
+      shuffledLettersDiv.appendChild(span);
+    });
+  }
+
+  function resetGame() {
+    renderWord(words[currentWordIndex]);
+  }
+
+  checkBtn.addEventListener("click", () => {
+    const userAnswer = answerDiv.textContent;
+    const correctAnswer = words[currentWordIndex].word;
+    if (userAnswer === correctAnswer) {
+      messageDiv.textContent = "🎉 أحسنت! الإجابة صحيحة.";
+      score += 10;
+      scoreDiv.textContent = `النقاط: ${score}`;
+      soundCorrect.play();
+      checkBtn.style.display = "none";
+      resetBtn.style.display = "inline-block";
+      currentWordIndex = (currentWordIndex + 1) % words.length;
+    } else {
+      messageDiv.textContent = "❌ حاول مرة أخرى!";
+      soundWrong.play();
+    }
+  });
+
+  resetBtn.addEventListener("click", () => {
+    resetGame();
+  });
+
+  answerDiv.addEventListener("click", () => {
+    if (answerDiv.textContent.length === 0) return;
+    let lastChar = answerDiv.textContent.slice(-1);
+    answerDiv.textContent = answerDiv.textContent.slice(0, -1);
+    [...shuffledLettersDiv.children].forEach(span => {
+      if (span.textContent === lastChar && span.style.visibility === "hidden") {
+        span.style.visibility = "visible";
+        return;
+      }
+    });
+    messageDiv.textContent = "";
+  });
+
+  // بدء اللعبة
+  resetGame();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8" />
+<title>مخطط تشعبي للأطفال</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Baloo+2&display=swap');
+
+  body {
+    margin: 0;
+    height: 100vh;
+    background: radial-gradient(circle at center, #ffefba, #ffffff);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Baloo 2', cursive, Arial, sans-serif;
+  }
+
+  .container {
+    position: relative;
+    width: 650px;
+    height: 650px;
+  }
+
+  .card {
+    position: absolute;
+    width: 140px;
+    height: 100px;
+    border-radius: 20px;
+    box-shadow: 0 10px 15px rgba(255, 180, 0, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #ffd54f, #ffb300);
+    border: 4px solid #ff6f00;
+    cursor: pointer;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    text-align: center;
+    color: #4a2700;
+    font-weight: 900;
+    font-size: 1.1rem;
+    user-select: none;
+  }
+  .card textarea {
+    width: 90%;
+    height: 70%;
+    resize: none;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-weight: 900;
+    font-size: 1.1rem;
+    color: #4a2700;
+    text-align: center;
+    outline: none;
+    padding: 12px 10px;
+    border-radius: 12px;
+    box-shadow: inset 0 0 6px rgba(255 255 255 / 0.7);
+    line-height: 1.3;
+  }
+  .card textarea::placeholder {
+    color: #ffe082;
+    font-weight: 700;
+  }
+  .card:hover {
+    transform: scale(1.12) rotate(-3deg);
+    box-shadow: 0 12px 20px rgba(255, 140, 0, 0.6);
+  }
+
+  .center {
+    top: 50%;
+    left: 50%;
+    margin-left: -70px;
+    margin-top: -50px;
+    background: linear-gradient(135deg, #64b5f6, #1976d2);
+    border-color: #0d47a1;
+    color: #fff;
+    box-shadow: 0 0 25px 5px #42a5f5cc;
+    font-size: 1.3rem;
+    user-select: none;
+    animation: pulseGlow 3s ease-in-out infinite;
+  }
+  .center textarea {
+    color: #e3f2fd;
+    font-weight: 900;
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% {
+      box-shadow: 0 0 20px 5px #42a5f5cc;
+    }
+    50% {
+      box-shadow: 0 0 35px 10px #90caf9cc;
+    }
+  }
+
+  .svg-lines {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+  }
+
+  .svg-lines line {
+    stroke: #f57c00;
+    stroke-width: 6;
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 5px #ffa726);
+    transition: stroke-width 0.3s ease;
+  }
+  .svg-lines line:hover {
+    stroke-width: 10;
+    stroke: #ffb300;
+  }
+
+  /* مواضع البطاقات */
+  .card1 {
+    top: 12%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #ffcc80, #ffb300);
+  }
+  .card2 {
+    top: 30%;
+    left: 85%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #ffab91, #ff6f00);
+  }
+  .card3 {
+    top: 70%;
+    left: 85%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #ce93d8, #7b1fa2);
+  }
+  .card4 {
+    top: 88%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #81d4fa, #0288d1);
+    color: #fff;
+  }
+  .card5 {
+    top: 70%;
+    left: 15%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #a5d6a7, #2e7d32);
+  }
+  .card6 {
+    top: 30%;
+    left: 15%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #fff59d, #fbc02d);
+  }
+
+</style>
+</head>
+<body>
+
+<div class="container" id="diagram">
+  <svg class="svg-lines">
+    <line id="line1" />
+    <line id="line2" />
+    <line id="line3" />
+    <line id="line4" />
+    <line id="line5" />
+    <line id="line6" />
+  </svg>
+
+  <div class="card center" id="center">
+    <textarea placeholder="الفكرة الرئيسية"></textarea>
+  </div>
+
+  <div class="card card1" id="card1"><textarea placeholder="فرع 1"></textarea></div>
+  <div class="card card2" id="card2"><textarea placeholder="فرع 2"></textarea></div>
+  <div class="card card3" id="card3"><textarea placeholder="فرع 3"></textarea></div>
+  <div class="card card4" id="card4"><textarea placeholder="فرع 4"></textarea></div>
+  <div class="card card5" id="card5"><textarea placeholder="فرع 5"></textarea></div>
+  <div class="card card6" id="card6"><textarea placeholder="فرع 6"></textarea></div>
+</div>
+
+<script>
+  function getCenter(el) {
+    const rect = el.getBoundingClientRect();
+    return {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2
+    };
+  }
+
+  function adjustToEdge(from, to, size) {
+    const dx = to.x - from.x;
+    const dy = to.y - from.y;
+    const angle = Math.atan2(dy, dx);
+    const offsetX = Math.cos(angle) * size.width / 2;
+    const offsetY = Math.sin(angle) * size.height / 2;
+    return {
+      x: from.x + offsetX,
+      y: from.y + offsetY
+    };
+  }
+
+  function drawLines() {
+    const centerEl = document.getElementById("center");
+    const centerRect = centerEl.getBoundingClientRect();
+    const centerPoint = getCenter(centerEl);
+    const containerRect = document.getElementById("diagram").getBoundingClientRect();
+
+    for (let i = 1; i <= 6; i++) {
+      const cardEl = document.getElementById("card" + i);
+      const cardRect = cardEl.getBoundingClientRect();
+      const cardCenter = getCenter(cardEl);
+      const line = document.getElementById("line" + i);
+
+      const fromEdge = adjustToEdge(centerPoint, cardCenter, centerRect);
+      const toEdge = adjustToEdge(cardCenter, centerPoint, cardRect);
+
+      line.setAttribute("x1", fromEdge.x - containerRect.left);
+      line.setAttribute("y1", fromEdge.y - containerRect.top);
+      line.setAttribute("x2", toEdge.x - containerRect.left);
+      line.setAttribute("y2", toEdge.y - containerRect.top);
+    }
+  }
+
+  window.addEventListener("load", drawLines);
+  window.addEventListener("resize", drawLines);
+</script>
+
+</body>
+</html>

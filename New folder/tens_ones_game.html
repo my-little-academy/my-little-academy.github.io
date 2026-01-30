@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة جدول العشرات والوحدات</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #4a5568;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .game-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+
+        .number-display {
+            text-align: center;
+            background: linear-gradient(45deg, #ff6b6b, #ffa726);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(255, 107, 107, 0.3);
+        }
+
+        .number-display h2 {
+            margin: 0 0 15px 0;
+            font-size: 1.5em;
+        }
+
+        .target-number {
+            font-size: 4em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .table-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            border: 3px solid #e9ecef;
+        }
+
+        .table-title {
+            text-align: center;
+            font-size: 1.5em;
+            color: #495057;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .tens-ones-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .tens-ones-table th {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .tens-ones-table td {
+            padding: 30px;
+            text-align: center;
+            border-bottom: 2px solid #e9ecef;
+            vertical-align: middle;
+        }
+
+        .counter-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .counter-btn {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.5em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .counter-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        .decrease-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+        }
+
+        .increase-btn {
+            background: linear-gradient(45deg, #51cf66, #40c057);
+            color: white;
+        }
+
+        .counter-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #495057;
+            min-width: 80px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px solid #dee2e6;
+        }
+
+        .controls {
+            text-align: center;
+            margin-top: 30px;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        .check-btn {
+            background: linear-gradient(45deg, #4caf50, #45a049);
+            color: white;
+        }
+
+        .new-number-btn {
+            background: linear-gradient(45deg, #2196f3, #1976d2);
+            color: white;
+        }
+
+        .reset-btn {
+            background: linear-gradient(45deg, #ff9800, #f57c00);
+            color: white;
+        }
+
+        .feedback {
+            text-align: center;
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            transition: all 0.5s ease;
+        }
+
+        .success {
+            background: linear-gradient(45deg, #d4edda, #c3e6cb);
+            color: #155724;
+            border: 2px solid #b8daff;
+        }
+
+        .error {
+            background: linear-gradient(45deg, #f8d7da, #f5c6cb);
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .number-input-container {
+            text-align: center;
+            margin-bottom: 20px;
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .number-input {
+            padding: 10px 20px;
+            border: 2px solid #2196f3;
+            border-radius: 10px;
+            font-size: 1.2em;
+            text-align: center;
+            margin: 0 10px;
+            width: 100px;
+        }
+
+        .set-number-btn {
+            background: linear-gradient(45deg, #9c27b0, #7b1fa2);
+            color: white;
+        }
+
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: confetti-fall 3s linear infinite;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .game-area {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .counter-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔢 لعبة جدول العشرات والوحدات</h1>
+        
+        <div class="number-input-container">
+            <label for="numberInput">اختر رقماً جديداً:</label>
+            <input type="number" id="numberInput" class="number-input" min="10" max="99" value="76">
+            <button class="btn set-number-btn" onclick="setNewNumber()">تغيير الرقم</button>
+        </div>
+
+        <div class="game-area">
+            <div class="number-display">
+                <h2>الرقم المطلوب تمثيله:</h2>
+                <div class="target-number" id="targetNumber">76</div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-title">جدول العشرات والوحدات</div>
+                <table class="tens-ones-table">
+                    <thead>
+                        <tr>
+                            <th>العشرات</th>
+                            <th>الوحدات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="counter-container">
+                                    <button class="counter-btn decrease-btn" onclick="changeValue('tens', -1)">−</button>
+                                    <div class="counter-value" id="tensValue">0</div>
+                                    <button class="counter-btn increase-btn" onclick="changeValue('tens', 1)">+</button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="counter-container">
+                                    <button class="counter-btn decrease-btn" onclick="changeValue('ones', -1)">−</button>
+                                    <div class="counter-value" id="onesValue">0</div>
+                                    <button class="counter-btn increase-btn" onclick="changeValue('ones', 1)">+</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn check-btn" onclick="checkAnswer()">✓ تحقق من الإجابة</button>
+            <button class="btn new-number-btn" onclick="generateNewNumber()">🎲 رقم جديد عشوائي</button>
+            <button class="btn reset-btn" onclick="resetCounters()">🔄 إعادة تعيين</button>
+        </div>
+
+        <div id="feedback" class="feedback" style="display: none;"></div>
+    </div>
+
+    <div id="celebration" class="celebration"></div>
+
+    <script>
+        let targetNumber = 76;
+        let tensValue = 0;
+        let onesValue = 0;
+
+        function setNewNumber() {
+            const input = document.getElementById('numberInput');
+            const newNumber = parseInt(input.value);
+            
+            if (newNumber >= 10 && newNumber <= 99) {
+                targetNumber = newNumber;
+                document.getElementById('targetNumber').textContent = targetNumber;
+                resetCounters();
+                hideFeedback();
+            } else {
+                showFeedback('يرجى إدخال رقم بين 10 و 99', 'error');
+            }
+        }
+
+        function generateNewNumber() {
+            targetNumber = Math.floor(Math.random() * 90) + 10;
+            document.getElementById('targetNumber').textContent = targetNumber;
+            document.getElementById('numberInput').value = targetNumber;
+            resetCounters();
+            hideFeedback();
+        }
+
+        function changeValue(type, change) {
+            if (type === 'tens') {
+                tensValue = Math.max(0, Math.min(9, tensValue + change));
+                document.getElementById('tensValue').textContent = tensValue;
+            } else if (type === 'ones') {
+                onesValue = Math.max(0, Math.min(9, onesValue + change));
+                document.getElementById('onesValue').textContent = onesValue;
+            }
+            
+            // Add animation effect
+            const element = document.getElementById(type === 'tens' ? 'tensValue' : 'onesValue');
+            element.style.transform = 'scale(1.2)';
+            element.style.transition = 'transform 0.2s ease';
+            setTimeout(() => {
+                element.style.transform = 'scale(1)';
+            }, 200);
+        }
+
+        function checkAnswer() {
+            const userNumber = tensValue * 10 + onesValue;
+            const correctTens = Math.floor(targetNumber / 10);
+            const correctOnes = targetNumber % 10;
+
+            if (userNumber === targetNumber) {
+                showFeedback(`🎉 أحسنت! ${targetNumber} = ${tensValue} عشرات + ${onesValue} وحدات`, 'success');
+                celebrate();
+            } else {
+                showFeedback(`❌ خطأ! الإجابة الصحيحة هي: ${correctTens} عشرات + ${correctOnes} وحدات`, 'error');
+            }
+        }
+
+        function resetCounters() {
+            tensValue = 0;
+            onesValue = 0;
+            document.getElementById('tensValue').textContent = tensValue;
+            document.getElementById('onesValue').textContent = onesValue;
+            hideFeedback();
+        }
+
+        function showFeedback(message, type) {
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = message;
+            feedback.className = `feedback ${type}`;
+            feedback.style.display = 'block';
+            
+            // Auto-hide after 4 seconds for success messages
+            if (type === 'success') {
+                setTimeout(hideFeedback, 4000);
+            }
+        }
+
+        function hideFeedback() {
+            document.getElementById('feedback').style.display = 'none';
+        }
+
+        function celebrate() {
+            const celebration = document.getElementById('celebration');
+            celebration.innerHTML = '';
+            
+            // Create confetti
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = getRandomColor();
+                confetti.style.animationDelay = Math.random() * 3 + 's';
+                celebration.appendChild(confetti);
+            }
+            
+            // Remove confetti after animation
+            setTimeout(() => {
+                celebration.innerHTML = '';
+            }, 3000);
+        }
+
+        function getRandomColor() {
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', function(event) {
+            switch(event.key) {
+                case 'ArrowUp':
+                    changeValue('tens', 1);
+                    event.preventDefault();
+                    break;
+                case 'ArrowDown':
+                    changeValue('tens', -1);
+                    event.preventDefault();
+                    break;
+                case 'ArrowRight':
+                    changeValue('ones', 1);
+                    event.preventDefault();
+                    break;
+                case 'ArrowLeft':
+                    changeValue('ones', -1);
+                    event.preventDefault();
+                    break;
+                case 'Enter':
+                    checkAnswer();
+                    event.preventDefault();
+                    break;
+                case ' ':
+                    generateNewNumber();
+                    event.preventDefault();
+                    break;
+            }
+        });
+
+        // Initialize the game
+        resetCounters();
+    </script>
+</body>
+</html>

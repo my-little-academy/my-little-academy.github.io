@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الرسم والتخمين</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        canvas {
+            border: 2px solid #2c3e50;
+            background-color: white;
+            margin: 10px 0;
+            cursor: crosshair;
+        }
+        .controls {
+            margin: 15px 0;
+        }
+        button {
+            padding: 8px 15px;
+            margin: 0 5px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .color-picker {
+            display: inline-block;
+            margin: 0 10px;
+        }
+        .word-display {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+            min-height: 36px;
+            letter-spacing: 5px;
+        }
+        .guess-container {
+            margin: 15px 0;
+        }
+        input {
+            padding: 8px;
+            width: 200px;
+            margin-right: 10px;
+        }
+        .timer {
+            font-size: 20px;
+            font-weight: bold;
+            color: #e74c3c;
+            margin: 10px 0;
+        }
+        .score {
+            font-size: 18px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>لعبة الرسم والتخمين</h1>
+    <div class="game-container">
+        <div class="timer" id="timer">الوقت: 60</div>
+        <div class="word-display" id="wordDisplay"></div>
+        <canvas id="drawingCanvas" width="700" height="400"></canvas>
+        
+        <div class="controls">
+            <button id="clearBtn">مسح اللوحة</button>
+            <div class="color-picker">
+                لون الرسم:
+                <input type="color" id="colorPicker" value="#000000">
+            </div>
+            <div class="color-picker">
+                حجم الفرشاة:
+                <input type="range" id="brushSize" min="1" max="20" value="5">
+            </div>
+        </div>
+        
+        <div class="guess-container" id="guessContainer">
+            <input type="text" id="guessInput" placeholder="ما هي الكلمة؟">
+            <button id="guessBtn">تخمين</button>
+        </div>
+        
+        <div class="score">النقاط: <span id="score">0</span></div>
+        <button id="newWordBtn">كلمة جديدة</button>
+        <button id="startBtn">بدء الجولة</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const canvas = document.getElementById('drawingCanvas');
+            const ctx = canvas.getContext('2d');
+            const clearBtn = document.getElementById('clearBtn');
+            const colorPicker = document.getElementById('colorPicker');
+            const brushSize = document.getElementById('brushSize');
+            const wordDisplay = document.getElementById('wordDisplay');
+            const guessInput = document.getElementById('guessInput');
+            const guessBtn = document.getElementById('guessBtn');
+            const guessContainer = document.getElementById('guessContainer');
+            const newWordBtn = document.getElementById('newWordBtn');
+            const startBtn = document.getElementById('startBtn');
+            const timerDisplay = document.getElementById('timer');
+            const scoreDisplay = document.getElementById('score');
+            
+            const words = ['تفاحة', 'شجرة', 'سيارة', 'منزل', 'قلم', 'كتاب', 'شمس', 'قمر', 'بحر', 'جبل', 'طائرة', 'قط', 'كلب', 'زهرة', 'ساعة'];
+            
+            let currentWord = '';
+            let isDrawing = false;
+            let score = 0;
+            let timer;
+            let timeLeft = 60;
+            let isGameRunning = false;
+            
+            // إعداد لوحة الرسم
+            function setupCanvas() {
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.strokeStyle = colorPicker.value;
+                ctx.lineWidth = brushSize.value;
+                ctx.lineCap = 'round';
+                
+                canvas.addEventListener('mousedown', startDrawing);
+                canvas.addEventListener('mousemove', draw);
+                canvas.addEventListener('mouseup', stopDrawing);
+                canvas.addEventListener('mouseout', stopDrawing);
+            }
+            
+            // بدء الرسم
+            function startDrawing(e) {
+                isDrawing = true;
+                draw(e);
+            }
+            
+            // الرسم
+            function draw(e) {
+                if (!isDrawing) return;
+                
+                ctx.strokeStyle = colorPicker.value;
+                ctx.lineWidth = brushSize.value;
+                
+                ctx.lineTo(e.offsetX, e.offsetY);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(e.offsetX, e.offsetY);
+            }
+            
+            // إيقاف الرسم
+            function stopDrawing() {
+                isDrawing = false;
+                ctx.beginPath();
+            }
+            
+            // مسح اللوحة
+            clearBtn.addEventListener('click', function() {
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            });
+            
+            // اختيار كلمة عشوائية
+            function chooseRandomWord() {
+                const randomIndex = Math.floor(Math.random() * words.length);
+                currentWord = words[randomIndex];
+                
+                // عرض الكلمة مع استبدال الحروف بشرطات
+                wordDisplay.textContent = '_ '.repeat(currentWord.length);
+            }
+            
+            // بدء الجولة
+            function startRound() {
+                if (isGameRunning) return;
+                
+                isGameRunning = true;
+                chooseRandomWord();
+                guessInput.value = '';
+                guessContainer.style.display = 'block';
+                startBtn.style.display = 'none';
+                timeLeft = 60;
+                updateTimer();
+                
+                // بدء المؤقت
+                timer = setInterval(function() {
+                    timeLeft--;
+                    updateTimer();
+                    
+                    if (timeLeft <= 0) {
+                        endRound(false);
+                    }
+                }, 1000);
+            }
+            
+            // تحديث المؤقت
+            function updateTimer() {
+                timerDisplay.textContent = `الوقت: ${timeLeft}`;
+            }
+            
+            // إنهاء الجولة
+            function endRound(isSuccess) {
+                clearInterval(timer);
+                isGameRunning = false;
+                
+                if (isSuccess) {
+                    score += timeLeft * 2;
+                    scoreDisplay.textContent = score;
+                    wordDisplay.textContent = currentWord;
+                    alert(`أحسنت! لقد ربحت ${timeLeft * 2} نقطة!`);
+                } else {
+                    wordDisplay.textContent = currentWord;
+                    alert(`انتهى الوقت! الكلمة كانت: ${currentWord}`);
+                }
+                
+                guessContainer.style.display = 'none';
+                startBtn.style.display = 'inline-block';
+            }
+            
+            // التحقق من التخمين
+            guessBtn.addEventListener('click', function() {
+                const guess = guessInput.value.trim();
+                
+                if (guess.toLowerCase() === currentWord.toLowerCase()) {
+                    endRound(true);
+                } else {
+                    alert('تخمين خاطئ! حاول مرة أخرى.');
+                    guessInput.value = '';
+                }
+            });
+            
+            // كلمة جديدة
+            newWordBtn.addEventListener('click', function() {
+                if (!isGameRunning) {
+                    chooseRandomWord();
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                }
+            });
+            
+            // بدء اللعبة
+            startBtn.addEventListener('click', startRound);
+            
+            // إعداد اللعبة
+            setupCanvas();
+            chooseRandomWord();
+            guessContainer.style.display = 'none';
+        });
+    </script>
+</body>
+</html>

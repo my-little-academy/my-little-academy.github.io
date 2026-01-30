@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة المقاطع الصوتية للأطفال</title>
+    <style>
+        /* تنسيقات عامة */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #ff6b6b;
+        }
+        
+        /* معلومات اللعبة */
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            background-color: #dfe6e9;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        
+        .timer, .score {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .timer {
+            color: #e17055;
+        }
+        
+        .score {
+            color: #00b894;
+        }
+        
+        /* تنسيقات البطاقات */
+        .cards-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .card {
+            width: 150px;
+            height: 180px;
+            background-color: #74b9ff;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        }
+        
+        .card img {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+        }
+        
+        .card .sound {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            background-color: #0984e3;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        
+        .card .word {
+            font-size: 18px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        /* منطقة الإسقاط */
+        .drop-zone {
+            width: 160px;
+            height: 190px;
+            border: 3px dashed #00b894;
+            border-radius: 10px;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f5f5f5;
+        }
+        
+        .drop-zone p {
+            color: #555;
+        }
+        
+        /* رسائل التغذية الراجعة */
+        .feedback {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            min-height: 30px;
+            color: #e84393;
+        }
+        
+        /* تأثيرات السحب */
+        .card.dragging {
+            opacity: 0.5;
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+        
+        .drop-zone.highlight {
+            border-color: #e84393;
+            background-color: #ffeaa7;
+        }
+        
+        /* منطقة المطابقة */
+        .matching-area {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
+        }
+        
+        .target {
+            width: 160px;
+            text-align: center;
+        }
+        
+        .target-sound {
+            font-size: 30px;
+            font-weight: bold;
+            color: #0984e3;
+            margin-bottom: 10px;
+        }
+        
+        /* شاشة النتيجة النهائية */
+        .result-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .result-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 500px;
+        }
+        
+        .result-title {
+            font-size: 28px;
+            color: #00b894;
+            margin-bottom: 20px;
+        }
+        
+        .final-score {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .restart-btn {
+            background-color: #0984e3;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .restart-btn:hover {
+            background-color: #0767b1;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-info">
+            <div class="timer">الوقت المتبقي: <span id="time">60</span> ثانية</div>
+            <div class="score">النقاط: <span id="points">0</span></div>
+        </div>
+        
+        <h1>لعبة تعليم المقاطع الصوتية</h1>
+        <p>اسحب البطاقة إلى المقطع الصوتي المناسب</p>
+        
+        <div class="matching-area">
+            <div class="target">
+                <div class="target-sound" id="target1">بَــ</div>
+                <div class="drop-zone" data-sound="ba" data-target="target1">
+                    <p>أسقط البطاقة هنا</p>
+                </div>
+            </div>
+            
+            <div class="target">
+                <div class="target-sound" id="target2">تـَــ</div>
+                <div class="drop-zone" data-sound="ta" data-target="target2">
+                    <p>أسقط البطاقة هنا</p>
+                </div>
+            </div>
+            
+            <div class="target">
+                <div class="target-sound" id="target3">ثـَــ</div>
+                <div class="drop-zone" data-sound="tha" data-target="target3">
+                    <p>أسقط البطاقة هنا</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="cards-container" id="cards-container">
+            <!-- البطاقات سيتم إضافتها ديناميكياً -->
+        </div>
+        
+        <div class="feedback"></div>
+    </div>
+    
+    <div class="result-screen" id="result-screen">
+        <div class="result-content">
+            <h2 class="result-title">انتهى الوقت!</h2>
+            <div class="final-score">درجتك النهائية: <span id="final-score">0</span></div>
+            <button class="restart-btn" id="restart-btn">العب مرة أخرى</button>
+        </div>
+    </div>
+
+    <script>
+        // بيانات اللعبة
+        const gameData = [
+            { sound: 'ba', letter: 'ب', word: 'بَــ', image: 'https://cdn.pixabay.com/photo/2013/07/13/11/34/apple-157634_960_720.png', alt: 'تفاحة' },
+            { sound: 'ta', letter: 'ت', word: 'تـَــ', image: 'https://cdn.pixabay.com/photo/2012/04/26/18/43/turtle-42793_960_720.png', alt: 'سلحفاة' },
+            { sound: 'tha', letter: 'ث', word: 'ثـَــ', image: 'https://cdn.pixabay.com/photo/2013/07/13/11/36/wolf-158247_960_720.png', alt: 'ذئب' },
+            { sound: 'ja', letter: 'ج', word: 'جَــ', image: 'https://cdn.pixabay.com/photo/2013/07/13/11/36/giraffe-158241_960_720.png', alt: 'زرافة' },
+            { sound: 'ha', letter: 'ح', word: 'حَــ', image: 'https://cdn.pixabay.com/photo/2013/07/12/18/39/cow-153781_960_720.png', alt: 'بقرة' },
+            { sound: 'kha', letter: 'خ', word: 'خَــ', image: 'https://cdn.pixabay.com/photo/2013/07/13/11/34/sheep-157641_960_720.png', alt: 'خروف' }
+        ];
+
+        // الأصوات المقابلة لكل مقطع
+        const sounds = {
+            'ba': 'https://www.soundjay.com/buttons/sounds/button-09.mp3',
+            'ta': 'https://www.soundjay.com/buttons/sounds/button-10.mp3',
+            'tha': 'https://www.soundjay.com/buttons/sounds/button-21.mp3',
+            'ja': 'https://www.soundjay.com/buttons/sounds/button-23.mp3',
+            'ha': 'https://www.soundjay.com/buttons/sounds/button-30.mp3',
+            'kha': 'https://www.soundjay.com/buttons/sounds/button-40.mp3'
+        };
+        
+        // متغيرات اللعبة
+        let score = 0;
+        let timeLeft = 60;
+        let timer;
+        let currentTargets = [];
+        let usedCards = [];
+        
+        // العناصر من الصفحة
+        const cardsContainer = document.getElementById('cards-container');
+        const dropZones = document.querySelectorAll('.drop-zone');
+        const feedback = document.querySelector('.feedback');
+        const timeDisplay = document.getElementById('time');
+        const scoreDisplay = document.getElementById('points');
+        const resultScreen = document.getElementById('result-screen');
+        const finalScoreDisplay = document.getElementById('final-score');
+        const restartBtn = document.getElementById('restart-btn');
+        
+        // تهيئة اللعبة
+        function initGame() {
+            score = 0;
+            timeLeft = 60;
+            updateScore();
+            setupRound();
+            startTimer();
+        }
+        
+        // بدء العد التنازلي
+        function startTimer() {
+            clearInterval(timer);
+            timeDisplay.textContent = timeLeft;
+            
+            timer = setInterval(() => {
+                timeLeft--;
+                timeDisplay.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    endGame();
+                }
+            }, 1000);
+        }
+        
+        // تحديث النتيجة
+        function updateScore() {
+            scoreDisplay.textContent = score;
+        }
+        
+        // إعداد الجولة
+        function setupRound() {
+            // مسح البطاقات المستخدمة
+            cardsContainer.innerHTML = '';
+            usedCards = [];
+            
+            // اختيار 3 أهداف عشوائية
+            currentTargets = getRandomTargets(3);
+            
+            // تعيين الأهداف لمناطق الإسقاط
+            dropZones.forEach((zone, index) => {
+                if (currentTargets[index]) {
+                    const target = currentTargets[index];
+                    zone.setAttribute('data-sound', target.sound);
+                    document.getElementById(zone.getAttribute('data-target')).textContent = target.word;
+                    zone.innerHTML = '<p>أسقط البطاقة هنا</p>';
+                }
+            });
+            
+            // إنشاء البطاقات
+            createCards();
+        }
+        
+        // الحصول على أهداف عشوائية
+        function getRandomTargets(count) {
+            const shuffled = [...gameData].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, count);
+        }
+        
+        // إنشاء البطاقات
+        function createCards() {
+            // إنشاء بطاقات للأهداف الحالية
+            currentTargets.forEach(target => {
+                if (!usedCards.includes(target.sound)) {
+                    const card = createCard(target);
+                    cardsContainer.appendChild(card);
+                    usedCards.push(target.sound);
+                }
+            });
+            
+            // إضافة بعض البطاقات الإضافية لزيادة التحدي
+            const extraCards = getRandomTargets(2).filter(card => 
+                !currentTargets.some(t => t.sound === card.sound) && 
+                !usedCards.includes(card.sound)
+            );
+            
+            extraCards.forEach(card => {
+                const cardElement = createCard(card);
+                cardsContainer.appendChild(cardElement);
+                usedCards.push(card.sound);
+            });
+        }
+        
+        // إنشاء بطاقة
+        function createCard(data) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.setAttribute('draggable', 'true');
+            card.setAttribute('data-sound', data.sound);
+            
+            card.innerHTML = `
+                <div class="sound">${data.letter}</div>
+                <img src="${data.image}" alt="${data.alt}">
+                <div class="word">${data.word}</div>
+            `;
+            
+            // إضافة أحداث السحب
+            card.addEventListener('dragstart', dragStart);
+            card.addEventListener('dragend', dragEnd);
+            
+            // إضافة حدث النقر لتشغيل الصوت
+            card.addEventListener('click', function() {
+                playSound(data.sound);
+                feedback.textContent = `صوت: ${data.word}`;
+                feedback.style.color = '#e84393';
+                
+                // تأثير مرئي
+                this.style.backgroundColor = '#ff7675';
+                setTimeout(() => {
+                    this.style.backgroundColor = '#74b9ff';
+                }, 500);
+            });
+            
+            return card;
+        }
+        
+        // منطق السحب والإسقاط
+        let draggedCard = null;
+        
+        function dragStart() {
+            this.classList.add('dragging');
+            draggedCard = this;
+            setTimeout(() => this.style.visibility = 'hidden', 0);
+        }
+        
+        function dragEnd() {
+            this.classList.remove('dragging');
+            this.style.visibility = 'visible';
+        }
+        
+        function dragOver(e) {
+            e.preventDefault();
+        }
+        
+        function dragEnter(e) {
+            e.preventDefault();
+            this.classList.add('highlight');
+        }
+        
+        function dragLeave() {
+            this.classList.remove('highlight');
+        }
+        
+        function drop() {
+            this.classList.remove('highlight');
+            
+            if (draggedCard.getAttribute('data-sound') === this.getAttribute('data-sound')) {
+                // مطابقة صحيحة
+                this.innerHTML = '';
+                this.appendChild(draggedCard);
+                
+                // زيادة النتيجة
+                score += 10;
+                updateScore();
+                
+                feedback.textContent = 'أحسنت! تطابق صحيح';
+                feedback.style.color = '#00b894';
+                
+                // تشغيل الصوت عند المطابقة الصحيحة
+                playSound(draggedCard.getAttribute('data-sound'));
+                
+                // تبديل البطاقات بعد تأخير
+                setTimeout(() => {
+                    setupRound();
+                }, 1500);
+            } else {
+                // مطابقة خاطئة
+                feedback.textContent = 'حاول مرة أخرى، هذا ليس المقطع الصحيح';
+                feedback.style.color = '#ff7675';
+            }
+        }
+        
+        // تشغيل الصوت
+        function playSound(soundKey) {
+            const sound = new Audio(sounds[soundKey]);
+            sound.play();
+        }
+        
+        // إنهاء اللعبة
+        function endGame() {
+            resultScreen.style.display = 'flex';
+            finalScoreDisplay.textContent = score;
+        }
+        
+        // إعادة تشغيل اللعبة
+        restartBtn.addEventListener('click', function() {
+            resultScreen.style.display = 'none';
+            initGame();
+        });
+        
+        // تهيئة أحداث السحب والإسقاط لمناطق الإسقاط
+        dropZones.forEach(zone => {
+            zone.addEventListener('dragover', dragOver);
+            zone.addEventListener('dragenter', dragEnter);
+            zone.addEventListener('dragleave', dragLeave);
+            zone.addEventListener('drop', drop);
+        });
+        
+        // بدء اللعبة
+        initGame();
+    </script>
+</body>
+</html>

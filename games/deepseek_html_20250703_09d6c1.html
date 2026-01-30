@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المزرعة السعيدة</title>
+    <style>
+        /* التصميم العام - ألوان زاهية ورسومية */
+        body {
+            font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #5a3e36;
+            overflow: hidden;
+        }
+        
+        .game-container {
+            width: 95%;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            border: 5px solid #f8a5c2;
+            overflow: hidden;
+        }
+        
+        /* تصميم المزرعة */
+        .farm {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .farm-plot {
+            background: #e0f7c2;
+            border-radius: 15px;
+            height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px dashed #a5d6a7;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .farm-plot:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* العناصر التفاعلية */
+        .plant, .animal {
+            font-size: 40px;
+            transition: all 0.5s;
+            cursor: pointer;
+        }
+        
+        .plant:hover, .animal:hover {
+            transform: scale(1.2) rotate(10deg);
+        }
+        
+        /* شريط الأدوات */
+        .toolbar {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .tool {
+            background: #f8d57e;
+            border: none;
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 3px 0 #e0c15a;
+            font-weight: bold;
+            color: #5a3e36;
+        }
+        
+        .tool:hover {
+            background: #f9c449;
+            transform: translateY(-3px);
+        }
+        
+        .tool:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #e0c15a;
+        }
+        
+        /* شريط التقدم */
+        .progress-container {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #a8edea, #fed6e3);
+            width: 0%;
+            transition: width 0.5s;
+            border-radius: 10px;
+        }
+        
+        /* تأثيرات خاصة */
+        .coins {
+            position: absolute;
+            font-size: 20px;
+            animation: coinFly 2s forwards;
+            z-index: 10;
+        }
+        
+        @keyframes coinFly {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-100px) scale(0.5); opacity: 0; }
+        }
+        
+        .celebration {
+            position: absolute;
+            font-size: 30px;
+            animation: celebration 3s forwards;
+            z-index: 5;
+        }
+        
+        @keyframes celebration {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.5); opacity: 1; }
+            100% { transform: scale(1); opacity: 0; }
+        }
+        
+        /* شاشة البداية */
+        .start-screen {
+            text-align: center;
+            animation: fadeIn 1s;
+        }
+        
+        .start-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: none;
+            border-radius: 50px;
+            padding: 15px 30px;
+            font-size: 20px;
+            color: white;
+            cursor: pointer;
+            margin-top: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+        }
+        
+        .start-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* شاشة النتائج */
+        .result-screen {
+            display: none;
+            animation: fadeIn 1s;
+        }
+        
+        .title {
+            font-size: 32px;
+            color: #f5576c;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- شاشة البداية -->
+        <div class="start-screen" id="start-screen">
+            <h1 class="title">🌻 المزرعة السعيدة 🌻</h1>
+            <p>ساعد أحمد في إدارة مزرعته! ازرع المحاصيل واعتن بالحيوانات واربح النقاط.</p>
+            <button class="start-btn" onclick="startGame()">ابدأ اللعب</button>
+        </div>
+        
+        <!-- شاشة اللعبة -->
+        <div id="game-screen" style="display: none;">
+            <h2>مزرعة أحمد <span id="level">(المستوى 1)</span></h2>
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            
+            <div class="farm" id="farm">
+                <!-- ستتم إضافة قطع الأرض هنا -->
+            </div>
+            
+            <div class="toolbar">
+                <button class="tool" onclick="plant('carrot')">🥕 جزر</button>
+                <button class="tool" onclick="plant('tomato')">🍅 طماطم</button>
+                <button class="tool" onclick="plant('wheat')">🌾 قمح</button>
+                <button class="tool" onclick="addAnimal('cow')">🐄 بقرة</button>
+                <button class="tool" onclick="addAnimal('chicken')">🐓 دجاجة</button>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <span style="font-weight: bold;">النقاط: </span>
+                <span id="points">0</span>
+                <span style="margin-left: 20px; font-weight: bold;">المال: </span>
+                <span id="money">50</span> 💰
+            </div>
+        </div>
+        
+        <!-- شاشة النتائج -->
+        <div class="result-screen" id="result-screen">
+            <h2 class="title">🎉 أحسنت! 🎉</h2>
+            <p>لقد أكملت المستوى بنجاح!</p>
+            <p>النقاط: <span id="final-points">0</span></p>
+            <button class="start-btn" onclick="nextLevel()">المستوى التالي</button>
+        </div>
+    </div>
+
+    <script>
+        // بيانات اللعبة
+        const gameData = {
+            level: 1,
+            points: 0,
+            money: 50,
+            progress: 0,
+            plants: [],
+            animals: [],
+            prices: {
+                carrot: 5,
+                tomato: 8,
+                wheat: 3,
+                cow: 20,
+                chicken: 15
+            },
+            rewards: {
+                carrot: 10,
+                tomato: 15,
+                wheat: 7,
+                cow: 30,
+                chicken: 20
+            },
+            levelGoals: [
+                { points: 100, money: 200 },
+                { points: 250, money: 400 },
+                { points: 500, money: 800 }
+            ]
+        };
+
+        // بدء اللعبة
+        function startGame() {
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block';
+            initFarm();
+            updateUI();
+        }
+
+        // تهيئة المزرعة
+        function initFarm() {
+            const farm = document.getElementById('farm');
+            farm.innerHTML = '';
+            
+            for (let i = 0; i < 8; i++) {
+                const plot = document.createElement('div');
+                plot.className = 'farm-plot';
+                plot.dataset.index = i;
+                plot.onclick = function() { harvest(this.dataset.index); };
+                farm.appendChild(plot);
+            }
+        }
+
+        // زرع محصول
+        function plant(type) {
+            if (gameData.money < gameData.prices[type]) {
+                alert('ليس لديك مال كافي!');
+                return;
+            }
+            
+            gameData.money -= gameData.prices[type];
+            const emptyPlots = document.querySelectorAll('.farm-plot:empty');
+            
+            if (emptyPlots.length > 0) {
+                const randomPlot = emptyPlots[Math.floor(Math.random() * emptyPlots.length)];
+                const plantEmoji = type === 'carrot' ? '🥕' : type === 'tomato' ? '🍅' : '🌾';
+                
+                randomPlot.innerHTML = `<div class="plant">${plantEmoji}</div>`;
+                gameData.plants.push({
+                    type: type,
+                    plotIndex: randomPlot.dataset.index,
+                    growth: 0
+                });
+                
+                updateUI();
+                showCoins(randomPlot, -gameData.prices[type]);
+            } else {
+                alert('لا توجد أرض فارغة!');
+                gameData.money += gameData.prices[type];
+            }
+        }
+
+        // إضافة حيوان
+        function addAnimal(type) {
+            if (gameData.money < gameData.prices[type]) {
+                alert('ليس لديك مال كافي!');
+                return;
+            }
+            
+            gameData.money -= gameData.prices[type];
+            const emptyPlots = document.querySelectorAll('.farm-plot:empty');
+            
+            if (emptyPlots.length > 0) {
+                const randomPlot = emptyPlots[Math.floor(Math.random() * emptyPlots.length)];
+                const animalEmoji = type === 'cow' ? '🐄' : '🐓';
+                
+                randomPlot.innerHTML = `<div class="animal">${animalEmoji}</div>`;
+                gameData.animals.push({
+                    type: type,
+                    plotIndex: randomPlot.dataset.index
+                });
+                
+                updateUI();
+                showCoins(randomPlot, -gameData.prices[type]);
+            } else {
+                alert('لا توجد أرض فارغة!');
+                gameData.money += gameData.prices[type];
+            }
+        }
+
+        // حصاد المحصول
+        function harvest(index) {
+            const plot = document.querySelector(`.farm-plot[data-index="${index}"]`);
+            
+            // البحث عن نبات في هذه القطعة
+            const plantIndex = gameData.plants.findIndex(p => p.plotIndex === index);
+            if (plantIndex !== -1) {
+                const plant = gameData.plants[plantIndex];
+                gameData.points += gameData.rewards[plant.type];
+                gameData.money += Math.floor(gameData.rewards[plant.type] / 2);
+                gameData.plants.splice(plantIndex, 1);
+                
+                plot.innerHTML = '';
+                showCoins(plot, gameData.rewards[plant.type]);
+                createCelebration(plot, '🌟');
+                
+                checkLevelUp();
+                updateUI();
+                return;
+            }
+            
+            // البحث عن حيوان في هذه القطعة
+            const animalIndex = gameData.animals.findIndex(a => a.plotIndex === index);
+            if (animalIndex !== -1) {
+                const animal = gameData.animals[animalIndex];
+                gameData.points += gameData.rewards[animal.type];
+                gameData.money += Math.floor(gameData.rewards[animal.type] / 3);
+                gameData.animals.splice(animalIndex, 1);
+                
+                plot.innerHTML = '';
+                showCoins(plot, gameData.rewards[animal.type]);
+                createCelebration(plot, '✨');
+                
+                checkLevelUp();
+                updateUI();
+                return;
+            }
+        }
+
+        // عرض العملات المتحركة
+        function showCoins(element, amount) {
+            const coins = document.createElement('div');
+            coins.className = 'coins';
+            coins.textContent = amount >= 0 ? `+${amount}💰` : `${amount}💰`;
+            coins.style.color = amount >= 0 ? 'green' : 'red';
+            
+            const rect = element.getBoundingClientRect();
+            coins.style.left = (rect.left + rect.width / 2) + 'px';
+            coins.style.top = (rect.top + rect.height / 2) + 'px';
+            
+            document.body.appendChild(coins);
+            
+            setTimeout(() => {
+                coins.remove();
+            }, 2000);
+        }
+
+        // تأثير الاحتفال
+        function createCelebration(element, emoji) {
+            const celebration = document.createElement('div');
+            celebration.className = 'celebration';
+            celebration.textContent = emoji;
+            
+            const rect = element.getBoundingClientRect();
+            celebration.style.left = (rect.left + rect.width / 2) + 'px';
+            celebration.style.top = (rect.top + rect.height / 2) + 'px';
+            
+            document.body.appendChild(celebration);
+            
+            setTimeout(() => {
+                celebration.remove();
+            }, 3000);
+        }
+
+        // التحقق من إكمال المستوى
+        function checkLevelUp() {
+            const currentGoal = gameData.levelGoals[gameData.level - 1];
+            
+            if (gameData.points >= currentGoal.points && gameData.money >= currentGoal.money) {
+                document.getElementById('game-screen').style.display = 'none';
+                document.getElementById('result-screen').style.display = 'block';
+                document.getElementById('final-points').textContent = gameData.points;
+                
+                // تأثيرات الكونفيتي
+                for (let i = 0; i < 50; i++) {
+                    setTimeout(() => {
+                        createCelebration(document.querySelector('.game-container'), '🎉');
+                    }, i * 100);
+                }
+            }
+        }
+
+        // المستوى التالي
+        function nextLevel() {
+            gameData.level++;
+            
+            if (gameData.level > gameData.levelGoals.length) {
+                alert('تهانينا! لقد أكملت جميع المستويات! أنت مزارع ممتاز!');
+                resetGame();
+                return;
+            }
+            
+            document.getElementById('result-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block';
+            
+            // زيادة صعوبة اللعبة
+            gameData.plants = [];
+            gameData.animals = [];
+            gameData.money = 50 + (gameData.level * 20);
+            
+            initFarm();
+            updateUI();
+        }
+
+        // إعادة تعيين اللعبة
+        function resetGame() {
+            gameData.level = 1;
+            gameData.points = 0;
+            gameData.money = 50;
+            gameData.plants = [];
+            gameData.animals = [];
+            
+            document.getElementById('result-screen').style.display = 'none';
+            document.getElementById('start-screen').style.display = 'block';
+        }
+
+        // تحديث واجهة المستخدم
+        function updateUI() {
+            document.getElementById('points').textContent = gameData.points;
+            document.getElementById('money').textContent = gameData.money;
+            document.getElementById('level').textContent = `(المستوى ${gameData.level})`;
+            
+            // تحديث شريط التقدم
+            const currentGoal = gameData.levelGoals[gameData.level - 1];
+            const progress = Math.min(
+                (gameData.points / currentGoal.points) * 50 + 
+                (gameData.money / currentGoal.money) * 50, 
+                100
+            );
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+    </script>
+</body>
+</html>

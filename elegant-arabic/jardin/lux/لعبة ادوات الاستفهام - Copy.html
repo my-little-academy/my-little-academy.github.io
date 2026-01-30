@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة أدوات الاستفهام المصغرة الممتعة</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            user-select: none;
+            color: white;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        h1 {
+            color: #FFD700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+        }
+        
+        .game-board {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            border: 2px solid #FFD700;
+        }
+        
+        .question {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .sentence {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .blank {
+            display: inline-block;
+            width: 60px;
+            height: 35px;
+            border: 2px dashed #FF6B6B;
+            border-radius: 8px;
+            vertical-align: middle;
+            margin: 0 3px;
+            background-color: rgba(255, 255, 255, 0.7);
+            position: relative;
+        }
+        
+        .blank::after {
+            content: "؟";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #FF6B6B;
+            font-size: 1.2rem;
+        }
+        
+        .options-row {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .option {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            color: #333;
+            padding: 8px 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            min-width: 50px;
+            text-align: center;
+            border: none;
+        }
+        
+        .option:nth-child(2n) {
+            background: linear-gradient(45deg, #06D6A0, #118AB2);
+            color: white;
+        }
+        
+        .option:nth-child(3n) {
+            background: linear-gradient(45deg, #EF476F, #FF6B6B);
+            color: white;
+        }
+        
+        .option:nth-child(4n) {
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            color: white;
+        }
+        
+        .option:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .feedback {
+            font-size: 1.1rem;
+            margin: 15px 0;
+            min-height: 30px;
+            font-weight: bold;
+        }
+        
+        .next-btn {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            font-size: 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            border: 2px solid white;
+        }
+        
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .score-container {
+            display: inline-flex;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 8px 15px;
+            border-radius: 50px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            border: 1px solid #FFD700;
+        }
+        
+        .score {
+            font-weight: bold;
+            color: #FFD700;
+            margin-right: 5px;
+        }
+        
+        .stars {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin: 15px 0;
+        }
+        
+        .star {
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, 0.3);
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+        }
+        
+        .star.active {
+            color: #FFD700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        .correct {
+            animation: correct 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .correct::after {
+            content: "✨";
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            animation: sparkle 1s ease-out;
+            pointer-events: none;
+        }
+        
+        @keyframes correct {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes sparkle {
+            0% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 1; transform: scale(1.5); }
+            100% { opacity: 0; transform: scale(2); }
+        }
+        
+        .wrong {
+            animation: shake 0.5s ease;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+        
+        .cloud {
+            position: absolute;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 60" fill="white"><path d="M80 40c5 0 10-5 10-10 0-5-5-10-10-10-1 0-2 0-3 1-2-6-7-10-13-10-4 0-8 2-11 4-3-3-7-5-12-5-9 0-16 7-16 16 0 2 0 4 1 5-5 1-9 5-9 10 0 6 5 11 11 11h60z" opacity="0.2"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+            width: 100px;
+            height: 60px;
+            z-index: -1;
+            animation: float 20s linear infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateX(-150px); }
+            100% { transform: translateX(calc(100vw + 150px)); }
+        }
+    </style>
+</head>
+<body>
+    <div class="cloud" style="top: 15%; animation-duration: 25s;"></div>
+    <div class="cloud" style="top: 30%; animation-duration: 30s; animation-delay: -5s;"></div>
+    <div class="cloud" style="top: 70%; animation-duration: 20s; animation-delay: -10s;"></div>
+    
+    <div class="container">
+        <div class="score-container">
+            النقاط: <span class="score" id="score">0</span>
+        </div>
+        
+        <h1>لعبة أدوات الاستفهام المصغرة ✨</h1>
+        
+        <div class="stars" id="stars">
+            <div class="star">★</div>
+            <div class="star">★</div>
+            <div class="star">★</div>
+            <div class="star">★</div>
+            <div class="star">★</div>
+        </div>
+        
+        <div class="game-board">
+            <div class="question" id="question">اختر أداة الاستفهام المناسبة:</div>
+            
+            <div class="sentence" id="sentence">
+                <span class="blank" id="blank"></span> ذهبت إلى المدرسة؟
+            </div>
+            
+            <div class="options-row" id="options">
+                <div class="option" data-correct="true">متى</div>
+                <div class="option" data-correct="false">من</div>
+                <div class="option" data-correct="false">ما</div>
+                <div class="option" data-correct="false">أين</div>
+            </div>
+            
+            <div class="feedback" id="feedback"></div>
+            
+            <button class="next-btn" id="nextBtn">التالي →</button>
+        </div>
+    </div>
+    
+    <script>
+        const questions = [
+            {
+                question: "للسؤال عن الزمان نستخدم:",
+                sentence: "....... ذهبت إلى المدرسة؟",
+                options: ["متى", "من", "ما", "أين"],
+                correct: "متى"
+            },
+            {
+                question: "للسؤال عن الشخص نستخدم:",
+                sentence: "....... أكل التفاحة؟",
+                options: ["من", "متى", "كيف", "أين"],
+                correct: "من"
+            },
+            {
+                question: "للسؤال عن الشيء نستخدم:",
+                sentence: "....... كتابك المفضل؟",
+                options: ["ما", "من", "متى", "كيف"],
+                correct: "ما"
+            },
+            {
+                question: "للسؤال عن المكان نستخدم:",
+                sentence: "....... تقع المكتبة؟",
+                options: ["أين", "من", "متى", "لماذا"],
+                correct: "أين"
+            },
+            {
+                question: "للسؤال عن الحالة نستخدم:",
+                sentence: "....... حلّ الواجب؟",
+                options: ["كيف", "من", "متى", "ما"],
+                correct: "كيف"
+            }
+        ];
+        
+        const questionElement = document.getElementById('question');
+        const sentenceElement = document.getElementById('sentence');
+        const blankElement = document.getElementById('blank');
+        const optionsContainer = document.getElementById('options');
+        const feedbackElement = document.getElementById('feedback');
+        const nextBtn = document.getElementById('nextBtn');
+        const scoreElement = document.getElementById('score');
+        const stars = document.querySelectorAll('.star');
+        
+        let currentQuestion = 0;
+        let score = 0;
+        let correctAnswers = 0;
+        
+        function loadQuestion(index) {
+            const q = questions[index];
+            questionElement.textContent = q.question;
+            sentenceElement.innerHTML = `<span class="blank" id="blank"></span> ${q.sentence.split('.......')[1]}`;
+            blankElement.textContent = '';
+            blankElement.style.border = '2px dashed #FF6B6B';
+            blankElement.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
+            
+            optionsContainer.innerHTML = '';
+            q.options.forEach(option => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.textContent = option;
+                optionElement.dataset.correct = (option === q.correct).toString();
+                optionElement.addEventListener('click', selectOption);
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            feedbackElement.textContent = '';
+            nextBtn.style.display = 'none';
+        }
+        
+        function selectOption(e) {
+            const option = e.target;
+            const isCorrect = option.dataset.correct === 'true';
+            
+            if (isCorrect) {
+                option.classList.add('correct');
+                feedbackElement.textContent = 'إجابة صحيحة! أحسنت! 🌟';
+                feedbackElement.style.color = '#06D6A0';
+                
+                blankElement.textContent = option.textContent;
+                blankElement.style.border = '2px solid #06D6A0';
+                blankElement.style.backgroundColor = '#e8f5e9';
+                
+                score += 10;
+                scoreElement.textContent = score;
+                
+                correctAnswers++;
+                if (correctAnswers <= 5) {
+                    stars[correctAnswers-1].classList.add('active');
+                }
+            } else {
+                option.classList.add('wrong');
+                feedbackElement.textContent = 'إجابة خاطئة، حاول مرة أخرى!';
+                feedbackElement.style.color = '#EF476F';
+            }
+            
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.style.pointerEvents = 'none';
+            });
+            
+            nextBtn.style.display = 'inline-block';
+        }
+        
+        nextBtn.addEventListener('click', () => {
+            currentQuestion = (currentQuestion + 1) % questions.length;
+            loadQuestion(currentQuestion);
+            
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('correct', 'wrong');
+                opt.style.pointerEvents = 'auto';
+            });
+        });
+        
+        // Initialize first question
+        loadQuestion(0);
+    </script>
+</body>
+</html>

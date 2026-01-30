@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة تحليل العدد إلى المنازل</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+            background-image: linear-gradient(to bottom, #e6f7ff, #ffffff);
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border: 2px solid #4CAF50;
+        }
+        
+        h1 {
+            color: #4CAF50;
+            margin-bottom: 30px;
+            font-size: 28px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .input-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            border: 1px dashed #4CAF50;
+        }
+        
+        .number-input {
+            font-size: 24px;
+            padding: 10px;
+            width: 200px;
+            text-align: center;
+            border: 2px solid #4CAF50;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .places-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
+        .place-box {
+            width: 22%;
+            margin: 5px;
+            padding: 15px;
+            background-color: #e9f7ef;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .place-title {
+            font-weight: bold;
+            color: #2E7D32;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .place-input {
+            width: 80%;
+            padding: 8px;
+            font-size: 18px;
+            text-align: center;
+            border: 1px solid #4CAF50;
+            border-radius: 5px;
+        }
+        
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 10px;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #45a049;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 18px;
+            display: none;
+        }
+        
+        .correct {
+            background-color: #dff0d8;
+            color: #3c763d;
+            border: 1px solid #d6e9c6;
+        }
+        
+        .incorrect {
+            background-color: #f2dede;
+            color: #a94442;
+            border: 1px solid #ebccd1;
+        }
+        
+        .feedback {
+            margin-top: 5px;
+            font-size: 16px;
+        }
+        
+        .explanation {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #e3f2fd;
+            border-radius: 8px;
+            text-align: right;
+            display: none;
+        }
+        
+        .place-value {
+            font-weight: bold;
+            color: #2E7D32;
+        }
+        
+        @media (max-width: 600px) {
+            .places-container {
+                flex-direction: column;
+            }
+            
+            .place-box {
+                width: 90%;
+                margin: 5px auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 لعبة تحليل العدد إلى المنازل 🎮</h1>
+        
+        <div class="input-section">
+            <h2>أدخل عددًا مكونًا من 4 أرقام</h2>
+            <input type="number" id="numberInput" class="number-input" min="1000" max="9999" placeholder="مثال: 1245">
+            
+            <div class="places-container">
+                <div class="place-box">
+                    <div class="place-title">رقم الآلاف</div>
+                    <input type="number" id="thousandsDigit" class="place-input" placeholder="رقم">
+                    <div id="thousandsDigitResult" class="result"></div>
+                </div>
+                
+                <div class="place-box">
+                    <div class="place-title">رقم المئات</div>
+                    <input type="number" id="hundredsDigit" class="place-input" placeholder="رقم">
+                    <div id="hundredsDigitResult" class="result"></div>
+                </div>
+                
+                <div class="place-box">
+                    <div class="place-title">رقم العشرات</div>
+                    <input type="number" id="tensDigit" class="place-input" placeholder="رقم">
+                    <div id="tensDigitResult" class="result"></div>
+                </div>
+                
+                <div class="place-box">
+                    <div class="place-title">رقم الوحدات</div>
+                    <input type="number" id="unitsDigit" class="place-input" placeholder="رقم">
+                    <div id="unitsDigitResult" class="result"></div>
+                </div>
+            </div>
+            
+            <div class="places-container">
+                <div class="place-box">
+                    <div class="place-title">عدد الآلاف</div>
+                    <input type="number" id="thousandsValue" class="place-input" placeholder="عدد">
+                    <div id="thousandsValueResult" class="result"></div>
+                </div>
+                
+                <div class="place-box">
+                    <div class="place-title">عدد المئات</div>
+                    <input type="number" id="hundredsValue" class="place-input" placeholder="عدد">
+                    <div id="hundredsValueResult" class="result"></div>
+                </div>
+                
+                <div class="place-box">
+                    <div class="place-title">عدد العشرات</div>
+                    <input type="number" id="tensValue" class="place-input" placeholder="عدد">
+                    <div id="tensValueResult" class="result"></div>
+                </div>
+                
+                <div class="place-box">
+                    <div class="place-title">عدد الوحدات</div>
+                    <input type="number" id="unitsValue" class="place-input" placeholder="عدد">
+                    <div id="unitsValueResult" class="result"></div>
+                </div>
+            </div>
+            
+            <button id="checkBtn" class="btn">تحقق من الإجابات</button>
+            <button id="newNumberBtn" class="btn">جرب عددًا جديدًا</button>
+        </div>
+        
+        <div id="explanation" class="explanation"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const numberInput = document.getElementById('numberInput');
+            const checkBtn = document.getElementById('checkBtn');
+            const newNumberBtn = document.getElementById('newNumberBtn');
+            const explanationDiv = document.getElementById('explanation');
+            
+            // عناصر أرقام المنازل
+            const thousandsDigit = document.getElementById('thousandsDigit');
+            const hundredsDigit = document.getElementById('hundredsDigit');
+            const tensDigit = document.getElementById('tensDigit');
+            const unitsDigit = document.getElementById('unitsDigit');
+            
+            // عناصر أعداد المنازل
+            const thousandsValue = document.getElementById('thousandsValue');
+            const hundredsValue = document.getElementById('hundredsValue');
+            const tensValue = document.getElementById('tensValue');
+            const unitsValue = document.getElementById('unitsValue');
+            
+            // عناصر النتائج
+            const thousandsDigitResult = document.getElementById('thousandsDigitResult');
+            const hundredsDigitResult = document.getElementById('hundredsDigitResult');
+            const tensDigitResult = document.getElementById('tensDigitResult');
+            const unitsDigitResult = document.getElementById('unitsDigitResult');
+            
+            const thousandsValueResult = document.getElementById('thousandsValueResult');
+            const hundredsValueResult = document.getElementById('hundredsValueResult');
+            const tensValueResult = document.getElementById('tensValueResult');
+            const unitsValueResult = document.getElementById('unitsValueResult');
+            
+            // توليد عدد عشوائي عند النقر على زر "جرب عددًا جديدًا"
+            newNumberBtn.addEventListener('click', function() {
+                const randomNumber = Math.floor(1000 + Math.random() * 9000);
+                numberInput.value = randomNumber;
+                
+                // مسح الحقول السابقة
+                clearInputs();
+                clearResults();
+                explanationDiv.style.display = 'none';
+            });
+            
+            // التحقق من الإجابات
+            checkBtn.addEventListener('click', function() {
+                const number = numberInput.value;
+                
+                if (!number || number.length !== 4) {
+                    alert('الرجاء إدخال عدد مكون من 4 أرقام');
+                    return;
+                }
+                
+                // تحليل العدد إلى أرقام منازله
+                const digits = number.split('').map(Number);
+                const correctDigits = {
+                    thousands: digits[0],
+                    hundreds: digits[1],
+                    tens: digits[2],
+                    units: digits[3]
+                };
+                
+                // حساب القيم الصحيحة لأعداد المنازل حسب المفهوم الجديد
+                const correctValues = {
+                    thousands: digits[0], // عدد الآلاف هو الرقم الأول فقط
+                    hundreds: parseInt(number.substring(0, 2)), // أول رقمين
+                    tens: parseInt(number.substring(0, 3)), // أول ثلاثة أرقام
+                    units: parseInt(number) // العدد كامل
+                };
+                
+                // التحقق من أرقام المنازل
+                checkAnswer(thousandsDigit, correctDigits.thousands, thousandsDigitResult);
+                checkAnswer(hundredsDigit, correctDigits.hundreds, hundredsDigitResult);
+                checkAnswer(tensDigit, correctDigits.tens, tensDigitResult);
+                checkAnswer(unitsDigit, correctDigits.units, unitsDigitResult);
+                
+                // التحقق من أعداد المنازل
+                checkAnswer(thousandsValue, correctValues.thousands, thousandsValueResult);
+                checkAnswer(hundredsValue, correctValues.hundreds, hundredsValueResult);
+                checkAnswer(tensValue, correctValues.tens, tensValueResult);
+                checkAnswer(unitsValue, correctValues.units, unitsValueResult);
+                
+                // عرض الشرح
+                showExplanation(number, correctDigits, correctValues);
+            });
+            
+            // دالة للتحقق من الإجابة وعرض النتيجة
+            function checkAnswer(inputElement, correctAnswer, resultElement) {
+                const userAnswer = inputElement.value.trim();
+                
+                if (userAnswer === '') {
+                    resultElement.textContent = 'لم تقم بالإجابة';
+                    resultElement.className = 'result incorrect';
+                    resultElement.style.display = 'block';
+                    return;
+                }
+                
+                if (parseInt(userAnswer) === correctAnswer) {
+                    resultElement.textContent = 'إجابة صحيحة! 👍';
+                    resultElement.className = 'result correct';
+                } else {
+                    resultElement.textContent = `إجابة خاطئة، الصحيح هو: ${correctAnswer}`;
+                    resultElement.className = 'result incorrect';
+                }
+                
+                resultElement.style.display = 'block';
+            }
+            
+            // دالة لعرض الشرح التفصيلي
+            function showExplanation(number, digits, values) {
+                explanationDiv.innerHTML = `
+                    <h3>شرح تحليل العدد ${number}:</h3>
+                    <p>عند تحليل العدد إلى منازله، ننظر إلى كل رقم حسب موقعه في العدد:</p>
+                    <ul>
+                        <li><strong>أرقام المنازل:</strong>
+                            <ul>
+                                <li>رقم الآلاف هو <span class="place-value">${digits.thousands}</span></li>
+                                <li>رقم المئات هو <span class="place-value">${digits.hundreds}</span></li>
+                                <li>رقم العشرات هو <span class="place-value">${digits.tens}</span></li>
+                                <li>رقم الوحدات هو <span class="place-value">${digits.units}</span></li>
+                            </ul>
+                        </li>
+                        <li><strong>أعداد المنازل:</strong>
+                            <ul>
+                                <li>عدد الآلاف هو الرقم الأول فقط: <span class="place-value">${values.thousands}</span></li>
+                                <li>عدد المئات هو أول رقمين: <span class="place-value">${values.hundreds}</span></li>
+                                <li>عدد العشرات هو أول ثلاثة أرقام: <span class="place-value">${values.tens}</span></li>
+                                <li>عدد الوحدات هو العدد كاملاً: <span class="place-value">${values.units}</span></li>
+                            </ul>
+                        </li>
+                    </ul>
+                `;
+                explanationDiv.style.display = 'block';
+            }
+            
+            // دالة لمسح الحقول
+            function clearInputs() {
+                thousandsDigit.value = '';
+                hundredsDigit.value = '';
+                tensDigit.value = '';
+                unitsDigit.value = '';
+                
+                thousandsValue.value = '';
+                hundredsValue.value = '';
+                tensValue.value = '';
+                unitsValue.value = '';
+            }
+            
+            // دالة لمسح النتائج
+            function clearResults() {
+                const results = document.querySelectorAll('.result');
+                results.forEach(result => {
+                    result.style.display = 'none';
+                    result.textContent = '';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

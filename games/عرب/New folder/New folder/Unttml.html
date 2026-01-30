@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مونوبولي السيرة النبوية</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+            border: 5px solid #8e6c88;
+        }
+
+        .game-title {
+            text-align: center;
+            color: #4a2c40;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            font-weight: bold;
+            background: linear-gradient(to right, #8e6c88, #4a2c40);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            padding: 10px;
+            border-radius: 15px;
+        }
+
+        .board {
+            width: 600px;
+            height: 600px;
+            margin: 0 auto 30px;
+            position: relative;
+            background: #f8f9fa;
+            border: 5px solid #4a2c40;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M20,20 L80,20 L80,80 L20,80 Z" stroke="%234a2c40" stroke-width="1" fill="none" opacity="0.1"/></svg>');
+            background-size: 50px 50px;
+        }
+
+        .property {
+            position: absolute;
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            border: 3px solid #8e6c88;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+            color: #4a2c40; /* لون النص الافتراضي للمواقع */
+        }
+
+        .property:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 20;
+        }
+
+        .property.owned-1 {
+            background: linear-gradient(145deg, #a8e6cf, #dcedc1);
+            color: #2d3436;
+            border-color: #4a2c40;
+        }
+
+        .property.owned-2 {
+            background: linear-gradient(145deg, #ffaaa5, #ff8b94);
+            color: #2d3436;
+            border-color: #4a2c40;
+        }
+
+        .corner {
+            width: 90px;
+            height: 90px;
+            font-size: 12px;
+            background: linear-gradient(145deg, #8e6c88, #4a2c40);
+            color: white;
+            border-radius: 15px;
+        }
+
+        .side {
+            width: 80px;
+            height: 60px;
+            font-size: 11px;
+        }
+
+        /* مواضع الخصائص */
+        /* الصف السفلي (من اليمين إلى اليسار) - ID: 0-6 */
+        .start { top: 510px; right: 510px; } /* 0 */
+        .prop-pos-1 { top: 510px; right: 430px; } /* 1 */
+        .prop-pos-2 { top: 510px; right: 350px; } /* 2 */
+        .prop-pos-3 { top: 510px; right: 270px; } /* 3 */
+        .prop-pos-4 { top: 510px; right: 190px; } /* 4 */
+        .prop-pos-5 { top: 510px; right: 110px; } /* 5 */
+        .prop-pos-6 { top: 510px; right: 30px; } /* 6 */
+        
+        /* غار حراء - ID: 7 (الموقع الذي يذهب إليه اللاعب بدل السجن) */
+        .jail { top: 510px; right: 30px; } /* 7 - نفس مكان prop-pos-6، تحتاج لتغيير في الجافاسكريبت */
+        
+        /* الصف الأيمن (من الأسفل إلى الأعلى) - ID: 8-13 */
+        .prop-pos-8 { top: 450px; right: 30px; }
+        .prop-pos-9 { top: 390px; right: 30px; }
+        .prop-pos-10 { top: 330px; right: 30px; }
+        .prop-pos-11 { top: 270px; right: 30px; }
+        .prop-pos-12 { top: 210px; right: 30px; }
+        .prop-pos-13 { top: 150px; right: 30px; }
+        
+        /* الكعبة - ID: 14 */
+        .parking { top: 30px; right: 30px; } /* 14 */
+        
+        /* الصف العلوي (من اليمين إلى اليسار) - ID: 15-20 */
+        .prop-pos-15 { top: 30px; right: 110px; }
+        .prop-pos-16 { top: 30px; right: 190px; }
+        .prop-pos-17 { top: 30px; right: 270px; }
+        .prop-pos-18 { top: 30px; right: 350px; }
+        .prop-pos-19 { top: 30px; right: 430px; }
+        .prop-pos-20 { top: 30px; right: 510px; }
+        
+        /* إلى غار حراء - ID: 21 */
+        .go-jail { top: 30px; right: 510px; } /* 21 - نفس مكان prop-pos-20، تحتاج لتغيير في الجافاسكريبت */
+        
+        /* الصف الأيسر (من الأعلى إلى الأسفل) - ID: 22-27 */
+        .prop-pos-22 { top: 150px; right: 510px; }
+        .prop-pos-23 { top: 210px; right: 510px; }
+        .prop-pos-24 { top: 270px; right: 510px; }
+        .prop-pos-25 { top: 330px; right: 510px; }
+        .prop-pos-26 { top: 390px; right: 510px; }
+        .prop-pos-27 { top: 450px; right: 510px; }
+
+
+        .player {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.5s ease-in-out; /* تحسين الانتقال */
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .player1 {
+            background: #4a2c40;
+            transform: translate(-40px, 15px); /* Offset from corner */
+        }
+
+        .player2 {
+            background: #8e6c88;
+            transform: translate(-15px, 15px); /* Offset from corner */
+        }
+
+        .center-area {
+            position: absolute;
+            top: 120px;
+            right: 120px;
+            width: 360px;
+            height: 360px;
+            background: linear-gradient(135deg, #f5f0f6 0%, #e8d9e9 100%);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #4a2c40;
+            text-align: center;
+            box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 4px dotted #8e6c88;
+        }
+
+        .center-logo {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #4a2c40;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+
+        .player-info {
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            flex: 1;
+            text-align: center;
+            border: 3px dashed;
+            transition: all 0.3s ease;
+        }
+
+        .player-info.player1-color { /* استخدام class مختلف لتجنب التضارب */
+            border-color: #4a2c40;
+            background: linear-gradient(145deg, #f0e6f0, #f8f0f8);
+        }
+
+        .player-info.player2-color { /* استخدام class مختلف لتجنب التضارب */
+            border-color: #8e6c88;
+            background: linear-gradient(145deg, #f8f0f5, #fff0f8);
+        }
+
+        .player-info.current-player {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .player-info h3 {
+            margin-bottom: 10px;
+            font-size: 1.5em;
+            color: #4a2c40;
+        }
+
+        .player-info p {
+            font-size: 1.1em;
+            margin: 8px 0;
+        }
+
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(145deg, #d4b9cb, #e8d9e9);
+            color: #4a2c40;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 3px solid #fff;
+            min-width: 150px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn.danger {
+            background: linear-gradient(145deg, #ffaaa5, #ff8b94);
+            color: white;
+        }
+
+        .btn.primary {
+            background: linear-gradient(145deg, #a8e6cf, #dcedc1);
+            color: #4a2c40;
+        }
+
+        .dice-area {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .dice {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            border: 3px solid #4a2c40;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+            color: #4a2c40;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.1s ease;
+        }
+
+        .dice.rolling {
+            animation: roll 0.5s ease-in-out;
+        }
+
+        @keyframes roll {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(90deg) scale(1.2); }
+            50% { transform: rotate(180deg) scale(1); }
+            75% { transform: rotate(270deg) scale(1.2); }
+        }
+
+        .log {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+            direction: rtl;
+            text-align: right;
+            border: 2px solid #dfe6e9;
+        }
+
+        .log-entry {
+            padding: 8px 0;
+            border-bottom: 1px dashed #dfe6e9;
+            font-size: 16px;
+            color: #4a2c40;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            direction: rtl;
+            justify-content: center; /* توسيط أفقي */
+            align-items: center; /* توسيط عمودي */
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            /* margin: 15% auto; تم استبدالها ب flexbox */
+            padding: 30px;
+            border-radius: 20px;
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 5px solid #8e6c88;
+            background: linear-gradient(145deg, #fff, #f7f7f7);
+        }
+
+        .close {
+            color: #aaa;
+            float: left; /* للحفاظ على الإغلاق في الزاوية اليسرى */
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #d63031;
+        }
+
+        .current-player {
+            border: 4px solid #fdcb6e !important;
+            box-shadow: 0 0 20px rgba(253, 203, 110, 0.5);
+        }
+
+        .property-price {
+            font-size: 10px;
+            color: #636e72;
+            margin-top: 5px;
+            font-weight: normal;
+        }
+
+        .emoji {
+            font-size: 16px;
+            margin-left: 5px;
+        }
+
+        /* تأثيرات إضافية */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .bounce {
+            animation: bounce 0.5s infinite;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            opacity: 0;
+            z-index: 1001;
+            animation: confetti 3s ease-in-out;
+        }
+
+        @keyframes confetti {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(500px) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="game-title">🕌 مونوبولي السيرة النبوية 🕌</h1>
+        
+        <div class="game-info">
+            <div class="player-info player1-color current-player" id="player-info-1">
+                <h3>👦 اللاعب الأول</h3>
+                <p>💵 الأموال: <span id="player1-money">1500</span> درهم</p>
+                <p>🏠 المواقع: <span id="player1-properties">0</span></p>
+            </div>
+            <div class="player-info player2-color" id="player-info-2">
+                <h3>👧 اللاعب الثاني</h3>
+                <p>💵 الأموال: <span id="player2-money">1500</span> درهم</p>
+                <p>🏠 المواقع: <span id="player2-properties">0</span></p>
+            </div>
+        </div>
+
+        <div class="board">
+            <div class="property corner start" data-id="0">🏁<br>البداية<br>+200 درهم</div>
+            <div class="property corner jail" data-id="7">⛓️<br>غار حراء<br>تأمل وتعبد</div>
+            <div class="property corner parking" data-id="14">🕋<br>الكعبة<br>طواف مجاني</div>
+            <div class="property corner go-jail" data-id="21">👳‍♂️<br>إلى غار حراء</div>
+
+            <div class="property side prop-pos-1" data-id="1">🏠 مولد النبي<br><span class="property-price">60 درهم</span></div>
+            <div class="property side prop-pos-2" data-id="2">👶 رضاعة النبي<br><span class="property-price">60 درهم</span></div>
+            <div class="property side prop-pos-3" data-id="3">👦 شباب النبي<br><span class="property-price">80 درهم</span></div>
+            <div class="property side prop-pos-4" data-id="4">💍 زواج النبي<br><span class="property-price">80 درهم</span></div>
+            <div class="property side prop-pos-5" data-id="5">🕋 نزول الوحي<br><span class="property-price">100 درهم</span></div>
+            <div class="property side prop-pos-6" data-id="6">📜 الدعوة السرية<br><span class="property-price">100 درهم</span></div>
+
+            <div class="property side prop-pos-8" data-id="8">📢 الدعوة الجهرية<br><span class="property-price">120 درهم</span></div>
+            <div class="property side prop-pos-9" data-id="9">🕌 الهجرة الأولى<br><span class="property-price">120 درهم</span></div>
+            <div class="property side prop-pos-10" data-id="10">🌙 الإسراء والمعراج<br><span class="property-price">140 درهم</span></div>
+            <div class="property side prop-pos-11" data-id="11">🤝 بيعة العقبة<br><span class="property-price">140 درهم</span></div>
+            <div class="property side prop-pos-12" data-id="12">🏜️ الهجرة إلى المدينة<br><span class="property-price">160 درهم</span></div>
+            <div class="property side prop-pos-13" data-id="13">🕌 بناء المسجد<br><span class="property-price">160 درهم</span></div>
+
+            <div class="property side prop-pos-15" data-id="15">⚔️ غزوة بدر<br><span class="property-price">180 درهم</span></div>
+            <div class="property side prop-pos-16" data-id="16">🛡️ غزوة أحد<br><span class="property-price">180 درهم</span></div>
+            <div class="property side prop-pos-17" data-id="17">🏕️ غزوة الخندق<br><span class="property-price">200 درهم</span></div>
+            <div class="property side prop-pos-18" data-id="18">✍️ صلح الحديبية<br><span class="property-price">200 درهم</span></div>
+            <div class="property side prop-pos-19" data-id="19">📨 رسائل الملوك<br><span class="property-price">220 درهم</span></div>
+            <div class="property side prop-pos-20" data-id="20">🕊️ فتح مكة<br><span class="property-price">220 درهم</span></div>
+
+            <div class="property side prop-pos-22" data-id="22">🕌 حجة الوداع<br><span class="property-price">240 درهم</span></div>
+            <div class="property side prop-pos-23" data-id="23">📖 خطبة الوداع<br><span class="property-price">240 درهم</span></div>
+            <div class="property side prop-pos-24" data-id="24">🌅 وفاة النبي<br><span class="property-price">260 درهم</span></div>
+            <div class="property side prop-pos-25" data-id="25">📚 القرآن الكريم<br><span class="property-price">260 درهم</span></div>
+            <div class="property side prop-pos-26" data-id="26">🕌 المسجد النبوي<br><span class="property-price">280 درهم</span></div>
+            <div class="property side prop-pos-27" data-id="27">📜 السنة النبوية<br><span class="property-price">280 درهم</span></div>
+
+            <div class="center-area">
+                <div class="center-logo">السيرة النبوية</div>
+                <p>رحلة حياة النبي محمد ﷺ</p>
+                <div class="dice-area">
+                    <div class="dice" id="dice1">1</div>
+                    <div class="dice" id="dice2">1</div>
+                </div>
+                <p>المجموع: <span id="dice-total">2</span></p>
+            </div>
+
+            <div class="player player1" id="player1">1</div>
+            <div class="player player2" id="player2">2</div>
+        </div>
+
+        <div class="controls">
+            <button class="btn primary" id="roll-dice">🎲 ارم النرد</button>
+            <button class="btn danger" id="end-turn" disabled>⏭️ انهاء الدور</button>
+            <button class="btn" id="reset-game">🔄 لعبة جديدة</button>
+        </div>
+
+        <div class="log" id="game-log">
+            <div class="log-entry"><strong>مرحباً بكم في لعبة السيرة النبوية!</strong></div>
+            <div class="log-entry">👦 دور اللاعب الأول</div>
+        </div>
+    </div>
+
+    <div id="buy-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-buy-modal">&times;</span>
+            <h2 id="property-name-modal">اسم الموقع</h2>
+            <p>هل تريد شراء هذا الموقع التاريخي؟</p>
+            <p>💰 السعر: <span id="property-price-modal">0</span> درهم</p>
+            <button class="btn primary" id="buy-yes">👍 نعم، أريد الشراء</button>
+            <button class="btn danger" id="buy-no">👎 لا، شكراً</button>
+        </div>
+    </div>
+
+    <div id="rent-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-rent-modal">&times;</span>
+            <h2>دفع زكاة</h2>
+            <p id="rent-message">يجب دفع زكاة</p>
+            <button class="btn danger" id="pay-rent">💸 دفع الزكاة</button>
+        </div>
+    </div>
+
+    <div id="game-over-modal" class="modal">
+        <div class="modal-content">
+            <h2 style="color: #8e6c88;">🎉 انتهت اللعبة! 🎉</h2>
+            <p id="winner-message" style="font-size: 1.5em; margin: 20px 0;">الفائز هو</p>
+            <button class="btn primary" id="new-game">🔄 لعبة جديدة</button>
+        </div>
+    </div>
+
+    <script>
+        class SeerahGame {
+            constructor() {
+                this.currentPlayer = 1;
+                this.players = {
+                    1: { name: "👦 اللاعب الأول", money: 1500, position: 0, properties: [], inJail: false, jailTurns: 0 },
+                    2: { name: "👧 اللاعب الثاني", money: 1500, position: 0, properties: [], inJail: false, jailTurns: 0 }
+                };
+                this.properties = this.initializeProperties();
+                this.positions = this.initializePositions();
+                this.gameLog = document.getElementById('game-log');
+                this.currentPropertyId = null; // ID of the property the player landed on
+                this.diceRolled = false;
+                this.isModalOpen = false; // لتتبع إذا كانت نافذة منبثقة مفتوحة
+                
+                this.initializeEventListeners();
+                this.updateDisplay();
+                this.updatePlayerPositions();
+                this.updateControlButtons();
+                this.addLog(`<strong>مرحباً بكم في لعبة السيرة النبوية!</strong>`);
+                this.addLog(`<strong>${this.players[this.currentPlayer].name}</strong>، دورك لرمي النرد.`);
+            }
+
+            initializeProperties() {
+                const props = {};
+                // أحداث السيرة النبوية مع أسعار مناسبة
+                // ملاحظة: IDs تبدأ من 1 وتنتهي بـ 27 (المواقع)
+                const propertyData = [
+                    // Start (ID 0) - Corner, no property
+                    { id: 1, name: '🏠 مولد النبي', price: 60, rent: 10, description: 'مولد النبي محمد ﷺ في مكة عام الفيل' },
+                    { id: 2, name: '👶 رضاعة النبي', price: 60, rent: 10, description: 'رضاعة النبي في بني سعد عند حليمة السعدية' },
+                    { id: 3, name: '👦 شباب النبي', price: 80, rent: 15, description: 'شباب النبي واشتغاله بالتجارة ورعاية الغنم' },
+                    { id: 4, name: '💍 زواج النبي', price: 80, rent: 15, description: 'زواج النبي من خديجة بنت خويلد رضي الله عنها' },
+                    { id: 5, name: '🕋 نزول الوحي', price: 100, rent: 20, description: 'نزول الوحي على النبي في غار حراء' },
+                    { id: 6, name: '📜 الدعوة السرية', price: 100, rent: 20, description: 'الدعوة السرية للإسلام في دار الأرقم' },
+                    // Jail (ID 7) - Corner, no property
+                    { id: 8, name: '📢 الدعوة الجهرية', price: 120, rent: 25, description: 'الدعوة الجهرية للإسلام على جبل الصفا' },
+                    { id: 9, name: '🕌 الهجرة الأولى', price: 120, rent: 25, description: 'هجرة المسلمين الأولى إلى الحبشة' },
+                    { id: 10, name: '🌙 الإسراء والمعراج', price: 140, rent: 30, description: 'رحلة الإسراء والمعراج من مكة إلى القدس ثم السماوات' },
+                    { id: 11, name: '🤝 بيعة العقبة', price: 140, rent: 30, description: 'بيعة العقبة الأولى والثانية مع الأنصار' },
+                    { id: 12, name: '🏜️ الهجرة إلى المدينة', price: 160, rent: 35, description: 'هجرة النبي ﷺ من مكة إلى المدينة' },
+                    { id: 13, name: '🕌 بناء المسجد', price: 160, rent: 35, description: 'بناء المسجد النبوي في المدينة المنورة' },
+                    // Parking (ID 14) - Corner, no property
+                    { id: 15, name: '⚔️ غزوة بدر', price: 180, rent: 40, description: 'غزوة بدر الكبرى أول معركة في الإسلام' },
+                    { id: 16, name: '🛡️ غزوة أحد', price: 180, rent: 40, description: 'غزوة أحد واستشهاد حمزة بن عبد المطلب' },
+                    { id: 17, name: '🏕️ غزوة الخندق', price: 200, rent: 45, description: 'غزوة الخندق (الأحزاب) وحفر الخندق' },
+                    { id: 18, name: '✍️ صلح الحديبية', price: 200, rent: 45, description: 'صلح الحديبية وبيعة الرضوان' },
+                    { id: 19, name: '📨 رسائل الملوك', price: 220, rent: 50, description: 'إرسال الرسائل إلى ملوك العالم يدعوهم للإسلام' },
+                    { id: 20, name: '🕊️ فتح مكة', price: 220, rent: 50, description: 'فتح مكة ودخول النبي ﷺ منتصراً' },
+                    // Go To Jail (ID 21) - Corner, no property
+                    { id: 22, name: '🕌 حجة الوداع', price: 240, rent: 55, description: 'حجة الوداع وخطبة النبي في عرفة' },
+                    { id: 23, name: '📖 خطبة الوداع', price: 240, rent: 55, description: 'خطبة الوداع التي أوصى فيها النبي بأمور كثيرة' },
+                    { id: 24, name: '🌅 وفاة النبي', price: 260, rent: 60, description: 'وفاة النبي ﷺ وانتقاله إلى الرفيق الأعلى' },
+                    { id: 25, name: '📚 القرآن الكريم', price: 260, rent: 60, description: 'جمع القرآن الكريم في عهد الخلفاء الراشدين' },
+                    { id: 26, name: '🕌 المسجد النبوي', price: 280, rent: 65, description: 'المسجد النبوي الشريف في المدينة المنورة' },
+                    { id: 27, name: '📜 السنة النبوية', price: 280, rent: 65, description: 'السنة النبوية وحفظها وتدوينها' }
+                ];
+                
+                // إضافة المواقع الخاصة (الزوايا) بدون سعر أو إيجار
+                props[0] = { name: 'البداية', type: 'corner' };
+                props[7] = { name: 'غار حراء', type: 'corner' };
+                props[14] = { name: 'الكعبة', type: 'corner' };
+                props[21] = { name: 'إلى غار حراء', type: 'corner' };
+
+
+                propertyData.forEach(p => {
+                    props[p.id] = {
+                        name: p.name,
+                        price: p.price,
+                        rent: p.rent,
+                        description: p.description,
+                        owner: null,
+                        type: 'property' // نوع الموقع
+                    };
+                });
+                return props;
+            }
+
+            initializePositions() {
+                // تمثل كل موقع على اللوحة، بدءاً من 0 وانتهاءً بـ 27 (إجمالي 28 موقع)
+                // يجب أن تتطابق هذه الإحداثيات مع الـ CSS classes (prop-pos-X)
+                // Offset players slightly for better visibility
+                const player1OffsetX = -40; // للاعب 1
+                const player2OffsetX = -15; // للاعب 2
+                const playerOffsetY = 15;
+
+                return [
+                    {x: 545 + player1OffsetX, y: 545 + playerOffsetY, p2x: 545 + player2OffsetX, p2y: 545 + playerOffsetY}, // 0: البداية (start)
+                    {x: 465 + player1OffsetX, y: 545 + playerOffsetY, p2x: 465 + player2OffsetX, p2y: 545 + playerOffsetY}, // 1
+                    {x: 385 + player1OffsetX, y: 545 + playerOffsetY, p2x: 385 + player2OffsetX, p2y: 545 + playerOffsetY}, // 2
+                    {x: 305 + player1OffsetX, y: 545 + playerOffsetY, p2x: 305 + player2OffsetX, p2y: 545 + playerOffsetY}, // 3
+                    {x: 225 + player1OffsetX, y: 545 + playerOffsetY, p2x: 225 + player2OffsetX, p2y: 545 + playerOffsetY}, // 4
+                    {x: 145 + player1OffsetX, y: 545 + playerOffsetY, p2x: 145 + player2OffsetX, p2y: 545 + playerOffsetY}, // 5
+                    {x: 65 + player1OffsetX, y: 545 + playerOffsetY, p2x: 65 + player2OffsetX, p2y: 545 + playerOffsetY}, // 6
+                    {x: 45 + player1OffsetX, y: 545 + playerOffsetY, p2x: 45 + player2OffsetX, p2y: 545 + playerOffsetY},  // 7: غار حراء (jail position)
+                    {x: 45 + player1OffsetX, y: 465 + playerOffsetY, p2x: 45 + player2OffsetX, p2y: 465 + playerOffsetY}, // 8
+                    {x: 45 + player1OffsetX, y: 385 + playerOffsetY, p2x: 45 + player2OffsetX, p2y: 385 + playerOffsetY}, // 9
+                    {x: 45 + player1OffsetX, y: 305 + playerOffsetY, p2x: 45 + player2OffsetX, p2y: 305 + playerOffsetY}, // 10
+                    {x: 45 + player1OffsetX, y: 225 + playerOffsetY, p2x: 45 + player2OffsetX, p2y: 225 + playerOffsetY}, // 11
+                    {x: 45 + player1OffsetX, y: 145 + playerOffsetY, p2x: 45 + player2OffsetX, p2y: 145 + playerOffsetY}, // 12
+                    {x: 45 + player1OffsetX, y: 65 + playerOffsetY, p2x: 45 + player2OffsetX, p2y: 65 + playerOffsetY}, // 13
+                    {x: 45 + player1OffsetX, y: 45 + playerOffsetY, p2x: 45 + player2OffsetX, p2y: 45 + playerOffsetY},    // 14: الكعبة (parking position)
+                    {x: 125 + player1OffsetX, y: 45 + playerOffsetY, p2x: 125 + player2OffsetX, p2y: 45 + playerOffsetY}, // 15
+                    {x: 205 + player1OffsetX, y: 45 + playerOffsetY, p2x: 205 + player2OffsetX, p2y: 45 + playerOffsetY}, // 16
+                    {x: 285 + player1OffsetX, y: 45 + playerOffsetY, p2x: 285 + player2OffsetX, p2y: 45 + playerOffsetY}, // 17
+                    {x: 365 + player1OffsetX, y: 45 + playerOffsetY, p2x: 365 + player2OffsetX, p2y: 45 + playerOffsetY}, // 18
+                    {x: 445 + player1OffsetX, y: 45 + playerOffsetY, p2x: 445 + player2OffsetX, p2y: 45 + playerOffsetY}, // 19
+                    {x: 525 + player1OffsetX, y: 45 + playerOffsetY, p2x: 525 + player2OffsetX, p2y: 45 + playerOffsetY}, // 20
+                    {x: 545 + player1OffsetX, y: 45 + playerOffsetY, p2x: 545 + player2OffsetX, p2y: 45 + playerOffsetY},  // 21: اذهب إلى غار حراء (go-jail position)
+                    {x: 545 + player1OffsetX, y: 125 + playerOffsetY, p2x: 545 + player2OffsetX, p2y: 125 + playerOffsetY}, // 22
+                    {x: 545 + player1OffsetX, y: 205 + playerOffsetY, p2x: 545 + player2OffsetX, p2y: 205 + playerOffsetY}, // 23
+                    {x: 545 + player1OffsetX, y: 285 + playerOffsetY, p2x: 545 + player2OffsetX, p2y: 285 + playerOffsetY}, // 24
+                    {x: 545 + player1OffsetX, y: 365 + playerOffsetY, p2x: 545 + player2OffsetX, p2y: 365 + playerOffsetY}, // 25
+                    {x: 545 + player1OffsetX, y: 445 + playerOffsetY, p2x: 545 + player2OffsetX, p2y: 445 + playerOffsetY}, // 26
+                    {x: 545 + player1OffsetX, y: 525 + playerOffsetY, p2x: 545 + player2OffsetX, p2y: 525 + playerOffsetY}  // 27
+                ];
+            }
+
+            initializeEventListeners() {
+                document.getElementById('roll-dice').addEventListener('click', () => this.rollDice());
+                document.getElementById('end-turn').addEventListener('click', () => this.endTurn());
+                document.getElementById('reset-game').addEventListener('click', () => this.resetGame());
+                document.getElementById('buy-yes').addEventListener('click', () => this.buyProperty());
+                document.getElementById('buy-no').addEventListener('click', () => this.closeBuyModal());
+                document.getElementById('pay-rent').addEventListener('click', () => this.payRent());
+                document.getElementById('new-game').addEventListener('click', () => this.resetGame());
+                
+                // إغلاق النوافذ المنبثقة
+                document.getElementById('close-buy-modal').addEventListener('click', () => this.closeBuyModal());
+                document.getElementById('close-rent-modal').addEventListener('click', () => this.closeRentModal());
+                
+                // إغلاق النوافذ عند النقر خارجها - تم تعديله ليكون أكثر تحديداً
+                window.addEventListener('click', (e) => {
+                    const buyModal = document.getElementById('buy-modal');
+                    const rentModal = document.getElementById('rent-modal');
+                    const gameOverModal = document.getElementById('game-over-modal');
+
+                    if (e.target === buyModal) this.closeBuyModal();
+                    if (e.target === rentModal) this.closeRentModal();
+                    if (e.target === gameOverModal) gameOverModal.style.display = 'none'; // لا تعيد تفعيل الأزرار هنا
+                });
+
+                // إضافة معلومات السيرة عند النقر على المربعات
+                document.querySelectorAll('.property').forEach(prop => {
+                    prop.addEventListener('click', () => {
+                        const id = parseInt(prop.dataset.id); // تحويل إلى عدد صحيح
+                        if (this.properties[id] && this.properties[id].type === 'property') {
+                            const property = this.properties[id];
+                            alert(`${property.name}\n\n${property.description}\n\nالسعر: ${property.price} درهم\nالإيجار: ${property.rent} درهم`);
+                        } else if (this.properties[id] && this.properties[id].type === 'corner') {
+                            const cornerInfo = {
+                                0: "نقطة البداية! تحصل على 200 درهم عند المرور أو الهبوط عليها.",
+                                7: "غار حراء! مكان للتأمل والتعبد (مثل السجن). تبقى هنا لدور واحد.",
+                                14: "الكعبة! مكان للطواف المجاني، استراحة لك.",
+                                21: "إلى غار حراء! تذهب مباشرة إلى غار حراء."
+                            };
+                            alert(`${this.properties[id].name}\n\n${cornerInfo[id]}`);
+                        }
+                    });
+                });
+            }
+
+            updateControlButtons() {
+                const rollDiceBtn = document.getElementById('roll-dice');
+                const endTurnBtn = document.getElementById('end-turn');
+
+                rollDiceBtn.disabled = this.diceRolled || this.isModalOpen;
+                endTurnBtn.disabled = !this.diceRolled || this.isModalOpen;
+            }
+
+            addLog(message) {
+                const entry = document.createElement('div');
+                entry.classList.add('log-entry');
+                entry.innerHTML = message;
+                this.gameLog.prepend(entry);
+                this.gameLog.scrollTop = 0; // تأكد من أن السجل يظهر أحدث الإدخالات
+            }
+
+            updateDisplay() {
+                const player1 = this.players[1];
+                const player2 = this.players[2];
+
+                document.getElementById('player1-money').textContent = player1.money;
+                document.getElementById('player1-properties').textContent = player1.properties.length;
+                document.getElementById('player2-money').textContent = player2.money;
+                document.getElementById('player2-properties').textContent = player2.properties.length;
+
+                // تحديث اللاعب النشط
+                document.getElementById('player-info-1').classList.remove('current-player');
+                document.getElementById('player-info-2').classList.remove('current-player');
+                document.getElementById(`player-info-${this.currentPlayer}`).classList.add('current-player');
+
+                // تحديث ألوان المواقع المملوكة
+                document.querySelectorAll('.property').forEach(propElement => {
+                    const id = parseInt(propElement.dataset.id);
+                    if (!isNaN(id) && this.properties[id] && this.properties[id].type === 'property') {
+                        propElement.classList.remove('owned-1', 'owned-2');
+                        if (this.properties[id].owner === 1) {
+                            propElement.classList.add('owned-1');
+                        } else if (this.properties[id].owner === 2) {
+                            propElement.classList.add('owned-2');
+                        }
+                    }
+                });
+
+                this.updateControlButtons();
+            }
+
+            updatePlayerPositions() {
+                const player1Element = document.getElementById('player1');
+                const player2Element = document.getElementById('player2');
+
+                const p1Pos = this.positions[this.players[1].position];
+                const p2Pos = this.positions[this.players[2].position];
+
+                player1Element.style.right = `${p1Pos.x}px`;
+                player1Element.style.top = `${p1Pos.y}px`;
+
+                // Adjust player 2 position if they are on the same square
+                if (this.players[1].position === this.players[2].position) {
+                    player2Element.style.right = `${p2Pos.p2x}px`; // Use p2x for player 2 on same square
+                    player2Element.style.top = `${p2Pos.p2y}px`;   // Use p2y for player 2 on same square
+                } else {
+                    player2Element.style.right = `${p2Pos.x}px`;
+                    player2Element.style.top = `${p2Pos.y}px`;
+                }
+            }
+
+            rollDice() {
+                if (this.diceRolled || this.isModalOpen) return;
+                
+                this.diceRolled = true;
+                this.updateControlButtons();
+
+                const player = this.players[this.currentPlayer];
+
+                if (player.inJail) {
+                    player.jailTurns++;
+                    if (player.jailTurns < 3) {
+                        this.addLog(`${player.name} في غار حراء. تبقى لديه ${3 - player.jailTurns} أدوار ليخرج.`);
+                        this.switchPlayer();
+                        return;
+                    } else {
+                        this.addLog(`${player.name} قضى 3 أدوار في غار حراء. سيخرج الآن.`);
+                        player.inJail = false;
+                        player.jailTurns = 0;
+                    }
+                }
+
+                const dice1 = Math.floor(Math.random() * 6) + 1;
+                const dice2 = Math.floor(Math.random() * 6) + 1;
+                const total = dice1 + dice2;
+
+                document.getElementById('dice1').classList.add('rolling');
+                document.getElementById('dice2').classList.add('rolling');
+
+                setTimeout(() => {
+                    document.getElementById('dice1').textContent = dice1;
+                    document.getElementById('dice2').textContent = dice2;
+                    document.getElementById('dice-total').textContent = total;
+
+                    document.getElementById('dice1').classList.remove('rolling');
+                    document.getElementById('dice2').classList.remove('rolling');
+                    this.addLog(`${player.name} رمى النرد وحصل على ${dice1} و ${dice2} (المجموع: ${total}).`);
+                    this.movePlayer(total);
+                }, 800); // وقت للأنيميشن
+            }
+
+            movePlayer(steps) {
+                const player = this.players[this.currentPlayer];
+                const oldPosition = player.position;
+                let newPosition = (oldPosition + steps) % this.positions.length; // 28 squares (0-27)
+
+                // Check if player passed or landed on "Start" (position 0)
+                if (newPosition < oldPosition && !player.inJail) { // If player wrapped around the board
+                    player.money += 200;
+                    this.addLog(`${player.name} مر من البداية وحصل على <strong>200 درهم</strong>.`);
+                    this.updateDisplay();
+                }
+
+                player.position = newPosition;
+                this.updatePlayerPositions();
+
+                // Wait for player movement animation to finish
+                setTimeout(() => {
+                    this.handleLandingOnSquare(player.position);
+                }, 600); // Slightly longer than player transition time
+            }
+
+            handleLandingOnSquare(positionId) {
+                const player = this.players[this.currentPlayer];
+                const landedProperty = this.properties[positionId];
+
+                if (!landedProperty) {
+                    this.addLog(`خطأ: لا توجد معلومات عن الموقع ID: ${positionId}`);
+                    this.updateControlButtons(); // تفعيل زر إنهاء الدور
+                    return;
+                }
+
+                switch (landedProperty.type) {
+                    case 'property':
+                        if (landedProperty.owner === null) {
+                            this.currentPropertyId = positionId;
+                            this.showBuyModal(landedProperty);
+                        } else if (landedProperty.owner !== this.currentPlayer) {
+                            this.currentPropertyId = positionId;
+                            this.showRentModal(landedProperty);
+                        } else {
+                            this.addLog(`${player.name} هبط على موقعه الخاص <strong>${landedProperty.name}</strong>. لا يوجد شيء يدفعه.`);
+                            this.updateControlButtons(); // تفعيل زر إنهاء الدور
+                        }
+                        break;
+                    case 'corner':
+                        if (positionId === 7) { // غار حراء (Jail)
+                            this.addLog(`${player.name} وصل إلى <strong>غار حراء</strong> (تأمل وتعبد). سيبقى لدور واحد.`);
+                            player.inJail = true;
+                            player.jailTurns = 0; // Reset jail turns
+                            player.position = 7; // Ensure player is exactly on jail square
+                            this.updatePlayerPositions();
+                            this.updateControlButtons(); // تفعيل زر إنهاء الدور
+                        } else if (positionId === 21) { // إلى غار حراء (Go to Jail)
+                            this.addLog(`${player.name} يجب أن يذهب إلى <strong>غار حراء</strong>!`);
+                            player.inJail = true;
+                            player.jailTurns = 0; // Reset jail turns
+                            player.position = 7; // Move player to jail square
+                            this.updatePlayerPositions();
+                            this.updateControlButtons(); // تفعيل زر إنهاء الدور
+                        } else if (positionId === 0) { // البداية
+                             // تم التعامل مع مكافأة البداية بالفعل في movePlayer
+                            this.addLog(`${player.name} وصل إلى <strong>البداية</strong>.`);
+                            this.updateControlButtons(); // تفعيل زر إنهاء الدور
+                        } else if (positionId === 14) { // الكعبة (Parking)
+                            this.addLog(`${player.name} وصل إلى <strong>الكعبة</strong>. طواف مجاني!`);
+                            this.updateControlButtons(); // تفعيل زر إنهاء الدور
+                        }
+                        break;
+                    default:
+                        this.addLog(`${player.name} هبط على موقع غير معروف.`);
+                        this.updateControlButtons(); // تفعيل زر إنهاء الدور
+                        break;
+                }
+            }
+
+            showBuyModal(property) {
+                this.isModalOpen = true;
+                this.updateControlButtons();
+                document.getElementById('property-name-modal').textContent = property.name;
+                document.getElementById('property-price-modal').textContent = property.price;
+                document.getElementById('buy-modal').style.display = 'flex'; // استخدام flex لتوسيط المودال
+            }
+
+            closeBuyModal() {
+                document.getElementById('buy-modal').style.display = 'none';
+                this.isModalOpen = false;
+                this.updateControlButtons();
+                // إذا رفض اللاعب الشراء، ينتقل الدور تلقائياً
+                // لا ننتقل هنا، لأن زر إنهاء الدور هو المسؤول
+            }
+
+            buyProperty() {
+                const player = this.players[this.currentPlayer];
+                const property = this.properties[this.currentPropertyId];
+
+                if (player.money >= property.price) {
+                    player.money -= property.price;
+                    property.owner = this.currentPlayer;
+                    player.properties.push(this.currentPropertyId);
+                    this.addLog(`${player.name} اشترى <strong>${property.name}</strong> بـ <strong>${property.price} درهم</strong>.`);
+                    this.updateDisplay();
+                    this.closeBuyModal();
+                } else {
+                    alert(`${player.name} ليس لديه ما يكفي من الأموال لشراء ${property.name}.`);
+                    this.addLog(`${player.name} حاول شراء <strong>${property.name}</strong> لكن ليس لديه ما يكفي من الأموال.`);
+                    this.closeBuyModal(); // أغلق المودال حتى لو لم يتم الشراء
+                }
+            }
+
+            showRentModal(property) {
+                this.isModalOpen = true;
+                this.updateControlButtons();
+                const owner = this.players[property.owner];
+                const rentAmount = property.rent;
+                document.getElementById('rent-message').innerHTML = `يجب على <strong>${this.players[this.currentPlayer].name}</strong> دفع <strong>${rentAmount} درهم</strong> لـ <strong>${owner.name}</strong> بسبب <strong>${property.name}</strong>.`;
+                document.getElementById('rent-modal').style.display = 'flex';
+            }
+
+            closeRentModal() {
+                document.getElementById('rent-modal').style.display = 'none';
+                this.isModalOpen = false;
+                this.updateControlButtons();
+            }
+
+            payRent() {
+                const currentPlayer = this.players[this.currentPlayer];
+                const property = this.properties[this.currentPropertyId];
+                const owner = this.players[property.owner];
+                const rentAmount = property.rent;
+
+                if (currentPlayer.money >= rentAmount) {
+                    currentPlayer.money -= rentAmount;
+                    owner.money += rentAmount;
+                    this.addLog(`${currentPlayer.name} دفع <strong>${rentAmount} درهم</strong> لـ <strong>${owner.name}</strong>.`);
+                } else {
+                    // اللاعب مفلس
+                    this.addLog(`${currentPlayer.name} ليس لديه ما يكفي من الأموال لدفع الإيجار لـ ${owner.name}. ${currentPlayer.name} قد أفلس!`);
+                    this.declareBankrupt(this.currentPlayer);
+                }
+                this.updateDisplay();
+                this.closeRentModal();
+            }
+
+            declareBankrupt(bankruptPlayerId) {
+                const bankruptPlayer = this.players[bankruptPlayerId];
+                const otherPlayerId = bankruptPlayerId === 1 ? 2 : 1;
+                const otherPlayer = this.players[otherPlayerId];
+
+                this.addLog(`<strong>${bankruptPlayer.name} أفلس!</strong>`);
+
+                // نقل ملكية المواقع
+                bankruptPlayer.properties.forEach(propId => {
+                    const prop = this.properties[propId];
+                    if (prop) {
+                        prop.owner = otherPlayerId;
+                        otherPlayer.properties.push(propId);
+                        this.addLog(`انتقلت ملكية <strong>${prop.name}</strong> إلى <strong>${otherPlayer.name}</strong>.`);
+                    }
+                });
+                bankruptPlayer.properties = []; // إفراغ قائمة ممتلكات اللاعب المفلس
+
+                this.updateDisplay();
+                this.showGameOverModal(otherPlayer); // إظهار شاشة نهاية اللعبة للفائز
+            }
+
+            showGameOverModal(winner) {
+                document.getElementById('winner-message').innerHTML = `الفائز هو <strong>${winner.name}</strong>! مبروك 🎉`;
+                document.getElementById('game-over-modal').style.display = 'flex';
+                this.isModalOpen = true;
+                this.updateControlButtons();
+                this.triggerConfetti();
+            }
+
+            triggerConfetti() {
+                const count = 100;
+                const colors = ['#f00', '#0f0', '#00f', '#ff0', '#0ff', '#f0f'];
+                for (let i = 0; i < count; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.classList.add('confetti');
+                    confetti.style.left = `${Math.random() * 100}vw`;
+                    confetti.style.top = `${-Math.random() * 50}px`;
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                    confetti.style.animationDelay = `${Math.random() * 0.5}s`;
+                    document.body.appendChild(confetti);
+
+                    // Remove confetti after animation
+                    confetti.addEventListener('animationend', () => {
+                        confetti.remove();
+                    });
+                }
+            }
+
+
+            endTurn() {
+                if (!this.diceRolled) {
+                    this.addLog("يجب رمي النرد أولاً!");
+                    return;
+                }
+                if (this.isModalOpen) {
+                    this.addLog("أكمل الإجراء المطلوب في النافذة المنبثقة أولاً.");
+                    return;
+                }
+
+                this.diceRolled = false;
+                this.switchPlayer();
+                this.updateControlButtons();
+                this.addLog(`<strong>${this.players[this.currentPlayer].name}</strong>، دورك لرمي النرد.`);
+            }
+
+            switchPlayer() {
+                this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
+                this.updateDisplay();
+            }
+
+            resetGame() {
+                this.currentPlayer = 1;
+                this.players = {
+                    1: { name: "👦 اللاعب الأول", money: 1500, position: 0, properties: [], inJail: false, jailTurns: 0 },
+                    2: { name: "👧 اللاعب الثاني", money: 1500, position: 0, properties: [], inJail: false, jailTurns: 0 }
+                };
+                this.properties = this.initializeProperties(); // إعادة تهيئة المواقع لإزالة الملكية
+                this.gameLog.innerHTML = ''; // مسح السجل
+                this.diceRolled = false;
+                this.isModalOpen = false;
+                document.getElementById('game-over-modal').style.display = 'none'; // إخفاء مودال نهاية اللعبة
+                this.updateDisplay();
+                this.updatePlayerPositions();
+                this.updateControlButtons();
+                this.addLog(`<strong>بدأت لعبة جديدة!</strong>`);
+                this.addLog(`<strong>${this.players[this.currentPlayer].name}</strong>، دورك لرمي النرد.`);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new SeerahGame();
+        });
+    </script>
+</body>
+</html>

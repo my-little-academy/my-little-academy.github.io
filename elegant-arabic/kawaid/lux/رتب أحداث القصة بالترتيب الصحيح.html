@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8" />
+<title>لعبة ترتيب أحداث القصة</title>
+<style>
+  body {
+    direction: rtl;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #fff3e0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px;
+  }
+  h1 {
+    color: #bf360c;
+    margin-bottom: 20px;
+  }
+  #events-bank, #storyline {
+    display: flex;
+    gap: 12px;
+    margin: 15px 0;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .event {
+    background: #ff7043;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 12px;
+    cursor: grab;
+    min-width: 160px;
+    text-align: center;
+    user-select: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+    transition: transform 0.2s ease;
+  }
+  .event:active {
+    cursor: grabbing;
+    transform: scale(1.05);
+  }
+  #storyline {
+    min-height: 60px;
+    border: 3px dashed #ff8a65;
+    padding: 10px;
+    width: 90%;
+    max-width: 750px;
+    border-radius: 15px;
+  }
+  .drop-slot {
+    background: #ffe0b2;
+    border-radius: 10px;
+    width: 160px;
+    height: 50px;
+    margin: 0 5px;
+    vertical-align: middle;
+    font-weight: bold;
+    font-size: 1.05em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .drop-slot.filled {
+    background: #ff7043;
+    color: white;
+    cursor: default;
+    user-select: none;
+  }
+  #result {
+    margin-top: 20px;
+    font-size: 1.4em;
+    color: #2e7d32;
+    min-height: 30px;
+  }
+  button#reset-btn {
+    margin-top: 25px;
+    padding: 10px 30px;
+    font-size: 1.1em;
+    background-color: #bf360c;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+  }
+  button#reset-btn:hover {
+    background-color: #e64a19;
+  }
+</style>
+</head>
+<body>
+
+<h1>🎭 رتب أحداث القصة بالترتيب الصحيح</h1>
+
+<div id="events-bank" aria-label="أحداث القصة القابلة للسحب">
+  <!-- الأحداث تظهر هنا -->
+</div>
+
+<div id="storyline" aria-label="مكان ترتيب أحداث القصة">
+  <!-- أماكن الفراغات تظهر هنا -->
+</div>
+
+<div id="result" role="alert" aria-live="polite"></div>
+
+<button id="reset-btn">إعادة اللعب</button>
+
+<script>
+  const storyEvents = [
+    { id: 'ev1', text: 'البداية: كان هناك طفل يعيش في قرية صغيرة', order: 1 },
+    { id: 'ev2', text: 'التحول: بدأ يشعر بالملل ويريد مغامرة جديدة', order: 2 },
+    { id: 'ev3', text: 'المشكل: ضاع الطفل في الغابة وسط الأشجار', order: 3 },
+    { id: 'ev4', text: 'الحل: تعرف على صديق جديد ساعده على الخروج', order: 4 },
+    { id: 'ev5', text: 'النهاية: عاد الطفل إلى قريته سعيدًا ومحملًا بالقصص', order: 5 },
+  ];
+
+  const eventsBank = document.getElementById('events-bank');
+  const storyline = document.getElementById('storyline');
+  const result = document.getElementById('result');
+  const resetBtn = document.getElementById('reset-btn');
+
+  let draggedEventId = null;
+
+  function shuffle(array) {
+    for(let i = array.length -1; i>0; i--) {
+      const j = Math.floor(Math.random()*(i+1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  function createSlots() {
+    storyline.innerHTML = '';
+    for(let i=0; i < storyEvents.length; i++) {
+      const slot = document.createElement('div');
+      slot.classList.add('drop-slot');
+      slot.dataset.position = i;
+      slot.textContent = ''; // فراغات بدون نص
+      slot.addEventListener('dragover', e => e.preventDefault());
+      slot.addEventListener('drop', onDrop);
+      storyline.appendChild(slot);
+    }
+  }
+
+  function loadEvents() {
+    eventsBank.innerHTML = '';
+    const shuffled = shuffle([...storyEvents]);
+    shuffled.forEach(ev => {
+      const evDiv = document.createElement('div');
+      evDiv.classList.add('event');
+      evDiv.setAttribute('draggable', 'true');
+      evDiv.id = ev.id;
+      evDiv.textContent = ev.text;
+      evDiv.addEventListener('dragstart', e => {
+        draggedEventId = ev.id;
+      });
+      eventsBank.appendChild(evDiv);
+    });
+  }
+
+  function onDrop(e) {
+    e.preventDefault();
+    if(!draggedEventId) return;
+
+    const slot = e.currentTarget;
+    if(slot.classList.contains('filled')) return; // مشغول
+
+    const eventDiv = document.getElementById(draggedEventId);
+    if(!eventDiv) return;
+
+    slot.textContent = eventDiv.textContent;
+    slot.classList.add('filled');
+    slot.dataset.eventId = draggedEventId;
+
+    // إزالة من البنك
+    eventDiv.remove();
+
+    draggedEventId = null;
+
+    checkResult();
+  }
+
+  function checkResult() {
+    const slots = storyline.querySelectorAll('.drop-slot');
+    if([...slots].some(slot => !slot.classList.contains('filled'))) {
+      result.textContent = '';
+      return;
+    }
+
+    const arranged = [...slots].map(slot => {
+      return storyEvents.find(e => e.id === slot.dataset.eventId);
+    });
+
+    let correct = true;
+    for(let i=0; i < arranged.length; i++) {
+      if(arranged[i].order !== i+1) {
+        correct = false;
+        break;
+      }
+    }
+
+    if(correct) {
+      result.textContent = '🎉 أحسنت! ترتيب القصة صحيح.';
+      result.style.color = '#2e7d32';
+    } else {
+      result.textContent = '❌ ترتيب القصة غير صحيح، حاول مرة أخرى.';
+      result.style.color = '#c62828';
+    }
+  }
+
+  resetBtn.addEventListener('click', () => {
+    result.textContent = '';
+    loadEvents();
+    createSlots();
+  });
+
+  // بدء اللعبة
+  loadEvents();
+  createSlots();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>مملكة الأصوات السحرية - أشكال الحروف والحركات</title>
+  <style>
+    body {
+      margin: 0; padding: 0;
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(135deg, #f7d794, #f9ca24);
+      color: #3b2f2f;
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+    .side-panels {
+      width: 80px;
+      background: rgba(255 255 255 / 0.15);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 0;
+      overflow-y: auto;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+      height: 350px;
+    }
+    .container {
+      display: flex;
+      gap: 15px;
+      width: 100%;
+      max-width: 900px;
+      justify-content: center;
+    }
+    .letter-box {
+      width: 60px;
+      height: 60px;
+      background: #fff;
+      border-radius: 15px;
+      font-size: 2.3em;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: box-shadow 0.3s, transform 0.3s;
+      user-select: none;
+    }
+    .letter-box:hover, .letter-box.active {
+      box-shadow: 0 0 15px 3px #f0932b;
+      transform: scale(1.1);
+      background-color: #f9ca24;
+      color: white;
+      font-weight: bold;
+    }
+    .side-panel-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 80px;
+    }
+    .haraka-row {
+      display: flex;
+      gap: 25px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 600px;
+      margin-top: 15px;
+    }
+    .haraka-box {
+      width: 90px;
+      height: 90px;
+      background: white;
+      border-radius: 20px;
+      font-size: 3.5em;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+      user-select: none;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .haraka-box:hover, .haraka-box.active {
+      transform: scale(1.1);
+      box-shadow: 0 8px 20px rgba(240, 147, 43, 0.7);
+      background-color: #f0932b;
+      color: white;
+      font-weight: bold;
+    }
+    .selected-letter {
+      font-size: 5em;
+      font-weight: bold;
+      text-shadow: 2px 2px 8px #f0932b;
+      user-select: none;
+      min-height: 1.2em;
+      text-align: center;
+    }
+    .shape-display {
+      display: flex;
+      gap: 30px;
+      justify-content: center;
+      font-size: 3.5em;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #2f3640;
+      user-select: none;
+    }
+    .shape-label {
+      font-size: 0.8em;
+      color: #666;
+      text-align: center;
+      margin-top: 6px;
+      font-weight: normal;
+    }
+    .shape-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 70px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="side-panel-wrapper">
+      <div class="side-panels" id="leftPanel"></div>
+    </div>
+
+    <div style="flex-grow:1; display:flex; flex-direction: column; align-items: center;">
+
+      <!-- عرض أشكال الحرف الثلاثة بدون حركة -->
+      <div class="shape-display" id="shapeDisplay">
+        <div class="shape-box">
+          <div id="shapeStart">بـ</div>
+          <div class="shape-label">بداية الكلمة</div>
+        </div>
+        <div class="shape-box">
+          <div id="shapeMiddle">ـبـ</div>
+          <div class="shape-label">وسط الكلمة</div>
+        </div>
+        <div class="shape-box">
+          <div id="shapeEnd">ـب</div>
+          <div class="shape-label">نهاية الكلمة</div>
+        </div>
+      </div>
+
+      <div class="selected-letter" id="selectedLetter">بَ</div>
+
+      <div class="haraka-row" id="harakaRow"></div>
+      <div id="result" style="margin-top: 20px; font-weight: bold; font-size: 1.5em; color: #27ae60; min-height: 2em;"></div>
+    </div>
+
+    <div class="side-panel-wrapper">
+      <div class="side-panels" id="rightPanel"></div>
+    </div>
+  </div>
+
+<script>
+  const letters = ['ا','ب','ت','ث','ج','ح','خ','د','ذ','ر','ز','س','ش','ص',
+                   'ض','ط','ظ','ع','غ','ف','ق','ك','ل','م','ن','ه','و','ي'];
+
+  const leftLetters = letters.slice(0,14);
+  const rightLetters = letters.slice(14);
+
+  const leftPanel = document.getElementById('leftPanel');
+  const rightPanel = document.getElementById('rightPanel');
+  const selectedLetterElem = document.getElementById('selectedLetter');
+  const harakaRow = document.getElementById('harakaRow');
+  const resultElem = document.getElementById('result');
+
+  const shapeStartElem = document.getElementById('shapeStart');
+  const shapeMiddleElem = document.getElementById('shapeMiddle');
+  const shapeEndElem = document.getElementById('shapeEnd');
+
+  const harakat = ['َ','ُ','ِ','ْ','ا','و','ي','ً','ٌ','ٍ'];
+
+  const letterShapes = {
+    'ا': { start: 'ا', middle: 'ـا', end: 'ـا' },
+    'ب': { start: 'بـ', middle: 'ـبـ', end: 'ـب' },
+    'ت': { start: 'تـ', middle: 'ـتـ', end: 'ـت' },
+    'ث': { start: 'ثـ', middle: 'ـثـ', end: 'ـث' },
+    'ج': { start: 'جـ', middle: 'ـجـ', end: 'ـج' },
+    'ح': { start: 'حـ', middle: 'ـحـ', end: 'ـح' },
+    'خ': { start: 'خـ', middle: 'ـخـ', end: 'ـخ' },
+    'د': { start: 'د', middle: 'ـد', end: 'ـد' },
+    'ذ': { start: 'ذ', middle: 'ـذ', end: 'ـذ' },
+    'ر': { start: 'ر', middle: 'ـر', end: 'ـر' },
+    'ز': { start: 'ز', middle: 'ـز', end: 'ـز' },
+    'س': { start: 'سـ', middle: 'ـسـ', end: 'ـس' },
+    'ش': { start: 'شـ', middle: 'ـشـ', end: 'ـش' },
+    'ص': { start: 'صـ', middle: 'ـصـ', end: 'ـص' },
+    'ض': { start: 'ضـ', middle: 'ـضـ', end: 'ـض' },
+    'ط': { start: 'طـ', middle: 'ـطـ', end: 'ـط' },
+    'ظ': { start: 'ظـ', middle: 'ـظـ', end: 'ـظ' },
+    'ع': { start: 'عـ', middle: 'ـعـ', end: 'ـع' },
+    'غ': { start: 'غـ', middle: 'ـغـ', end: 'ـغ' },
+    'ف': { start: 'فـ', middle: 'ـفـ', end: 'ـف' },
+    'ق': { start: 'قـ', middle: 'ـقـ', end: 'ـق' },
+    'ك': { start: 'كـ', middle: 'ـكـ', end: 'ـك' },
+    'ل': { start: 'لـ', middle: 'ـلـ', end: 'ـل' },
+    'م': { start: 'مـ', middle: 'ـمـ', end: 'ـم' },
+    'ن': { start: 'نـ', middle: 'ـنـ', end: 'ـن' },
+    'ه': { start: 'هـ', middle: 'ـهـ', end: 'ـه' },
+    'و': { start: 'و', middle: 'ـو', end: 'ـو' },
+    'ي': { start: 'يـ', middle: 'ـيـ', end: 'ـي' },
+  };
+
+  function addAlifIfTanweenFathah(letterWithShape, haraka) {
+    if (haraka === 'ً') {
+      return letterWithShape + 'ا' + haraka;
+    }
+    return letterWithShape + haraka;
+  }
+
+  function getLetterShape(letter, haraka) {
+    let shape;
+    if (['َ','ُ','ِ','ْ'].includes(haraka)) {
+      shape = letterShapes[letter]?.start || letter;
+    } else if (['ا','و','ي'].includes(haraka)) {
+      shape = letterShapes[letter]?.middle || letter;
+    } else if (['ً','ٌ','ٍ'].includes(haraka)) {
+      shape = letterShapes[letter]?.end || letter;
+    } else {
+      shape = letter;
+    }
+    return addAlifIfTanweenFathah(shape, haraka);
+  }
+
+  function createLetterBoxes(lettersArray, container) {
+    lettersArray.forEach(letter => {
+      const div = document.createElement('div');
+      div.className = 'letter-box';
+      div.textContent = letter;
+      div.onclick = () => selectLetter(letter, div);
+      container.appendChild(div);
+    });
+  }
+
+  let currentLetter = leftLetters[0];
+  let currentHaraka = harakat[0];
+
+  function updateShapeDisplay(letter) {
+    shapeStartElem.textContent = letterShapes[letter]?.start || letter;
+    shapeMiddleElem.textContent = letterShapes[letter]?.middle || letter;
+    shapeEndElem.textContent = letterShapes[letter]?.end || letter;
+  }
+
+  function selectLetter(letter, divElement) {
+    document.querySelectorAll('.letter-box').forEach(el => el.classList.remove('active'));
+    divElement.classList.add('active');
+    currentLetter = letter;
+    currentHaraka = harakat[0];
+    updateShapeDisplay(letter);
+    renderHarakat();
+    updateSelectedLetter();
+    resultElem.textContent = '';
+  }
+
+  function renderHarakat() {
+    harakaRow.innerHTML = '';
+    harakat.forEach(haraka => {
+      const div = document.createElement('div');
+      div.className = 'haraka-box';
+      div.textContent = getLetterShape(currentLetter, haraka);
+      div.onclick = () => selectHaraka(haraka, div);
+      if(haraka === currentHaraka) div.classList.add('active');
+      harakaRow.appendChild(div);
+    });
+  }
+
+  function selectHaraka(haraka, divElement) {
+    document.querySelectorAll('.haraka-box').forEach(el => el.classList.remove('active'));
+    divElement.classList.add('active');
+    currentHaraka = haraka;
+    updateSelectedLetter();
+    resultElem.textContent = `الصوت المختار: ${getLetterShape(currentLetter, currentHaraka)}`;
+    resultElem.style.color = '#27ae60';
+  }
+
+  function updateSelectedLetter() {
+    selectedLetterElem.textContent = getLetterShape(currentLetter, currentHaraka);
+  }
+
+  createLetterBoxes(leftLetters, leftPanel);
+  createLetterBoxes(rightLetters, rightPanel);
+
+  // تهيئة أول حرف مع أشكاله
+  const firstLetterBox = document.querySelector('.letter-box');
+  if (firstLetterBox) firstLetterBox.classList.add('active');
+  updateShapeDisplay(currentLetter);
+  renderHarakat();
+  updateSelectedLetter();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>لعبة تقطيع الكلمات</title>
+  <style>
+    body {
+      font-family: 'Tajawal', sans-serif;
+      text-align: center;
+      background-color: #f0f9ff;
+      padding: 30px;
+    }
+
+    h1 {
+      color: #2c3e50;
+    }
+
+    .word-container {
+      display: inline-block;
+      font-size: 32px;
+      margin: 40px auto;
+      direction: rtl;
+    }
+
+    .letter {
+      display: inline-block;
+      padding: 10px 5px;
+      margin: 0 2px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+    }
+
+    .selected {
+      background-color: #3498db;
+      color: white;
+    }
+
+    #result {
+      font-size: 20px;
+      margin-top: 20px;
+      font-weight: bold;
+      color: green;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #2ecc71;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    /* زهور تسقط */
+    #flowerContainer {
+      position: absolute;
+      top: -50px;
+      left: 0;
+      right: 0;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    .falling-flower {
+      position: absolute;
+      width: 30px;
+      animation: fall 5s linear forwards;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(-50px); opacity: 1; }
+      100% { transform: translateY(100vh); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>✂️ لعبة تقطيع الكلمات إلى مقاطع صوتية</h1>
+<p>انقر على الحروف لتحديد المقاطع</p>
+
+<div class="word-container" id="word"></div>
+<button onclick="checkSegments()">التحقق</button>
+<div id="result"></div>
+
+<!-- زهور تسقط -->
+<div id="flowerContainer"></div>
+
+<script>
+  // الكلمات مع تحليلها إلى مقاطع
+  const words = [
+    { word: "كَتَبَ", segments: ["كَ", "تَ", "بَ"] },
+    { word: "قَدِمَ", segments: ["قَ", "دِ", "مَ"] },
+    { word: "كتابًا", segments: ["كَ", "تَ", "ابًا"] },
+    { word: "آكُلُ", segments: ["آ", "كُ", "لُ"] },
+    { word: "اَلْبَيْتُ", segments: ["اَل", "بَ", "يْ", "تُ"] },
+    { word: "اَلشِّمْسُ", segments: ["اَل", "شِّ", "مْ", "سُ"] },
+    { word: "جَلاَلًا", segments: ["جَ", "لاَ", "لًا"] },
+    { word: "أَكَلَتْ", segments: ["أَ", "كَ", "لَ", "تْ"] },
+    { word: "الْـوَرْدُ", segments: ["الْ", "وَ", "رْ", "دُ"] },
+    { word: "الْـصَّبَا", segments: ["الْ", "صَّ", "بَا"] }
+  ];
+
+  let currentWord = null;
+  let selectedIndices = [];
+  let currentIndex = 0;
+
+  const wordElement = document.getElementById("word");
+  const resultElement = document.getElementById("result");
+
+  function loadWord() {
+    currentWord = words[Math.floor(Math.random() * words.length)];
+    wordElement.innerHTML = '';
+    selectedIndices = [];
+
+    for (let i = 0; i < currentWord.word.length; i++) {
+      const span = document.createElement("span");
+      span.textContent = currentWord.word[i];
+      span.classList.add("letter");
+      span.dataset.index = i;
+      span.addEventListener("click", selectLetter);
+      wordElement.appendChild(span);
+    }
+  }
+
+  function selectLetter(e) {
+    const index = parseInt(e.target.dataset.index);
+
+    if (selectedIndices.includes(index)) return;
+
+    selectedIndices.push(index);
+    e.target.classList.add("selected");
+  }
+
+  function checkSegments() {
+    const correctSegmentCount = currentWord.segments.length;
+
+    // حساب عدد المقاطع التي حددها الطفل
+    const userSegmentCount = selectedIndices.length;
+
+    if (userSegmentCount === 0) {
+      alert("يرجى تحديد بعض الحروف أولًا.");
+      return;
+    }
+
+    if (userSegmentCount === correctSegmentCount) {
+      resultElement.textContent = `✅ صحيح! لقد قسمت الكلمة إلى ${correctSegmentCount} مقاطع.`;
+      showFallingFlowers();
+    } else {
+      resultElement.textContent = `❌ خطأ، الكلمة تحتوي على ${correctSegmentCount} مقاطع وليس ${userSegmentCount}`;
+    }
+
+    setTimeout(() => {
+      resultElement.textContent = "";
+      loadWord();
+    }, 2000);
+  }
+
+  function showFallingFlowers() {
+    const flowerContainer = document.getElementById('flowerContainer');
+    for (let i = 0; i < 5; i++) {
+      const flower = document.createElement('img');
+      flower.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Rose_flower.png/120px-Rose_flower.png'; 
+      flower.className = 'falling-flower';
+      flower.style.left = `${Math.random() * window.innerWidth}px`;
+      flowerContainer.appendChild(flower);
+
+      flower.addEventListener('animationend', () => {
+        flower.remove();
+      });
+    }
+  }
+
+  loadWord();
+</script>
+</body>
+</html>

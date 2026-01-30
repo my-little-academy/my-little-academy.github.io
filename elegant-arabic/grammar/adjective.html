@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة كشف النعت ✨</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Changa:wght@400;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Changa', sans-serif;
+            background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 25px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+            overflow: hidden;
+            animation: slideIn 1s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            border-bottom-left-radius: 25px;
+            border-bottom-right-radius: 25px;
+        }
+        
+        .header::before {
+            content: '🔍';
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            font-size: 3em;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .header::after {
+            content: '💡';
+            position: absolute;
+            bottom: 20px;
+            left: 40px;
+            font-size: 2.5em;
+            animation: float 3s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-15px) scale(1.1); }
+        }
+
+        h1 {
+            font-size: 3em;
+            color: #2b5876;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            animation: textPop 1s ease-out;
+        }
+
+        @keyframes textPop {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .subtitle {
+            font-size: 1.5em;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+
+        .hero-character {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, #2b5876, #4e4376);
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4em;
+            color: white;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            animation: bounce 2s infinite;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .hero-character:hover {
+            transform: scale(1.1) rotate(10deg);
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-30px); }
+            60% { transform: translateY(-15px); }
+        }
+
+        .content-section, .interactive-section, .summary {
+            padding: 40px;
+            animation: fadeIn 1s ease-out 0.5s both;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-size: 2.5em;
+            color: #2b5876;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            width: 150px;
+            height: 5px;
+            background: linear-gradient(90deg, #2b5876, #4e4376);
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 3px;
+        }
+
+        .intro-text {
+            font-size: 1.5em;
+            line-height: 1.8;
+            color: #34495e;
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+
+        .word-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .word-card {
+            background: #f8f9fa;
+            border-radius: 25px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: translateY(0);
+            opacity: 0;
+            animation: cardSlideIn 0.8s ease-out forwards;
+        }
+
+        .word-card:nth-child(1) { animation-delay: 0.1s; }
+        .word-card:nth-child(2) { animation-delay: 0.3s; }
+
+        @keyframes cardSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .word-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        }
+
+        .word-card.active {
+            background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+            color: white;
+            transform: translateY(-15px) scale(1.08);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+        }
+
+        .word-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5em;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .noun-card .word-icon { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+        .adjective-card .word-icon { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); }
+
+        .word-card.active .word-icon {
+            background: rgba(255,255,255,0.2);
+            transform: rotate(360deg);
+        }
+
+        .word-title {
+            font-size: 2em;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .word-description {
+            font-size: 1.2em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .interactive-section {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #2b5876;
+            padding: 50px;
+            text-align: center;
+            border-radius: 25px;
+            margin-top: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .game-container {
+            margin-top: 30px;
+        }
+
+        .story-text-container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            line-height: 2.2;
+            text-align: justify;
+        }
+
+        .story-text-container p {
+            font-size: 1.6em;
+            color: #34495e;
+            text-align: right;
+            direction: rtl;
+        }
+
+        .story-text-container .word {
+            cursor: pointer;
+            padding: 5px 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .story-text-container .word:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+        }
+
+        .story-text-container .word.correct {
+            background-color: #00b894;
+            color: white;
+            font-weight: bold;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .story-text-container .word.wrong {
+            background-color: #d63031;
+            color: white;
+            font-weight: bold;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+
+        .feedback-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 15px;
+            font-size: 1.4em;
+            font-weight: bold;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+            color: white;
+        }
+        
+        .feedback-message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .feedback-message.success {
+            background: linear-gradient(135deg, #00b894, #00cec9);
+        }
+        
+        .feedback-message.error {
+            background: linear-gradient(135deg, #e17055, #fdcb6e);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 15px;
+            margin: 30px 0;
+            overflow: hidden;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00b894, #00cec9);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 15px;
+        }
+
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #ff6b6b;
+            animation: confettiFall 4s linear infinite;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        
+        .summary {
+            background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+            border-radius: 25px;
+            padding: 50px;
+            margin: 40px 0;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .summary h3 {
+            font-size: 2.5em;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .summary-points {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .summary-point {
+            background: #fff;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .summary-point:hover {
+            transform: translateY(-8px);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+            color: white;
+            border: none;
+            padding: 18px 35px;
+            border-radius: 30px;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+
+        .sound-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2b5876, #4e4376);
+            border: none;
+            color: white;
+            font-size: 2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+
+        .sound-btn:hover {
+            transform: scale(1.1) rotate(15deg);
+        }
+
+        .story-section {
+            padding: 0;
+            position: relative;
+        }
+
+        .story-page {
+            display: none;
+            padding: 50px;
+            text-align: center;
+            background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+            color: white;
+            min-height: 500px;
+            border-radius: 25px;
+            transition: all 0.5s ease-in-out;
+        }
+
+        .story-page.active {
+            display: block;
+            animation: storyFadeIn 1s ease-out;
+        }
+        
+        @keyframes storyFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .story-illustration {
+            font-size: 6em;
+            margin: 30px 0;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .story-page h3 {
+            font-size: 2.5em;
+            margin: 30px 0;
+            color: #a8edea;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .story-text {
+            font-size: 1.5em;
+            line-height: 2;
+            margin: 30px auto;
+            max-width: 800px;
+            background: rgba(255,255,255,0.15);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .story-btn {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #2c3e50;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 35px;
+            font-size: 1.5em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .story-btn:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            h1 { font-size: 2.5em; }
+            .subtitle { font-size: 1.2em; }
+            .hero-character { width: 120px; height: 120px; font-size: 3em; }
+            .content-section, .interactive-section, .summary { padding: 20px; }
+            .section-title { font-size: 2em; }
+            .intro-text { font-size: 1.2em; padding: 20px; }
+            .word-types { grid-template-columns: 1fr; gap: 20px; }
+            .word-card { padding: 20px; }
+            .word-icon { width: 80px; height: 80px; font-size: 3em; }
+            .word-title { font-size: 1.5em; }
+            .word-description { font-size: 1em; }
+            .story-text-container p { font-size: 1.2em; }
+            .story-btn { font-size: 1.3em; padding: 15px 30px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="sound-btn" onclick="toggleSound()">🔊</button>
+        
+        <div class="header">
+            <div class="hero-character" onclick="startStory()">🔍</div>
+            <h1>مغامرة النعت والمنعوت</h1>
+            <p class="subtitle">هل يمكنك العثور على الصفات المخفية؟</p>
+        </div>
+
+        <div class="story-section" id="storySection">
+            <div class="story-page active" id="page1">
+                <div class="story-illustration">📖</div>
+                <h3>الفصل الأول: كتاب الصفات السحري</h3>
+                <p class="story-text">
+                    يُقال إن هناك كتاباً سحرياً يختبئ فيه **النعت**، وهي الكلمات التي تصف الأشياء. هل أنت مستعد لتقرأ القصة وتكتشف كل صفة مختبئة؟
+                </p>
+                <button class="story-btn" onclick="nextPage(2)">هيا نبدأ البحث! ➡️</button>
+            </div>
+            
+            <div class="story-page" id="page2">
+                <div class="story-illustration">💡</div>
+                <h3>الفصل الثاني: ما هو النعت؟</h3>
+                <p class="story-text">
+                    **النعت** هو كلمة تصف اسماً قبلها وتُسمّى **المنعوت**. انتبه! النعت يتبع المنعوت في كل شيء: في التعريف، والتذكير والتأنيث، والإفراد والتثنية والجمع، والحركة الإعرابية!
+                </p>
+                <button class="story-btn" onclick="startLearning()">هيا نتدرب! 🎯</button>
+            </div>
+        </div>
+
+        <div class="content-section" id="learningSection" style="display: none;">
+            <h2 class="section-title">تعلم الفرق</h2>
+            <p class="intro-text">
+                قبل أن تبدأ، تذكر أن **النعت** هو الصفة، و**المنعوت** هو الاسم الموصوف.
+            </p>
+            <div class="word-types">
+                <div class="word-card noun-card" onclick="activateCard(this)">
+                    <div class="word-icon">📚</div>
+                    <h3 class="word-title">المنعوت</h3>
+                    <p class="word-description">الاسم الذي نصفه</p>
+                </div>
+
+                <div class="word-card adjective-card" onclick="activateCard(this)">
+                    <div class="word-icon">✨</div>
+                    <h3 class="word-title">النعت</h3>
+                    <p class="word-description">الكلمة التي تصف المنعوت</p>
+                </div>
+            </div>
+            <button class="btn" onclick="startGame()">لنبدأ اللعبة! 🎮</button>
+        </div>
+        
+        <div class="interactive-section" id="gameSection" style="display: none;">
+            <h2 class="section-title">🎯 ابحث عن النعوت في القصة</h2>
+            <p>اضغط على كل كلمة تظن أنها **نعت**.</p>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+
+            <div class="game-container">
+                <div class="story-text-container" id="storyTextContainer">
+                    <p id="storyParagraph">
+                        في يوم <span class="word" data-type="adjective">جميلٍ</span>، كانَ <span class="word" data-type="noun">الولدُ</span> <span class="word" data-type="adjective">النشيطُ</span> يلعبُ في <span class="word" data-type="noun">الحديقةِ</span> <span class="word" data-type="adjective">الواسعةِ</span>.
+                        رأى <span class="word" data-type="noun">زهرةً</span> <span class="word" data-type="adjective">حمراءَ</span>، وسمعَ <span class="word" data-type="noun">عصفوراً</span> <span class="word" data-type="adjective">صغيراً</span> يُغرّدُ <span class="word" data-type="noun">ألحاناً</span> <span class="word" data-type="adjective">عذبةً</span>.
+                        بنى <span class="word" data-type="noun">بيتاً</span> <span class="word" data-type="adjective">صغيراً</span> من <span class="word" data-type="noun">أحجارٍ</span> <span class="word" data-type="adjective">ملونةٍ</span>، ثمّ جلسَ على <span class="word" data-type="noun">كرسيٍّ</span> <span class="word" data-type="adjective">خشبيٍّ</span> ليقرأ <span class="word" data-type="noun">كتاباً</span> <span class="word" data-type="adjective">مفيداً</span>.
+                    </p>
+                </div>
+                <div class="feedback-message" id="feedbackMessage"></div>
+            </div>
+            <button class="btn" onclick="checkAllAnswers()" style="margin-top: 20px;">تحقق من إجاباتك 🎊</button>
+        </div>
+
+        <div class="summary" id="summarySection" style="display: none;">
+            <h3>🌟 تهانينا! لقد أتقنت لعبة كشف النعت!</h3>
+            <p>الآن أنت تعرف كيف تميز الصفات في الجمل.</p>
+            <div class="summary-points">
+                <div class="summary-point">
+                    <h4>المنعوت</h4>
+                    <p>الاسم الموصوف</p>
+                </div>
+                <div class="summary-point">
+                    <h4>النعت</h4>
+                    <p>الكلمة التي تصفه</p>
+                </div>
+            </div>
+            <button class="btn" onclick="startStory()">ابدأ مغامرة جديدة! 🚀</button>
+        </div>
+    </div>
+
+    <div class="celebration" id="celebration"></div>
+
+    <audio id="successSound" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" preload="auto"></audio>
+    <audio id="errorSound" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" preload="auto"></audio>
+    <audio id="clickSound" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" preload="auto"></audio>
+
+    <script>
+        let soundEnabled = false;
+        let correctAnswersCount = 0;
+        let totalNouns = 0;
+        let totalAdjectives = 0;
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const btn = document.querySelector('.sound-btn');
+            btn.textContent = soundEnabled ? '🔊' : '🔇';
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            let audio;
+            switch(type) {
+                case 'success': audio = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'); break;
+                case 'error': audio = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'); break;
+                default: audio = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'); break;
+            }
+            audio.play().catch(e => console.error("Sound playback failed:", e));
+        }
+
+        function startStory() {
+            document.getElementById('storySection').style.display = 'block';
+            document.getElementById('learningSection').style.display = 'none';
+            document.getElementById('gameSection').style.display = 'none';
+            document.getElementById('summarySection').style.display = 'none';
+            document.getElementById('page1').classList.add('active');
+            playSound('click');
+        }
+
+        function nextPage(pageNumber) {
+            document.querySelector('.story-page.active').classList.remove('active');
+            setTimeout(() => {
+                const nextPageElement = document.getElementById(`page${pageNumber}`);
+                if (nextPageElement) {
+                    nextPageElement.classList.add('active');
+                    playSound('click');
+                }
+            }, 300);
+        }
+
+        function startLearning() {
+            document.getElementById('storySection').style.display = 'none';
+            document.getElementById('learningSection').style.display = 'block';
+            document.getElementById('learningSection').scrollIntoView({ behavior: 'smooth' });
+            playSound('click');
+        }
+
+        function startGame() {
+            document.getElementById('learningSection').style.display = 'none';
+            document.getElementById('gameSection').style.display = 'block';
+            document.getElementById('gameSection').scrollIntoView({ behavior: 'smooth' });
+            initializeGame();
+            playSound('click');
+        }
+
+        function activateCard(card) {
+            document.querySelectorAll('.word-card').forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            playSound('click');
+        }
+
+        function initializeGame() {
+            correctAnswersCount = 0;
+
+            document.getElementById('progressBar').style.width = '0%';
+            const words = document.querySelectorAll('#storyParagraph .word');
+            totalAdjectives = Array.from(words).filter(word => word.dataset.type === 'adjective').length;
+            
+            words.forEach(word => {
+                word.classList.remove('correct', 'wrong');
+                word.onclick = function() { checkWord(this); };
+            });
+            
+            const feedback = document.getElementById('feedbackMessage');
+            feedback.classList.remove('show', 'success', 'error');
+            feedback.textContent = '';
+        }
+
+        function checkWord(wordElement) {
+            if (wordElement.dataset.type === 'adjective' && !wordElement.classList.contains('correct')) {
+                wordElement.classList.add('correct');
+                correctAnswersCount++;
+                updateProgress();
+                playSound('success');
+                displayFeedback("إجابة صحيحة! 🎉");
+            } else if (wordElement.dataset.type === 'noun' && !wordElement.classList.contains('wrong')) {
+                wordElement.classList.add('wrong');
+                playSound('error');
+                displayFeedback("هذه ليست صفة. حاول مجدداً! 🤔", 'error');
+                setTimeout(() => wordElement.classList.remove('wrong'), 500);
+            } else {
+                playSound('click');
+            }
+        }
+        
+        function updateProgress() {
+            const progress = (correctAnswersCount / totalAdjectives) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+        }
+        
+        function displayFeedback(message, type = 'success') {
+            const feedback = document.getElementById('feedbackMessage');
+            feedback.textContent = message;
+            feedback.classList.remove('success', 'error');
+            feedback.classList.add('show', type);
+        }
+
+        function checkAllAnswers() {
+            const allAdjectives = document.querySelectorAll('#storyParagraph .word[data-type="adjective"]');
+            let allCorrectlySelected = true;
+            allAdjectives.forEach(adjective => {
+                if (!adjective.classList.contains('correct')) {
+                    allCorrectlySelected = false;
+                }
+            });
+
+            if (allCorrectlySelected && correctAnswersCount === totalAdjectives) {
+                displayFeedback('أحسنت! لقد وجدت جميع النعوت في القصة! 🎉', 'success');
+                createConfetti();
+                setTimeout(showSummary, 3000);
+            } else {
+                displayFeedback(`لقد وجدت ${correctAnswersCount} من ${totalAdjectives} نعتاً. ابحث عن البقية! 🤔`, 'error');
+                playSound('error');
+            }
+        }
+
+        function showSummary() {
+            document.getElementById('gameSection').style.display = 'none';
+            document.getElementById('summarySection').style.display = 'block';
+            document.getElementById('summarySection').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('celebration').innerHTML = '';
+        }
+
+        function createConfetti() {
+            const celebration = document.getElementById('celebration');
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                confetti.style.animationDelay = `${Math.random() * 0.5}s`;
+                celebration.appendChild(confetti);
+            }
+        }
+
+        window.onload = startStory;
+    </script>
+</body>
+</html>

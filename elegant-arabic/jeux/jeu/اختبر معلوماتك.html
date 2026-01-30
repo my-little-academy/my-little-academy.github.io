@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة اختبار من متعدد</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- متغيرات CSS لسهولة التعديل --- */
+        :root {
+            --bg-gradient-start: #ffd6e8;
+            --bg-gradient-end: #ffb3c6;
+            --container-shadow: rgba(216, 27, 96, 0.3);
+            --primary-color: #d81b60;
+            --primary-dark: #880e4f;
+            --correct-color: #2e7d32;
+            --incorrect-color: #c62828;
+            --text-color: #880e4f;
+            --light-grey: #fce4ec;
+            --white: #ffffff;
+            --font-main: 'Cairo', sans-serif;
+            --font-heading: 'Comic Neue', cursive;
+        }
+
+        /* --- إعدادات أساسية للجسم --- */
+        body {
+            font-family: var(--font-main);
+            background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: var(--text-color);
+            overflow: hidden; /* لإخفاء أي تجاوز للشخصية الكرتونية */
+        }
+
+        /* --- حاوية اللعبة الرئيسية --- */
+        .quiz-container {
+            background: var(--white);
+            width: 100%;
+            max-width: 700px;
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 8px 30px var(--container-shadow);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        /* --- عنوان اللعبة --- */
+        .quiz-header h1 {
+            font-family: var(--font-heading);
+            font-size: 32px;
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* --- منطقة السؤال --- */
+        .question-area {
+            min-height: 80px; /* لتجنب القفز عند تغيير السؤال */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        #question-text {
+            font-size: 26px;
+            font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
+            transition: opacity 0.3s ease;
+        }
+
+        /* --- قائمة خيارات الإجابة --- */
+        .options-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option {
+            background: var(--light-grey);
+            border: 2px solid transparent;
+            border-radius: 20px;
+            padding: 15px 20px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: right;
+            position: relative;
+        }
+
+        .option:hover {
+            transform: scale(1.03);
+            border-color: var(--primary-color);
+        }
+
+        /* --- حالة الاختيار --- */
+        .option.selected {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border-color: var(--primary-dark);
+        }
+        
+        /* --- حالة التعطيل --- */
+        .options-list.disabled .option {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        /* --- حالات الإجابة الصحيحة والخاطئة --- */
+        .option.correct {
+            background-color: var(--correct-color);
+            color: var(--white);
+            border-color: darken(var(--correct-color), 10%);
+            animation: glow 1s ease-in-out;
+        }
+
+        .option.incorrect {
+            background-color: var(--incorrect-color);
+            color: var(--white);
+            border-color: darken(var(--incorrect-color), 10%);
+            animation: shake 0.5s ease;
+        }
+        
+        /* --- أزرار التحكم --- */
+        .controls {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .btn {
+            font-family: var(--font-main);
+            font-weight: 700;
+            font-size: 18px;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--white);
+        }
+
+        #check-btn {
+            background-color: var(--primary-color);
+        }
+
+        #next-btn {
+            background-color: #ff80ab; /* لون أفتح لزر التالي */
+        }
+        
+        .btn:not(:disabled):hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            background-color: #e0e0e0;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        /* --- تأثير النبض لزر التالي --- */
+        #next-btn.pulse {
+            animation: pulse 1.5s infinite;
+        }
+
+        /* --- منطقة رسائل النتيجة --- */
+        #result-message {
+            min-height: 30px;
+            margin-top: 20px;
+            font-size: 22px;
+            font-weight: 700;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        
+        #result-message.show {
+            opacity: 1;
+        }
+
+        #result-message.correct { color: var(--correct-color); }
+        #result-message.incorrect { color: var(--incorrect-color); }
+
+        /* --- عداد الأسئلة --- */
+        #question-counter {
+            margin-top: 15px;
+            font-size: 16px;
+            color: var(--primary-dark);
+            opacity: 0.8;
+        }
+
+        /* --- الشخصية الكرتونية --- */
+        #mascot {
+            position: fixed;
+            width: 80px;
+            height: 80px;
+            pointer-events: none; /* لمنع التداخل مع العناصر */
+            transition: transform 0.2s ease-out;
+            will-change: transform;
+            z-index: 999;
+        }
+        
+        /* --- شاشة النهاية --- */
+        #end-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #end-screen h2 {
+             font-size: 28px;
+        }
+        
+        #final-score {
+            font-size: 36px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 10px 0 30px;
+        }
+
+        /* --- تأثيرات الحركة --- */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(216, 27, 96, 0.4); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(216, 27, 96, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(216, 27, 96, 0); }
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px var(--correct-color), 0 0 20px var(--correct-color);
+            }
+            to {
+                box-shadow: 0 0 10px #fff, 0 0 15px #fff, 0 0 20px var(--correct-color), 0 0 25px var(--correct-color);
+            }
+        }
+        
+        /* --- تصميم متجاوب --- */
+        @media (max-width: 600px) {
+            .quiz-container {
+                padding: 20px;
+            }
+            .quiz-header h1 {
+                font-size: 26px;
+            }
+            #question-text {
+                font-size: 20px;
+            }
+            .option {
+                font-size: 16px;
+                padding: 12px 15px;
+            }
+            .controls {
+                flex-direction: column;
+            }
+            #mascot {
+                display: none; /* إخفاء الشخصية على الشاشات الصغيرة */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- حاوية اللعبة -->
+    <div class="quiz-container">
+        <!-- شاشة اللعب -->
+        <div id="game-screen">
+            <div class="quiz-header">
+                <h1>اختبر معلوماتك</h1>
+                <div id="question-counter"></div>
+            </div>
+
+            <div class="question-area">
+                <p id="question-text">نص السؤال سيظهر هنا...</p>
+            </div>
+
+            <ul class="options-list" id="options-list">
+                <!-- الخيارات ستضاف هنا عبر جافاسكريبت -->
+            </ul>
+
+            <div class="controls">
+                <button class="btn" id="check-btn" disabled>تحقق</button>
+                <button class="btn" id="next-btn" disabled>التالي</button>
+            </div>
+
+            <p id="result-message"></p>
+        </div>
+        
+        <!-- شاشة النهاية -->
+        <div id="end-screen">
+            <h2>انتهت اللعبة!</h2>
+            <p>نتيجتك النهائية هي:</p>
+            <p id="final-score"></p>
+            <button class="btn" id="restart-btn">إعادة اللعب</button>
+        </div>
+    </div>
+    
+    <!-- شخصية كرتونية تتبع الفأرة -->
+    <div id="mascot">
+         <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <circle cx="50" cy="50" r="45" fill="#FFC107"/>
+                <circle cx="35" cy="40" r="8" fill="#212121"/>
+                <circle cx="65" cy="40" r="8" fill="#212121"/>
+                <path d="M 30 65 Q 50 80 70 65" stroke="#212121" stroke-width="5" fill="none" stroke-linecap="round"/>
+            </g>
+        </svg>
+    </div>
+
+    <script>
+        // --- الوصول لعناصر DOM ---
+        const gameScreen = document.getElementById('game-screen');
+        const endScreen = document.getElementById('end-screen');
+        const questionText = document.getElementById('question-text');
+        const optionsList = document.getElementById('options-list');
+        const checkBtn = document.getElementById('check-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const resultMessage = document.getElementById('result-message');
+        const questionCounter = document.getElementById('question-counter');
+        const finalScoreText = document.getElementById('final-score');
+        const restartBtn = document.getElementById('restart-btn');
+        const mascot = document.getElementById('mascot');
+
+        // --- بنك الأسئلة ---
+        // يمكنك إضافة أو تعديل الأسئلة هنا بسهولة
+        const questions = [
+            {
+                question: "ما هي عاصمة المملكة العربية السعودية؟",
+                options: ["جدة", "الرياض", "الدمام", "مكة"],
+                answer: "الرياض"
+            },
+            {
+                question: "أي كوكب يُعرف بـ 'الكوكب الأحمر'؟",
+                options: ["الأرض", "المريخ", "زحل", "المشتري"],
+                answer: "المريخ"
+            },
+            {
+                question: "كم عدد القارات في العالم؟",
+                options: ["5", "6", "7", "8"],
+                answer: "7"
+            },
+            {
+                question: "ما هو أكبر محيط في العالم؟",
+                options: ["المحيط الأطلسي", "المحيط الهندي", "المحيط الهادئ", "المحيط المتجمد الشمالي"],
+                answer: "المحيط الهادئ"
+            },
+            {
+                question: "من هو مؤلف رواية 'مئة عام من العزلة'؟",
+                options: ["نجيب محفوظ", "باولو كويلو", "جورج أورويل", "غابرييل غارسيا ماركيز"],
+                answer: "غابرييل غارسيا ماركيز"
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedOption = null;
+
+        // --- وظيفة لخلط ترتيب عناصر المصفوفة (لخيارات الإجابة) ---
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // --- وظيفة لتحميل السؤال الحالي ---
+        function loadQuestion() {
+            // إعادة تعيين الحالة
+            resetState();
+            
+            // التحقق من نهاية الأسئلة
+            if (currentQuestionIndex >= questions.length) {
+                showEndScreen();
+                return;
+            }
+
+            const currentQuestion = questions[currentQuestionIndex];
+            
+            // عرض نص السؤال بعد تأثير خفيف
+            questionText.style.opacity = 0;
+            setTimeout(() => {
+                questionText.textContent = currentQuestion.question;
+                questionText.style.opacity = 1;
+            }, 300);
+
+            // تحديث عداد الأسئلة
+            questionCounter.textContent = `السؤال ${currentQuestionIndex + 1} من ${questions.length}`;
+            
+            // خلط الخيارات وعرضها
+            const shuffledOptions = [...currentQuestion.options];
+            shuffleArray(shuffledOptions);
+
+            shuffledOptions.forEach(optionText => {
+                const li = document.createElement('li');
+                li.className = 'option';
+                li.textContent = optionText;
+                li.addEventListener('click', () => selectOption(li));
+                optionsList.appendChild(li);
+            });
+        }
+        
+        // --- وظيفة لإعادة تعيين حالة الواجهة ---
+        function resetState() {
+            // إزالة الخيارات السابقة
+            optionsList.innerHTML = '';
+            optionsList.classList.remove('disabled');
+            
+            // إعادة تعيين الأزرار والرسائل
+            checkBtn.disabled = true;
+            nextBtn.disabled = true;
+            nextBtn.classList.remove('pulse');
+            resultMessage.textContent = '';
+            resultMessage.className = '';
+            resultMessage.classList.remove('show');
+            selectedOption = null;
+        }
+
+        // --- وظيفة لاختيار إجابة ---
+        function selectOption(optionElement) {
+            // إزالة الاختيار السابق
+            const currentSelected = document.querySelector('.option.selected');
+            if (currentSelected) {
+                currentSelected.classList.remove('selected');
+            }
+            
+            // تحديد الاختيار الجديد
+            optionElement.classList.add('selected');
+            selectedOption = optionElement;
+            checkBtn.disabled = false; // تفعيل زر التحقق
+        }
+
+        // --- وظيفة التحقق من الإجابة ---
+        function checkAnswer() {
+            if (!selectedOption) {
+                // في حالة الضغط على "تحقق" بدون اختيار
+                resultMessage.textContent = 'الرجاء اختيار إجابة أولاً!';
+                resultMessage.className = 'incorrect show';
+                setTimeout(() => resultMessage.classList.remove('show'), 2000);
+                return;
+            }
+
+            // تعطيل المزيد من الاختيارات
+            optionsList.classList.add('disabled');
+            checkBtn.disabled = true;
+
+            const userAnswer = selectedOption.textContent;
+            const correctAnswer = questions[currentQuestionIndex].answer;
+            
+            if (userAnswer === correctAnswer) {
+                // إجابة صحيحة
+                score++;
+                selectedOption.classList.add('correct');
+                resultMessage.textContent = 'إجابة صحيحة! أحسنت!';
+                resultMessage.className = 'correct show';
+            } else {
+                // إجابة خاطئة
+                selectedOption.classList.add('incorrect');
+                resultMessage.textContent = `إجابة خاطئة. الصحيحة هي: ${correctAnswer}`;
+                resultMessage.className = 'incorrect show';
+                
+                // إظهار الإجابة الصحيحة
+                Array.from(optionsList.children).forEach(opt => {
+                    if(opt.textContent === correctAnswer) {
+                        opt.classList.add('correct');
+                    }
+                });
+            }
+            
+            // تفعيل زر التالي مع تأثير النبض
+            nextBtn.disabled = false;
+            nextBtn.classList.add('pulse');
+        }
+
+        // --- وظيفة الانتقال للسؤال التالي ---
+        function nextQuestion() {
+            currentQuestionIndex++;
+            loadQuestion();
+        }
+        
+        // --- وظيفة عرض شاشة النهاية ---
+        function showEndScreen() {
+            gameScreen.style.display = 'none';
+            endScreen.style.display = 'flex';
+            finalScoreText.textContent = `${score} / ${questions.length}`;
+        }
+        
+        // --- وظيفة إعادة اللعب ---
+        function restartGame() {
+            currentQuestionIndex = 0;
+            score = 0;
+            endScreen.style.display = 'none';
+            gameScreen.style.display = 'block';
+            loadQuestion();
+        }
+
+        // --- إضافة مستمعي الأحداث ---
+        checkBtn.addEventListener('click', checkAnswer);
+        nextBtn.addEventListener('click', nextQuestion);
+        restartBtn.addEventListener('click', restartGame);
+        
+        // --- دعم لوحة المفاتيح ---
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                if (!checkBtn.disabled) {
+                    checkBtn.click();
+                } else if (!nextBtn.disabled) {
+                    nextBtn.click();
+                }
+            }
+        });
+
+        // --- حركة الشخصية الكرتونية ---
+        document.addEventListener('mousemove', (e) => {
+            mascot.style.transform = `translate(${e.clientX + 15}px, ${e.clientY + 15}px)`;
+        });
+
+        // --- بدء اللعبة عند تحميل الصفحة ---
+        window.onload = loadQuestion;
+    </script>
+</body>
+</html>

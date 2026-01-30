@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محاكاة مناسك الحج التفاعلية</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            min-height: 100vh;
+            direction: rtl;
+        }
+
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #f39c12;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .ritual-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .ritual-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .ritual-card.completed {
+            border-color: #27ae60;
+            background: rgba(39, 174, 96, 0.2);
+        }
+
+        .ritual-card.current {
+            border-color: #f39c12;
+            background: rgba(243, 156, 18, 0.2);
+            animation: pulse 2s infinite;
+        }
+
+        .ritual-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(243, 156, 18, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(243, 156, 18, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(243, 156, 18, 0); }
+        }
+
+        .ritual-number {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 40px;
+            height: 40px;
+            background: #f39c12;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .ritual-title {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #f39c12;
+        }
+
+        .ritual-description {
+            font-size: 1em;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .ritual-status {
+            font-size: 0.9em;
+            padding: 5px 10px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .status-completed {
+            background: #27ae60;
+            color: white;
+        }
+
+        .status-current {
+            background: #f39c12;
+            color: white;
+        }
+
+        .status-locked {
+            background: #7f8c8d;
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            margin: 2% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 95%;
+            max-width: 800px;
+            position: relative;
+            animation: modalSlide 0.3s ease;
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+
+        @keyframes modalSlide {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            left: 25px;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #f39c12;
+        }
+
+        .modal-title {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #f39c12;
+            text-align: center;
+        }
+
+        .modal-text {
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .game-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 2px solid #f39c12;
+        }
+
+        .game-section h3 {
+            color: #f39c12;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .mini-game {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .game-button {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            font-size: 1em;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .game-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .game-button:disabled {
+            background: #7f8c8d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .complete-btn {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 20px auto;
+        }
+
+        .complete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .complete-btn:disabled {
+            background: #7f8c8d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .completion-message {
+            text-align: center;
+            padding: 30px;
+            background: rgba(39, 174, 96, 0.2);
+            border-radius: 15px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .completion-message h2 {
+            color: #27ae60;
+            margin-bottom: 15px;
+            font-size: 2em;
+        }
+
+        .restart-btn {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .info-panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .ritual-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+            display: block;
+            text-align: center;
+        }
+
+        .score-display {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #f39c12;
+            margin: 10px 0;
+        }
+
+        .feedback {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .feedback.success {
+            background: rgba(39, 174, 96, 0.3);
+            color: #27ae60;
+        }
+
+        .feedback.error {
+            background: rgba(231, 76, 60, 0.3);
+            color: #e74c3c;
+        }
+
+        /* --- تحديثات الطواف لجعله دائريًا --- */
+        .tawaf-circle {
+            width: 200px;
+            height: 200px;
+            border: 3px solid #f39c12;
+            border-radius: 50%;
+            position: relative;
+            margin: 20px auto;
+            background: rgba(243, 156, 18, 0.1);
+            display: flex; /* لمركزة الكعبة */
+            justify-content: center; /* لمركزة الكعبة */
+            align-items: center; /* لمركزة الكعبة */
+        }
+
+        .kaaba {
+            width: 40px;
+            height: 40px;
+            background: #2c3e50;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 5px;
+            z-index: 10;
+        }
+
+        .pilgrim {
+            width: 20px;
+            height: 20px;
+            background: #27ae60;
+            border-radius: 50%;
+            position: absolute;
+            top: 0; /* يبدأ من أعلى الدائرة */
+            left: 50%; /* في منتصف العرض */
+            transform: translateX(-50%); /* لمركزة الطائف نفسه أفقياً */
+            transform-origin: 50% 100px; /* نقطة الدوران: منتصف الدائرة الأم (نصف القطر 100px) */
+            transition: transform 0.8s ease-out; /* حركة دوران سلسة */
+            z-index: 1;
+        }
+        /* --- نهاية تحديثات الطواف --- */
+
+        .choice-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #3498db;
+            color: white;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            width: 100%;
+            text-align: right;
+        }
+
+        .choice-button:hover {
+            background: rgba(52, 152, 219, 0.3);
+        }
+
+        .choice-button.correct {
+            background: rgba(39, 174, 96, 0.3);
+            border-color: #27ae60;
+        }
+
+        .choice-button.incorrect {
+            background: rgba(231, 76, 60, 0.3);
+            border-color: #e74c3c;
+        }
+
+        .timer {
+            font-size: 1.5em;
+            color: #f39c12;
+            margin: 10px 0;
+        }
+
+        .stone-container {
+            display: flex;
+            flex-wrap: wrap; /* للسماح بالالتفاف لأسطر متعددة */
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .stone {
+            width: 40px;
+            height: 40px;
+            background: #8B4513; /* لون بني للحصى */
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            color: white;
+            font-weight: bold;
+        }
+
+        .stone:hover {
+            transform: scale(1.1);
+            background: #a0522d; /* لون أغمق عند التحويم */
+        }
+
+        .stone.collected {
+            background: #27ae60; /* لون أخضر للحصى المجمعة */
+            cursor: default;
+            opacity: 0.7;
+            transform: none;
+        }
+
+        .jamrat {
+            width: 120px;
+            height: 120px;
+            background: #7f8c8d; /* لون رمادي للجمرة */
+            border-radius: 50%;
+            margin: 20px auto;
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            font-weight: bold;
+            color: white;
+            border: 3px solid #6c7a89;
+        }
+
+        .jamrat.hit {
+            background: #27ae60;
+            animation: hit 0.5s ease;
+        }
+
+        @keyframes hit {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Styling for Hady/Tahallul buttons */
+        .hady-choice-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .hady-choice-container button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #f39c12;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+        }
+        .hady-choice-container button:hover {
+            background: rgba(243, 156, 18, 0.3);
+        }
+        .hady-choice-container button.selected {
+            background: #f39c12;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .game-board {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .modal-content {
+                width: 98%;
+                margin: 5% auto;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>🕋 محاكاة مناسك الحج التفاعلية</h1>
+            <p>تعلم مناسك الحج خطوة بخطوة مع الألعاب التفاعلية</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div id="progressText">المرحلة: 0 من 10</div>
+        </div>
+
+        <div class="info-panel">
+            <h3>🎯 الهدف من اللعبة:</h3>
+            <p>تعلم مناسك الحج بالترتيب الصحيح مع لعبة تفاعلية لكل منسك. اضغط على كل منسك لتعلم تفاصيله ولعب اللعبة المخصصة له.</p>
+        </div>
+
+        <div class="game-board" id="gameBoard">
+        </div>
+
+        <div class="completion-message" id="completionMessage">
+            <h2>🎉 مبروك! لقد أتممت مناسك الحج بنجاح!</h2>
+            <p>لقد تعلمت جميع مناسك الحج بالترتيب الصحيح ولعبت جميع الألعاب التفاعلية. تقبل الله منك!</p>
+            <button class="restart-btn" onclick="restartGame()">ابدأ من جديد</button>
+        </div>
+    </div>
+
+    <div id="ritualModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 class="modal-title" id="modalTitle"></h2>
+            <div class="modal-text" id="modalText"></div>
+            
+            <div class="game-section">
+                <h3>🎮 اللعبة التفاعلية</h3>
+                <div class="mini-game" id="miniGame">
+                </div>
+                <div class="score-display" id="scoreDisplay">النقاط: 0</div>
+                <div class="feedback" id="feedback" style="display: none;"></div>
+            </div>
+
+            <button class="complete-btn" id="completeBtn" onclick="completeRitual()" disabled>أكمل اللعبة أولاً</button>
+        </div>
+    </div>
+
+    <script>
+        const hajjRituals = [
+            {
+                id: 1,
+                title: "الإحرام",
+                icon: "🤲",
+                description: "البداية المقدسة - الدخول في النسك",
+                detailedDescription: "يبدأ الحاج بالإحرام من الميقات، وهو المكان المخصص للإحرام. يلبس الرجل إزاراً ورداءً أبيضين، وتلبس المرأة ملابس ساترة. ينوي الحاج الدخول في النسك مع التلبية: 'لبيك اللهم لبيك، لبيك لا شريك لك لبيك، إن الحمد والنعمة لك والملك، لا شريك لك'.",
+                completed: false,
+                current: true,
+                gameCompleted: false
+            },
+            {
+                id: 2,
+                title: "الطواف",
+                icon: "🕋",
+                description: "الطواف حول الكعبة المشرفة",
+                detailedDescription: "بعد الإحرام، يتوجه الحاج إلى مكة المكرمة لأداء طواف القدوم. يطوف بالكعبة سبعة أشواط، يبدأ من الحجر الأسود وينتهي به. يستحب الاضطباع للرجال (كشف الكتف الأيمن) والرمل (الإسراع) في الأشواط الثلاثة الأولى.",
+                completed: false,
+                current: false,
+                gameCompleted: false
+            },
+            {
+                id: 3,
+                title: "السعي",
+                icon: "🚶‍♂️",
+                description: "السعي بين الصفا والمروة",
+                detailedDescription: "بعد الطواف، يقوم الحاج بالسعي بين الصفا والمروة سبعة أشواط. يبدأ بالصفا وينتهي بالمروة. يستحب الإسراع للرجال في المسعى الأخضر بين العلمين الأخضرين. هذا المنسك يحاكي قصة هاجر أم إسماعيل عليهما السلام.",
+                completed: false,
+                current: false,
+                gameCompleted: false
+            },
+            {
+                id: 4,
+                title: "الوقوف بعرفة",
+                icon: "🌅",
+                description: "الوقوف بعرفة - ركن الحج الأعظم",
+                detailedDescription: "في اليوم التاسع من ذي الحجة، يتوجه الحجاج إلى عرفة للوقوف بها من بعد زوال الشمس حتى غروبها. هذا هو الركن الأعظم للحج، وقد قال النبي ﷺ: 'الحج عرفة'. يستحب الإكثار من الدعاء والتضرع إلى الله في هذا الموقف العظيم.",
+                completed: false,
+                current: false,
+                gameCompleted: false
+            },
+            {
+                id: 5,
+                title: "المبيت بمزدلفة",
+                icon: "🌙",
+                description: "المبيت بمزدلفة وجمع الحصى",
+                detailedDescription: "بعد غروب شمس عرفة، يتوجه الحجاج إلى مزدلفة للمبيت بها. يصلون المغرب والعشاء جمعاً وقصراً. يستحب الإكثار من الذكر والدعاء، وجمع الحصى لرمي الجمرات. يبقى الحجاج في مزدلفة حتى فجر اليوم العاشر.",
+                completed: false,
+                current: false,
+                gameCompleted: false
+            },
+            {
+                id: 6,
+                title: "رمي الجمرات",
+                icon: "⛰️",
+                description: "رمي جمرة العقبة الكبرى",
+                detailedDescription: "في اليوم العاشر من ذي الحجة (يوم النحر)، يرمي الحجاج جمرة العقبة الكبرى بسبع حصيات. يكبر مع كل حصاة. هذا المنسك يحاكي فعل إبراهيم عليه السلام عندما رمى الشيطان الذي حاول إغواءه عن ذبح ابنه إسماعيل.",
+                completed: false,
+                current: false,
+                gameCompleted: false
+            },
+            {
+                id: 7,
+                title: "الهدي والتحلل",
+                icon: "✂️",
+                description: "ذبح الهدي والتحلل من الإحرام",
+                detailedDescription: "بعد رمي جمرة العقبة، يقوم الحاج بذبح الهدي (إن وجب عليه) ثم يتحلل من إحرامه. يحلق الرجل رأسه أو يقصره، وتأخذ المرأة من أطراف شعرها. بعد ذلك يحل له كل شيء إلا النساء حتى يطوف طواف الإفاضة.",
+                completed: false,
+                current: false,
+                gameCompleted: false
+            },
+            {
+                id: 8,
+                title: "طواف الإفاضة",
+                icon: "🔄",
+                description: "طواف الإفاضة - ركن من أركان الحج",
+                detailedDescription: "بعد التحلل، يعود الحاج إلى مكة لأداء طواف الإفاضة بالكعبة سبعة أشواط. هذا طواف ركن من أركان الحج لا يتم الحج بدونه. بعد هذا الطواف يحل للحاج كل شيء حتى النساء إذا سعى بعده (إن لم يكن سعى من قبل).",
+                completed: false,
+                current: false,
+                gameCompleted: false
+            },
+            {
+                id: 9,
+                title: "طواف الوداع",
+                icon: "👋",
+                description: "طواف الوداع - آخر عهد بالبيت",
+                detailedDescription: "قبل مغادرة مكة، يقوم الحاج بطواف الوداع بالكعبة سبعة أشواط. هذا آخر عهد بالبيت الحرام، ويستحب الإكثار من الدعاء والتضرع. يسقط طواف الوداع عن الحائض والنفساء، ولا يجوز التأخير بعده إلا لحاجة.",
+                completed: false,
+                current: false,
+                gameCompleted: false
+            },
+            {
+                id: 10,
+                title: "إتمام الحج",
+                icon: "🎊",
+                description: "إتمام مناسك الحج بالكامل",
+                detailedDescription: "بعد طواف الوداع، يكون الحاج قد أتم مناسك الحج. تقبل الله منه حجه وجعله مبروراً. الحج المبرور ليس له جزاء إلا الجنة. يستحب للحاج الإكثار من الأعمال الصالحة والمحافظة على ما تعلمه من هذه الرحلة المباركة.",
+                completed: false,
+                current: false,
+                gameCompleted: false
+            }
+        ];
+
+        let currentRitualIndex = 0;
+        let selectedRitual = null;
+        let gameScore = 0;
+        
+        // Game-specific variables (reset in loadMiniGame)
+        let tawafRounds = 0;
+        let saeiRounds = 0;
+        let ihramAnswered = false;
+        let arafatPrayed = false;
+        let arafatTimer = null; // for Arafat game timer
+        let arafatPrayTime = 0; // tracks time spent praying
+        let muzdalifaCollected = 0;
+        let jamaratThrown = 0;
+        let hadyDone = false;
+        let ifadaTawafRounds = 0;
+        let wadaTawafRounds = 0;
+
+        let pilgrimAngle = 0; // الزاوية الحالية للطائف بالدرجات
+        const degreesPerRound = 360; // دورة كاملة 360 درجة
+
+        function initializeGame() {
+            // Reset all rituals to not completed, and set the first one as current
+            hajjRituals.forEach((ritual, index) => {
+                ritual.completed = false;
+                ritual.current = (index === 0);
+                ritual.gameCompleted = false;
+            });
+            currentRitualIndex = 0;
+
+            renderRituals();
+            updateProgress();
+            document.getElementById('completionMessage').style.display = 'none'; // Hide completion message on init
+        }
+
+        function renderRituals() {
+            const gameBoard = document.getElementById('gameBoard');
+            gameBoard.innerHTML = '';
+
+            hajjRituals.forEach((ritual, index) => {
+                const ritualCard = document.createElement('div');
+                ritualCard.className = 'ritual-card';
+                
+                if (ritual.completed) {
+                    ritualCard.classList.add('completed');
+                } else if (index === currentRitualIndex) {
+                    ritualCard.classList.add('current');
+                } else if (index > currentRitualIndex) {
+                    ritualCard.classList.add('locked');
+                }
+
+                ritualCard.innerHTML = `
+                    <div class="ritual-number">${ritual.id}</div>
+                    <div class="ritual-icon">${ritual.icon}</div>
+                    <h3 class="ritual-title">${ritual.title}</h3>
+                    <p class="ritual-description">${ritual.description}</p>
+                    <span class="ritual-status ${getStatusClass(ritual, index)}">
+                        ${getStatusText(ritual, index)}
+                    </span>
+                `;
+
+                if (index <= currentRitualIndex) {
+                    ritualCard.addEventListener('click', () => openRitualModal(ritual));
+                }
+
+                gameBoard.appendChild(ritualCard);
+            });
+        }
+
+        function getStatusClass(ritual, index) {
+            if (ritual.completed) return 'status-completed';
+            if (index === currentRitualIndex) return 'status-current';
+            return 'status-locked';
+        }
+
+        function getStatusText(ritual, index) {
+            if (ritual.completed) return '✅ مكتمل';
+            if (index === currentRitualIndex) return '🔄 المرحلة الحالية';
+            return '🔒 مقفل';
+        }
+
+        function updateProgress() {
+            const completedRituals = hajjRituals.filter(r => r.completed).length;
+            const totalRituals = hajjRituals.length;
+            const progressPercentage = (completedRituals / totalRituals) * 100;
+
+            document.getElementById('progressFill').style.width = `${progressPercentage}%`;
+            document.getElementById('progressText').textContent = `المرحلة: ${completedRituals} من ${totalRituals}`;
+
+            if (completedRituals === totalRituals) {
+                document.getElementById('completionMessage').style.display = 'block';
+            } else {
+                document.getElementById('completionMessage').style.display = 'none';
+            }
+        }
+
+        function openRitualModal(ritual) {
+            selectedRitual = ritual;
+            gameScore = 0; // Reset score for each game
+            document.getElementById('modalTitle').textContent = ritual.title;
+            document.getElementById('modalText').textContent = ritual.detailedDescription;
+            document.getElementById('scoreDisplay').textContent = `النقاط: ${gameScore}`;
+            document.getElementById('feedback').style.display = 'none';
+            
+            const completeBtn = document.getElementById('completeBtn');
+            if (ritual.completed) {
+                completeBtn.textContent = 'تم إتمام هذا المنسك';
+                completeBtn.disabled = true;
+                completeBtn.style.opacity = '0.5';
+            } else {
+                completeBtn.textContent = ritual.gameCompleted ? 'إتمام هذا المنسك' : 'أكمل اللعبة أولاً';
+                completeBtn.disabled = !ritual.gameCompleted;
+                completeBtn.style.opacity = ritual.gameCompleted ? '1' : '0.5';
+            }
+
+            loadMiniGame(ritual);
+            document.getElementById('ritualModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('ritualModal').style.display = 'none';
+            // Clear any active game timers/intervals when closing modal
+            if (arafatTimer) {
+                clearInterval(arafatTimer);
+                arafatTimer = null;
+            }
+
+            // Reset game-specific flags when closing modal if ritual not completed
+            if (selectedRitual && !selectedRitual.completed) {
+                selectedRitual.gameCompleted = false; // Reset game completion status if not fully completed
+            }
+            renderRituals(); // Re-render to update statuses
+        }
+
+        function completeRitual() {
+            if (selectedRitual && selectedRitual.gameCompleted) {
+                selectedRitual.completed = true;
+                selectedRitual.gameCompleted = false; // Reset game state for next time (if game is revisited)
+                
+                // Advance currentRitualIndex if the completed ritual was the current one
+                if (hajjRituals[currentRitualIndex].id === selectedRitual.id && currentRitualIndex < hajjRituals.length - 1) {
+                    hajjRituals[currentRitualIndex].current = false; // Mark old current as false
+                    currentRitualIndex++;
+                    hajjRituals[currentRitualIndex].current = true; // Mark new current as true
+                }
+                closeModal();
+                updateProgress();
+                renderRituals(); // Re-render to update statuses
+            }
+        }
+
+        function restartGame() {
+            initializeGame(); // Re-initialize game state
+        }
+
+        function showFeedback(message, type) {
+            const feedbackDiv = document.getElementById('feedback');
+            feedbackDiv.textContent = message;
+            feedbackDiv.className = `feedback ${type}`;
+            feedbackDiv.style.display = 'block';
+        }
+
+        // --- Mini-Games Implementations ---
+
+        function loadMiniGame(ritual) {
+            const miniGameDiv = document.getElementById('miniGame');
+            miniGameDiv.innerHTML = ''; // Clear previous game content
+            
+            // Reset all game-specific flags for the currently selected ritual's game
+            tawafRounds = 0;
+            saeiRounds = 0;
+            ihramAnswered = false;
+            arafatPrayed = false;
+            if (arafatTimer) {
+                clearInterval(arafatTimer);
+                arafatTimer = null;
+            }
+            arafatPrayTime = 0;
+            muzdalifaCollected = 0;
+            jamaratThrown = 0;
+            hadyDone = false;
+            ifadaTawafRounds = 0;
+            wadaTawafRounds = 0;
+            pilgrimAngle = 0; // Reset pilgrim angle for any tawaf game
+
+            // Check if ritual.gameCompleted is already true (e.g., if re-opening a completed ritual's modal)
+            const completeBtn = document.getElementById('completeBtn');
+            if (ritual.completed) {
+                completeBtn.textContent = 'تم إتمام هذا المنسك';
+                completeBtn.disabled = true;
+                completeBtn.style.opacity = '0.5';
+            } else {
+                completeBtn.textContent = 'أكمل اللعبة أولاً';
+                completeBtn.disabled = true;
+                completeBtn.style.opacity = '0.5';
+            }
+
+            switch(ritual.id) {
+                case 1: // الإحرام
+                    loadIhramGame(miniGameDiv);
+                    break;
+                case 2: // الطواف (طواف القدوم)
+                    loadTawafGame(miniGameDiv, 'tawafCounter', 7, 'selectedRitual.gameCompleted = true;');
+                    break;
+                case 3: // السعي
+                    loadSaeiGame(miniGameDiv);
+                    break;
+                case 4: // الوقوف بعرفة
+                    loadArafatGame(miniGameDiv);
+                    break;
+                case 5: // المبيت بمزدلفة
+                    loadMuzdalifaGame(miniGameDiv);
+                    break;
+                case 6: // رمي الجمرات
+                    loadJamaratGame(miniGameDiv);
+                    break;
+                case 7: // الهدي والتحلل
+                    loadHadyGame(miniGameDiv);
+                    break;
+                case 8: // طواف الإفاضة
+                    loadTawafGame(miniGameDiv, 'ifadaTawafCounter', 7, 'selectedRitual.gameCompleted = true;');
+                    break;
+                case 9: // طواف الوداع
+                    loadTawafGame(miniGameDiv, 'wadaTawafCounter', 7, 'selectedRitual.gameCompleted = true;');
+                    break;
+                case 10: // إتمام الحج - No game needed, automatic completion
+                    loadCompletionGame(miniGameDiv);
+                    selectedRitual.gameCompleted = true; // Mark as completed instantly
+                    document.getElementById('completeBtn').textContent = 'إتمام هذا المنسك';
+                    document.getElementById('completeBtn').disabled = false;
+                    document.getElementById('completeBtn').style.opacity = '1';
+                    break;
+                default:
+                    miniGameDiv.innerHTML = '<p>لا توجد لعبة تفاعلية لهذا المنسك حتى الآن.</p>';
+            }
+
+            // If the ritual was already completed, the game is also considered completed
+            if (ritual.completed) {
+                 completeBtn.textContent = 'تم إتمام هذا المنسك';
+                 completeBtn.disabled = true;
+                 completeBtn.style.opacity = '0.5';
+            } else if (ritual.gameCompleted) { // If game was completed but ritual not yet, enable button
+                completeBtn.textContent = 'إتمام هذا المنسك';
+                completeBtn.disabled = false;
+                completeBtn.style.opacity = '1';
+            }
+        }
+
+        // Game for Ihram (Id: 1)
+        function loadIhramGame(container) {
+            container.innerHTML = `
+                <h4>🤲 لعبة الإحرام: اختر ملابس الإحرام الصحيحة</h4>
+                <p>أي من التالي هو اللباس الصحيح للرجل المحرم؟</p>
+                <div style="margin: 20px 0;">
+                    <button class="choice-button" onclick="checkIhramChoice(this, true)">إزار ورداء أبيضين</button>
+                    <button class="choice-button" onclick="checkIhramChoice(this, false)">ملابس ملونة عادية</button>
+                    <button class="choice-button" onclick="checkIhramChoice(this, false)">ثوب وقبعة</button>
+                </div>
+            `;
+            ihramAnswered = false; // Reset for new game load
+        }
+
+        function checkIhramChoice(button, isCorrect) {
+            if (ihramAnswered) return; // Prevent multiple answers
+            ihramAnswered = true;
+
+            const buttons = document.querySelectorAll('#miniGame .choice-button');
+            buttons.forEach(btn => btn.disabled = true); // Disable all buttons
+
+            if (isCorrect) {
+                button.classList.add('correct');
+                showFeedback('صحيح! هذه هي ملابس الإحرام الصحيحة للرجل.', 'success');
+                gameScore += 10;
+                selectedRitual.gameCompleted = true;
+            } else {
+                button.classList.add('incorrect');
+                showFeedback('خطأ. اختر الملابس البيضاء البسيطة المخصصة للإحرام.', 'error');
+                gameScore -= 5;
+            }
+            document.getElementById('scoreDisplay').textContent = `النقاط: ${gameScore}`;
+            document.getElementById('completeBtn').textContent = 'إتمام هذا المنسك';
+            document.getElementById('completeBtn').disabled = false;
+            document.getElementById('completeBtn').style.opacity = '1';
+        }
+
+        // Game for Tawaf (Id: 2, 8, 9) - Reusable function
+        function loadTawafGame(container, counterId, requiredRounds, onCompleteJS) {
+            let currentTawafRounds = 0;
+            if (counterId === 'tawafCounter') currentTawafRounds = tawafRounds;
+            else if (counterId === 'ifadaTawafCounter') currentTawafRounds = ifadaTawafRounds;
+            else if (counterId === 'wadaTawafCounter') currentTawafRounds = wadaTawafRounds;
+
+            container.innerHTML = `
+                <h4>🕋 لعبة الطواف: أتم سبعة أشواط حول الكعبة</h4>
+                <div class="tawaf-circle">
+                    <div class="kaaba"></div>
+                    <div class="pilgrim" id="pilgrim" style="transform: translateX(-50%) rotate(${pilgrimAngle}deg);"></div>
+                </div>
+                <p>أشواط الطواف المكتملة: <span id="${counterId}">${currentTawafRounds}</span> من ${requiredRounds}</p>
+                <button class="game-button" onclick="performTawafRound('${counterId}', ${requiredRounds}, '${onCompleteJS}')">طفت شوطاً</button>
+            `;
+            updatePilgrimPosition(pilgrimAngle); // Set initial position
+            updateTawafDisplay(counterId, requiredRounds);
+        }
+
+        function updatePilgrimPosition(currentAngle) {
+            const pilgrim = document.getElementById('pilgrim');
+            if (pilgrim) {
+                // Keep translateX(-50%) to center the pilgrim horizontally, then apply rotation
+                pilgrim.style.transform = `translateX(-50%) rotate(${currentAngle}deg)`;
+            }
+        }
+
+        function performTawafRound(counterId, requiredRounds, onCompleteJS) {
+            if (selectedRitual.completed) return;
+
+            if (counterId === 'tawafCounter') tawafRounds++;
+            else if (counterId === 'ifadaTawafCounter') ifadaTawafRounds++;
+            else if (counterId === 'wadaTawafCounter') wadaTawafRounds++;
+
+            const currentRounds = (counterId === 'tawafCounter' ? tawafRounds : 
+                                  (counterId === 'ifadaTawafCounter' ? ifadaTawafRounds : wadaTawafRounds));
+            
+            pilgrimAngle += (degreesPerRound / requiredRounds); // Increment angle for visual rotation
+            if (pilgrimAngle >= 360) pilgrimAngle -= 360; // Keep angle within 0-359
+
+            updatePilgrimPosition(pilgrimAngle);
+            updateTawafDisplay(counterId, requiredRounds);
+
+            if (currentRounds >= requiredRounds) {
+                showFeedback('أحسنت! لقد أتممت جميع الأشواط.', 'success');
+                gameScore += 10;
+                eval(onCompleteJS); // Mark game as completed
+                document.getElementById('completeBtn').textContent = 'إتمام هذا المنسك';
+                document.getElementById('completeBtn').disabled = false;
+                document.getElementById('completeBtn').style.opacity = '1';
+                document.querySelector('.game-button').disabled = true; // Disable further clicks
+            } else {
+                showFeedback(`بقي لك ${requiredRounds - currentRounds} أشواط.`, 'info');
+                gameScore += 1; // Small score for each round
+            }
+            document.getElementById('scoreDisplay').textContent = `النقاط: ${gameScore}`;
+        }
+
+        function updateTawafDisplay(counterId, requiredRounds) {
+            const counterElement = document.getElementById(counterId);
+            if (counterElement) {
+                 const currentRounds = (counterId === 'tawafCounter' ? tawafRounds : 
+                                  (counterId === 'ifadaTawafCounter' ? ifadaTawafRounds : wadaTawafRounds));
+                counterElement.textContent = `${currentRounds}`;
+            }
+        }
+
+        // Game for Saei (Id: 3)
+        function loadSaeiGame(container) {
+            saeiRounds = 0;
+            container.innerHTML = `
+                <h4>🚶‍♂️ لعبة السعي: أتم سبعة أشواط بين الصفا والمروة</h4>
+                <p>أشواط السعي المكتملة: <span id="saeiCounter">0</span> من 7</p>
+                <button class="game-button" onclick="performSaeiRound()">سعيت شوطاً</button>
+            `;
+            updateSaeiDisplay();
+        }
+
+        function performSaeiRound() {
+            if (selectedRitual.completed) return;
+            saeiRounds++;
+            updateSaeiDisplay();
+
+            if (saeiRounds >= 7) {
+                showFeedback('أحسنت! لقد أتممت السعي بين الصفا والمروة.', 'success');
+                gameScore += 10;
+                selectedRitual.gameCompleted = true;
+                document.getElementById('completeBtn').textContent = 'إتمام هذا المنسك';
+                document.getElementById('completeBtn').disabled = false;
+                document.getElementById('completeBtn').style.opacity = '1';
+                document.querySelector('.game-button').disabled = true;
+            } else {
+                showFeedback(`بقي لك ${7 - saeiRounds} أشواط.`, 'info');
+                gameScore += 1;
+            }
+            document.getElementById('scoreDisplay').textContent = `النقاط: ${gameScore}`;
+        }
+
+        function updateSaeiDisplay() {
+            document.getElementById('saeiCounter').textContent = saeiRounds;
+        }
+
+        // Game for Arafat (Id: 4)
+        function loadArafatGame(container) {
+            arafatPrayed = false;
+            arafatPrayTime = 0;
+            if (arafatTimer) clearInterval(arafatTimer); // Clear any existing timer
+            container.innerHTML = `
+                <h4>🌅 لعبة عرفة: استمر في الدعاء والذكر لمدة 30 ثانية</h4>
+                <p>وقت الدعاء والذكر المتبقي: <span id="arafatTimerDisplay">30</span> ثانية</p>
+                <button class="game-button" id="startArafatPray" onclick="startArafatPraying()">ابدأ الدعاء والذكر</button>
+            `;
+        }
+
+        function startArafatPraying() {
+            if (selectedRitual.completed || arafatPrayed) return;
+
+            const startBtn = document.getElementById('startArafatPray');
+            startBtn.disabled = true;
+            startBtn.textContent = 'جاري الدعاء...';
+            startBtn.style.background = '#27ae60'; // Change color to indicate active
+
+            const timerDisplay = document.getElementById('arafatTimerDisplay');
+            arafatPrayTime = 0;
+            timerDisplay.textContent = 30; // Initial display for countdown
+
+            arafatTimer = setInterval(() => {
+                arafatPrayTime++;
+                const remainingTime = 30 - arafatPrayTime;
+                timerDisplay.textContent = remainingTime;
+
+                if (remainingTime <= 0) {
+                    clearInterval(arafatTimer);
+                    arafatTimer = null;
+                    arafatPrayed = true;
+                    showFeedback('أحسنت! لقد أتممت الوقوف بعرفة والدعاء.', 'success');
+                    gameScore += 20;
+                    selectedRitual.gameCompleted = true;
+                    document.getElementById('completeBtn').textContent = 'إتمام هذا المنسك';
+                    document.getElementById('completeBtn').disabled = false;
+                    document.getElementById('completeBtn').style.opacity = '1';
+                    startBtn.textContent = 'تم الدعاء';
+                    startBtn.style.background = '#27ae60';
+                }
+                document.getElementById('scoreDisplay').textContent = `النقاط: ${gameScore}`;
+            }, 1000); // Update every second
+        }
+
+        // Game for Muzdalifa (Id: 5)
+        function loadMuzdalifaGame(container) {
+            muzdalifaCollected = 0;
+            container.innerHTML = `
+                <h4>🌙 لعبة مزدلفة: اجمع 49 حصاة لرمي الجمرات</h4>
+                <p>عدد الحصى المجمعة: <span id="muzdalifaCounter">0</span> من 49</p>
+                <div class="stone-container" id="stoneContainer">
+                </div>
+                <button class="game-button" onclick="generateStones()">ابدأ جمع الحصى</button>
+            `;
+            // Initial render of stones (empty for now, generated by button click)
+            document.getElementById('muzdalifaCounter').textContent = muzdalifaCollected;
+        }
+
+        function generateStones() {
+            const stoneContainer = document.getElementById('stoneContainer');
+            stoneContainer.innerHTML = '';
+            // Generate some stones, for simplicity let's generate 49 clickable stones directly
+            // In a real game, you might generate fewer and have them reappear or generate dynamically
+            for (let i = 0; i < 49; i++) {
+                const stone = document.createElement('div');
+                stone.className = 'stone';
+                stone.textContent = '🪨'; // Emoji for stone
+                stone.onclick = function() { collectStone(this); };
+                stoneContainer.appendChild(stone);
+            }
+            document.querySelector('.game-button').disabled = true; // Disable generate button after first click
+            showFeedback('اضغط على الحصى لجمعها.', 'info');
+        }
+
+        function collectStone(stoneElement) {
+            if (stoneElement.classList.contains('collected') || selectedRitual.completed) return;
+
+            stoneElement.classList.add('collected');
+            muzdalifaCollected++;
+            document.getElementById('muzdalifaCounter').textContent = muzdalifaCollected;
+            gameScore += 1;
+
+            if (muzdalifaCollected >= 49) {
+                showFeedback('أحسنت! لقد جمعت العدد الكافي من الحصى.', 'success');
+                gameScore += 15;
+                selectedRitual.gameCompleted = true;
+                document.getElementById('completeBtn').textContent = 'إتمام هذا المنسك';
+                document.getElementById('completeBtn').disabled = false;
+                document.getElementById('completeBtn').style.opacity = '1';
+                // Disable all remaining stones
+                document.querySelectorAll('#stoneContainer .stone').forEach(s => s.onclick = null);
+            }
+            document.getElementById('scoreDisplay').textContent = `النقاط: ${gameScore}`;
+        }
+
+        // Game for Jamarat (Id: 6)
+        function loadJamaratGame(container) {
+            jamaratThrown = 0;
+            container.innerHTML = `
+                <h4>⛰️ لعبة رمي الجمرات: ارمِ سبع حصيات على الجمرة الكبرى</h4>
+                <p>عدد الحصيات المرمية: <span id="jamaratCounter">0</span> من 7</p>
+                <div class="jamrat" id="jamratTarget" onclick="throwStone()">الجمرة</div>
+                <p>اضغط على الجمرة لرمي الحصى.</p>
+            `;
+            document.getElementById('jamaratCounter').textContent = jamaratThrown;
+        }
+
+        function throwStone() {
+            if (jamaratThrown >= 7 || selectedRitual.completed) return;
+
+            jamaratThrown++;
+            document.getElementById('jamaratCounter').textContent = jamaratThrown;
+            gameScore += 5;
+
+            const jamratTarget = document.getElementById('jamratTarget');
+            jamratTarget.classList.add('hit');
+            // Remove 'hit' class after animation to allow re-triggering
+            setTimeout(() => {
+                jamratTarget.classList.remove('hit');
+            }, 500);
+
+            if (jamaratThrown >= 7) {
+                showFeedback('أحسنت! لقد أتممت رمي جمرة العقبة الكبرى.', 'success');
+                gameScore += 15;
+                selectedRitual.gameCompleted = true;
+                document.getElementById('completeBtn').textContent = 'إتمام هذا المنسك';
+                document.getElementById('completeBtn').disabled = false;
+                document.getElementById('completeBtn').style.opacity = '1';
+                jamratTarget.onclick = null; // Disable further throwing
+            } else {
+                showFeedback(`بقي لك ${7 - jamaratThrown} حصيات.`, 'info');
+            }
+            document.getElementById('scoreDisplay').textContent = `النقاط: ${gameScore}`;
+        }
+
+        // Game for Hady and Tahallul (Id: 7)
+        function loadHadyGame(container) {
+            hadyDone = false;
+            container.innerHTML = `
+                <h4>✂️ لعبة الهدي والتحلل: اختر الإجراء الصحيح</h4>
+                <p>ماذا تفعل بعد رمي جمرة العقبة الكبرى؟</p>
+                <div class="hady-choice-container">
+                    <button id="choiceHady" onclick="selectHadyAction(this, 'hady')">ذبح الهدي (إذا وجب)</button>
+                    <button id="choiceHair" onclick="selectHadyAction(this, 'hair')">حلق أو تقصير الشعر</button>
+                    <button id="choiceBoth" onclick="selectHadyAction(this, 'both')">القيام بكليهما (الذبح والحلق/التقصير)</button>
+                    <button id="choiceNone" onclick="selectHadyAction(this, 'none')">لا شيء</button>
+                </div>
+            `;
+        }
+
+        function selectHadyAction(button, actionType) {
+            if (hadyDone || selectedRitual.completed) return;
+
+            const buttons = document.querySelectorAll('.hady-choice-container button');
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                btn.classList.remove('selected');
+            });
+            button.classList.add('selected');
+
+            let isCorrect = false;
+            if (actionType === 'both') { // Assuming the pilgrim should do both if applicable
+                isCorrect = true;
+            } else if (actionType === 'hady' && selectedRitual.detailedDescription.includes("إن وجب عليه")) { // Simplified: check if desc mentions "if required"
+                isCorrect = true; // Could be correct if only hady is required/chosen
+            } else if (actionType === 'hair' && !selectedRitual.detailedDescription.includes("إن وجب عليه")) { // Simplified: if hady not mentioned as required, hair is correct
+                isCorrect = true;
+            }
+
+
+            if (isCorrect) {
+                showFeedback('صحيح! هذا هو الإجراء الصحيح للتحلل.', 'success');
+                gameScore += 15;
+                hadyDone = true;
+                selectedRitual.gameCompleted = true;
+                document.getElementById('completeBtn').textContent = 'إتمام هذا المنسك';
+                document.getElementById('completeBtn').disabled = false;
+                document.getElementById('completeBtn').style.opacity = '1';
+            } else {
+                showFeedback('إجابة خاطئة. راجع التفاصيل لمعرفة الإجراءات الصحيحة.', 'error');
+                gameScore -= 5;
+                // Allow user to try again if incorrect
+                buttons.forEach(btn => btn.disabled = false);
+                button.classList.remove('selected');
+                hadyDone = false; // Allow re-attempt
+            }
+            document.getElementById('scoreDisplay').textContent = `النقاط: ${gameScore}`;
+        }
+
+        // Game for Completion (Id: 10) - Simple message
+        function loadCompletionGame(container) {
+            container.innerHTML = `
+                <h4>🎊 تهانينا!</h4>
+                <p>لقد أتممت جميع الألعاب والمناسك بنجاح. أنت الآن مستعد لإكمال رحلة الحج!</p>
+            `;
+        }
+
+
+        // Initialize the game when the script loads
+        document.addEventListener('DOMContentLoaded', initializeGame);
+    </script>
+</body>
+</html>

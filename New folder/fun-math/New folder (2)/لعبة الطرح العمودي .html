@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ar" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الطرح العمودي للأطفال</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f9ff;
+            text-align: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #4a6baf;
+            margin-bottom: 30px;
+        }
+        
+        .place-values {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            margin-bottom: 10px;
+            direction: rtl;
+        }
+        
+        .place-value {
+            font-size: 14px;
+            color: #666;
+            padding: 5px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .math-problem {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            margin: 10px auto 30px;
+            width: fit-content;
+            direction: rtl;
+        }
+        
+        .card {
+            width: 70px;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            border-radius: 10px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .top-card {
+            background-color: #e3f2fd;
+            border: 2px solid #4a6baf;
+            color: #4a6baf;
+        }
+        
+        .bottom-card {
+            background-color: #ffebee;
+            border: 2px solid #e74c3c;
+            color: #e74c3c;
+        }
+        
+        .input-card {
+            background-color: #f8f9fa;
+            border: 2px solid #ddd;
+        }
+        
+        .minus-container {
+            grid-column: 5;
+            display: flex;
+            align-items: flex-end; /* محاذاة مع السطر الثاني */
+            padding-bottom: 15px; /* تعديل لتحسين المحاذاة */
+        }
+        
+        .minus-sign {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            background-color: #f8f9fa;
+            border: 2px solid #6c757d;
+            border-radius: 10px;
+            color: #6c757d;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+        
+        .input-field {
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            font-size: 32px;
+            border: none;
+            background: transparent;
+        }
+        
+        .input-field:focus {
+            outline: none;
+        }
+        
+        .correct {
+            background-color: #d4edda;
+            border-color: #28a745;
+        }
+        
+        .incorrect {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+        }
+        
+        .borrow-card {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            background-color: #ffc107;
+            color: #333;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+        
+        .line {
+            grid-column: 1 / span 5;
+            height: 2px;
+            background-color: #333;
+            margin: 10px 0;
+        }
+        
+        .buttons {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .check-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .new-btn {
+            background-color: #17a2b8;
+            color: white;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 20px;
+            display: none;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            display: block;
+            animation: bounce 0.5s;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        
+        .borrow-explanation {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fff3cd;
+            border-radius: 8px;
+            display: none;
+            text-align: right;
+            line-height: 1.6;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 لعبة الطرح العمودي 🎮</h1>
+        
+        <div class="place-values">
+            <div class="place-value">الآحاد</div>
+            <div class="place-value">العشرات</div>
+            <div class="place-value">المئات</div>
+            <div class="place-value">الآلاف</div>
+        </div>
+        
+        <div class="math-problem" id="mathProblem">
+            <!-- سيتم ملؤه بواسطة JavaScript -->
+        </div>
+        
+        <div class="borrow-explanation" id="borrowExplanation"></div>
+        
+        <div class="message" id="message"></div>
+        
+        <div class="buttons">
+            <button class="check-btn" id="checkBtn">
+                <span>✅</span>
+                <span>تحقق من الإجابة</span>
+            </button>
+            <button class="new-btn" id="newBtn">
+                <span>🔄</span>
+                <span>مسألة جديدة</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mathProblem = document.getElementById('mathProblem');
+            const checkBtn = document.getElementById('checkBtn');
+            const newBtn = document.getElementById('newBtn');
+            const message = document.getElementById('message');
+            const borrowExplanation = document.getElementById('borrowExplanation');
+            
+            let topNumber = 0;
+            let bottomNumber = 0;
+            let correctAnswer = 0;
+            let borrowSteps = [];
+            
+            // إنشاء مسألة جديدة
+            function createNewProblem() {
+                // توليد أرقام عشوائية من 4 خانات مع التأكد من أن الرقم الأول أكبر
+                do {
+                    topNumber = Math.floor(1000 + Math.random() * 9000);
+                    bottomNumber = Math.floor(1000 + Math.random() * 9000);
+                } while (topNumber <= bottomNumber);
+                
+                correctAnswer = topNumber - bottomNumber;
+                borrowSteps = calculateBorrowSteps(topNumber, bottomNumber);
+                
+                // عرض المسألة
+                displayProblem();
+                
+                // إخفاء الرسائل
+                message.style.display = 'none';
+                borrowExplanation.style.display = 'none';
+            }
+            
+            // حساب خطوات الاستلاف
+            function calculateBorrowSteps(top, bottom) {
+                const steps = [];
+                let topDigits = String(top).padStart(4, '0').split('').map(Number);
+                let bottomDigits = String(bottom).padStart(4, '0').split('').map(Number);
+                
+                for (let i = 3; i >= 0; i--) {
+                    if (topDigits[i] < bottomDigits[i]) {
+                        // نحتاج إلى استلاف
+                        let j = i - 1;
+                        while (j >= 0 && topDigits[j] === 0) {
+                            j--;
+                        }
+                        
+                        if (j >= 0) {
+                            topDigits[j] -= 1;
+                            for (let k = j + 1; k < i; k++) {
+                                topDigits[k] += 9;
+                            }
+                            topDigits[i] += 10;
+                            
+                            steps.push({
+                                position: i,
+                                newTopDigit: topDigits[i],
+                                borrowedFrom: j
+                            });
+                        }
+                    }
+                }
+                
+                return steps;
+            }
+            
+            // عرض المسألة على الشاشة
+            function displayProblem() {
+                mathProblem.innerHTML = '';
+                
+                const topDigits = String(topNumber).padStart(4, '0').split('').reverse();
+                const bottomDigits = String(bottomNumber).padStart(4, '0').split('').reverse();
+                
+                // إضافة علامة الطرح داخل شكل
+                const minusContainer = document.createElement('div');
+                minusContainer.className = 'minus-container';
+                
+                const minusSign = document.createElement('div');
+                minusSign.className = 'minus-sign';
+                minusSign.textContent = '-';
+                minusContainer.appendChild(minusSign);
+                
+                mathProblem.appendChild(minusContainer);
+                
+                // عرض الرقم العلوي
+                topDigits.forEach(digit => {
+                    const card = document.createElement('div');
+                    card.className = 'card top-card';
+                    card.textContent = digit;
+                    mathProblem.appendChild(card);
+                });
+                
+                // مساحة فارغة تحت علامة الطرح
+                mathProblem.appendChild(document.createElement('div'));
+                
+                // عرض الرقم السفلي
+                bottomDigits.forEach((digit, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'card bottom-card';
+                    card.textContent = digit;
+                    
+                    // إضافة بطاقة الاستلاف إذا لزم الأمر
+                    const borrowStep = borrowSteps.find(step => step.position === (3 - index));
+                    if (borrowStep) {
+                        const borrowCard = document.createElement('div');
+                        borrowCard.className = 'borrow-card';
+                        borrowCard.textContent = borrowStep.newTopDigit;
+                        card.appendChild(borrowCard);
+                    }
+                    
+                    mathProblem.appendChild(card);
+                });
+                
+                // إضافة الخط الفاصل
+                const line = document.createElement('div');
+                line.className = 'line';
+                mathProblem.appendChild(line);
+                
+                // إضافة حقول الإدخال للإجابة
+                for (let i = 0; i < 4; i++) {
+                    const card = document.createElement('div');
+                    card.className = 'card input-card';
+                    
+                    const input = document.createElement('input');
+                    input.className = 'input-field';
+                    input.type = 'text';
+                    input.maxLength = 1;
+                    input.dataset.position = i;
+                    
+                    card.appendChild(input);
+                    mathProblem.appendChild(card);
+                }
+            }
+            
+            // التحقق من الإجابة
+            function checkAnswer() {
+                const inputs = document.querySelectorAll('.input-field');
+                const answerDigits = String(correctAnswer).padStart(4, '0').split('').reverse();
+                let allCorrect = true;
+                
+                inputs.forEach((input, index) => {
+                    if (input.value === answerDigits[index]) {
+                        input.parentElement.classList.add('correct');
+                        input.parentElement.classList.remove('incorrect');
+                    } else {
+                        input.parentElement.classList.add('incorrect');
+                        input.parentElement.classList.remove('correct');
+                        allCorrect = false;
+                    }
+                });
+                
+                if (allCorrect) {
+                    message.textContent = '🎉 أحسنت! الإجابة صحيحة!';
+                    message.className = 'message success';
+                    message.style.display = 'block';
+                    
+                    // عرض شرح الاستلاف إذا كان موجودًا
+                    if (borrowSteps.length > 0) {
+                        let explanation = '<strong>خطوات الاستلاف:</strong><br><br>';
+                        const placeNames = ['الآحاد', 'العشرات', 'المئات', 'الآلاف'];
+                        
+                        borrowSteps.forEach(step => {
+                            explanation += `• تم استلاف 1 من منزلة <strong>${placeNames[step.borrowedFrom]}</strong> وأضيف 10 إلى منزلة <strong>${placeNames[step.position]}</strong><br>`;
+                        });
+                        
+                        borrowExplanation.innerHTML = explanation;
+                        borrowExplanation.style.display = 'block';
+                    }
+                } else {
+                    message.textContent = '❌ هناك أخطاء، حاول مرة أخرى!';
+                    message.className = 'message error';
+                    message.style.display = 'block';
+                }
+            }
+            
+            // أحداث الأزرار
+            checkBtn.addEventListener('click', checkAnswer);
+            newBtn.addEventListener('click', createNewProblem);
+            
+            // بدء اللعبة بمسألة أولية
+            createNewProblem();
+            
+            // السماح بالتنقل بين الحقول باستخدام الأسهم
+            document.addEventListener('keyup', function(e) {
+                const inputs = document.querySelectorAll('.input-field');
+                const currentInput = document.activeElement;
+                
+                if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+                    const currentIndex = Array.from(inputs).indexOf(currentInput);
+                    if (currentIndex !== -1) {
+                        const direction = e.key === 'ArrowRight' ? -1 : 1;
+                        const nextIndex = currentIndex + direction;
+                        
+                        if (nextIndex >= 0 && nextIndex < inputs.length) {
+                            inputs[nextIndex].focus();
+                        }
+                    }
+                }
+                
+                // الانتقال للحقل التالي عند إدخال رقم
+                if (e.key >= '0' && e.key <= '9') {
+                    const currentIndex = Array.from(inputs).indexOf(currentInput);
+                    if (currentIndex !== -1 && currentIndex > 0) {
+                        setTimeout(() => {
+                            inputs[currentIndex - 1].focus();
+                        }, 10);
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

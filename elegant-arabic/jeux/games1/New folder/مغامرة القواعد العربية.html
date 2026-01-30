@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مغامرة القواعد العربية</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
+        
+        :root {
+            --primary-color: #2c786c;
+            --secondary-color: #ffd166;
+            --accent-color: #ef476f;
+            --light-color: #f8f3d4;
+            --dark-color: #004445;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tajawal', sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            overflow-x: hidden;
+        }
+        
+        #game-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            min-height: 100vh;
+        }
+        
+        /* تأثيرات النجوم المتلألئة */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .star {
+            position: absolute;
+            background-color: var(--secondary-color);
+            border-radius: 50%;
+            animation: twinkle var(--duration, 5s) infinite ease-in-out;
+            opacity: 0;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: var(--opacity, 0.8); transform: scale(1); }
+        }
+        
+        /* تأثيرات الكونفيتي */
+        .confetti {
+            position: fixed;
+            width: 15px;
+            height: 15px;
+            opacity: 0;
+            z-index: 1000;
+            pointer-events: none;
+            animation: confetti-fall var(--duration, 3s) ease-out forwards;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><polygon points="10,0 12.5,7.5 20,10 12.5,12.5 10,20 7.5,12.5 0,10 7.5,7.5" fill="%23${Math.random() > 0.5 ? 'ef476f' : 'ffd166'}"/></svg>');
+        }
+        
+        @keyframes confetti-fall {
+            0% { 
+                transform: translateY(-100px) rotate(0deg) scale(0.5); 
+                opacity: 1; 
+            }
+            100% { 
+                transform: translateY(100vh) rotate(360deg) scale(1); 
+                opacity: 0; 
+            }
+        }
+        
+        /* تأثيرات النجاح */
+        .success-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            z-index: 2000;
+            animation: popIn 0.5s forwards;
+            max-width: 80%;
+        }
+        
+        @keyframes popIn {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            80% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+        
+        .success-title {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        .success-icon {
+            font-size: 4rem;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-20px); }
+            60% { transform: translateY(-10px); }
+        }
+        
+        /* بقية الأنماط... */
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        #main-menu {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 40px;
+        }
+        
+        .menu-card {
+            background-color: white;
+            border-radius: 15px;
+            width: 200px;
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .menu-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .menu-card i {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        
+        .menu-card h3 {
+            font-size: 1.3rem;
+            color: var(--dark-color);
+        }
+        
+        .menu-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background-color: var(--accent-color);
+            transition: all 0.3s ease;
+        }
+        
+        .menu-card:hover::before {
+            height: 10px;
+        }
+        
+        #game-screen {
+            display: none;
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            margin-top: 20px;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .question-container {
+            margin-bottom: 30px;
+        }
+        
+        .question {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            color: var(--dark-color);
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .option {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+        
+        .option:hover {
+            background-color: #e0e0e0;
+            transform: scale(1.02);
+        }
+        
+        .option.correct {
+            background-color: #a8e6cf;
+            color: #1e6f5c;
+            animation: correct 0.5s ease;
+        }
+        
+        @keyframes correct {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .option.wrong {
+            background-color: #ffaaa5;
+            color: #9c1f1f;
+            animation: shake 0.5s ease;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+        
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        .feedback.correct {
+            background-color: #e3f9e5;
+            color: #1e6f5c;
+            border-left: 5px solid #1e6f5c;
+        }
+        
+        .feedback.wrong {
+            background-color: #ffebee;
+            color: #9c1f1f;
+            border-left: 5px solid #9c1f1f;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--dark-color);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: var(--dark-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #ffc233;
+            transform: translateY(-2px);
+        }
+        
+        .character {
+            position: absolute;
+            bottom: -50px;
+            right: -50px;
+            width: 200px;
+            transition: all 0.3s ease;
+            z-index: -1;
+        }
+        
+        .character:hover {
+            transform: scale(1.05) rotate(-5deg);
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .options {
+                grid-template-columns: 1fr;
+            }
+            
+            .menu-card {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .menu-card i {
+                font-size: 3rem;
+            }
+            
+            .character {
+                width: 150px;
+                right: -30px;
+            }
+            
+            .success-title {
+                font-size: 1.5rem;
+            }
+            
+            .success-icon {
+                font-size: 3rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div id="game-container">
+        <div class="stars" id="stars"></div>
+        
+        <header>
+            <h1>مغامرة القواعد العربية</h1>
+            <p class="subtitle">رحلة تعليمية ممتعة في عالم النحو والصرف</p>
+        </header>
+        
+        <div id="main-menu">
+            <div class="menu-card" onclick="startGame('nouns')">
+                <i class="fas fa-book-open"></i>
+                <h3>الأسماء</h3>
+            </div>
+            <div class="menu-card" onclick="startGame('verbs')">
+                <i class="fas fa-running"></i>
+                <h3>الأفعال</h3>
+            </div>
+            <div class="menu-card" onclick="startGame('sentence')">
+                <i class="fas fa-puzzle-piece"></i>
+                <h3>تركيب الجملة</h3>
+            </div>
+            <div class="menu-card" onclick="startGame('tenses')">
+                <i class="fas fa-hourglass-half"></i>
+                <h3>الأزمنة</h3>
+            </div>
+            <div class="menu-card" onclick="startGame('harakat')">
+                <i class="fas fa-quote-right"></i>
+                <h3>الحركات</h3>
+            </div>
+            <div class="menu-card" onclick="startGame('mixed')">
+                <i class="fas fa-random"></i>
+                <h3>تحدي شامل</h3>
+            </div>
+        </div>
+        
+        <div id="game-screen">
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            
+            <div class="question-container">
+                <div class="question" id="question"></div>
+                <div class="options" id="options"></div>
+                <div class="feedback" id="feedback"></div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn btn-secondary" onclick="backToMenu()">
+                    <i class="fas fa-arrow-left"></i> القائمة الرئيسية
+                </button>
+                <button class="btn btn-primary" onclick="nextQuestion()" id="next-btn">
+                    التالي <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+        
+        <img src="https://i.imgur.com/JQlE6aN.png" alt="شخصية تعليمية" class="character">
+    </div>
+
+    <script>
+        // إنشاء النجوم الخلفية بمستويات متعددة من التلألؤ
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            starsContainer.innerHTML = '';
+            
+            // طبقة النجوم البعيدة (أصغر وأكثر خفوتاً)
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = '1px';
+                star.style.height = '1px';
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.setProperty('--opacity', Math.random() * 0.5);
+                star.style.setProperty('--duration', `${5 + Math.random() * 5}s`);
+                star.style.animationDelay = `${Math.random() * 5}s`;
+                starsContainer.appendChild(star);
+            }
+            
+            // طبقة النجوم المتوسطة
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = '2px';
+                star.style.height = '2px';
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.setProperty('--opacity', 0.3 + Math.random() * 0.5);
+                star.style.setProperty('--duration', `${4 + Math.random() * 4}s`);
+                star.style.animationDelay = `${Math.random() * 4}s`;
+                starsContainer.appendChild(star);
+            }
+            
+            // طبقة النجوم القريبة (أكبر وأكثر سطوعاً)
+            for (let i = 0; i < 20; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = '3px';
+                star.style.height = '3px';
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.setProperty('--opacity', 0.6 + Math.random() * 0.4);
+                star.style.setProperty('--duration', `${3 + Math.random() * 3}s`);
+                star.style.animationDelay = `${Math.random() * 3}s`;
+                starsContainer.appendChild(star);
+            }
+        }
+        
+        // تأثير الكونفيتي المحسن
+        function createConfetti() {
+            // إزالة أي كونفيتي قديم
+            document.querySelectorAll('.confetti').forEach(el => el.remove());
+            
+            // إنشاء قطع الكونفيتي
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                
+                // توزيع عشوائي للكونفيتي عبر الشاشة
+                confetti.style.left = `${Math.random() * 100}%`;
+                
+                // أحجام وأشكال مختلفة
+                const size = 5 + Math.random() * 10;
+                confetti.style.width = `${size}px`;
+                confetti.style.height = `${size}px`;
+                
+                // ألوان متنوعة
+                const hue = Math.random() * 360;
+                confetti.style.backgroundColor = `hsl(${hue}, 100%, 50%)`;
+                
+                // سرعات واتجاهات مختلفة
+                const duration = 2 + Math.random() * 3;
+                confetti.style.setProperty('--duration', `${duration}s`);
+                
+                // تأخيرات مختلفة لخلق تأثير متتالي
+                confetti.style.animationDelay = `${Math.random() * 0.5}s`;
+                
+                document.body.appendChild(confetti);
+                
+                // إزالة الكونفيتي بعد الانتهاء من العرض
+                setTimeout(() => {
+                    confetti.remove();
+                }, duration * 1000);
+            }
+            
+            // عرض رسالة النجاح
+            showSuccessMessage('أحسنت! إجابة صحيحة');
+        }
+        
+        // عرض رسالة نجاح مؤقتة
+        function showSuccessMessage(message) {
+            // إزالة أي رسالة نجاح سابقة
+            const oldMessage = document.querySelector('.success-message');
+            if (oldMessage) oldMessage.remove();
+            
+            const successMessage = document.createElement('div');
+            successMessage.className = 'success-message';
+            
+            const icon = document.createElement('div');
+            icon.className = 'success-icon';
+            icon.innerHTML = '<i class="fas fa-star"></i>';
+            
+            const title = document.createElement('div');
+            title.className = 'success-title';
+            title.textContent = message;
+            
+            successMessage.appendChild(icon);
+            successMessage.appendChild(title);
+            
+            document.body.appendChild(successMessage);
+            
+            // إزالة الرسالة بعد 2 ثانية
+            setTimeout(() => {
+                successMessage.style.animation = 'popIn 0.5s reverse forwards';
+                setTimeout(() => successMessage.remove(), 500);
+            }, 2000);
+        }
+        
+        // عرض رسالة تشجيعية عند الانتهاء من الاختبار
+        function showFinalMessage(score, total) {
+            const percentage = (score / total) * 100;
+            let message, icon, color;
+            
+            if (percentage >= 90) {
+                message = 'ممتاز! أنت خبير في القواعد العربية!';
+                icon = 'fas fa-crown';
+                color = '#ffd700';
+            } else if (percentage >= 70) {
+                message = 'رائع! أداء ممتاز!';
+                icon = 'fas fa-trophy';
+                color = '#c0c0c0';
+            } else if (percentage >= 50) {
+                message = 'جيد! استمر في الممارسة!';
+                icon = 'fas fa-medal';
+                color = '#cd7f32';
+            } else {
+                message = 'حاول مرة أخرى! ستحقق نتائج أفضل!';
+                icon = 'fas fa-redo';
+                color = '#2c786c';
+            }
+            
+            const successMessage = document.createElement('div');
+            successMessage.className = 'success-message';
+            successMessage.style.width = '80%';
+            successMessage.style.maxWidth = '500px';
+            
+            const iconEl = document.createElement('div');
+            iconEl.className = 'success-icon';
+            iconEl.innerHTML = `<i class="${icon}" style="color: ${color}"></i>`;
+            
+            const title = document.createElement('div');
+            title.className = 'success-title';
+            title.textContent = message;
+            
+            const scoreEl = document.createElement('div');
+            scoreEl.style.fontSize = '1.5rem';
+            scoreEl.style.margin = '15px 0';
+            scoreEl.textContent = `نقاطك: ${score} من ${total}`;
+            
+            const percentageEl = document.createElement('div');
+            percentageEl.style.fontSize = '1.2rem';
+            percentageEl.style.marginBottom = '20px';
+            percentageEl.textContent = `النسبة: ${Math.round(percentage)}%`;
+            
+            const restartBtn = document.createElement('button');
+            restartBtn.className = 'btn btn-primary';
+            restartBtn.textContent = 'إعادة المحاولة';
+            restartBtn.onclick = () => {
+                successMessage.remove();
+                startGame(currentCategory);
+            };
+            
+            successMessage.appendChild(iconEl);
+            successMessage.appendChild(title);
+            successMessage.appendChild(scoreEl);
+            successMessage.appendChild(percentageEl);
+            successMessage.appendChild(restartBtn);
+            
+            document.body.appendChild(successMessage);
+        }
+        
+        // بقية كود اللعبة...
+        const questionsData = {
+            nouns: [
+                {
+                    question: "ما نوع الاسم في الجملة: 'الكتابُ مفيدٌ'؟",
+                    options: ["مرفوع", "منصوب", "مجرور", "مجزوم"],
+                    answer: 0,
+                    explanation: "الكتابُ: مبتدأ مرفوع وعلامة رفعه الضمة الظاهرة على آخره."
+                },
+                {
+                    question: "ما إعراب كلمة 'مدرسة' في الجملة: 'ذهبتُ إلى المدرسةِ'؟",
+                    options: ["فاعل", "مفعول به", "جار ومجرور", "حال"],
+                    answer: 2,
+                    explanation: "المدرسةِ: اسم مجرور بـ'إلى' وعلامة جره الكسرة الظاهرة على آخره."
+                },
+                {
+                    question: "ما جمع كلمة 'معلّم'؟",
+                    options: ["معلّمات", "معلّمون", "معلّمين", "كل ما سبق"],
+                    answer: 3,
+                    explanation: "جمع 'معلّم' يمكن أن يكون 'معلّمون' للمذكر و'معلّمات' للمؤنث و'معلّمين' في حالة النصب أو الجر."
+                }
+            ],
+            verbs: [
+                {
+                    question: "ما نوع الفعل في الجملة: 'يذاكرُ الطالبُ'؟",
+                    options: ["ماضي", "مضارع", "أمر", "فعل جامد"],
+                    answer: 1,
+                    explanation: "'يذاكرُ' فعل مضارع لأنه يدل على حدث يحدث الآن أو في المستقبل."
+                },
+                {
+                    question: "ما إعراب الفعل 'اذكر' في الجملة: 'اذكرِ اللهَ'؟",
+                    options: ["فعل مضارع", "فعل ماضي", "فعل أمر", "فعل ناسخ"],
+                    answer: 2,
+                    explanation: "'اذكر' فعل أمر مبني على السكون والفاعل ضمير مستتر تقديره 'أنت'."
+                },
+                {
+                    question: "ما الفعل الماضي من 'يستمع'؟",
+                    options: ["استمع", "سمع", "يسمع", "استماع"],
+                    answer: 0,
+                    explanation: "الفعل الماضي من 'يستمع' هو 'استمع' لأنه من الأفعال الخماسية."
+                }
+            ],
+            sentence: [
+                {
+                    question: "ما نوع الجملة: 'السماءُ صافيةٌ'؟",
+                    options: ["جملة فعلية", "جملة اسمية", "جملة شرطية", "جملة استئنافية"],
+                    answer: 1,
+                    explanation: "الجملة اسمية لأنها تبدأ باسم 'السماء' وهو المبتدأ و'صافية' الخبر."
+                },
+                {
+                    question: "ما الخبر في الجملة: 'المعلمُ نشيطٌ'؟",
+                    options: ["المعلمُ", "نشيطٌ", "لا يوجد خبر", "المعلمُ نشيطٌ"],
+                    answer: 1,
+                    explanation: "'نشيطٌ' هو الخبر الذي يخبر عن المبتدأ 'المعلم' وكلاهما مرفوع."
+                },
+                {
+                    question: "ما إعراب 'الطالبان' في الجملة: 'حضرَ الطالبانِ'؟",
+                    options: ["فاعل مرفوع", "مفعول به منصوب", "نائب فاعل", "مبتدأ مرفوع"],
+                    answer: 0,
+                    explanation: "'الطالبانِ' فاعل مرفوع وعلامة رفعه الألف لأنه مثنى."
+                }
+            ],
+            tenses: [
+                {
+                    question: "ما زمن الفعل في الجملة: 'سأزورُ جدّي غداً'؟",
+                    options: ["ماضي", "مضارع", "مستقبل", "أمر"],
+                    answer: 2,
+                    explanation: "الفعل 'زور' مضارع لكن السين تدل على الاستقبال فالمعنى مستقبلي."
+                },
+                {
+                    question: "ما الفعل المضارع من 'كتب'؟",
+                    options: ["يكتب", "سيكتب", "اكتب", "كتابة"],
+                    answer: 0,
+                    explanation: "الفعل المضارع من 'كتب' هو 'يكتب' لأنه من الأفعال الثلاثية."
+                },
+                {
+                    question: "ما تصريف الفعل 'ذهب' في الجملة: 'هم ذهبوا إلى الحديقة'؟",
+                    options: ["ماضي مفرد", "ماضي مثنى", "ماضي جمع", "مضارع جمع"],
+                    answer: 2,
+                    explanation: "'ذهبوا' فعل ماضي مبني على الضم لاتصاله بواو الجماعة."
+                }
+            ],
+            harakat: [
+                {
+                    question: "ما الحركة المناسبة لكلمة 'المدرسةُ' في الجملة: 'المدرسةُ نظيفةٌ'؟",
+                    options: ["الضمة", "الفتحة", "الكسرة", "السكون"],
+                    answer: 0,
+                    explanation: "'المدرسةُ' مبتدأ مرفوع وعلامة رفعه الضمة الظاهرة على آخره."
+                },
+                {
+                    question: "ما إعراب كلمة 'كتاباً' في الجملة: 'قرأتُ كتاباً'؟",
+                    options: ["فاعل مرفوع", "مفعول به منصوب", "مبتدأ مرفوع", "خبر مرفوع"],
+                    answer: 1,
+                    explanation: "'كتاباً' مفعول به منصوب وعلامة نصبه الفتحة الظاهرة على آخره."
+                },
+                {
+                    question: "ما الحركة المناسبة لكلمة 'القلمِ' في الجملة: 'كتابةٌ بالقلمِ'؟",
+                    options: ["الضمة", "الفتحة", "الكسرة", "السكون"],
+                    answer: 2,
+                    explanation: "'القلمِ' اسم مجرور بالباء وعلامة جره الكسرة الظاهرة على آخره."
+                }
+            ],
+            mixed: [
+                {
+                    question: "ما نوع 'إنَّ' في الجملة: 'إنَّ العلمَ نورٌ'؟",
+                    options: ["حرف ناسخ", "حرف جر", "حرف عطف", "حرف استفهام"],
+                    answer: 0,
+                    explanation: "'إنَّ' حرف ناسخ ينصب المبتدأ ويرفع الخبر، فالعلمَ اسمها منصوب ونورٌ خبرها مرفوع."
+                },
+                {
+                    question: "ما إعراب 'مهذّب' في الجملة: 'الولدُ مهذّبٌ'؟",
+                    options: ["مبتدأ", "خبر", "فاعل", "مفعول به"],
+                    answer: 1,
+                    explanation: "'مهذّبٌ' خبر للمبتدأ 'الولدُ' وكلاهما مرفوع."
+                },
+                {
+                    question: "ما جمع 'طالب'؟",
+                    options: ["طالبات", "طلبة", "طلاب", "جميع ما سبق"],
+                    answer: 3,
+                    explanation: "'طالب' تجمع على 'طلاب' و'طلبة' و'طالبات' للإناث."
+                }
+            ]
+        };
+        
+        let currentCategory = '';
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedOption = null;
+        
+        function init() {
+            createStars();
+        }
+        
+        function startGame(category) {
+            currentCategory = category;
+            currentQuestions = [...questionsData[category]];
+            currentQuestionIndex = 0;
+            score = 0;
+            
+            shuffleArray(currentQuestions);
+            
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block';
+            
+            showQuestion();
+        }
+        
+        function showQuestion() {
+            const questionObj = currentQuestions[currentQuestionIndex];
+            const questionElement = document.getElementById('question');
+            const optionsElement = document.getElementById('options');
+            const feedbackElement = document.getElementById('feedback');
+            const nextBtn = document.getElementById('next-btn');
+            const progressBar = document.getElementById('progress-bar');
+            
+            const progress = ((currentQuestionIndex) / currentQuestions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            
+            questionElement.textContent = questionObj.question;
+            optionsElement.innerHTML = '';
+            feedbackElement.style.display = 'none';
+            feedbackElement.className = 'feedback';
+            nextBtn.style.display = 'none';
+            selectedOption = null;
+            
+            questionObj.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.textContent = option;
+                optionElement.onclick = () => selectOption(index, optionElement);
+                optionsElement.appendChild(optionElement);
+            });
+        }
+        
+        function selectOption(optionIndex, optionElement) {
+            if (selectedOption !== null) return;
+            
+            const questionObj = currentQuestions[currentQuestionIndex];
+            const feedbackElement = document.getElementById('feedback');
+            const nextBtn = document.getElementById('next-btn');
+            
+            selectedOption = optionIndex;
+            
+            if (optionIndex === questionObj.answer) {
+                optionElement.classList.add('correct');
+                feedbackElement.textContent = `إجابة صحيحة! ${questionObj.explanation}`;
+                feedbackElement.classList.add('correct');
+                score++;
+                createConfetti();
+            } else {
+                optionElement.classList.add('wrong');
+                document.querySelectorAll('.option')[questionObj.answer].classList.add('correct');
+                feedbackElement.textContent = `إجابة خاطئة. ${questionObj.explanation}`;
+                feedbackElement.classList.add('wrong');
+            }
+            
+            feedbackElement.style.display = 'block';
+            nextBtn.style.display = 'block';
+        }
+        
+        function nextQuestion() {
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < currentQuestions.length) {
+                showQuestion();
+            } else {
+                endGame();
+            }
+        }
+        
+        function endGame() {
+            const questionElement = document.getElementById('question');
+            const optionsElement = document.getElementById('options');
+            const feedbackElement = document.getElementById('feedback');
+            const nextBtn = document.getElementById('next-btn');
+            const progressBar = document.getElementById('progress-bar');
+            
+            progressBar.style.width = '100%';
+            questionElement.textContent = `انتهت الأسئلة! نتيجتك: ${score} من ${currentQuestions.length}`;
+            optionsElement.innerHTML = '';
+            feedbackElement.style.display = 'none';
+            nextBtn.style.display = 'none';
+            
+            showFinalMessage(score, currentQuestions.length);
+        }
+        
+        function backToMenu() {
+            document.getElementById('main-menu').style.display = 'flex';
+            document.getElementById('game-screen').style.display = 'none';
+        }
+        
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        window.onload = init;
+    </script>
+</body>
+</html>

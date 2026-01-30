@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<title>لعبة الأسماء الموصولة</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Comic+Neue&display=swap');
+  
+  body {
+    font-family: 'Comic Neue', cursive, sans-serif;
+    background: linear-gradient(135deg, #ffd6e8, #ffb3c6);
+    padding: 40px 20px;
+    direction: rtl;
+    text-align: center;
+    user-select: none;
+  }
+  .container {
+    max-width: 700px;
+    margin: auto;
+    background: #fff0f5;
+    border-radius: 25px;
+    padding: 35px 30px;
+    box-shadow: 0 8px 20px rgba(255, 105, 180, 0.5);
+  }
+  h1 {
+    color: #d81b60;
+    font-weight: 900;
+    margin-bottom: 30px;
+    text-shadow: 1px 1px 3px #b01250;
+  }
+  .question {
+    font-size: 26px;
+    margin-bottom: 25px;
+    color: #880e4f;
+    min-height: 80px;
+    font-weight: 700;
+    text-shadow: 0 1px 2px #e5a1be;
+  }
+  select {
+    font-size: 22px;
+    padding: 10px 20px;
+    border-radius: 20px;
+    border: 3px solid #d81b60;
+    background-color: #fff0f5;
+    color: #880e4f;
+    cursor: pointer;
+    outline-offset: 2px;
+    transition: transform 0.25s ease;
+  }
+  select:hover, select:focus {
+    transform: scale(1.05);
+    border-color: #b01250;
+  }
+  button {
+    margin: 25px 15px 0 15px;
+    padding: 14px 35px;
+    font-size: 22px;
+    border: none;
+    border-radius: 30px;
+    background-color: #d81b60;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.4s ease, transform 0.3s ease;
+    box-shadow: 0 5px 15px rgba(216,27,96,0.5);
+    font-weight: 700;
+  }
+  button:hover:not(:disabled) {
+    background-color: #b01250;
+    transform: scale(1.1);
+    box-shadow: 0 7px 20px rgba(176,18,80,0.7);
+  }
+  button:disabled {
+    background-color: #f7b5cb;
+    cursor: default;
+    box-shadow: none;
+  }
+  .result {
+    margin-top: 22px;
+    font-size: 22px;
+    font-weight: 800;
+    min-height: 34px;
+    text-shadow: 0 1px 1px #fff;
+  }
+  .correct {
+    color: #388e3c;
+  }
+  .wrong {
+    color: #d32f2f;
+  }
+  /* شخصية مرحة صغيرة تتبع الماوس */
+  #mascot {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 80px;
+    height: 80px;
+    background: url('https://i.imgur.com/IyE0DtY.png') no-repeat center/contain;
+    pointer-events: none;
+    transition: transform 0.1s ease;
+  }
+</style>
+</head>
+<body>
+
+<div class="container" role="main" aria-live="polite">
+  <h1>لعبة الأسماء الموصولة</h1>
+  <div class="question" id="question-text"></div>
+
+  <select id="answer-select" aria-label="اختر الكلمة المناسبة">
+    <option value="">-- اختر --</option>
+  </select><br/>
+
+  <button id="check-btn">تحقق</button>
+  <button id="next-btn" disabled>التالي</button>
+
+  <div class="result" id="result-text" role="alert" aria-live="assertive"></div>
+</div>
+
+<div id="mascot" aria-hidden="true"></div>
+
+<script>
+  const questions = [
+    {
+      text: "هذا هو الرجل ___ قابلته في السوق.",
+      correct: "الذي",
+      options: ["الذي", "التي", "اللذان", "اللاتي"]
+    },
+    {
+      text: "الفتاة ___ تلعب في الحديقة صديقتي.",
+      correct: "التي",
+      options: ["التي", "الذي", "اللذان", "اللاتي"]
+    },
+    {
+      text: "الولدان ___ يدرسان في نفس الفصل أصدقاء منذ الطفولة.",
+      correct: "اللذان",
+      options: ["الذي", "التي", "اللذان", "اللاتي"]
+    },
+    {
+      text: "البنات ___ تغنين في الفرقة موهوبات.",
+      correct: "اللاتي",
+      options: ["التي", "الذي", "اللذان", "اللاتي"]
+    },
+    {
+      text: "هذه هي الأشياء ___ اشتريتها أمس.",
+      correct: "التي",
+      options: ["الذي", "التي", "اللذان", "اللاتي"]
+    }
+  ];
+
+  let currentIndex = 0;
+
+  const questionText = document.getElementById('question-text');
+  const select = document.getElementById('answer-select');
+  const checkBtn = document.getElementById('check-btn');
+  const nextBtn = document.getElementById('next-btn');
+  const resultText = document.getElementById('result-text');
+
+  function shuffle(array) {
+    let arr = array.slice();
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function loadQuestion(i) {
+    resultText.textContent = "";
+    nextBtn.disabled = true;
+    checkBtn.disabled = false;
+    select.disabled = false;
+
+    const q = questions[i];
+    questionText.textContent = q.text;
+
+    // خلط الخيارات
+    const shuffledOptions = shuffle(q.options);
+
+    select.innerHTML = '<option value="">-- اختر --</option>';
+    shuffledOptions.forEach(opt => {
+      const optionEl = document.createElement('option');
+      optionEl.value = opt;
+      optionEl.textContent = opt;
+      select.appendChild(optionEl);
+    });
+    select.value = ""; // إعادة تعيين الاختيار
+  }
+
+  checkBtn.addEventListener('click', () => {
+    const answer = select.value;
+    if (!answer) {
+      resultText.textContent = "الرجاء اختيار إجابة!";
+      resultText.className = "result wrong";
+      return;
+    }
+    checkBtn.disabled = true;
+    select.disabled = true;
+
+    if (answer === questions[currentIndex].correct) {
+      resultText.textContent = "إجابة صحيحة! أحسنت 🎉";
+      resultText.className = "result correct";
+    } else {
+      resultText.textContent = `إجابة خاطئة! الإجابة الصحيحة هي: "${questions[currentIndex].correct}"`;
+      resultText.className = "result wrong";
+    }
+    nextBtn.disabled = false;
+  });
+
+  nextBtn.addEventListener('click', () => {
+    currentIndex = (currentIndex + 1) % questions.length;
+    loadQuestion(currentIndex);
+  });
+
+  loadQuestion(currentIndex);
+
+  // حركة شخصية مرحة صغيرة تتبع الماوس
+  const mascot = document.getElementById('mascot');
+  window.addEventListener('mousemove', e => {
+    mascot.style.left = (e.clientX + 15) + 'px';
+    mascot.style.top = (e.clientY + 15) + 'px';
+    mascot.style.transform = 'rotate(' + (e.clientX % 20 - 10) + 'deg)';
+  });
+</script>
+
+</body>
+</html>

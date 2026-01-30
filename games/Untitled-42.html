@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة العد التعليمية</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f8ff; /* Light blue background */
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            width: 100%;
+            border: 2px solid #a0e0ff; /* Border color */
+        }
+
+        h1 {
+            color: #4CAF50; /* Green heading */
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+
+        p {
+            font-size: 1.2em;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        #question-area {
+            margin-bottom: 30px;
+        }
+
+        #number-display {
+            font-size: 5em;
+            font-weight: bold;
+            color: #FF5733; /* Orange-red for the number */
+            margin-bottom: 20px;
+            min-height: 80px; /* Ensure space even if number is small */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .input-area {
+            margin-bottom: 25px;
+        }
+
+        #user-answer {
+            padding: 12px 15px;
+            font-size: 1.5em;
+            width: 120px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .button-group button {
+            background-color: #008CBA; /* Blue button */
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            margin: 0 10px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .button-group button:hover {
+            background-color: #005f7a;
+            transform: translateY(-2px);
+        }
+
+        .button-group button:active {
+            transform: translateY(0);
+        }
+
+        #feedback {
+            margin-top: 25px;
+            font-size: 1.3em;
+            font-weight: bold;
+            min-height: 30px;
+        }
+
+        .correct {
+            color: #28a745; /* Green for correct */
+        }
+
+        .incorrect {
+            color: #dc3545; /* Red for incorrect */
+        }
+
+        .reset-button {
+            background-color: #6c757d !important; /* Grey for reset */
+        }
+
+        .reset-button:hover {
+            background-color: #5a6268 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>لعبة العد التعليمية</h1>
+        <p>مرحباً بك في لعبة العد! قم بعد العناصر التي تظهر أمامك ثم أدخل الرقم الصحيح.</p>
+
+        <div id="question-area">
+            <p style="font-size: 1.3em; margin-bottom: 15px;">كم عدد هذه العناصر؟</p>
+            <div id="number-display"></div>
+        </div>
+
+        <div class="input-area">
+            <input type="number" id="user-answer" placeholder="أدخل إجابتك">
+        </div>
+
+        <div class="button-group">
+            <button id="check-button">تحقق</button>
+            <button id="next-button" class="reset-button">التالي</button>
+        </div>
+
+        <div id="feedback"></div>
+    </div>
+
+    <script>
+        const numberDisplay = document.getElementById('number-display');
+        const userAnswerInput = document.getElementById('user-answer');
+        const checkButton = document.getElementById('check-button');
+        const nextButton = document.getElementById('next-button');
+        const feedback = document.getElementById('feedback');
+
+        let correctNumber = 0;
+
+        function generateRandomNumber(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function generateQuestion() {
+            correctNumber = generateRandomNumber(1, 10); // Numbers from 1 to 10
+            numberDisplay.innerHTML = ''; // Clear previous items
+
+            for (let i = 0; i < correctNumber; i++) {
+                // You can replace '&#11088;' with any emoji or image for counting
+                // For simplicity, I'm using a star emoji.
+                const item = document.createElement('span');
+                item.textContent = '⭐ '; // Star emoji with a space
+                item.style.fontSize = '2em'; // Make items larger
+                numberDisplay.appendChild(item);
+            }
+
+            userAnswerInput.value = ''; // Clear user's previous answer
+            feedback.textContent = ''; // Clear feedback
+            userAnswerInput.focus(); // Focus on the input field
+            checkButton.disabled = false;
+            nextButton.textContent = 'التالي'; // Ensure "Next" button text is correct
+            nextButton.classList.add('reset-button'); // Keep it styled as reset
+        }
+
+        function checkAnswer() {
+            const userAnswer = parseInt(userAnswerInput.value);
+
+            if (isNaN(userAnswer)) {
+                feedback.textContent = 'الرجاء إدخال رقم!';
+                feedback.className = 'incorrect';
+                return;
+            }
+
+            if (userAnswer === correctNumber) {
+                feedback.textContent = 'أحسنت! إجابة صحيحة!';
+                feedback.className = 'correct';
+                checkButton.disabled = true; // Disable check button after correct answer
+                nextButton.focus(); // Focus on the next button
+            } else {
+                feedback.textContent = 'حاول مرة أخرى. هذه ليست الإجابة الصحيحة.';
+                feedback.className = 'incorrect';
+            }
+        }
+
+        checkButton.addEventListener('click', checkAnswer);
+        nextButton.addEventListener('click', generateQuestion);
+
+        // Allow pressing Enter key to check answer
+        userAnswerInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Prevent default form submission
+                if (!checkButton.disabled) {
+                    checkAnswer();
+                } else {
+                    generateQuestion(); // If already correct, pressing Enter goes to next
+                }
+            }
+        });
+
+        // Initialize the first question when the page loads
+        document.addEventListener('DOMContentLoaded', generateQuestion);
+    </script>
+</body>
+</html>

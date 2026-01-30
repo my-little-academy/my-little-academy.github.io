@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>لعبة ترتيب خطوات الوضوء</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #e0f7fa;
+    color: #006064;
+    padding: 20px;
+    text-align: right;
+  }
+  .container {
+    max-width: 600px;
+    margin: auto;
+    background: #ffffffcc;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  }
+  h1 {
+    margin-bottom: 15px;
+  }
+  .steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    justify-content: center;
+  }
+  .step-btn {
+    background: #00838f;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 1.1em;
+    transition: background-color 0.3s;
+  }
+  .step-btn:hover {
+    background: #006064;
+  }
+  .selected-steps {
+    min-height: 60px;
+    border: 2px dashed #00838f;
+    border-radius: 12px;
+    padding: 10px;
+    margin-bottom: 20px;
+  }
+  .selected-step {
+    display: inline-block;
+    background: #4db6ac;
+    color: white;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin: 5px 8px 5px 0;
+    font-size: 1em;
+  }
+  button#check {
+    background: #00796b;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 1.2em;
+    border-radius: 12px;
+    cursor: pointer;
+  }
+  button#check:hover {
+    background: #004d40;
+  }
+  #result {
+    font-size: 1.3em;
+    margin-top: 15px;
+    font-weight: bold;
+  }
+  button#reset {
+    display: none;
+    margin-top: 10px;
+    background: #d32f2f;
+  }
+  button#reset:hover {
+    background: #9a0007;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>لعبة ترتيب خطوات الوضوء</h1>
+    <p>اضغط على الخطوات بالترتيب الصحيح لتكوين خطوات الوضوء.</p>
+
+    <div class="steps" id="steps">
+      <!-- الأزرار الخاصة بالخطوات مبعثرة -->
+    </div>
+
+    <div class="selected-steps" id="selectedSteps">
+      <!-- الخطوات المختارة تظهر هنا -->
+    </div>
+
+    <button id="check">تحقق من الترتيب</button>
+    <button id="reset">إعادة اللعب</button>
+
+    <div id="result"></div>
+  </div>
+
+<script>
+  const correctOrder = [
+    "النية",
+    "غسل اليدين ثلاث مرات",
+    "المضمضة والاستنشاق",
+    "غسل الوجه ثلاث مرات",
+    "غسل اليدين إلى المرفقين ثلاث مرات",
+    "مسح الرأس",
+    "مسح الأذنين",
+    "غسل القدمين إلى الكعبين ثلاث مرات"
+  ];
+
+  const stepsContainer = document.getElementById('steps');
+  const selectedStepsContainer = document.getElementById('selectedSteps');
+  const checkBtn = document.getElementById('check');
+  const resetBtn = document.getElementById('reset');
+  const resultDiv = document.getElementById('result');
+
+  let selectedSteps = [];
+
+  // خلط الخطوات لعرضها مبعثرة
+  function shuffle(array) {
+    let currentIndex = array.length, randomIndex;
+    while (currentIndex !== 0) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+      [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+    }
+    return array;
+  }
+
+  function createStepButtons() {
+    const shuffled = shuffle([...correctOrder]);
+    shuffled.forEach(step => {
+      const btn = document.createElement('button');
+      btn.classList.add('step-btn');
+      btn.textContent = step;
+      btn.addEventListener('click', () => {
+        if (selectedSteps.includes(step)) return; // عدم تكرار الاختيار
+        selectedSteps.push(step);
+        renderSelectedSteps();
+      });
+      stepsContainer.appendChild(btn);
+    });
+  }
+
+  function renderSelectedSteps() {
+    selectedStepsContainer.innerHTML = '';
+    selectedSteps.forEach(step => {
+      const span = document.createElement('span');
+      span.classList.add('selected-step');
+      span.textContent = step;
+      span.title = "اضغط لإزالة هذه الخطوة";
+      span.addEventListener('click', () => {
+        selectedSteps = selectedSteps.filter(s => s !== step);
+        renderSelectedSteps();
+      });
+      selectedStepsContainer.appendChild(span);
+    });
+  }
+
+  checkBtn.addEventListener('click', () => {
+    if (selectedSteps.length !== correctOrder.length) {
+      resultDiv.textContent = "يرجى اختيار كل الخطوات بالترتيب الصحيح!";
+      return;
+    }
+    let correctCount = 0;
+    for (let i = 0; i < correctOrder.length; i++) {
+      if (selectedSteps[i] === correctOrder[i]) {
+        correctCount++;
+      }
+    }
+    if (correctCount === correctOrder.length) {
+      resultDiv.textContent = "مبروك! رتبت خطوات الوضوء بشكل صحيح 🌟";
+    } else {
+      resultDiv.textContent = `للأسف، ترتيبك غير صحيح. أنت صححت ${correctCount} من ${correctOrder.length}. حاول مرة أخرى!`;
+    }
+    checkBtn.style.display = 'none';
+    resetBtn.style.display = 'inline-block';
+  });
+
+  resetBtn.addEventListener('click', () => {
+    selectedSteps = [];
+    resultDiv.textContent = '';
+    selectedStepsContainer.innerHTML = '';
+    stepsContainer.innerHTML = '';
+    createStepButtons();
+    checkBtn.style.display = 'inline-block';
+    resetBtn.style.display = 'none';
+  });
+
+  createStepButtons();
+</script>
+</body>
+</html>

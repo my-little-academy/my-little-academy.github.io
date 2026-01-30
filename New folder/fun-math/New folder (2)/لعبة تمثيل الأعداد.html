@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة تمثيل الأعداد</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .controls {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #eee;
+            border-radius: 8px;
+        }
+        
+        input, button {
+            padding: 8px 12px;
+            margin: 5px;
+            font-size: 16px;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .representation {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+        
+        /* أنماط تمثيل الوحدات */
+        .units-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px;
+            margin: 10px 0;
+        }
+        
+        .unit {
+            width: 30px;
+            height: 30px;
+            background-color: #e74c3c;
+            border-radius: 3px;
+        }
+        
+        /* أنماط تمثيل العشرات */
+        .sticks-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 10px 0;
+        }
+        
+        .stick {
+            display: grid;
+            grid-template-rows: repeat(10, 1fr);
+            gap: 2px;
+            width: 30px;
+            height: 300px;
+        }
+        
+        .stick-part {
+            background-color: #3498db;
+            border-radius: 3px;
+        }
+        
+        /* أنماط تمثيل المئات */
+        .plates-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 10px 0;
+        }
+        
+        .plate {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 2px;
+            width: 300px;
+            height: 30px;
+        }
+        
+        .plate-part {
+            background-color: #2ecc71;
+            border-radius: 3px;
+        }
+        
+        /* أنماط تمثيل الآلاف */
+        .thousands-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 10px 0;
+        }
+        
+        .thousand-cube {
+            width: 150px;
+            height: 150px;
+            background-color: #9b59b6;
+            border-radius: 10px;
+            position: relative;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+        
+        .thousand-cube::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+        
+        .legend {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-left: 10px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>لعبة تمثيل الأعداد</h1>
+        
+        <div class="controls">
+            <label for="number-input">أدخل عدداً بين 1 و 9999:</label>
+            <input type="number" id="number-input" min="1" max="9999" value="1234">
+            <button id="represent-btn">تمثيل العدد</button>
+            <button id="random-btn">عدد عشوائي</button>
+        </div>
+        
+        <div class="representation">
+            <div id="thousands"></div>
+            <div id="hundreds"></div>
+            <div id="tens"></div>
+            <div id="units"></div>
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <span>الوحدات (1)</span>
+                <div class="legend-color" style="background-color: #e74c3c;"></div>
+            </div>
+            <div class="legend-item">
+                <span>العشرات (10)</span>
+                <div class="legend-color" style="background-color: #3498db;"></div>
+            </div>
+            <div class="legend-item">
+                <span>المئات (100)</span>
+                <div class="legend-color" style="background-color: #2ecc71;"></div>
+            </div>
+            <div class="legend-item">
+                <span>الآلاف (1000)</span>
+                <div class="legend-color" style="background-color: #9b59b6;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('represent-btn').addEventListener('click', representNumber);
+        document.getElementById('random-btn').addEventListener('click', generateRandomNumber);
+        
+        function representNumber() {
+            const numberInput = document.getElementById('number-input');
+            let number = parseInt(numberInput.value);
+            
+            if (isNaN(number) || number < 1 || number > 9999) {
+                alert('الرجاء إدخال عدد صحيح بين 1 و 9999');
+                numberInput.value = 1234;
+                number = 1234;
+            }
+            
+            // تفكيك العدد إلى وحدات، عشرات، مئات، آلاف
+            const thousands = Math.floor(number / 1000);
+            const hundreds = Math.floor((number % 1000) / 100);
+            const tens = Math.floor((number % 100) / 10);
+            const units = number % 10;
+            
+            // تمثيل الآلاف
+            const thousandsContainer = document.getElementById('thousands');
+            thousandsContainer.innerHTML = thousands > 0 ? `<h3>الآلاف (${thousands} × 1000)</h3><div class="thousands-container"></div>` : '';
+            
+            if (thousands > 0) {
+                const container = thousandsContainer.querySelector('.thousands-container');
+                for (let i = 0; i < thousands; i++) {
+                    container.innerHTML += '<div class="thousand-cube"></div>';
+                }
+            }
+            
+            // تمثيل المئات
+            const hundredsContainer = document.getElementById('hundreds');
+            hundredsContainer.innerHTML = hundreds > 0 ? `<h3>المئات (${hundreds} × 100)</h3><div class="plates-container"></div>` : '';
+            
+            if (hundreds > 0) {
+                const container = hundredsContainer.querySelector('.plates-container');
+                for (let i = 0; i < hundreds; i++) {
+                    let plate = document.createElement('div');
+                    plate.className = 'plate';
+                    for (let j = 0; j < 10; j++) {
+                        plate.innerHTML += '<div class="plate-part"></div>';
+                    }
+                    container.appendChild(plate);
+                }
+            }
+            
+            // تمثيل العشرات
+            const tensContainer = document.getElementById('tens');
+            tensContainer.innerHTML = tens > 0 ? `<h3>العشرات (${tens} × 10)</h3><div class="sticks-container"></div>` : '';
+            
+            if (tens > 0) {
+                const container = tensContainer.querySelector('.sticks-container');
+                for (let i = 0; i < tens; i++) {
+                    let stick = document.createElement('div');
+                    stick.className = 'stick';
+                    for (let j = 0; j < 10; j++) {
+                        stick.innerHTML += '<div class="stick-part"></div>';
+                    }
+                    container.appendChild(stick);
+                }
+            }
+            
+            // تمثيل الوحدات
+            const unitsContainer = document.getElementById('units');
+            unitsContainer.innerHTML = units > 0 ? `<h3>الوحدات (${units} × 1)</h3><div class="units-container"></div>` : '';
+            
+            if (units > 0) {
+                const container = unitsContainer.querySelector('.units-container');
+                for (let i = 0; i < units; i++) {
+                    container.innerHTML += '<div class="unit"></div>';
+                }
+            }
+        }
+        
+        function generateRandomNumber() {
+            const randomNumber = Math.floor(Math.random() * 9999) + 1;
+            document.getElementById('number-input').value = randomNumber;
+            representNumber();
+        }
+        
+        // تمثيل العدد الأولي عند تحميل الصفحة
+        window.onload = representNumber;
+    </script>
+</body>
+</html>

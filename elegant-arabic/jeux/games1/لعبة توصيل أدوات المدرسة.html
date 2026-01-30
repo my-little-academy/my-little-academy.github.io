@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة توصيل أدوات المدرسة بخط متحرك</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f8ff;
+            padding: 20px;
+            margin: 0;
+            overflow: hidden;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .game-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        .word-box, .image-box {
+            width: 150px;
+            height: 150px;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 20px;
+            font-weight: bold;
+            position: relative;
+            z-index: 1;
+        }
+        .image-box {
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        .word-box.matched, .image-box.matched {
+            border-color: #2ecc71;
+            background-color: #e8f8f0;
+            opacity: 0.7;
+            cursor: default;
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #2ecc71;
+            height: 30px;
+        }
+        .reset-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .reset-btn:hover {
+            background-color: #2980b9;
+        }
+        #line {
+            position: absolute;
+            background-color: #e74c3c;
+            height: 4px;
+            transform-origin: left center;
+            z-index: 0;
+            display: none;
+        }
+        .success-line {
+            position: absolute;
+            background-color: #2ecc71;
+            height: 4px;
+            transform-origin: left center;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>لعبة توصيل أدوات المدرسة</h1>
+    <p>اسحب خطاً من الكلمة إلى الصورة المناسبة</p>
+    
+    <div class="game-container" id="words-container">
+        <!-- الكلمات ستضاف هنا بالجافاسكريبت -->
+    </div>
+    
+    <div class="game-container" id="images-container">
+        <!-- الصور ستضاف هنا بالجافاسكريبت -->
+    </div>
+    
+    <div class="message" id="message"></div>
+    <button class="reset-btn" onclick="resetGame()">إعادة اللعبة</button>
+    
+    <div id="line"></div>
+    
+    <script>
+        // بيانات اللعبة (الكلمات والصور المتطابقة)
+        const gameData = [
+            { word: "قلم رصاص", image: "https://cdn.pixabay.com/photo/2014/09/17/21/30/pencil-450627_640.png" },
+            { word: "ممحاة", image: "https://cdn.pixabay.com/photo/2013/07/12/18/39/eraser-153547_640.png" },
+            { word: "مسطرة", image: "https://cdn.pixabay.com/photo/2013/07/12/18/56/ruler-154298_640.png" },
+            { word: "مقص", image: "https://cdn.pixabay.com/photo/2013/07/12/19/31/scissors-154743_640.png" },
+            { word: "حقيبة", image: "https://cdn.pixabay.com/photo/2014/04/03/00/41/school-bag-309417_640.png" },
+            { word: "كتاب", image: "https://cdn.pixabay.com/photo/2018/01/03/09/09/book-3057902_640.png" }
+        ];
+        
+        let matchedPairs = 0;
+        let isDrawing = false;
+        let startElement = null;
+        let line = document.getElementById('line');
+        let successLines = [];
+        
+        // تهيئة اللعبة
+        function initGame() {
+            const wordsContainer = document.getElementById('words-container');
+            const imagesContainer = document.getElementById('images-container');
+            
+            // خلط العناصر عشوائياً
+            const shuffledWords = [...gameData].sort(() => Math.random() - 0.5);
+            const shuffledImages = [...gameData].sort(() => Math.random() - 0.5);
+            
+            // إضافة الكلمات
+            shuffledWords.forEach(item => {
+                const wordBox = document.createElement('div');
+                wordBox.className = 'word-box';
+                wordBox.textContent = item.word;
+                wordBox.dataset.word = item.word;
+                wordBox.addEventListener('mousedown', startDrawing);
+                wordsContainer.appendChild(wordBox);
+            });
+            
+            // إضافة الصور
+            shuffledImages.forEach(item => {
+                const imageBox = document.createElement('div');
+                imageBox.className = 'image-box';
+                imageBox.style.backgroundImage = `url(${item.image})`;
+                imageBox.dataset.word = item.word;
+                imageBox.addEventListener('mouseup', stopDrawing);
+                imagesContainer.appendChild(imageBox);
+            });
+            
+            // متابعة حركة الماوس لرسم الخط
+            document.addEventListener('mousemove', drawLine);
+        }
+        
+        // بدء رسم الخط
+        function startDrawing(e) {
+            if (e.target.classList.contains('matched')) return;
+            
+            isDrawing = true;
+            startElement = e.target;
+            line.style.display = 'block';
+            
+            const startRect = startElement.getBoundingClientRect();
+            const startX = startRect.left + startRect.width;
+            const startY = startRect.top + startRect.height / 2;
+            
+            line.style.left = startX + 'px';
+            line.style.top = startY + 'px';
+            line.style.width = '0px';
+        }
+        
+        // رسم الخط أثناء السحب
+        function drawLine(e) {
+            if (!isDrawing) return;
+            
+            const startRect = startElement.getBoundingClientRect();
+            const startX = startRect.left + startRect.width;
+            const startY = startRect.top + startRect.height / 2;
+            
+            const mouseX = e.clientX;
+            const mouseY = e.clientY;
+            
+            const distance = Math.sqrt(Math.pow(mouseX - startX, 2) + Math.pow(mouseY - startY, 2));
+            const angle = Math.atan2(mouseY - startY, mouseX - startX) * 180 / Math.PI;
+            
+            line.style.width = distance + 'px';
+            line.style.transform = 'rotate(' + angle + 'deg)';
+        }
+        
+        // التوقف عن رسم الخط والتحقق من التطابق
+        function stopDrawing(e) {
+            if (!isDrawing || e.target.classList.contains('matched')) {
+                resetLine();
+                return;
+            }
+            
+            isDrawing = false;
+            const endElement = e.target;
+            
+            // التحقق من التطابق
+            if (startElement.dataset.word === endElement.dataset.word) {
+                // تطابق صحيح
+                createSuccessLine(startElement, endElement);
+                startElement.classList.add('matched');
+                endElement.classList.add('matched');
+                document.getElementById('message').textContent = 'أحسنت! تطابق صحيح';
+                
+                matchedPairs++;
+                
+                // التحقق من اكتمال اللعبة
+                if (matchedPairs === gameData.length) {
+                    document.getElementById('message').textContent = 'مبروك! لقد أكملت اللعبة بنجاح';
+                }
+            } else {
+                // تطابق خاطئ
+                document.getElementById('message').textContent = 'حاول مرة أخرى';
+            }
+            
+            resetLine();
+        }
+        
+        // إنشاء خط أخضر دائم عند التطابق الصحيح
+        function createSuccessLine(startElem, endElem) {
+            const startRect = startElem.getBoundingClientRect();
+            const endRect = endElem.getBoundingClientRect();
+            
+            const startX = startRect.left + startRect.width;
+            const startY = startRect.top + startRect.height / 2;
+            const endX = endRect.left;
+            const endY = endRect.top + endRect.height / 2;
+            
+            const distance = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+            const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
+            
+            const successLine = document.createElement('div');
+            successLine.className = 'success-line';
+            successLine.style.left = startX + 'px';
+            successLine.style.top = startY + 'px';
+            successLine.style.width = distance + 'px';
+            successLine.style.transform = 'rotate(' + angle + 'deg)';
+            
+            document.body.appendChild(successLine);
+            successLines.push(successLine);
+        }
+        
+        // إعادة تعيين الخط المؤقت
+        function resetLine() {
+            isDrawing = false;
+            startElement = null;
+            line.style.display = 'none';
+            
+            setTimeout(() => {
+                document.getElementById('message').textContent = '';
+            }, 1000);
+        }
+        
+        // إعادة اللعبة
+        function resetGame() {
+            const wordsContainer = document.getElementById('words-container');
+            const imagesContainer = document.getElementById('images-container');
+            
+            wordsContainer.innerHTML = '';
+            imagesContainer.innerHTML = '';
+            document.getElementById('message').textContent = '';
+            
+            // إزالة جميع الخطوط الخضراء
+            successLines.forEach(line => line.remove());
+            successLines = [];
+            
+            matchedPairs = 0;
+            
+            initGame();
+        }
+        
+        // بدء اللعبة عند تحميل الصفحة
+        window.onload = initGame;
+    </script>
+</body>
+</html>

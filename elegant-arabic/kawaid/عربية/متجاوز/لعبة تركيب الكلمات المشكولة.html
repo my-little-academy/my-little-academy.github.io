@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة تركيب الكلمات المشكولة</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f9fc;
+            text-align: center;
+            padding: 20px;
+            color: #333;
+            margin: 0;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 28px;
+        }
+        .instructions {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: right;
+            font-size: 18px;
+        }
+        .game-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .combined-word {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1565c0;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #e1f5fe;
+            border-radius: 10px;
+            width: 90%;
+            letter-spacing: 2px;
+        }
+        .word-cards {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            width: 100%;
+        }
+        .word-card {
+            background-color: #bbdefb;
+            padding: 15px;
+            border-radius: 8px;
+            min-width: 100px;
+            min-height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 22px;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.1);
+        }
+        .letter-tiles {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 30px 0;
+            width: 100%;
+        }
+        .letter-tile {
+            background-color: #e0f7fa;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 24px;
+            cursor: grab;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+        .letter-tile:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .letter-tile:active {
+            cursor: grabbing;
+        }
+        .controls {
+            margin-top: 30px;
+        }
+        button {
+            background-color: #1976d2;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background-color: #1565c0;
+            transform: translateY(-2px);
+        }
+        .feedback {
+            margin-top: 25px;
+            font-size: 20px;
+            min-height: 30px;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .correct {
+            background-color: #c8e6c9;
+            color: #2e7d32;
+        }
+        .incorrect {
+            background-color: #ffcdd2;
+            color: #c62828;
+        }
+        .dropped {
+            background-color: #a5d6a7;
+        }
+        .hint-btn {
+            background-color: #ff9800;
+            margin-top: 15px;
+        }
+        .hint-btn:hover {
+            background-color: #f57c00;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .celebration {
+            animation: bounce 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>لعبة تركيب الكلمات المشكولة</h1>
+        
+        <div class="instructions">
+            <p>مرحباً! إليك جملة مكونة من كلمات متلاصقة. اسحب الأحرف المشكولة إلى البطاقات الصحيحة لتكوين الكلمات بشكل صحيح.</p>
+        </div>
+        
+        <div class="game-area">
+            <div class="combined-word" id="combined-word"></div>
+            
+            <div class="word-cards" id="word-cards"></div>
+            
+            <div class="letter-tiles" id="letter-tiles"></div>
+            
+            <div class="feedback" id="feedback"></div>
+            
+            <div class="controls">
+                <button id="check-btn">تحقق من الإجابة</button>
+                <button id="hint-btn" class="hint-btn">الحصول على تلميح</button>
+                <button id="new-btn">جملة جديدة</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // مجموعة الجمل للعبة
+        const sentences = [
+            {
+                combined: "يَلْعَبُٱلْوَلَدُ",
+                words: ["يَلْعَبُ", "ٱلْوَلَدُ"],
+                letters: ["ي", "َل", "ْع", "َب", "ُ", "ٱ", "ل", "ْو", "َ", "ل", "َد", "ُ"]
+            },
+            {
+                combined: "قَرَأَٱلْكِتَابَ",
+                words: ["قَرَأَ", "ٱلْكِتَابَ"],
+                letters: ["ق", "َ", "ر", "َ", "أ", "َ", "ٱ", "ل", "ْ", "ك", "ِ", "ت", "َ", "ا", "ب", "َ"]
+            },
+            {
+                combined: "ذَهَبَٱلتِّلْمِيذُ",
+                words: ["ذَهَبَ", "ٱلتِّلْمِيذُ"],
+                letters: ["ذ", "َ", "ه", "َ", "ب", "َ", "ٱ", "ل", "ت", "ِّ", "ل", "ْ", "م", "ِي", "ذ", "ُ"]
+            },
+            {
+                combined: "ٱلشَّمْسُتُشْرِقُ",
+                words: ["ٱلشَّمْسُ", "تُشْرِقُ"],
+                letters: ["ٱ", "ل", "ش", "َّ", "م", "ْ", "س", "ُ", "ت", "ُ", "ش", "ْ", "ر", "ِ", "ق", "ُ"]
+            }
+        ];
+
+        let currentSentence = null;
+        let droppedLetters = {};
+        let correctDrops = 0;
+
+        // عناصر DOM
+        const combinedWordEl = document.getElementById('combined-word');
+        const wordCardsEl = document.getElementById('word-cards');
+        const letterTilesEl = document.getElementById('letter-tiles');
+        const feedbackEl = document.getElementById('feedback');
+        const checkBtn = document.getElementById('check-btn');
+        const hintBtn = document.getElementById('hint-btn');
+        const newBtn = document.getElementById('new-btn');
+
+        // تهيئة اللعبة
+        function initGame() {
+            // اختيار جملة عشوائية
+            const randomIndex = Math.floor(Math.random() * sentences.length);
+            currentSentence = sentences[randomIndex];
+            
+            // عرض الجملة المتلاصقة
+            combinedWordEl.textContent = currentSentence.combined;
+            
+            // إنشاء بطاقات الكلمات
+            wordCardsEl.innerHTML = '';
+            currentSentence.words.forEach((word, wordIndex) => {
+                const wordCard = document.createElement('div');
+                wordCard.className = 'word-card';
+                wordCard.dataset.wordIndex = wordIndex;
+                wordCard.dataset.expectedLetters = word;
+                wordCardsEl.appendChild(wordCard);
+                
+                // جعل بطاقات الكلمات قابلة للسقوط
+                wordCard.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                });
+                
+                wordCard.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const letterIndex = e.dataTransfer.getData('text/plain');
+                    const letterTile = document.querySelector(`.letter-tile[data-letter-index="${letterIndex}"]`);
+                    
+                    if (letterTile && !droppedLetters[letterIndex]) {
+                        wordCard.appendChild(letterTile);
+                        droppedLetters[letterIndex] = true;
+                        letterTile.style.cursor = 'default';
+                        letterTile.draggable = false;
+                        letterTile.classList.add('dropped');
+                        
+                        // التحقق إذا كانت جميع الأحرف قد تم سحبها
+                        checkAllLettersDropped();
+                    }
+                });
+            });
+            
+            // إنشاء قطع الأحرف
+            letterTilesEl.innerHTML = '';
+            const shuffledLetters = [...currentSentence.letters].sort(() => Math.random() - 0.5);
+            
+            shuffledLetters.forEach((letter, index) => {
+                const letterTile = document.createElement('div');
+                letterTile.className = 'letter-tile';
+                letterTile.textContent = letter;
+                letterTile.dataset.letterIndex = index;
+                letterTile.draggable = true;
+                
+                letterTile.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', index);
+                });
+                
+                letterTilesEl.appendChild(letterTile);
+            });
+            
+            // إعادة تعيين المتغيرات
+            droppedLetters = {};
+            correctDrops = 0;
+            feedbackEl.textContent = '';
+            feedbackEl.className = 'feedback';
+        }
+
+        // التحقق إذا تم سحب جميع الأحرف
+        function checkAllLettersDropped() {
+            const allLettersDropped = Object.keys(droppedLetters).length === currentSentence.letters.length;
+            
+            if (allLettersDropped) {
+                feedbackEl.textContent = 'أحسنت! لقد وضعت جميع الأحرف. الآن تحقق من إجابتك.';
+                feedbackEl.className = 'feedback correct';
+            }
+        }
+
+        // التحقق من صحة الإجابة
+        function checkAnswer() {
+            let allCorrect = true;
+            const wordCards = document.querySelectorAll('.word-card');
+            
+            wordCards.forEach((card) => {
+                const wordIndex = card.dataset.wordIndex;
+                const expectedWord = currentSentence.words[wordIndex];
+                let composedWord = '';
+                
+                // جمع الأحرف في البطاقة لتكوين الكلمة
+                Array.from(card.children).forEach(letterTile => {
+                    composedWord += letterTile.textContent;
+                });
+                
+                if (composedWord === expectedWord) {
+                    card.style.backgroundColor = '#c8e6c9';
+                    correctDrops++;
+                } else {
+                    card.style.backgroundColor = '#ffcdd2';
+                    allCorrect = false;
+                }
+            });
+            
+            if (allCorrect && Object.keys(droppedLetters).length === currentSentence.letters.length) {
+                feedbackEl.textContent = 'إجابة صحيحة! أحسنت!';
+                feedbackEl.className = 'feedback correct';
+                wordCardsEl.classList.add('celebration');
+            } else {
+                feedbackEl.textContent = 'بعض الكلمات غير صحيحة. حاول مرة أخرى!';
+                feedbackEl.className = 'feedback incorrect';
+            }
+        }
+
+        // عرض تلميح
+        function showHint() {
+            const emptyWordCards = Array.from(document.querySelectorAll('.word-card'))
+                .filter(card => card.children.length === 0);
+            
+            if (emptyWordCards.length > 0) {
+                const randomCard = emptyWordCards[Math.floor(Math.random() * emptyWordCards.length)];
+                const wordIndex = randomCard.dataset.wordIndex;
+                const firstLetter = currentSentence.words[wordIndex][0];
+                
+                feedbackEl.textContent = `تلميح: ابدأ الكلمة ${parseInt(wordIndex)+1} بالحرف "${firstLetter}"`;
+                feedbackEl.className = 'feedback';
+            } else {
+                feedbackEl.textContent = 'لقد وضعت جميع الكلمات! الآن تحقق من إجابتك.';
+                feedbackEl.className = 'feedback';
+            }
+        }
+
+        // أحداث النقر على الأزرار
+        checkBtn.addEventListener('click', checkAnswer);
+        hintBtn.addEventListener('click', showHint);
+        newBtn.addEventListener('click', initGame);
+
+        // بدء اللعبة عند تحميل الصفحة
+        window.onload = initGame;
+    </script>
+</body>
+</html>

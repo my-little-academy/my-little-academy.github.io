@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رحلة الحج الممتعة - النسخة المحسنة</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
+        
+        :root {
+            --hajj-gold: #F4B350;
+            --kaaba-black: #1E1E1E;
+            --arafa-blue: #5D9CEC;
+            --saee-green: #A0D468;
+            --correct-green: #2ECC71;
+            --shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --border-radius: 30px;
+        }
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #FFF9F0 0%, #FFEED9 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .header {
+            background: url('kaaba-pattern.png');
+            color: white;
+            text-align: center;
+            padding: 40px;
+            position: relative;
+            border-bottom: 5px solid var(--hajj-gold);
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+        
+        .header h1 {
+            font-size: 3em;
+            text-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+            margin: 0;
+        }
+        
+        .interactive-game {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            margin: 20px auto;
+            text-align: center;
+            box-shadow: var(--shadow);
+            border: 3px dashed var(--hajj-gold);
+            max-width: 800px;
+        }
+        
+        .game-title {
+            color: var(--kaaba-black);
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        
+        .game-areas {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        .items-container, .drop-container {
+            min-height: 200px;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            width: 45%;
+        }
+        
+        .items-container {
+            background: #F8F9FA;
+            border: 3px solid #EEE;
+        }
+        
+        .drop-container {
+            background: #F0F8FF;
+            border: 3px dashed var(--arafa-blue);
+        }
+        
+        .game-item {
+            background: white;
+            padding: 15px;
+            margin: 10px;
+            border-radius: 15px;
+            cursor: grab;
+            transition: all 0.3s ease;
+            border: 2px solid var(--hajj-gold);
+            text-align: center;
+            font-weight: 700;
+        }
+        
+        .game-item:hover {
+            background: var(--hajj-gold);
+            color: white;
+        }
+        
+        .game-item.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+        
+        .check-btn {
+            background: var(--saee-green);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .check-btn:hover {
+            background: #8CC152;
+            transform: translateY(-3px);
+        }
+        
+        .feedback {
+            margin-top: 20px;
+            font-size: 1.3em;
+            font-weight: 700;
+            min-height: 30px;
+        }
+        
+        .correct {
+            color: var(--correct-green);
+        }
+        
+        .incorrect {
+            color: #E74C3C;
+        }
+        
+        @media (max-width: 768px) {
+            .items-container, .drop-container {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>لعبة ترتيب مناسك الحج</h1>
+        <p>اسحب الخطوات إلى منطقة الإسقاط ورتبها بالترتيب الصحيح</p>
+    </div>
+    
+    <div class="interactive-game">
+        <h2 class="game-title">رتب خطوات الحج</h2>
+        
+        <div class="game-areas">
+            <!-- منطقة العناصر الجاهزة للسحب -->
+            <div class="items-container" id="items-container">
+                <div class="game-item" draggable="true">الإحرام</div>
+                <div class="game-item" draggable="true">الطواف</div>
+                <div class="game-item" draggable="true">السعي</div>
+                <div class="game-item" draggable="true">يوم عرفة</div>
+                <div class="game-item" draggable="true">رمي الجمرات</div>
+                <div class="game-item" draggable="true">الحلق</div>
+                <div class="game-item" draggable="true">طواف الوداع</div>
+            </div>
+            
+            <!-- منطقة الإسقاط -->
+            <div class="drop-container" id="drop-container">
+                <p>اسقط العناصر هنا بالترتيب الصحيح</p>
+            </div>
+        </div>
+        
+        <button class="check-btn" id="check-btn">تحقق من الإجابة</button>
+        <div class="feedback" id="feedback"></div>
+    </div>
+    
+    <script>
+        // العناصر التفاعلية
+        const itemsContainer = document.getElementById('items-container');
+        const dropContainer = document.getElementById('drop-container');
+        const checkBtn = document.getElementById('check-btn');
+        const feedback = document.getElementById('feedback');
+        
+        // الترتيب الصحيح
+        const correctOrder = [
+            "الإحرام", 
+            "الطواف", 
+            "السعي", 
+            "يوم عرفة", 
+            "رمي الجمرات", 
+            "الحلق", 
+            "طواف الوداع"
+        ];
+        
+        // جعل العناصر قابلة للسحب
+        document.querySelectorAll('.game-item').forEach(item => {
+            item.addEventListener('dragstart', function(e) {
+                e.dataTransfer.setData('text/plain', this.textContent);
+                this.classList.add('dragging');
+                setTimeout(() => this.style.display = 'none', 0);
+            });
+            
+            item.addEventListener('dragend', function() {
+                this.classList.remove('dragging');
+                this.style.display = 'block';
+            });
+        });
+        
+        // منطقة الإسقاط
+        dropContainer.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.style.borderColor = var(--hajj-gold);
+            this.style.backgroundColor = '#E8F4FC';
+        });
+        
+        dropContainer.addEventListener('dragleave', function() {
+            this.style.borderColor = var(--arafa-blue);
+            this.style.backgroundColor = '#F0F8FF';
+        });
+        
+        dropContainer.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.style.borderColor = var(--arafa-blue);
+            this.style.backgroundColor = '#F0F8FF';
+            
+            const itemText = e.dataTransfer.getData('text/plain');
+            const draggedItem = document.createElement('div');
+            draggedItem.className = 'game-item';
+            draggedItem.textContent = itemText;
+            draggedItem.draggable = true;
+            
+            // إضافة نفس أحداث السحب للعنصر الجديد
+            draggedItem.addEventListener('dragstart', function(e) {
+                e.dataTransfer.setData('text/plain', this.textContent);
+                this.classList.add('dragging');
+                setTimeout(() => this.style.display = 'none', 0);
+            });
+            
+            draggedItem.addEventListener('dragend', function() {
+                this.classList.remove('dragging');
+                this.style.display = 'block';
+            });
+            
+            this.appendChild(draggedItem);
+        });
+        
+        // زر التحقق
+        checkBtn.addEventListener('click', function() {
+            const currentOrder = Array.from(dropContainer.children)
+                .filter(el => el.classList.contains('game-item'))
+                .map(el => el.textContent);
+            
+            if (currentOrder.length !== correctOrder.length) {
+                feedback.textContent = 'لم تكتمل جميع الخطوات بعد!';
+                feedback.className = 'feedback incorrect';
+                return;
+            }
+            
+            const isCorrect = JSON.stringify(currentOrder) === JSON.stringify(correctOrder);
+            
+            if (isCorrect) {
+                feedback.textContent = '🎉 أحسنت! الترتيب صحيح!';
+                feedback.className = 'feedback correct';
+                createConfetti();
+            } else {
+                feedback.textContent = '⚠️ الترتيب غير صحيح، حاول مرة أخرى!';
+                feedback.className = 'feedback incorrect';
+            }
+        });
+        
+        // تأثير الكونفيتي عند الإجابة الصحيحة
+        function createConfetti() {
+            const colors = ['#F4B350', '#5D9CEC', '#A0D468', '#E74C3C', '#9B59B6'];
+            const emojis = ['✨', '⭐', '🎉', '🏆', '🌙'];
+            
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'fixed';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = '-20px';
+                confetti.style.fontSize = (Math.random() * 20 + 10) + 'px';
+                confetti.style.color = colors[Math.floor(Math.random() * colors.length)];
+                confetti.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                confetti.style.zIndex = '1000';
+                confetti.style.pointerEvents = 'none';
+                document.body.appendChild(confetti);
+                
+                // تحريك الكونفيتي
+                const animation = confetti.animate([
+                    { top: '-20px', opacity: 1, transform: 'rotate(0deg)' },
+                    { top: '100vh', opacity: 0, transform: 'rotate(360deg)' }
+                ], {
+                    duration: Math.random() * 3000 + 2000,
+                    easing: 'cubic-bezier(0.1, 0.8, 0.9, 1)'
+                });
+                
+                // إزالة الكونفيتي بعد انتهاء الحركة
+                animation.onfinish = () => confetti.remove();
+            }
+        }
+    </script>
+</body>
+</html>

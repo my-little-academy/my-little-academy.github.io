@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الدعوة السرية للنبي ﷺ - ألعاب تعليمية</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
+        
+        :root {
+            --primary-color: #8E44AD;
+            --secondary-color: #9B59B6;
+            --accent-color: #EBDEF0;
+            --light-bg: #F5EEF8;
+            --dark-text: #4A235A;
+            --shadow-color: rgba(142, 68, 173, 0.2);
+            --correct-color: #27AE60;
+            --wrong-color: #E74C3C;
+            --game-bg: #F9F9F9;
+        }
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--light-bg);
+            margin: 0;
+            padding: 0;
+            color: var(--dark-text);
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 30px 20px;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 15px var(--shadow-color);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><text x="10" y="50" font-family="Arial" font-size="30" fill="%23ffffff10">ﷺ</text></svg>') repeat;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            margin-top: 10px;
+            color: var(--accent-color);
+        }
+        
+        .tab-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .tab-btn {
+            background: white;
+            border: none;
+            padding: 12px 25px;
+            margin: 0 5px;
+            border-radius: 25px 25px 0 0;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--primary-color);
+            transition: all 0.3s;
+            box-shadow: 0 -3px 5px rgba(0,0,0,0.1);
+        }
+        
+        .tab-btn.active {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(2px);
+        }
+        
+        .tab-content {
+            display: none;
+            background: white;
+            border-radius: 0 0 20px 20px;
+            padding: 30px;
+            box-shadow: 0 5px 15px var(--shadow-color);
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* أنماط الألعاب التعليمية */
+        .game-container {
+            background: var(--game-bg);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 2px solid var(--secondary-color);
+        }
+        
+        .game-title {
+            color: var(--primary-color);
+            text-align: center;
+            margin-top: 0;
+            font-size: 1.5rem;
+        }
+        
+        /* لعبة ترتيب الأحداث */
+        .timeline-game {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .timeline-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: move;
+            border: 2px dashed var(--secondary-color);
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .timeline-item.dragging {
+            opacity: 0.5;
+            transform: scale(0.98);
+        }
+        
+        .timeline-item.correct {
+            border-color: var(--correct-color);
+            background-color: rgba(39, 174, 96, 0.1);
+        }
+        
+        .timeline-item.wrong {
+            border-color: var(--wrong-color);
+            background-color: rgba(231, 76, 60, 0.1);
+        }
+        
+        .check-answers {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto 0;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .check-answers:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        /* لعبة الاختيار من متعدد */
+        .quiz-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .quiz-option {
+            background: white;
+            border: 2px solid var(--secondary-color);
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .quiz-option:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px var(--shadow-color);
+        }
+        
+        .quiz-option.correct {
+            border-color: var(--correct-color);
+            background-color: rgba(39, 174, 96, 0.1);
+        }
+        
+        .quiz-option.wrong {
+            border-color: var(--wrong-color);
+            background-color: rgba(231, 76, 60, 0.1);
+        }
+        
+        .quiz-feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .quiz-feedback.correct {
+            background-color: rgba(39, 174, 96, 0.1);
+            border-left: 5px solid var(--correct-color);
+            display: block;
+        }
+        
+        .quiz-feedback.wrong {
+            background-color: rgba(231, 76, 60, 0.1);
+            border-left: 5px solid var(--wrong-color);
+            display: block;
+        }
+        
+        /* لعبة البحث عن الكلمات */
+        .word-search-container {
+            margin: 20px auto;
+            max-width: 500px;
+        }
+        
+        .word-search-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 2px;
+            margin-bottom: 20px;
+        }
+        
+        .word-search-cell {
+            background: white;
+            border: 1px solid #ddd;
+            aspect-ratio: 1/1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .word-search-cell.selected {
+            background-color: var(--accent-color);
+        }
+        
+        .word-search-cell.found {
+            background-color: var(--correct-color);
+            color: white;
+        }
+        
+        .word-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .word-item {
+            padding: 5px 10px;
+            background: var(--accent-color);
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .word-item.found {
+            background: var(--correct-color);
+            color: white;
+            text-decoration: line-through;
+        }
+        
+        /* لعبة أسئلة الصحابة */
+        .companion-game {
+            text-align: center;
+        }
+        
+        .companion-image {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 5px solid var(--secondary-color);
+            margin: 0 auto 20px;
+            display: block;
+        }
+        
+        .companion-question {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+        
+        .companion-options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .companion-option {
+            padding: 10px 15px;
+            background: white;
+            border: 2px solid var(--secondary-color);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .companion-option:hover {
+            background: var(--accent-color);
+        }
+        
+        .companion-option.correct {
+            background: var(--correct-color);
+            color: white;
+            border-color: var(--correct-color);
+        }
+        
+        .companion-option.wrong {
+            background: var(--wrong-color);
+            color: white;
+            border-color: var(--wrong-color);
+        }
+        
+        .next-companion {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: bold;
+            display: none;
+        }
+        
+        /* تصميم المكافآت */
+        .reward-container {
+            text-align: center;
+            margin: 30px 0;
+            display: none;
+        }
+        
+        .reward-badge {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto;
+            animation: bounce 1s infinite alternate;
+        }
+        
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
+        }
+        
+        .reward-message {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            margin-top: 15px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border-radius: 20px 20px 0 0;
+            margin-top: 40px;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .tab-btn {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+                margin-bottom: 5px;
+            }
+            
+            .quiz-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .companion-image {
+                width: 120px;
+                height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>الدعوة السرية للنبي ﷺ</h1>
+            <div class="subtitle">ألعاب تعليمية تفاعلية للأطفال</div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="tab-container">
+            <button class="tab-btn active" onclick="openTab('tab1')">ترتيب الأحداث</button>
+            <button class="tab-btn" onclick="openTab('tab2')">اختبار المعلومات</button>
+            <button class="tab-btn" onclick="openTab('tab3')">بحث عن الكلمات</button>
+            <button class="tab-btn" onclick="openTab('tab4')">أسئلة الصحابة</button>
+        </div>
+        
+        <!-- لعبة ترتيب الأحداث -->
+        <div id="tab1" class="tab-content active">
+            <div class="game-container">
+                <h3 class="game-title">رتب الأحداث التاريخية حسب تسلسلها الزمني</h3>
+                <p>اسحب كل حدث وضعه في المكان الصحيح حسب ترتيبه الزمني في الدعوة السرية</p>
+                
+                <div class="timeline-game" id="timeline-game">
+                    <div class="timeline-item" data-correct="3">إسلام أبي بكر الصديق رضي الله عنه</div>
+                    <div class="timeline-item" data-correct="1">نزول الوحي على النبي ﷺ في غار حراء</div>
+                    <div class="timeline-item" data-correct="4">اجتماع المسلمين في دار الأرقم بن أبي الأرقم</div>
+                    <div class="timeline-item" data-correct="2">إسلام خديجة بنت خويلد رضي الله عنها</div>
+                </div>
+                
+                <button class="check-answers" onclick="checkTimelineOrder()">تحقق من الإجابات</button>
+            </div>
+        </div>
+        
+        <!-- لعبة الاختيار من متعدد -->
+        <div id="tab2" class="tab-content">
+            <div class="game-container">
+                <h3 class="game-title">اختر الإجابة الصحيحة</h3>
+                
+                <div id="quiz1">
+                    <p><strong>كم استمرت الدعوة السرية للنبي ﷺ؟</strong></p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, true, 'quiz1')">3 سنوات</div>
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, false, 'quiz1')">5 سنوات</div>
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, false, 'quiz1')">سنة واحدة</div>
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, false, 'quiz1')">10 سنوات</div>
+                    </div>
+                    <div class="quiz-feedback correct">
+                        <p>أحسنت! استمرت الدعوة السرية لمدة ثلاث سنوات قبل أن تتحول إلى الدعوة الجهرية.</p>
+                    </div>
+                    <div class="quiz-feedback wrong">
+                        <p>ليس صحيحاً. الدعوة السرية استمرت ثلاث سنوات قبل أن يأمر الله تعالى بالجهر بالدعوة.</p>
+                    </div>
+                </div>
+                
+                <div id="quiz2" style="margin-top: 30px;">
+                    <p><strong>لماذا اختار النبي ﷺ دار الأرقم بن أبي الأرقم للدعوة السرية؟</strong></p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, false, 'quiz2')">لأنها كانت أكبر دار في مكة</div>
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, true, 'quiz2')">لأن الأرقم كان شاباً صغيراً لم يكن معروفاً بإسلامه</div>
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, false, 'quiz2')">لأنها كانت قريبة من الكعبة</div>
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, false, 'quiz2')">لأن فيها بئر ماء للشرب</div>
+                    </div>
+                    <div class="quiz-feedback correct">
+                        <p>إجابة صحيحة! اختار النبي ﷺ دار الأرقم لأن الأرقم كان شاباً صغيراً لم يكن معروفاً بإسلامه بعد، فكانت مكاناً آمناً للاجتماع.</p>
+                    </div>
+                    <div class="quiz-feedback wrong">
+                        <p>ليس هذا السبب الرئيسي. النبي ﷺ اختار دار الأرقم لأن الأرقم كان شاباً صغيراً لم يكن معروفاً بإسلامه بعد.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- لعبة البحث عن الكلمات -->
+        <div id="tab3" class="tab-content">
+            <div class="game-container">
+                <h3 class="game-title">ابحث عن الكلمات المتعلقة بالدعوة السرية</h3>
+                
+                <div class="word-search-container">
+                    <div class="word-search-grid" id="word-search-grid">
+                        <!-- سيتم ملء هذا الجزء بالجافاسكريبت -->
+                    </div>
+                    
+                    <div class="word-list">
+                        <div class="word-item" data-word="خديجة">خديجة</div>
+                        <div class="word-item" data-word="الأرقم">الأرقم</div>
+                        <div class="word-item" data-word="الوحي">الوحي</div>
+                        <div class="word-item" data-word="الصديق">الصديق</div>
+                        <div class="word-item" data-word="حراء">حراء</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- لعبة أسئلة الصحابة -->
+        <div id="tab4" class="tab-content">
+            <div class="game-container">
+                <h3 class="game-title">تعرف على صحابة الدعوة السرية</h3>
+                
+                <div class="companion-game">
+                    <img src="https://i.imgur.com/placeholder.jpg" alt="صورة صحابي" class="companion-image" id="companion-image">
+                    <p class="companion-question" id="companion-question">من أنا؟</p>
+                    
+                    <div class="companion-options" id="companion-options">
+                        <!-- سيتم ملء هذا الجزء بالجافاسكريبت -->
+                    </div>
+                    
+                    <button class="next-companion" onclick="nextCompanion()">التالي</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- قسم المكافآت -->
+        <div class="reward-container" id="reward-container">
+            <img src="https://i.imgur.com/star-badge.png" class="reward-badge">
+            <p class="reward-message">أحسنت! لقد أكملت جميع الألعاب بنجاح</p>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>© 2023 الدعوة السرية للنبي ﷺ | ألعاب تعليمية تفاعلية</p>
+        </div>
+    </footer>
+    
+    <script>
+        // تغيير تبويبات الصفحة
+        function openTab(tabId) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+        
+        // لعبة ترتيب الأحداث
+        let draggedItem = null;
+        
+        document.querySelectorAll('.timeline-item').forEach(item => {
+            item.setAttribute('draggable', 'true');
+            
+            item.addEventListener('dragstart', function() {
+                draggedItem = this;
+                setTimeout(() => this.classList.add('dragging'), 0);
+            });
+            
+            item.addEventListener('dragend', function() {
+                this.classList.remove('dragging');
+            });
+        });
+        
+        document.getElementById('timeline-game').addEventListener('dragover', function(e) {
+            e.preventDefault();
+            const afterElement = getDragAfterElement(this, e.clientY);
+            if (afterElement == null) {
+                this.appendChild(draggedItem);
+            } else {
+                this.insertBefore(draggedItem, afterElement);
+            }
+        });
+        
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.timeline-item:not(.dragging)')];
+            
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+        
+        function checkTimelineOrder() {
+            let allCorrect = true;
+            const items = document.querySelectorAll('.timeline-item');
+            
+            items.forEach((item, index) => {
+                const correctPos = parseInt(item.getAttribute('data-correct'));
+                if (index + 1 === correctPos) {
+                    item.classList.add('correct');
+                    item.classList.remove('wrong');
+                } else {
+                    item.classList.add('wrong');
+                    item.classList.remove('correct');
+                    allCorrect = false;
+                }
+            });
+            
+            if (allCorrect) {
+                showReward();
+            }
+        }
+        
+        // لعبة الاختيار من متعدد
+        function checkQuizAnswer(selectedOption, isCorrect, quizId) {
+            const quizContainer = document.getElementById(quizId);
+            const options = quizContainer.querySelectorAll('.quiz-option');
+            
+            options.forEach(option => {
+                option.style.pointerEvents = 'none';
+            });
+            
+            if (isCorrect) {
+                selectedOption.classList.add('correct');
+                quizContainer.querySelector('.quiz-feedback.correct').style.display = 'block';
+                quizContainer.querySelector('.quiz-feedback.wrong').style.display = 'none';
+                
+                // تحقق إذا كانت جميع الأسئلة صحيحة
+                setTimeout(() => {
+                    const allQuizzes = document.querySelectorAll('.quiz-options');
+                    const allAnswered = [...allQuizzes].every(quiz => {
+                        return quiz.querySelector('.quiz-option.correct');
+                    });
+                    
+                    if (allAnswered) {
+                        showReward();
+                    }
+                }, 1000);
+            } else {
+                selectedOption.classList.add('wrong');
+                quizContainer.querySelector('.quiz-feedback.wrong').style.display = 'block';
+                quizContainer.querySelector('.quiz-feedback.correct').style.display = 'none';
+                
+                // إظهار الإجابة الصحيحة
+                options.forEach(option => {
+                    if (option.getAttribute('onclick').includes('true')) {
+                        option.classList.add('correct');
+                    }
+                });
+            }
+        }
+        
+        // لعبة البحث عن الكلمات
+        const wordGrid = [
+            ['خ', 'د', 'ي', 'ج', 'ة', 'و', 'ح', 'ي', 'ص', 'د'],
+            ['ا', 'ل', 'أ', 'ر', 'ق', 'م', 'ع', 'ل', 'ي', 'ق'],
+            ['ب', 'ح', 'ر', 'ا', 'ء', 'ش', 'خ', 'د', 'ي', 'ج'],
+            ['ا', 'ل', 'و', 'ح', 'ي', 'ن', 'م', 'ك', 'ة', 'ا'],
+            ['ص', 'د', 'ي', 'ق', 'ا', 'ب', 'و', 'ب', 'ك', 'ر'],
+            ['ح', 'ر', 'ا', 'ء', 'غ', 'ا', 'ر', 'ح', 'ر', 'ا'],
+            ['ا', 'ل', 'د', 'ع', 'و', 'ة', 'س', 'ر', 'ي', 'ة'],
+            ['خ', 'د', 'ي', 'ج', 'ة', 'ا', 'ل', 'أ', 'و', 'ل'],
+            ['ا', 'ل', 'ص', 'ح', 'ا', 'ب', 'ة', 'ا', 'ل', 'أ'],
+            ['و', 'ل', 'ا', 'ء', 'ا', 'ل', 'م', 'س', 'ل', 'م']
+        ];
+        
+        const wordsToFind = ['خديجة', 'الأرقم', 'الوحي', 'الصديق', 'حراء'];
+        let selectedCells = [];
+        let foundWords = [];
+        
+        function initializeWordSearch() {
+            const gridContainer = document.getElementById('word-search-grid');
+            gridContainer.innerHTML = '';
+            
+            wordGrid.forEach((row, rowIndex) => {
+                row.forEach((letter, colIndex) => {
+                    const cell = document.createElement('div');
+                    cell.className = 'word-search-cell';
+                    cell.textContent = letter;
+                    cell.dataset.row = rowIndex;
+                    cell.dataset.col = colIndex;
+                    
+                    cell.addEventListener('mousedown', startSelection);
+                    cell.addEventListener('mouseenter', continueSelection);
+                    cell.addEventListener('mouseup', endSelection);
+                    
+                    gridContainer.appendChild(cell);
+                });
+            });
+        }
+        
+        function startSelection(e) {
+            selectedCells = [e.target];
+            e.target.classList.add('selected');
+        }
+        
+        function continueSelection(e) {
+            if (selectedCells.length > 0) {
+                const cell = e.target;
+                if (!selectedCells.includes(cell)) {
+                    cell.classList.add('selected');
+                    selectedCells.push(cell);
+                }
+            }
+        }
+        
+        function endSelection() {
+            if (selectedCells.length < 3) {
+                selectedCells.forEach(cell => cell.classList.remove('selected'));
+                selectedCells = [];
+                return;
+            }
+            
+            const word = selectedCells.map(cell => cell.textContent).join('');
+            if (wordsToFind.includes(word) && !foundWords.includes(word)) {
+                foundWords.push(word);
+                selectedCells.forEach(cell => {
+                    cell.classList.remove('selected');
+                    cell.classList.add('found');
+                    cell.style.pointerEvents = 'none';
+                });
+                
+                // تحديث قائمة الكلمات
+                document.querySelectorAll('.word-item').forEach(item => {
+                    if (item.dataset.word === word) {
+                        item.classList.add('found');
+                    }
+                });
+                
+                // تحقق إذا تم العثور على جميع الكلمات
+                if (foundWords.length === wordsToFind.length) {
+                    showReward();
+                }
+            } else {
+                selectedCells.forEach(cell => cell.classList.remove('selected'));
+            }
+            
+            selectedCells = [];
+        }
+        
+        // لعبة أسئلة الصحابة
+        const companions = [
+            {
+                name: "خديجة بنت خويلد",
+                image: "https://i.imgur.com/khadeeja.jpg",
+                question: "من هي أول من آمن بالنبي ﷺ من النساء؟",
+                options: ["عائشة بنت أبي بكر", "خديجة بنت خويلد", "فاطمة بنت محمد", "حفصة بنت عمر"],
+                correct: 1
+            },
+            {
+                name: "علي بن أبي طالب",
+                image: "https://i.imgur.com/ali-bin-abi-talib.jpg",
+                question: "من هو أول من آمن بالنبي ﷺ من الصبيان؟",
+                options: ["عبد الله بن عباس", "علي بن أبي طالب", "زيد بن حارثة", "عبد الله بن عمر"],
+                correct: 1
+            },
+            {
+                name: "أبو بكر الصديق",
+                image: "https://i.imgur.com/abu-bakr.jpg",
+                question: "من هو أول من آمن بالنبي ﷺ من الرجال الأحرار؟",
+                options: ["عمر بن الخطاب", "عثمان بن عفان", "أبو بكر الصديق", "علي بن أبي طالب"],
+                correct: 2
+            },
+            {
+                name: "زيد بن حارثة",
+                image: "https://i.imgur.com/zaid-bin-haritha.jpg",
+                question: "من هو أول من آمن بالنبي ﷺ من الموالي؟",
+                options: ["بلال بن رباح", "زيد بن حارثة", "عمار بن ياسر", "سلمان الفارسي"],
+                correct: 1
+            }
+        ];
+        
+        let currentCompanion = 0;
+        let correctAnswers = 0;
+        
+        function initializeCompanionGame() {
+            showCompanion(0);
+        }
+        
+        function showCompanion(index) {
+            const companion = companions[index];
+            document.getElementById('companion-image').src = companion.image;
+            document.getElementById('companion-question').textContent = companion.question;
+            
+            const optionsContainer = document.getElementById('companion-options');
+            optionsContainer.innerHTML = '';
+            
+            companion.options.forEach((option, i) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'companion-option';
+                optionElement.textContent = option;
+                optionElement.onclick = function() {
+                    checkCompanionAnswer(this, i === companion.correct);
+                };
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            document.querySelector('.next-companion').style.display = 'none';
+        }
+        
+        function checkCompanionAnswer(selectedOption, isCorrect) {
+            const options = document.querySelectorAll('.companion-option');
+            options.forEach(option => {
+                option.style.pointerEvents = 'none';
+            });
+            
+            if (isCorrect) {
+                selectedOption.classList.add('correct');
+                correctAnswers++;
+                
+                if (correctAnswers === companions.length) {
+                    showReward();
+                }
+            } else {
+                selectedOption.classList.add('wrong');
+                
+                // إظهار الإجابة الصحيحة
+                options[companions[currentCompanion].correct].classList.add('correct');
+            }
+            
+            document.querySelector('.next-companion').style.display = 'block';
+        }
+        
+        function nextCompanion() {
+            currentCompanion = (currentCompanion + 1) % companions.length;
+            showCompanion(currentCompanion);
+        }
+        
+        // عرض المكافأة
+        function showReward() {
+            // تحقق إذا كانت جميع الألعاب مكتملة
+            const allGamesCompleted = (
+                document.querySelectorAll('.timeline-item.correct').length === 4 &&
+                document.querySelectorAll('.quiz-option.correct').length >= 2 &&
+                foundWords.length === wordsToFind.length &&
+                correctAnswers === companions.length
+            );
+            
+            if (allGamesCompleted) {
+                document.getElementById('reward-container').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('reward-container').scrollIntoView({ behavior: 'smooth' });
+                }, 500);
+            }
+        }
+        
+        // تهيئة الألعاب عند تحميل الصفحة
+        window.addEventListener('load', function() {
+            initializeWordSearch();
+            initializeCompanionGame();
+        });
+    </script>
+</body>
+</html>

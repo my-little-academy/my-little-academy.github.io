@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة تركيب الأشكال</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f8ff;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .game-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px auto;
+            max-width: 900px;
+        }
+        .shapes-container, .targets-container {
+            width: 45%;
+            min-height: 400px;
+            border: 2px dashed #3498db;
+            border-radius: 10px;
+            padding: 10px;
+            background-color: white;
+        }
+        .shape {
+            width: 80px;
+            height: 80px;
+            margin: 10px;
+            display: inline-block;
+            cursor: move;
+        }
+        .target {
+            width: 100px;
+            height: 100px;
+            margin: 10px;
+            display: inline-block;
+            border: 2px solid #2c3e50;
+            border-radius: 5px;
+            background-color: #ecf0f1;
+        }
+        .feedback {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #27ae60;
+        }
+        .reset-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .reset-btn:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <h1>لعبة تركيب الأشكال</h1>
+    <p>اسحب الأشكال وأسقطها في أماكنها الصحيحة</p>
+    
+    <div class="game-container">
+        <div class="shapes-container" id="shapes">
+            <div class="shape" draggable="true" id="circle" style="background-color: #e74c3c; border-radius: 50%;"></div>
+            <div class="shape" draggable="true" id="square" style="background-color: #3498db;"></div>
+            <div class="shape" draggable="true" id="triangle" style="width: 0; height: 0; border-left: 40px solid transparent; border-right: 40px solid transparent; border-bottom: 80px solid #2ecc71;"></div>
+            <div class="shape" draggable="true" id="star" style="background-color: #f1c40f; clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);"></div>
+        </div>
+        
+        <div class="targets-container" id="targets">
+            <div class="target" data-shape="circle"><p>دائرة</p></div>
+            <div class="target" data-shape="square"><p>مربع</p></div>
+            <div class="target" data-shape="triangle"><p>مثلث</p></div>
+            <div class="target" data-shape="star"><p>نجمة</p></div>
+        </div>
+    </div>
+    
+    <div class="feedback" id="feedback"></div>
+    <button class="reset-btn" id="resetBtn">إعادة اللعب</button>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const shapes = document.querySelectorAll('.shape');
+            const targets = document.querySelectorAll('.target');
+            const feedback = document.getElementById('feedback');
+            const resetBtn = document.getElementById('resetBtn');
+            let draggedShape = null;
+            let correctMatches = 0;
+            
+            // إضافة أحداث السحب للأشكال
+            shapes.forEach(shape => {
+                shape.addEventListener('dragstart', function(e) {
+                    draggedShape = this;
+                    setTimeout(() => this.style.visibility = 'hidden', 0);
+                });
+                
+                shape.addEventListener('dragend', function() {
+                    this.style.visibility = 'visible';
+                });
+            });
+            
+            // إضافة أحداث الإسقاط للأهداف
+            targets.forEach(target => {
+                target.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                });
+                
+                target.addEventListener('dragenter', function(e) {
+                    e.preventDefault();
+                    this.style.backgroundColor = '#bdc3c7';
+                });
+                
+                target.addEventListener('dragleave', function() {
+                    this.style.backgroundColor = '#ecf0f1';
+                });
+                
+                target.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.style.backgroundColor = '#ecf0f1';
+                    
+                    if (draggedShape.id === this.dataset.shape) {
+                        // تطابق صحيح
+                        this.appendChild(draggedShape);
+                        draggedShape.style.margin = '0';
+                        correctMatches++;
+                        
+                        if (correctMatches === shapes.length) {
+                            feedback.textContent = 'أحسنت! لقد أكملت اللعبة بنجاح!';
+                        } else {
+                            feedback.textContent = 'صحيح! استمر في تركيب الأشكال.';
+                        }
+                    } else {
+                        // تطابق خاطئ
+                        feedback.textContent = 'خطأ! حاول مرة أخرى.';
+                        document.getElementById('shapes').appendChild(draggedShape);
+                    }
+                });
+            });
+            
+            // زر إعادة اللعب
+            resetBtn.addEventListener('click', function() {
+                shapes.forEach(shape => {
+                    document.getElementById('shapes').appendChild(shape);
+                    shape.style.margin = '10px';
+                });
+                feedback.textContent = '';
+                correctMatches = 0;
+            });
+        });
+    </script>
+</body>
+</html>

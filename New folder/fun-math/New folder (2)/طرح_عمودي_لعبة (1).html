@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>لعبة الطرح العمودي</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f3f8ff;
+      text-align: center;
+      direction: rtl;
+    }
+    h1 {
+      color: #2c3e50;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 60px);
+      grid-template-rows: auto auto auto auto;
+      gap: 5px;
+      justify-content: center;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .cell {
+      width: 60px;
+      height: 60px;
+      line-height: 60px;
+      font-size: 24px;
+      background-color: #fff;
+      border: 2px solid #3498db;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .input-cell input {
+      width: 100%;
+      height: 100%;
+      font-size: 24px;
+      text-align: center;
+      border: none;
+      background: transparent;
+    }
+    .borrow-cell {
+      font-size: 18px;
+      color: #e67e22;
+      font-weight: bold;
+    }
+    .label-cell {
+      font-size: 16px;
+      color: #34495e;
+      font-weight: bold;
+    }
+    .minus-box {
+      position: absolute;
+      top: 195px;
+      left: calc(50% + 135px);
+      width: 30px;
+      height: 30px;
+      line-height: 30px;
+      font-size: 24px;
+      background-color: #fff;
+      border: 2px solid #e74c3c;
+      border-radius: 6px;
+      color: #e74c3c;
+      font-weight: bold;
+    }
+    .line {
+      width: 260px;
+      height: 2px;
+      background: #2c3e50;
+      margin: 10px auto;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #219150;
+    }
+    .result {
+      margin-top: 15px;
+      font-size: 20px;
+      color: #e74c3c;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌟 لعبة الطرح العمودي 🌟</h1>
+  <div class="grid" id="problem-grid">
+    <!-- سيتم توليد الأرقام هنا -->
+    <div class="minus-box">−</div>
+  </div>
+  <div class="line"></div>
+  <div class="grid" id="answer-grid">
+    <div class="cell input-cell"><input type="text" maxlength="1"></div>
+    <div class="cell input-cell"><input type="text" maxlength="1"></div>
+    <div class="cell input-cell"><input type="text" maxlength="1"></div>
+    <div class="cell input-cell"><input type="text" maxlength="1"></div>
+  </div>
+  <br>
+  <button onclick="checkAnswer()">✅ تحقق</button>
+  <button onclick="generateProblem()">🔄 عملية جديدة</button>
+  <div class="result" id="result"></div>
+
+  <script>
+    let number1 = 0;
+    let number2 = 0;
+
+    function generateProblem() {
+      do {
+        number1 = Math.floor(Math.random() * 9000 + 1000);
+        number2 = Math.floor(Math.random() * 9000 + 1000);
+      } while (number2 > number1);
+
+      const grid = document.getElementById("problem-grid");
+      grid.innerHTML = "<div class='minus-box'>−</div>";
+
+      const labels = ["وحدات", "عشرات", "مئات", "آلاف"];
+      const n1Digits = number1.toString().padStart(4, '0').split("");
+      const n2Digits = number2.toString().padStart(4, '0').split("");
+
+      // الصف 0: عناوين المنازل
+      for (let i = 0; i < 4; i++) {
+        const cell = document.createElement("div");
+        cell.className = "cell label-cell";
+        cell.textContent = labels[i];
+        grid.appendChild(cell);
+      }
+
+      // الصف 1: بطاقات الاستلاف (فارغة)
+      for (let i = 0; i < 4; i++) {
+        const cell = document.createElement("div");
+        cell.className = "cell borrow-cell";
+        cell.textContent = "";
+        grid.appendChild(cell);
+      }
+
+      // الصف 2: الرقم الأول
+      for (let i = 0; i < 4; i++) {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        cell.textContent = n1Digits[i];
+        grid.appendChild(cell);
+      }
+
+      // الصف 3: الرقم الثاني
+      for (let i = 0; i < 4; i++) {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        cell.textContent = n2Digits[i];
+        grid.appendChild(cell);
+      }
+
+      document.querySelectorAll("#answer-grid input").forEach(input => input.value = "");
+      document.getElementById("result").textContent = "";
+    }
+
+    function checkAnswer() {
+      const inputs = document.querySelectorAll("#answer-grid input");
+      const userAnswer = Array.from(inputs).map(i => i.value).join("");
+      const correct = number1 - number2;
+
+      if (parseInt(userAnswer) === correct) {
+        document.getElementById("result").textContent = "🎉 أحسنت! الإجابة صحيحة";
+        document.getElementById("result").style.color = "#27ae60";
+      } else {
+        document.getElementById("result").textContent = "❌ حاول مرة أخرى. الإجابة خاطئة.";
+        document.getElementById("result").style.color = "#e74c3c";
+      }
+    }
+
+    generateProblem();
+  </script>
+</body>
+</html>

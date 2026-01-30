@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عجلة الحروف العربية</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Amiri', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #ff9a9e 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .floating-shapes {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .shape {
+            position: absolute;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .circle {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .triangle {
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 20px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+            backdrop-filter: blur(15px);
+            border: 3px solid rgba(255,255,255,0.3);
+            position: relative;
+            z-index: 10;
+        }
+
+        h1 {
+            color: #4a5568;
+            font-size: 2.8rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            animation: titleBounce 3s infinite;
+        }
+
+        @keyframes titleBounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .wheel-container {
+            position: relative;
+            margin: 40px auto;
+            width: 350px;
+            height: 350px;
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            transition: transform 4s cubic-bezier(0.23, 1, 0.32, 1);
+            border: 8px solid #fff;
+        }
+
+        .wheel-segment {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: 100% 100%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .wheel-segment:nth-child(1) { 
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            transform: rotate(0deg) skewY(-77.14deg);
+        }
+        .wheel-segment:nth-child(2) { 
+            background: linear-gradient(45deg, #4ecdc4, #6dd5ed);
+            transform: rotate(12.86deg) skewY(-77.14deg);
+        }
+        .wheel-segment:nth-child(3) { 
+            background: linear-gradient(45deg, #45b7d1, #96c5f7);
+            transform: rotate(25.71deg) skewY(-77.14deg);
+        }
+        .wheel-segment:nth-child(4) { 
+            background: linear-gradient(45deg, #f9ca24, #f0932b);
+            transform: rotate(38.57deg) skewY(-77.14deg);
+        }
+        .wheel-segment:nth-child(5) { 
+            background: linear-gradient(45deg, #6c5ce7, #a29bfe);
+            transform: rotate(51.43deg) skewY(-77.14deg);
+        }
+        .wheel-segment:nth-child(6) { 
+            background: linear-gradient(45deg, #fd79a8, #fdcb6e);
+            transform: rotate(64.29deg) skewY(-77.14deg);
+        }
+        .wheel-segment:nth-child(7) { 
+            background: linear-gradient(45deg, #00b894, #00cec9);
+            transform: rotate(77.14deg) skewY(-77.14deg);
+        }
+        .wheel-segment:nth-child(8) { 
+            background: linear-gradient(45deg, #e17055, #fab1a0);
+            transform: rotate(90deg) skewY(-77.14deg);
+        }
+        .wheel-segment:nth-child(9) { 
+            background: linear-gradient(45deg, #0984e3, #74b9ff);
+            transform: rotate(102.86deg) skewY(-77.14deg);
+        }
+        .wheel-segment:nth-child(10) { 
+            background: linear-gradient(45deg, #a29bfe, #6c5ce7);
+            transform: rotate(115.71deg) skewY(-77.14deg);
+        }
+        .wheel-segment:nth-child(11) { 
+            background: linear-gradient(45deg, #fd79a8, #e84393);
+            transform: rotate(128.57deg) skewY(-77.14deg);
+        }
+        .wheel-segment:nth-child(12) { 
+            background: linear-gradient(45deg, #00b894, #55a3ff);
+            transform: rotate(141.43deg) skewY(-77.14deg);
+        }
+        .wheel-segment:nth-child(13) { 
+            background: linear-gradient(45deg, #fdcb6e, #e17055);
+            transform: rotate(154.29deg) skewY(-77.14deg);
+        }
+        .wheel-segment:nth-child(14) { 
+            background: linear-gradient(45deg, #fd79a8, #fdcb6e);
+            transform: rotate(167.14deg) skewY(-77.14deg);
+        }
+        .wheel-segment:nth-child(15) { 
+            background: linear-gradient(45deg, #00cec9, #55a3ff);
+            transform: rotate(180deg) skewY(-77.14deg);
+        }
+        .wheel-segment:nth-child(16) { 
+            background: linear-gradient(45deg, #a29bfe, #fd79a8);
+            transform: rotate(192.86deg) skewY(-77.14deg);
+        }
+        .wheel-segment:nth-child(17) { 
+            background: linear-gradient(45deg, #ff7675, #fab1a0);
+            transform: rotate(205.71deg) skewY(-77.14deg);
+        }
+        .wheel-segment:nth-child(18) { 
+            background: linear-gradient(45deg, #74b9ff, #0984e3);
+            transform: rotate(218.57deg) skewY(-77.14deg);
+        }
+        .wheel-segment:nth-child(19) { 
+            background: linear-gradient(45deg, #55a3ff, #00cec9);
+            transform: rotate(231.43deg) skewY(-77.14deg);
+        }
+        .wheel-segment:nth-child(20) { 
+            background: linear-gradient(45deg, #fdcb6e, #f9ca24);
+            transform: rotate(244.29deg) skewY(-77.14deg);
+        }
+        .wheel-segment:nth-child(21) { 
+            background: linear-gradient(45deg, #e84393, #fd79a8);
+            transform: rotate(257.14deg) skewY(-77.14deg);
+        }
+        .wheel-segment:nth-child(22) { 
+            background: linear-gradient(45deg, #00b894, #6c5ce7);
+            transform: rotate(270deg) skewY(-77.14deg);
+        }
+        .wheel-segment:nth-child(23) { 
+            background: linear-gradient(45deg, #fab1a0, #ff7675);
+            transform: rotate(282.86deg) skewY(-77.14deg);
+        }
+        .wheel-segment:nth-child(24) { 
+            background: linear-gradient(45deg, #74b9ff, #a29bfe);
+            transform: rotate(295.71deg) skewY(-77.14deg);
+        }
+        .wheel-segment:nth-child(25) { 
+            background: linear-gradient(45deg, #00cec9, #fdcb6e);
+            transform: rotate(308.57deg) skewY(-77.14deg);
+        }
+        .wheel-segment:nth-child(26) { 
+            background: linear-gradient(45deg, #fd79a8, #55a3ff);
+            transform: rotate(321.43deg) skewY(-77.14deg);
+        }
+        .wheel-segment:nth-child(27) { 
+            background: linear-gradient(45deg, #e17055, #00b894);
+            transform: rotate(334.29deg) skewY(-77.14deg);
+        }
+        .wheel-segment:nth-child(28) { 
+            background: linear-gradient(45deg, #6c5ce7, #ff7675);
+            transform: rotate(347.14deg) skewY(-77.14deg);
+        }
+
+        .wheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            z-index: 10;
+            border: 5px solid white;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 40px solid #ff6b6b;
+            z-index: 20;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+        }
+
+        .spin-button {
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 50px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .spin-button:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 35px rgba(255, 107, 107, 0.6);
+        }
+
+        .spin-button:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .spin-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 20px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .result.show {
+            opacity: 1;
+            transform: translateY(0);
+            animation: resultPulse 2s infinite;
+        }
+
+        @keyframes resultPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .confetti-1 {
+            background: #ff6b6b;
+            animation: confetti-fall-1 3s linear infinite;
+        }
+
+        .confetti-2 {
+            background: #4ecdc4;
+            animation: confetti-fall-2 3.5s linear infinite;
+        }
+
+        .confetti-3 {
+            background: #45b7d1;
+            animation: confetti-fall-3 2.8s linear infinite;
+        }
+
+        .confetti-4 {
+            background: #f9ca24;
+            animation: confetti-fall-4 3.2s linear infinite;
+        }
+
+        .confetti-5 {
+            background: #6c5ce7;
+            animation: confetti-fall-5 2.9s linear infinite;
+        }
+
+        @keyframes confetti-fall-1 {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes confetti-fall-2 {
+            0% {
+                transform: translateY(-100vh) rotate(0deg) translateX(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(-720deg) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes confetti-fall-3 {
+            0% {
+                transform: translateY(-100vh) rotate(0deg) translateX(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg) translateX(-100px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes confetti-fall-4 {
+            0% {
+                transform: translateY(-100vh) rotate(0deg) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(540deg) scale(0);
+                opacity: 0;
+            }
+        }
+
+        @keyframes confetti-fall-5 {
+            0% {
+                transform: translateY(-100vh) rotate(0deg) translateX(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(-540deg) translateX(50px);
+                opacity: 0;
+            }
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            gap: 20px;
+        }
+
+        .stat-item {
+            background: rgba(255,255,255,0.8);
+            padding: 15px 20px;
+            border-radius: 15px;
+            color: #4a5568;
+            font-weight: bold;
+            flex: 1;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-shapes" id="floatingShapes"></div>
+    
+    <div class="game-container">
+        <h1>🎡 عجلة الحروف العربية 🎡</h1>
+        
+        <div class="wheel-container">
+            <div class="pointer"></div>
+            <div class="wheel" id="wheel">
+                <div class="wheel-segment">أ</div>
+                <div class="wheel-segment">ب</div>
+                <div class="wheel-segment">ت</div>
+                <div class="wheel-segment">ث</div>
+                <div class="wheel-segment">ج</div>
+                <div class="wheel-segment">ح</div>
+                <div class="wheel-segment">خ</div>
+                <div class="wheel-segment">د</div>
+                <div class="wheel-segment">ذ</div>
+                <div class="wheel-segment">ر</div>
+                <div class="wheel-segment">ز</div>
+                <div class="wheel-segment">س</div>
+                <div class="wheel-segment">ش</div>
+                <div class="wheel-segment">ص</div>
+                <div class="wheel-segment">ض</div>
+                <div class="wheel-segment">ط</div>
+                <div class="wheel-segment">ظ</div>
+                <div class="wheel-segment">ع</div>
+                <div class="wheel-segment">غ</div>
+                <div class="wheel-segment">ف</div>
+                <div class="wheel-segment">ق</div>
+                <div class="wheel-segment">ك</div>
+                <div class="wheel-segment">ل</div>
+                <div class="wheel-segment">م</div>
+                <div class="wheel-segment">ن</div>
+                <div class="wheel-segment">ه</div>
+                <div class="wheel-segment">و</div>
+                <div class="wheel-segment">ي</div>
+            </div>
+            <div class="wheel-center"></div>
+        </div>
+        
+        <button class="spin-button" id="spinBtn" onclick="spinWheel()">
+            🎲 أدر العجلة! 🎲
+        </button>
+        
+        <div class="result" id="result">
+            اضغط على الزر لتدوير العجلة!
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                عدد الدورات: <span id="spinCount">0</span>
+            </div>
+            <div class="stat-item">
+                آخر حرف: <span id="lastLetter">---</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const arabicLetters = [
+            'أ', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 
+            'ز', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 
+            'ق', 'ك', 'ل', 'م', 'ن', 'ه', 'و', 'ي'
+        ];
+
+        let isSpinning = false;
+        let spinCount = 0;
+        let currentRotation = 0;
+
+        function initializeGame() {
+            createFloatingShapes();
+        }
+
+        function createFloatingShapes() {
+            const shapesContainer = document.getElementById('floatingShapes');
+            for (let i = 0; i < 20; i++) {
+                const shape = document.createElement('div');
+                shape.className = Math.random() > 0.5 ? 'shape circle' : 'shape triangle';
+                shape.style.left = Math.random() * 100 + '%';
+                shape.style.top = Math.random() * 100 + '%';
+                shape.style.animationDelay = Math.random() * 6 + 's';
+                shape.style.animationDuration = (4 + Math.random() * 4) + 's';
+                shapesContainer.appendChild(shape);
+            }
+        }
+
+        function spinWheel() {
+            if (isSpinning) return;
+            
+            isSpinning = true;
+            const spinBtn = document.getElementById('spinBtn');
+            const wheel = document.getElementById('wheel');
+            const result = document.getElementById('result');
+            
+            spinBtn.disabled = true;
+            spinBtn.textContent = '🌀 جاري الدوران... 🌀';
+            result.classList.remove('show');
+            
+            // Random number of full rotations + random angle
+            const spins = 5 + Math.random() * 5; // 5-10 full rotations
+            const finalAngle = Math.random() * 360;
+            const totalRotation = currentRotation + (spins * 360) + finalAngle;
+            
+            wheel.style.transform = `rotate(${totalRotation}deg)`;
+            currentRotation = totalRotation % 360;
+            
+            setTimeout(() => {
+                // Calculate which letter the arrow is pointing to
+                const segmentAngle = 360 / arabicLetters.length;
+                const adjustedAngle = (360 - (currentRotation % 360) + (segmentAngle / 2)) % 360;
+                const segmentIndex = Math.floor(adjustedAngle / segmentAngle);
+                const selectedLetter = arabicLetters[segmentIndex];
+                
+                // Show result
+                result.innerHTML = `🎉 الحرف المختار: <strong>${selectedLetter}</strong> 🎉`;
+                result.classList.add('show');
+                
+                // Update stats
+                spinCount++;
+                document.getElementById('spinCount').textContent = spinCount;
+                document.getElementById('lastLetter').textContent = selectedLetter;
+                
+                // Create confetti
+                createConfetti();
+                
+                // Reset button
+                isSpinning = false;
+                spinBtn.disabled = false;
+                spinBtn.textContent = '🎲 أدر العجلة مرة أخرى! 🎲';
+                
+            }, 4000); // Wait for spin animation to complete
+        }
+
+        function createConfetti() {
+            const confettiCount = 100;
+            const colors = ['confetti-1', 'confetti-2', 'confetti-3', 'confetti-4', 'confetti-5'];
+            
+            for (let i = 0; i < confettiCount; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = `confetti ${colors[Math.floor(Math.random() * colors.length)]}`;
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.top = '-10px';
+                    confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0%';
+                    confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                    
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => {
+                        if (confetti.parentNode) {
+                            confetti.parentNode.removeChild(confetti);
+                        }
+                    }, 4000);
+                }, Math.random() * 1000);
+            }
+        }
+
+        // Add some extra sparkle effects
+        function createSparkles() {
+            setInterval(() => {
+                if (!isSpinning) return;
+                
+                const sparkle = document.createElement('div');
+                sparkle.style.position = 'fixed';
+                sparkle.style.width = '4px';
+                sparkle.style.height = '4px';
+                sparkle.style.background = '#fff';
+                sparkle.style.borderRadius = '50%';
+                sparkle.style.left = (350 + Math.random() * 100) + 'px';
+                sparkle.style.top = (300 + Math.random() * 100) + 'px';
+                sparkle.style.zIndex = '1001';
+                sparkle.style.animation = 'sparkle 0.8s ease-out forwards';
+                sparkle.style.pointerEvents = 'none';
+                
+                document.body.appendChild(sparkle);
+                
+                setTimeout(() => {
+                    if (sparkle.parentNode) {
+                        sparkle.parentNode.removeChild(sparkle);
+                    }
+                }, 800);
+            }, 50);
+        }
+
+        // Add sparkle animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes sparkle {
+                0% {
+                    opacity: 0;
+                    transform: scale(0) rotate(0deg);
+                }
+                50% {
+                    opacity: 1;
+                    transform: scale(1) rotate(180deg);
+                }
+                100% {
+                    opacity: 0;
+                    transform: scale(0) rotate(360deg);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        initializeGame();
+        createSparkles();
+    </script>
+</body>
+</html>

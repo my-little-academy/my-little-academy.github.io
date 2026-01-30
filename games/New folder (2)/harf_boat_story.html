@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>مغامرات الحروف - تحت ضوء القمر</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(to bottom, #0a043c 0%, #0b1d51 60%, #0d2858 100%);
+      color: #fff;
+      overflow-x: hidden;
+      position: relative;
+      transition: background 1s;
+    }
+
+    body.day {
+      background: linear-gradient(to bottom, #a8e6ff 0%, #87cefa 60%, #87ceeb 100%);
+      color: #000;
+    }
+
+    .stars, .star {
+      position: absolute;
+      border-radius: 50%;
+    }
+
+    .stars {
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    .star {
+      width: 2px;
+      height: 2px;
+      background: white;
+      animation: twinkle 2s infinite alternate ease-in-out;
+    }
+
+    @keyframes twinkle {
+      0% { opacity: 0.2; transform: scale(1); }
+      100% { opacity: 1; transform: scale(1.4); }
+    }
+
+    .moon {
+      position: absolute;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 120px;
+      background: radial-gradient(circle at center, #fffde0, #f0d780);
+      border-radius: 50%;
+      box-shadow: 0 0 40px #fdf5c2;
+      z-index: 1;
+      transition: opacity 1s;
+    }
+
+    body.day .moon {
+      opacity: 0;
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 2.8em;
+      margin-top: 160px;
+      z-index: 3;
+      position: relative;
+      color: #ffeec2;
+      text-shadow: 1px 1px 6px #000;
+      user-select: none;
+    }
+
+    .letters-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 20px;
+      padding: 40px 20px 0;
+      max-width: 900px;
+      margin: 60px auto 0;
+      position: relative;
+      z-index: 4;
+    }
+
+    .letter-card {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 15px;
+      height: 80px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 2.6em;
+      font-weight: bold;
+      color: #ffeec2;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.4s ease;
+      animation: float 4s ease-in-out infinite;
+      position: relative;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px) rotate(1deg); }
+    }
+
+    .letter-card:hover {
+      transform: scale(1.3) rotate(5deg);
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .sea {
+      position: relative;
+      background: linear-gradient(to bottom, #1e3a5f 0%, #0b1c3b 100%);
+      height: 260px;
+      border-top-left-radius: 100% 20px;
+      border-top-right-radius: 100% 20px;
+      z-index: 2;
+      overflow: hidden;
+    }
+
+    .wave {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.05) 0 2px, transparent 2px 10px);
+      animation: waveMove 10s linear infinite;
+      z-index: 2;
+    }
+
+    @keyframes waveMove {
+      from { background-position: 0 0; }
+      to { background-position: 200px 200px; }
+    }
+
+    .boat {
+      position: absolute;
+      bottom: 100px;
+      left: -80px;
+      width: 80px;
+      height: 40px;
+      background: url('https://cdn-icons-png.flaticon.com/512/616/616490.png') no-repeat center;
+      background-size: contain;
+      animation: boatMove 18s linear infinite;
+      z-index: 6;
+    }
+
+    @keyframes boatMove {
+      from { left: -100px; }
+      to { left: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="stars" id="stars"></div>
+  <div class="moon"></div>
+  <h2>مغامرات الحروف في بحر الليل ✨</h2>
+  <div class="letters-grid" id="lettersGrid"></div>
+  <div class="sea">
+    <div class="wave"></div>
+    <div class="boat"></div>
+  </div>
+
+  <script>
+    const starsContainer = document.getElementById('stars');
+    for (let i = 0; i < 60; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      star.style.top = Math.random() * 100 + '%';
+      star.style.left = Math.random() * 100 + '%';
+      star.style.width = star.style.height = Math.random() * 2 + 1 + 'px';
+      starsContainer.appendChild(star);
+    }
+
+    const letters = ['أ','ب','ت','ث','ج','ح','خ','د','ذ','ر','ز','س','ش','ص','ض','ط','ظ','ع','غ','ف','ق','ك','ل','م','ن','هـ','و','ي'];
+    const sunLetters = ['ت','ث','د','ذ','ر','ز','س','ش','ص','ض','ط','ظ','ل','ن'];
+    const moonLetters = ['أ','ب','ج','ح','خ','ع','غ','ف','ق','ك','م','هـ','و','ي'];
+
+    const grid = document.getElementById('lettersGrid');
+
+    letters.forEach(letter => {
+      const card = document.createElement('div');
+      card.className = 'letter-card';
+      card.textContent = letter;
+      card.setAttribute('data-letter', letter);
+
+      if (sunLetters.includes(letter)) {
+        card.addEventListener('mouseenter', () => document.body.classList.add('day'));
+        card.addEventListener('mouseleave', () => document.body.classList.remove('day'));
+      } else if (moonLetters.includes(letter)) {
+        card.addEventListener('mouseenter', () => document.body.classList.remove('day'));
+      }
+
+      grid.appendChild(card);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8" />
+<title>لعبة ترتيب الأحداث الزمنية</title>
+<style>
+  body {
+    direction: rtl;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #e3f2fd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px;
+  }
+  h1 {
+    color: #0d47a1;
+    margin-bottom: 20px;
+  }
+  #events-bank, #timeline {
+    display: flex;
+    gap: 12px;
+    margin: 15px 0;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .event {
+    background: #42a5f5;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 12px;
+    cursor: grab;
+    min-width: 150px;
+    text-align: center;
+    user-select: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    transition: transform 0.2s ease;
+  }
+  .event:active {
+    cursor: grabbing;
+    transform: scale(1.05);
+  }
+  #timeline {
+    min-height: 60px;
+    border: 2px dashed #1976d2;
+    padding: 10px;
+    width: 90%;
+    max-width: 700px;
+    border-radius: 15px;
+  }
+  .drop-slot {
+    background: #bbdefb;
+    border-radius: 10px;
+    width: 150px;
+    height: 40px;
+    margin: 0 5px;
+    vertical-align: middle;
+  }
+  .drop-slot.filled {
+    background: #1e88e5;
+    color: white;
+    cursor: default;
+    user-select: none;
+  }
+  #result {
+    margin-top: 20px;
+    font-size: 1.4em;
+    color: #2e7d32;
+    min-height: 30px;
+  }
+  button#reset-btn {
+    margin-top: 25px;
+    padding: 10px 25px;
+    font-size: 1.1em;
+    background-color: #1976d2;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+  }
+  button#reset-btn:hover {
+    background-color: #1565c0;
+  }
+</style>
+</head>
+<body>
+
+<h1>🎯 رتب الأحداث التاريخية حسب الزمن</h1>
+
+<div id="events-bank" aria-label="أحداث قابلة للسحب">
+  <!-- الأحداث تظهر هنا -->
+</div>
+
+<div id="timeline" aria-label="مكان ترتيب الأحداث">
+  <!-- أماكن الفراغات تظهر هنا -->
+</div>
+
+<div id="result" role="alert" aria-live="polite"></div>
+
+<button id="reset-btn">إعادة اللعب</button>
+
+<script>
+  const events = [
+    { id: 'e1', text: 'اكتشاف النار', year: -400000 },
+    { id: 'e2', text: 'بناء الأهرامات المصرية', year: -2600 },
+    { id: 'e3', text: 'ولادة النبي محمد ﷺ', year: 570 },
+    { id: 'e4', text: 'اكتشاف أمريكا', year: 1492 },
+    { id: 'e5', text: 'الهجرة النبوية', year: 622 },
+    { id: 'e6', text: 'انطلاق الثورة الصناعية', year: 1760 }
+  ];
+
+  const eventsBank = document.getElementById('events-bank');
+  const timeline = document.getElementById('timeline');
+  const result = document.getElementById('result');
+  const resetBtn = document.getElementById('reset-btn');
+
+  let draggedEventId = null;
+
+  function shuffle(array) {
+    for(let i = array.length -1; i>0; i--) {
+      const j = Math.floor(Math.random()*(i+1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  // إنشاء أماكن الفراغ (slots) بعدد الأحداث
+  function createSlots() {
+    timeline.innerHTML = '';
+    for(let i=0; i<events.length; i++) {
+      const slot = document.createElement('div');
+      slot.classList.add('drop-slot');
+      slot.dataset.position = i;
+      slot.addEventListener('dragover', e => e.preventDefault());
+      slot.addEventListener('drop', onDrop);
+      timeline.appendChild(slot);
+    }
+  }
+
+  // تحميل الأحداث في صندوق السحب عشوائياً
+  function loadEvents() {
+    eventsBank.innerHTML = '';
+    const shuffled = shuffle([...events]);
+    shuffled.forEach(ev => {
+      const evDiv = document.createElement('div');
+      evDiv.classList.add('event');
+      evDiv.setAttribute('draggable', 'true');
+      evDiv.id = ev.id;
+      evDiv.textContent = ev.text;
+      evDiv.addEventListener('dragstart', e => {
+        draggedEventId = ev.id;
+      });
+      eventsBank.appendChild(evDiv);
+    });
+  }
+
+  function onDrop(e) {
+    e.preventDefault();
+    if(!draggedEventId) return;
+
+    const slot = e.currentTarget;
+    if(slot.classList.contains('filled')) return; // إذا مشغول
+
+    // ضع الحدث في الخانة
+    const eventDiv = document.getElementById(draggedEventId);
+    if(!eventDiv) return;
+
+    slot.textContent = eventDiv.textContent;
+    slot.classList.add('filled');
+    slot.dataset.eventId = draggedEventId;
+
+    // إزالة من البنك
+    eventDiv.remove();
+
+    draggedEventId = null;
+
+    checkResult();
+  }
+
+  // تحقق هل ترتيب صحيح
+  function checkResult() {
+    const slots = timeline.querySelectorAll('.drop-slot');
+    if([...slots].some(slot => !slot.classList.contains('filled'))) {
+      result.textContent = '';
+      return; // لا تزال فراغات فارغة
+    }
+
+    // جلب ترتيب الأحداث حسب الخانات
+    const arrangedEvents = [...slots].map(slot => {
+      const ev = events.find(e => e.id === slot.dataset.eventId);
+      return ev;
+    });
+
+    // هل الترتيب حسب السنة تصاعدي؟
+    let correct = true;
+    for(let i=0; i < arrangedEvents.length -1; i++) {
+      if(arrangedEvents[i].year > arrangedEvents[i+1].year) {
+        correct = false;
+        break;
+      }
+    }
+
+    if(correct) {
+      result.textContent = '🎉 أحسنت! ترتيبك صحيح تمامًا.';
+      result.style.color = '#2e7d32';
+    } else {
+      result.textContent = '❌ الترتيب غير صحيح، حاول مجددًا.';
+      result.style.color = '#c62828';
+    }
+  }
+
+  resetBtn.addEventListener('click', () => {
+    result.textContent = '';
+    loadEvents();
+    createSlots();
+  });
+
+  // بدء اللعبة
+  loadEvents();
+  createSlots();
+</script>
+
+</body>
+</html>

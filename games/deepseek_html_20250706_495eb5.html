@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comptez les Syllabes!</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background-color: #f0f9ff;
+            color: #2c3e50;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .game-container {
+            width: 95%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #FF6B6B;
+            margin-bottom: 30px;
+        }
+        
+        .word-display {
+            font-size: 48px;
+            margin: 30px 0;
+            min-height: 80px;
+            color: #4ECDC4;
+            font-weight: bold;
+        }
+        
+        .syllable-options {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .syllable-btn {
+            background-color: #4ECDC4;
+            color: white;
+            border: none;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .syllable-btn:hover {
+            transform: scale(1.1);
+            background-color: #FF6B6B;
+        }
+        
+        .feedback {
+            font-size: 24px;
+            min-height: 40px;
+            margin: 20px 0;
+        }
+        
+        .correct {
+            color: #4CAF50;
+        }
+        
+        .incorrect {
+            color: #F44336;
+        }
+        
+        .explanation {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+        
+        .score-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+        }
+        
+        .score-box {
+            background-color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .score-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #FF6B6B;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin: 20px auto;
+            overflow: hidden;
+            max-width: 400px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4ECDC4, #45B7D1);
+            border-radius: 5px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .start-btn {
+            background-color: #FF6B6B;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+        
+        .start-btn:hover {
+            transform: scale(1.05);
+            background-color: #FF5252;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎵 Comptez les Syllabes! 🎵</h1>
+        
+        <div id="start-screen">
+            <p>Cliquez sur le bouton pour commencer le jeu!</p>
+            <p>Une mot s'affichera, comptez le nombre de syllabes et choisissez la bonne réponse.</p>
+            <button class="start-btn" id="start-btn">Commencer</button>
+        </div>
+        
+        <div id="game-screen" class="hidden">
+            <div class="score-container">
+                <div class="score-box">
+                    <div>Score</div>
+                    <div class="score-value" id="score">0</div>
+                </div>
+                <div class="score-box">
+                    <div>Bonnes réponses</div>
+                    <div class="score-value" id="correct">0</div>
+                </div>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            
+            <div class="word-display" id="word-display"></div>
+            
+            <div class="syllable-options" id="syllable-options"></div>
+            
+            <div class="feedback" id="feedback"></div>
+            <div class="explanation" id="explanation"></div>
+        </div>
+    </div>
+
+    <script>
+        // Base de données de mots avec leur nombre de syllabes
+        const wordsDatabase = [
+            { word: "chat", syllables: 1 },
+            { word: "arbre", syllables: 2 },
+            { word: "banane", syllables: 3 },
+            { word: "ordinateur", syllables: 4 },
+            { word: "éléphant", syllables: 3 },
+            { word: "chocolat", syllables: 3 },
+            { word: "plage", syllables: 1 },
+            { word: "avion", syllables: 2 },
+            { word: "télévision", syllables: 4 },
+            { word: "fenêtre", syllables: 2 },
+            { word: "soleil", syllables: 2 },
+            { word: "parapluie", syllables: 3 },
+            { word: "stylo", syllables: 2 },
+            { word: "caméléon", syllables: 3 },
+            { word: "magnifique", syllables: 3 },
+            { word: "école", syllables: 2 },
+            { word: "univers", syllables: 3 },
+            { word: "orange", syllables: 2 },
+            { word: "château", syllables: 2 },
+            { word: "bibliothèque", syllables: 4 }
+        ];
+        
+        // État du jeu
+        const gameState = {
+            score: 0,
+            correctAnswers: 0,
+            totalQuestions: 0,
+            currentWord: null,
+            gameStarted: false
+        };
+        
+        // Éléments du DOM
+        const startScreen = document.getElementById('start-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const startBtn = document.getElementById('start-btn');
+        const wordDisplay = document.getElementById('word-display');
+        const syllableOptions = document.getElementById('syllable-options');
+        const feedback = document.getElementById('feedback');
+        const explanation = document.getElementById('explanation');
+        const scoreDisplay = document.getElementById('score');
+        const correctDisplay = document.getElementById('correct');
+        const progressFill = document.getElementById('progress-fill');
+        
+        // Démarrer le jeu
+        startBtn.addEventListener('click', startGame);
+        
+        function startGame() {
+            startScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            gameState.gameStarted = true;
+            loadNewWord();
+        }
+        
+        function loadNewWord() {
+            // Choisir un mot aléatoire
+            const randomIndex = Math.floor(Math.random() * wordsDatabase.length);
+            gameState.currentWord = wordsDatabase[randomIndex];
+            
+            // Afficher le mot
+            wordDisplay.textContent = gameState.currentWord.word;
+            wordDisplay.style.animation = 'bounce 0.5s';
+            
+            // Générer les options de réponse (1 à 4 syllabes)
+            generateOptions(gameState.currentWord.syllables);
+            
+            // Effacer le feedback précédent
+            clearFeedback();
+            
+            // Mettre à jour le compteur de questions
+            gameState.totalQuestions++;
+        }
+        
+        function generateOptions(correctSyllables) {
+            syllableOptions.innerHTML = '';
+            
+            // Déterminer les options possibles (autour de la bonne réponse)
+            let options = [correctSyllables];
+            
+            // Ajouter des options proches mais différentes
+            while (options.length < 4) {
+                let randomOption;
+                if (correctSyllables === 1) {
+                    randomOption = correctSyllables + Math.floor(Math.random() * 2) + 1;
+                } else {
+                    randomOption = correctSyllables + (Math.floor(Math.random() * 3) - 1); // -1, 0, ou +1
+                }
+                
+                // S'assurer que c'est entre 1 et 4 et unique
+                randomOption = Math.max(1, Math.min(4, randomOption));
+                if (!options.includes(randomOption)) {
+                    options.push(randomOption);
+                }
+            }
+            
+            // Mélanger les options
+            options = shuffleArray(options);
+            
+            // Créer les boutons
+            options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'syllable-btn';
+                button.textContent = option;
+                button.addEventListener('click', function() {
+                    checkAnswer(option);
+                });
+                syllableOptions.appendChild(button);
+            });
+        }
+        
+        function checkAnswer(selectedAnswer) {
+            const isCorrect = selectedAnswer === gameState.currentWord.syllables;
+            
+            // Mettre à jour l'état du jeu
+            if (isCorrect) {
+                gameState.score += 10;
+                gameState.correctAnswers++;
+                showFeedback(true);
+            } else {
+                showFeedback(false);
+            }
+            
+            // Mettre à jour l'affichage
+            updateScoreDisplay();
+            updateProgress();
+            
+            // Désactiver les boutons pendant le feedback
+            const buttons = syllableOptions.querySelectorAll('button');
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                if (parseInt(btn.textContent) === gameState.currentWord.syllables) {
+                    btn.style.backgroundColor = '#4CAF50';
+                }
+            });
+            
+            // Charger un nouveau mot après un délai
+            setTimeout(() => {
+                loadNewWord();
+                buttons.forEach(btn => {
+                    btn.disabled = false;
+                    btn.style.backgroundColor = '#4ECDC4';
+                });
+            }, 2000);
+        }
+        
+        function showFeedback(isCorrect) {
+            if (isCorrect) {
+                feedback.textContent = 'Correct!';
+                feedback.className = 'feedback correct';
+                explanation.textContent = `"${gameState.currentWord.word}" a bien ${gameState.currentWord.syllables} syllabe(s).`;
+            } else {
+                feedback.textContent = 'Incorrect';
+                feedback.className = 'feedback incorrect';
+                explanation.textContent = `"${gameState.currentWord.word}" a ${gameState.currentWord.syllables} syllabe(s).`;
+            }
+            
+            // Animation
+            feedback.style.animation = 'none';
+            void feedback.offsetWidth; // Trigger reflow
+            feedback.style.animation = 'fadeIn 0.5s';
+        }
+        
+        function clearFeedback() {
+            feedback.textContent = '';
+            feedback.className = 'feedback';
+            explanation.textContent = '';
+        }
+        
+        function updateScoreDisplay() {
+            scoreDisplay.textContent = gameState.score;
+            correctDisplay.textContent = `${gameState.correctAnswers}/${gameState.totalQuestions}`;
+        }
+        
+        function updateProgress() {
+            const progress = (gameState.correctAnswers / gameState.totalQuestions) * 100;
+            progressFill.style.width = `${progress}%`;
+        }
+        
+        // Fonction utilitaire pour mélanger un tableau
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+        
+        // Animation du mot à chaque nouveau chargement
+        wordDisplay.addEventListener('animationend', function() {
+            this.style.animation = '';
+        });
+    </script>
+</body>
+</html>

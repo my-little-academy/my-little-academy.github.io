@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سورة الزلزلة بالصوت والصورة</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e8f5e9;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #2e7d32;
+        }
+        .container {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .verse-container {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #c8e6c9;
+            border-radius: 5px;
+            font-size: 18px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .image-container {
+            margin: 15px 0;
+        }
+        .image-container img {
+            max-width: 100%;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            background-color: #2e7d32;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0 5px;
+        }
+        button:hover {
+            background-color: #1b5e20;
+        }
+        button:disabled {
+            background-color: #81c784;
+            cursor: not-allowed;
+        }
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            border-radius: 50%;
+            animation: fall 3s linear forwards;
+        }
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+                opacity: 0;
+            }
+        }
+        .progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .progress-bar {
+            height: 10px;
+            background-color: #4caf50;
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>سورة الزلزلة بالصوت والصورة</h1>
+        <p>استمع إلى الآيات وشاهد الصور التوضيحية</p>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        
+        <div class="verse-container" id="verse"></div>
+        
+        <div class="image-container">
+            <img id="verse-image" src="" alt="صورة توضيحية للآية">
+        </div>
+        
+        <div class="controls">
+            <button id="prev-btn" disabled>السابقة</button>
+            <button id="play-btn">تشغيل</button>
+            <button id="next-btn">التالية</button>
+        </div>
+        
+        <div id="quiz-section" style="display: none;">
+            <h3>ما هذه الآية؟</h3>
+            <div id="quiz-options"></div>
+            <p id="quiz-result"></p>
+        </div>
+    </div>
+
+    <script>
+        const verses = [
+            {
+                text: "إِذَا زُلْزِلَتِ الْأَرْضُ زِلْزَالَهَا",
+                audio: "https://server.mp3quran.net/sds/099001.mp3",
+                image: "https://i.imgur.com/JQ1Zf0L.jpg"
+            },
+            {
+                text: "وَأَخْرَجَتِ الْأَرْضُ أَثْقَالَهَا",
+                audio: "https://server.mp3quran.net/sds/099002.mp3",
+                image: "https://i.imgur.com/KLmY4Wx.jpg"
+            },
+            {
+                text: "وَقَالَ الْإِنْسَانُ مَا لَهَا",
+                audio: "https://server.mp3quran.net/sds/099003.mp3",
+                image: "https://i.imgur.com/7vNtQ3c.jpg"
+            },
+            {
+                text: "يَوْمَئِذٍ تُحَدِّثُ أَخْبَارَهَا",
+                audio: "https://server.mp3quran.net/sds/099004.mp3",
+                image: "https://i.imgur.com/p9XWZQk.jpg"
+            },
+            {
+                text: "بِأَنَّ رَبَّكَ أَوْحَىٰ لَهَا",
+                audio: "https://server.mp3quran.net/sds/099005.mp3",
+                image: "https://i.imgur.com/1QZwW9d.jpg"
+            },
+            {
+                text: "يَوْمَئِذٍ يَصْدُرُ النَّاسُ أَشْتَاتًا لِّيُرَوْا أَعْمَالَهُمْ",
+                audio: "https://server.mp3quran.net/sds/099006.mp3",
+                image: "https://i.imgur.com/3qJtY2F.jpg"
+            },
+            {
+                text: "فَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ خَيْرًا يَرَهُ",
+                audio: "https://server.mp3quran.net/sds/099007.mp3",
+                image: "https://i.imgur.com/9XjZL7u.jpg"
+            },
+            {
+                text: "وَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ شَرًّا يَرَهُ",
+                audio: "https://server.mp3quran.net/sds/099008.mp3",
+                image: "https://i.imgur.com/2QZwX9d.jpg"
+            }
+        ];
+        
+        const verseElement = document.getElementById('verse');
+        const verseImage = document.getElementById('verse-image');
+        const prevBtn = document.getElementById('prev-btn');
+        const playBtn = document.getElementById('play-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const quizSection = document.getElementById('quiz-section');
+        const quizOptions = document.getElementById('quiz-options');
+        const quizResult = document.getElementById('quiz-result');
+        
+        let currentVerse = 0;
+        let audio = new Audio();
+        
+        function loadVerse() {
+            verseElement.textContent = verses[currentVerse].text;
+            verseImage.src = verses[currentVerse].image;
+            
+            prevBtn.disabled = currentVerse === 0;
+            nextBtn.disabled = currentVerse === verses.length - 1;
+            
+            progressBar.style.width = `${(currentVerse + 1) / verses.length * 100}%`;
+            
+            // إخفاء قسم الأسئلة
+            quizSection.style.display = 'none';
+        }
+        
+        function playVerse() {
+            audio.src = verses[currentVerse].audio;
+            audio.play();
+            
+            // بعد انتهاء الصوت، عرض سؤال عشوائي
+            audio.onended = function() {
+                if (Math.random() > 0.5) { // 50% فرصة لعرض سؤال
+                    showQuiz();
+                }
+            };
+        }
+        
+        function showQuiz() {
+            quizSection.style.display = 'block';
+            quizResult.textContent = '';
+            
+            // إنشاء خيارات عشوائية
+            const correctVerse = currentVerse;
+            let options = [correctVerse];
+            
+            while (options.length < 4) {
+                const randomVerse = Math.floor(Math.random() * verses.length);
+                if (!options.includes(randomVerse)) {
+                    options.push(randomVerse);
+                }
+            }
+            
+            // خلط الخيارات
+            options = options.sort(() => Math.random() - 0.5);
+            
+            quizOptions.innerHTML = '';
+            options.forEach(verseIndex => {
+                const optionBtn = document.createElement('button');
+                optionBtn.textContent = verses[verseIndex].text;
+                optionBtn.style.margin = '5px';
+                optionBtn.style.backgroundColor = '#2196F3';
+                optionBtn.addEventListener('click', () => checkAnswer(verseIndex === correctVerse));
+                quizOptions.appendChild(optionBtn);
+            });
+        }
+        
+        function checkAnswer(isCorrect) {
+            const buttons = quizOptions.querySelectorAll('button');
+            buttons.forEach(btn => btn.disabled = true);
+            
+            if (isCorrect) {
+                quizResult.textContent = 'أحسنت! إجابة صحيحة';
+                quizResult.style.color = 'green';
+                createConfetti();
+                
+                // تشغيل صوت النجاح
+                const successAudio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3');
+                successAudio.play();
+            } else {
+                quizResult.textContent = 'إجابة خاطئة، حاول مرة أخرى';
+                quizResult.style.color = 'red';
+            }
+        }
+        
+        function createConfetti() {
+            const colors = ['#f00', '#0f0', '#00f', '#ff0', '#f0f', '#0ff'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDuration = (Math.random() * 2 + 1) + 's';
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => {
+                    confetti.remove();
+                }, 3000);
+            }
+        }
+        
+        prevBtn.addEventListener('click', () => {
+            currentVerse--;
+            loadVerse();
+        });
+        
+        playBtn.addEventListener('click', playVerse);
+        
+        nextBtn.addEventListener('click', () => {
+            currentVerse++;
+            loadVerse();
+        });
+        
+        loadVerse();
+    </script>
+</body>
+</html>

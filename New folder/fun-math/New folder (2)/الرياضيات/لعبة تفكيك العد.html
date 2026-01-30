@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>لعبة تفكيك العدد</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #e0f7fa;
+      padding: 30px;
+      text-align: center;
+    }
+    h1 {
+      color: #00796b;
+    }
+    .box {
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 15px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    input, button, select {
+      padding: 10px;
+      font-size: 16px;
+      margin: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      width: 80%;
+    }
+    button {
+      background-color: #00796b;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #004d40;
+    }
+    #result {
+      margin-top: 15px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    .success {
+      color: green;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎯 لعبة تفكيك العدد</h1>
+
+  <div class="box">
+    <label for="level">اختر المستوى:</label><br>
+    <select id="level">
+      <option value="3">🔢 عدد من 3 أرقام</option>
+      <option value="4" selected>🔢 عدد من 4 أرقام</option>
+      <option value="5">🔢 عدد من 5 أرقام</option>
+    </select><br>
+
+    <button onclick="generateRandomNumber()">🎲 توليد عدد عشوائي</button><br>
+
+    <label for="numberInput">العدد:</label><br>
+    <input type="number" id="numberInput" placeholder="مثال: 3957"><br>
+
+    <label for="decompositionInput">اكتب التفكيك (رقمي أو لفظي):</label><br>
+    <input type="text" id="decompositionInput" placeholder="مثال: 3000 + 900 + 50 + 7 أو 3 آلاف + 9 مئات + 5 عشرات + 7 وحدات"><br>
+
+    <button onclick="checkDecomposition()">✅ تحقق</button>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    function generateRandomNumber() {
+      const level = parseInt(document.getElementById("level").value);
+      const min = Math.pow(10, level - 1);
+      const max = Math.pow(10, level) - 1;
+      const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+      document.getElementById("numberInput").value = randomNumber;
+    }
+
+    function checkDecomposition() {
+      const number = parseInt(document.getElementById("numberInput").value);
+      const input = document.getElementById("decompositionInput").value.trim();
+      const result = document.getElementById("result");
+
+      if (!number || input === "") {
+        result.innerHTML = "⚠️ الرجاء إدخال العدد والتفكيك.";
+        result.className = "error";
+        return;
+      }
+
+      // التحويل من النموذج اللفظي إلى رقمي
+      let converted = input
+        .replace(/ألفاً|ألف|آلاف/g, '*1000')
+        .replace(/مئة|مائة|مئات/g, '*100')
+        .replace(/عشرات/g, '*10')
+        .replace(/وحدات|وحدة/g, '*1')
+        .replace(/ +/g, '')
+        .replace(/(\d+)\*/g, '$1*') // تأكيد الضرب
+        .replace(/(\d+)x/g, '$1*')  // دعم 'x' أيضًا كرمز ضرب
+        .replace(/[\u0660-\u0669]/g, d => d.charCodeAt(0) - 0x0660); // أرقام هندية للعربية
+
+      try {
+        let total = 0;
+        if (converted.includes('+') || converted.includes('*')) {
+          total = eval(converted.replace(/[^0-9+*]/g, ''));
+        } else {
+          total = eval(input.replace(/\s+/g, ''));
+        }
+
+        if (total === number) {
+          result.innerHTML = "✔️ أحسنت! التفكيك صحيح.";
+          result.className = "success";
+        } else {
+          result.innerHTML = "❌ التفكيك غير صحيح. حاول مرة أخرى.";
+          result.className = "error";
+        }
+      } catch (e) {
+        result.innerHTML = "⚠️ خطأ في الصيغة. راجع التفكيك.";
+        result.className = "error";
+      }
+    }
+  </script>
+
+</body>
+</html>

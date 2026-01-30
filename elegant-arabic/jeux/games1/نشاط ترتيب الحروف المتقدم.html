@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نشاط ترتيب الحروف المتقدم</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f8ff;
+            padding: 20px;
+        }
+        h1 {
+            color: #2e8b57;
+        }
+        .container {
+            margin: 20px auto;
+            max-width: 800px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .game-info {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        .word-display {
+            font-size: 28px;
+            margin: 20px 0;
+            color: #333;
+            min-height: 40px;
+        }
+        .scrambled-letters {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .letter {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            font-size: 22px;
+            cursor: grab;
+            border-radius: 5px;
+            user-select: none;
+            transition: transform 0.2s;
+        }
+        .letter:hover {
+            background-color: #45a049;
+            transform: scale(1.1);
+        }
+        .answer-area {
+            min-height: 80px;
+            border: 2px dashed #ccc;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 25px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            background-color: #f9f9f9;
+        }
+        .controls {
+            margin: 25px 0;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        button {
+            background-color: #2e8b57;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #3cb371;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .message {
+            font-size: 20px;
+            margin: 15px 0;
+            min-height: 30px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .correct {
+            color: green;
+            background-color: #e8f5e9;
+        }
+        .incorrect {
+            color: red;
+            background-color: #ffebee;
+        }
+        .stats {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #e3f2fd;
+            border-radius: 5px;
+            font-size: 18px;
+        }
+        .progress-bar {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .progress {
+            height: 20px;
+            background-color: #4CAF50;
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        .timer {
+            font-size: 24px;
+            font-weight: bold;
+            color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✨ نشاط ترتيب الحروف المتقدم ✨</h1>
+        
+        <div class="game-info">
+            <div>الكلمات المتبقية: <span id="remaining-words">0</span></div>
+            <div class="timer">الوقت: <span id="time">00:00</span></div>
+            <div>النقاط: <span id="score">0</span></div>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        
+        <div class="word-display">الكلمة: <span id="target-word"></span></div>
+        
+        <div class="scrambled-letters" id="scrambled-letters"></div>
+        
+        <div class="answer-area" id="answer-area"></div>
+        
+        <div class="controls">
+            <button id="check-btn">تحقق</button>
+            <button id="hint-btn">مساعدة</button>
+            <button id="reset-btn">إعادة</button>
+            <button id="skip-btn">تخطي</button>
+        </div>
+        
+        <div class="message" id="message"></div>
+        
+        <div class="stats" id="stats" style="display: none;">
+            <h3>النتيجة النهائية</h3>
+            <p>عدد الكلمات الصحيحة: <span id="correct-words">0</span></p>
+            <p>عدد الكلمات الخاطئة: <span id="wrong-words">0</span></p>
+            <p>النقاط الكلية: <span id="total-score">0</span></p>
+            <p>الوقت المستغرق: <span id="total-time">00:00</span></p>
+            <button id="restart-btn">العب مرة أخرى</button>
+        </div>
+    </div>
+
+    <script>
+        // قاعدة البيانات الكاملة للكلمات (يمكنك إضافة المزيد)
+        const allWords = [
+            // مستوى سهل (3-4 أحرف)
+            { word: "باب", scrambled: ["ب", "ا", "ب"], difficulty: 1 },
+            { word: "شمس", scrambled: ["ش", "م", "س"], difficulty: 1 },
+            { word: "قلم", scrambled: ["ل", "م", "ق"], difficulty: 1 },
+            { word: "كتاب", scrambled: ["ا", "ب", "ت", "ك"], difficulty: 1 },
+            
+            // مستوى متوسط (5-6 أحرف)
+            { word: "مدرسة", scrambled: ["س", "د", "ة", "ر", "م"], difficulty: 2 },
+            { word: "تفاحة", scrambled: ["ح", "ا", "ت", "ف", "ة"], difficulty: 2 },
+            { word: "سيارة", scrambled: ["س", "ا", "ر", "ي", "ة"], difficulty: 2 },
+            { word: "طائرة", scrambled: ["ط", "ر", "ا", "ء", "ة"], difficulty: 2 },
+            
+            // مستوى صعب (7+ أحرف)
+            { word: "كمبيوتر", scrambled: ["و", "ت", "ر", "ي", "ب", "م", "ك"], difficulty: 3 },
+            { word: "حقيبة", scrambled: ["ح", "ق", "ي", "ب", "ة"], difficulty: 3 },
+            { word: "مكتبة", scrambled: ["ت", "ب", "ك", "م", "ة"], difficulty: 3 },
+            { word: "عالمية", scrambled: ["ع", "م", "ي", "ل", "ة", "ا"], difficulty: 3 },
+            
+            // يمكنك إضافة المزيد من الكلمات هنا...
+            { word: "حديقة", scrambled: ["ح", "د", "ي", "ق", "ة"], difficulty: 2 },
+            { word: "تلفاز", scrambled: ["ت", "ل", "ف", "ا", "ز"], difficulty: 2 },
+            { word: "مستشفى", scrambled: ["س", "ت", "ش", "ف", "ى", "م"], difficulty: 3 }
+        ];
+
+        // إعدادات اللعبة
+        const gameSettings = {
+            maxWords: 10, // عدد الكلمات في الجلسة
+            timeLimit: 120, // الوقت الأقصى بالثواني (0 = لا يوجد حد)
+            hintPenalty: 5, // خصم النقاط عند استخدام المساعدة
+            skipPenalty: 3, // خصم النقاط عند التخطي
+            pointsPerWord: 10, // النقاط لكل كلمة صحيحة
+            difficulty: 2 // 1 = سهل, 2 = متوسط, 3 = صعب
+        };
+
+        // حالة اللعبة
+        let gameState = {
+            words: [],
+            currentWordIndex: 0,
+            score: 0,
+            correctAnswers: 0,
+            wrongAnswers: 0,
+            startTime: 0,
+            timerInterval: null,
+            timeSpent: 0,
+            draggedLetter: null,
+            usedHints: 0,
+            skippedWords: 0
+        };
+
+        // عناصر واجهة المستخدم
+        const ui = {
+            targetWord: document.getElementById("target-word"),
+            scrambledLetters: document.getElementById("scrambled-letters"),
+            answerArea: document.getElementById("answer-area"),
+            message: document.getElementById("message"),
+            checkBtn: document.getElementById("check-btn"),
+            hintBtn: document.getElementById("hint-btn"),
+            resetBtn: document.getElementById("reset-btn"),
+            skipBtn: document.getElementById("skip-btn"),
+            timer: document.getElementById("time"),
+            score: document.getElementById("score"),
+            remainingWords: document.getElementById("remaining-words"),
+            progress: document.getElementById("progress"),
+            stats: document.getElementById("stats"),
+            correctWords: document.getElementById("correct-words"),
+            wrongWords: document.getElementById("wrong-words"),
+            totalScore: document.getElementById("total-score"),
+            totalTime: document.getElementById("total-time"),
+            restartBtn: document.getElementById("restart-btn")
+        };
+
+        // تهيئة اللعبة
+        function initGame() {
+            // تصفية الكلمات حسب مستوى الصعوبة
+            gameState.words = allWords
+                .filter(word => word.difficulty <= gameSettings.difficulty)
+                .sort(() => Math.random() - 0.5)
+                .slice(0, gameSettings.maxWords);
+            
+            gameState.currentWordIndex = 0;
+            gameState.score = 0;
+            gameState.correctAnswers = 0;
+            gameState.wrongAnswers = 0;
+            gameState.usedHints = 0;
+            gameState.skippedWords = 0;
+            gameState.timeSpent = 0;
+            
+            ui.stats.style.display = "none";
+            ui.score.textContent = "0";
+            updateRemainingWords();
+            
+            // بدء المؤقت
+            startTimer();
+            
+            // تحميل الكلمة الأولى
+            loadCurrentWord();
+        }
+
+        // تحميل الكلمة الحالية
+        function loadCurrentWord() {
+            if (gameState.currentWordIndex >= gameState.words.length) {
+                endGame();
+                return;
+            }
+            
+            const currentWord = gameState.words[gameState.currentWordIndex];
+            
+            // عرض الكلمة الهدف
+            ui.targetWord.textContent = currentWord.word;
+            
+            // مسح المناطق
+            ui.scrambledLetters.innerHTML = "";
+            ui.answerArea.innerHTML = "";
+            ui.message.textContent = "";
+            ui.message.className = "message";
+            
+            // إنشاء الحروف المبعثرة (بترتيب عشوائي)
+            const shuffledLetters = [...currentWord.scrambled].sort(() => Math.random() - 0.5);
+            
+            shuffledLetters.forEach(letter => {
+                const letterElement = document.createElement("div");
+                letterElement.className = "letter";
+                letterElement.textContent = letter;
+                letterElement.draggable = true;
+                
+                letterElement.addEventListener("dragstart", (e) => {
+                    gameState.draggedLetter = letterElement;
+                    e.dataTransfer.setData("text/plain", letter);
+                });
+                
+                ui.scrambledLetters.appendChild(letterElement);
+            });
+            
+            // جعل منطقة الإجابة قابلة للسحب
+            ui.answerArea.addEventListener("dragover", (e) => {
+                e.preventDefault();
+            });
+            
+            ui.answerArea.addEventListener("drop", (e) => {
+                e.preventDefault();
+                if (gameState.draggedLetter) {
+                    ui.answerArea.appendChild(gameState.draggedLetter);
+                    gameState.draggedLetter = null;
+                    checkIfComplete();
+                }
+            });
+            
+            // تحديث شريط التقدم
+            updateProgressBar();
+        }
+
+        // التحقق من اكتمال الإجابة
+        function checkIfComplete() {
+            const currentWord = gameState.words[gameState.currentWordIndex].word;
+            const answerLetters = Array.from(ui.answerArea.children);
+            
+            if (answerLetters.length === currentWord.length) {
+                ui.checkBtn.disabled = false;
+            } else {
+                ui.checkBtn.disabled = true;
+            }
+        }
+
+        // التحقق من الإجابة
+        function checkAnswer() {
+            const currentWord = gameState.words[gameState.currentWordIndex].word;
+            const answerLetters = Array.from(ui.answerArea.children);
+            
+            let userAnswer = "";
+            answerLetters.forEach(letter => {
+                userAnswer += letter.textContent;
+            });
+            
+            if (userAnswer === currentWord) {
+                // إجابة صحيحة
+                gameState.score += gameSettings.pointsPerWord;
+                gameState.correctAnswers++;
+                ui.message.textContent = "إجابة صحيحة! أحسنت! ✨";
+                ui.message.className = "message correct";
+                ui.score.textContent = gameState.score;
+                
+                // الانتقال للكلمة التالية بعد تأخير
+                setTimeout(() => {
+                    gameState.currentWordIndex++;
+                    updateRemainingWords();
+                    loadCurrentWord();
+                }, 1500);
+            } else {
+                // إجابة خاطئة
+                gameState.wrongAnswers++;
+                ui.message.textContent = "إجابة خاطئة! حاول مرة أخرى!";
+                ui.message.className = "message incorrect";
+                
+                // تمييز الحروف الخطأ باللون الأحمر
+                answerLetters.forEach((letter, index) => {
+                    if (letter.textContent !== currentWord[index]) {
+                        letter.style.backgroundColor = "#ff4444";
+                    }
+                });
+            }
+        }
+
+        // إعادة تعيين الكلمة الحالية
+        function resetCurrentWord() {
+            loadCurrentWord();
+        }
+
+        // تخطي الكلمة الحالية
+        function skipCurrentWord() {
+            gameState.score = Math.max(0, gameState.score - gameSettings.skipPenalty);
+            gameState.skippedWords++;
+            ui.score.textContent = gameState.score;
+            
+            ui.message.textContent = `تم تخطي الكلمة! (خصم ${gameSettings.skipPenalty} نقاط)`;
+            ui.message.className = "message incorrect";
+            
+            gameState.currentWordIndex++;
+            updateRemainingWords();
+            loadCurrentWord();
+        }
+
+        // عرض مساعدة (حرف واحد)
+        function giveHint() {
+            const currentWord = gameState.words[gameState.currentWordIndex].word;
+            const answerLetters = Array.from(ui.answerArea.children);
+            
+            // معرفة الحروف المتبقية
+            const remainingLetters = [];
+            for (let i = 0; i < currentWord.length; i++) {
+                if (!answerLetters[i] || answerLetters[i].textContent !== currentWord[i]) {
+                    remainingLetters.push({
+                        position: i,
+                        letter: currentWord[i]
+                    });
+                }
+            }
+            
+            if (remainingLetters.length > 0) {
+                // اختيار حرف عشوائي للمساعدة
+                const randomHint = remainingLetters[Math.floor(Math.random() * remainingLetters.length)];
+                
+                // إضافة الحرف إلى الإجابة
+                const letterElements = Array.from(ui.scrambledLetters.children);
+                const hintLetter = letterElements.find(el => el.textContent === randomHint.letter);
+                
+                if (hintLetter) {
+                    ui.answerArea.insertBefore(hintLetter, ui.answerArea.children[randomHint.position] || null);
+                    
+                    // خصم النقاط
+                    gameState.score = Math.max(0, gameState.score - gameSettings.hintPenalty);
+                    gameState.usedHints++;
+                    ui.score.textContent = gameState.score;
+                    
+                    ui.message.textContent = `تمت المساعدة! (خصم ${gameSettings.hintPenalty} نقاط)`;
+                    ui.message.className = "message";
+                    
+                    checkIfComplete();
+                }
+            }
+        }
+
+        // بدء المؤقت
+        function startTimer() {
+            gameState.startTime = Date.now();
+            
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+            }
+            
+            gameState.timerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - gameState.startTime) / 1000) + gameState.timeSpent;
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                
+                ui.timer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                // التحقق من انتهاء الوقت
+                if (gameSettings.timeLimit > 0 && elapsed >= gameSettings.timeLimit) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        // تحديث عدد الكلمات المتبقية
+        function updateRemainingWords() {
+            const remaining = gameState.words.length - gameState.currentWordIndex;
+            ui.remainingWords.textContent = remaining;
+        }
+
+        // تحديث شريط التقدم
+        function updateProgressBar() {
+            const progress = (gameState.currentWordIndex / gameState.words.length) * 100;
+            ui.progress.style.width = `${progress}%`;
+        }
+
+        // إنهاء اللعبة
+        function endGame() {
+            clearInterval(gameState.timerInterval);
+            gameState.timeSpent = Math.floor((Date.now() - gameState.startTime) / 1000);
+            
+            // عرض الإحصائيات
+            ui.stats.style.display = "block";
+            ui.correctWords.textContent = gameState.correctAnswers;
+            ui.wrongWords.textContent = gameState.wrongAnswers;
+            ui.totalScore.textContent = gameState.score;
+            
+            const minutes = Math.floor(gameState.timeSpent / 60);
+            const seconds = gameState.timeSpent % 60;
+            ui.totalTime.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // إخفاء عناصر اللعبة
+            ui.targetWord.textContent = "";
+            ui.scrambledLetters.innerHTML = "";
+            ui.answerArea.innerHTML = "";
+            ui.message.textContent = "انتهت اللعبة! انظر إلى نتيجتك أدناه";
+            ui.message.className = "message";
+        }
+
+        // إعداد واجهة المستخدم
+        function setupUI() {
+            ui.checkBtn.addEventListener("click", checkAnswer);
+            ui.hintBtn.addEventListener("click", giveHint);
+            ui.resetBtn.addEventListener("click", resetCurrentWord);
+            ui.skipBtn.addEventListener("click", skipCurrentWord);
+            ui.restartBtn.addEventListener("click", initGame);
+            
+            // تعطيل زر التحقق في البداية
+            ui.checkBtn.disabled = true;
+        }
+
+        // بدء اللعبة عند تحميل الصفحة
+        window.onload = function() {
+            setupUI();
+            initGame();
+        };
+    </script>
+</body>
+</html>

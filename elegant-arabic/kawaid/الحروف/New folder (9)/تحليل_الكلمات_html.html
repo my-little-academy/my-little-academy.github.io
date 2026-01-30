@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تحليل الكلمات إلى مقاطع صوتية</title>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(to top right, #fff6e0, #f0f8ff);
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    header {
+      text-align: center;
+      padding: 20px;
+      background-color: #ffdf91;
+      color: #5a3d1e;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .container {
+      padding: 30px;
+      text-align: center;
+    }
+
+    .card {
+      background-color: #fff;
+      border-radius: 20px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+      padding: 30px;
+      max-width: 700px;
+      margin: 20px auto;
+      transition: transform 0.3s;
+    }
+
+    .card:hover {
+      transform: scale(1.02);
+    }
+
+    .word {
+      font-size: 36px;
+      font-weight: bold;
+      color: #4b2e83;
+      margin-bottom: 20px;
+    }
+
+    .choices {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .choice {
+      background-color: #e3f2fd;
+      border: 2px solid #90caf9;
+      border-radius: 15px;
+      padding: 15px 25px;
+      font-size: 20px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .choice:hover {
+      background-color: #bbdefb;
+    }
+
+    .message {
+      font-size: 24px;
+      color: green;
+      margin-top: 15px;
+    }
+
+    .confetti {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .leaf {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: radial-gradient(circle, #ffd700, #ffa500);
+      border-radius: 50%;
+      animation: fall 3s ease-in-out forwards;
+    }
+
+    @keyframes fall {
+      0% {transform: translateY(0) rotate(0deg); opacity: 1;}
+      100% {transform: translateY(600px) rotate(720deg); opacity: 0;}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>لعبة تحليل الكلمات إلى مقاطع صوتية</h1>
+    <p>ساعد صديقك نون القلم في تقطيع الكلمات بطريقة صحيحة!</p>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <div class="word" id="wordDisplay">ذَهَبَ</div>
+      <div class="choices" id="choices"></div>
+      <div class="message" id="message"></div>
+    </div>
+  </div>
+
+  <div class="confetti" id="confetti"></div>
+
+  <script>
+    const data = [
+      { word: "ذَهَبَ", parts: ["ذَ / هـَ / ـبَ"] },
+      { word: "قَدِمَ", parts: ["قَـ / ـدِ / مَ"] },
+      { word: "كَتَبَ", parts: ["كـَ / ـتَ / ـبَ"] },
+      { word: "قلمًا", parts: ["قَـ / ـلَـ / ـمًا"] },
+      { word: "حقيبةً", parts: ["حَـ / ـقِـيـ / ـبَـ / ـةً"] },
+      { word: "ملجآنِ", parts: ["مَلـْ / ـجَـ / ـأَاْ / نِ"] },
+      { word: "آكُلُ", parts: ["أَأْ / كُــ / ــلُ"] },
+      { word: "يقرأانِ", parts: ["يَقْـ / ـرَ / أَاْ / نِ"] },
+      { word: "ردَّ", parts: ["رَدْ/ دَ"] },
+      { word: "حُـوت", parts: ["حُـو – ت"] },
+      { word: "الصَّباحُ", parts: ["اَلـصْـ / ـصَـ / ـبَاْ / حُ"] },
+      { word: "الحِصان", parts: ["اَلْـ / ـحِـ / ـصَاْ / نُ"] }
+    ];
+
+    const wrongSamples = ["ذَ / هـَـ / ـبَ", "قَـ / دِ / مَ", "كـَ / تَـ / بَ", "قَ / لَـ / مً", "ـقِـ / بَـ / ـةً"];
+
+    let current = 0;
+
+    function render() {
+      const word = data[current];
+      document.getElementById("wordDisplay").textContent = word.word;
+      const choicesDiv = document.getElementById("choices");
+      choicesDiv.innerHTML = "";
+      const correct = word.parts[0];
+      const options = [correct, ...wrongSamples.sort(() => 0.5 - Math.random()).slice(0, 2)];
+      options.sort(() => 0.5 - Math.random());
+      options.forEach(option => {
+        const btn = document.createElement("div");
+        btn.className = "choice";
+        btn.textContent = option;
+        btn.onclick = () => checkAnswer(option === correct);
+        choicesDiv.appendChild(btn);
+      });
+      document.getElementById("message").textContent = "";
+    }
+
+    function checkAnswer(isCorrect) {
+      const msg = document.getElementById("message");
+      if (isCorrect) {
+        msg.textContent = "أحسنت!";
+        launchConfetti();
+        setTimeout(() => {
+          current = (current + 1) % data.length;
+          render();
+        }, 2000);
+      } else {
+        msg.textContent = "حاول مرة أخرى!";
+      }
+    }
+
+    function launchConfetti() {
+      const confetti = document.getElementById("confetti");
+      for (let i = 0; i < 20; i++) {
+        const leaf = document.createElement("div");
+        leaf.className = "leaf";
+        leaf.style.left = Math.random() * 100 + "%";
+        leaf.style.background = `hsl(${Math.random() * 360}, 100%, 70%)`;
+        confetti.appendChild(leaf);
+        setTimeout(() => confetti.removeChild(leaf), 3000);
+      }
+    }
+
+    render();
+  </script>
+</body>
+</html>

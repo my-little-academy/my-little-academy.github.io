@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<title>لعبة القراءة المقطعية - سحب وإسقاط</title>
+<style>
+  body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    direction: rtl;
+    background: #f0f8ff;
+    padding: 20px;
+  }
+  h2 {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .container {
+    max-width: 700px;
+    margin: auto;
+  }
+  .line {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .letter, .dropzone {
+    font-size: 32px;
+    padding: 10px 15px;
+    border: 2px solid #007acc;
+    border-radius: 8px;
+    background: #dbeeff;
+    cursor: grab;
+    user-select: none;
+    min-width: 40px;
+    text-align: center;
+  }
+  .letter:active {
+    cursor: grabbing;
+  }
+  .dropzone {
+    background: #fff;
+    border-style: dashed;
+    min-width: 40px;
+    min-height: 50px;
+  }
+  #drop-area {
+    min-height: 60px;
+    background: #e9f2ff;
+    border-radius: 8px;
+    border: 2px dashed #007acc;
+    padding: 5px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+  button {
+    display: block;
+    margin: 20px auto;
+    background: #007acc;
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    font-size: 18px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  button:hover {
+    background: #005f99;
+  }
+  #result {
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 15px;
+    min-height: 24px;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h2>لعبة القراءة المقطعية</h2>
+
+    <div><strong>الحروف الأبجدية:</strong></div>
+    <div class="line" id="letters-line">
+      <!-- الحروف الأبجدية -->
+    </div>
+
+    <div><strong>المدود والحركات:</strong></div>
+    <div class="line" id="marks-line">
+      <!-- المدود والحركات -->
+    </div>
+
+    <div><strong>كوّن مقطعك هنا:</strong></div>
+    <div id="drop-area" ondragover="event.preventDefault()" ondrop="drop(event)"></div>
+
+    <button onclick="checkSyllable()">تحقق من المقطع</button>
+
+    <div id="result"></div>
+  </div>
+
+<script>
+  // الحروف الأبجدية العربية
+  const letters = ['ا','ب','ت','ث','ج','ح','خ','د','ذ','ر','ز','س','ش','ص','ض','ط','ظ','ع','غ','ف','ق','ك','ل','م','ن','ه','و','ي'];
+  // المدود والحركات (مدود: ألف مقصورة، واو، ياء؛ وحركات: فتحة، ضمة، كسرة)
+  const marks = ['َ','ُ','ِ','ْ','ّ','ا','و','ي'];
+
+  const lettersLine = document.getElementById('letters-line');
+  const marksLine = document.getElementById('marks-line');
+  const dropArea = document.getElementById('drop-area');
+  const result = document.getElementById('result');
+
+  // دالة لإنشاء عنصر قابل للسحب
+  function createDraggable(text, type) {
+    const span = document.createElement('span');
+    span.className = 'letter';
+    span.textContent = text;
+    span.setAttribute('draggable', 'true');
+    span.dataset.type = type;
+    span.addEventListener('dragstart', dragStart);
+    return span;
+  }
+
+  // تعبئة الحروف الأبجدية
+  letters.forEach(l => {
+    lettersLine.appendChild(createDraggable(l, 'letter'));
+  });
+
+  // تعبئة المدود والحركات
+  marks.forEach(m => {
+    marksLine.appendChild(createDraggable(m, 'mark'));
+  });
+
+  // وظيفة بدء السحب
+  function dragStart(event) {
+    event.dataTransfer.setData('text/plain', event.target.textContent);
+  }
+
+  // وظيفة الإسقاط
+  function drop(event) {
+    event.preventDefault();
+    const text = event.dataTransfer.getData('text/plain');
+    if (!text) return;
+
+    // إنشاء نسخة جديدة ضمن منطقة التكوين
+    const newSpan = document.createElement('span');
+    newSpan.className = 'letter';
+    newSpan.textContent = text;
+    newSpan.style.cursor = 'pointer';
+
+    // إمكانية إزالة الحرف عند النقر عليه
+    newSpan.addEventListener('click', () => {
+      dropArea.removeChild(newSpan);
+      result.textContent = '';
+    });
+
+    dropArea.appendChild(newSpan);
+    result.textContent = '';
+  }
+
+  // تحقق بسيط (تحتاج لتطوير حسب متطلباتك)
+  function checkSyllable() {
+    const syllable = Array.from(dropArea.children).map(span => span.textContent).join('');
+    if (syllable.length === 0) {
+      result.textContent = 'كوّن مقطعاً أولاً!';
+      result.style.color = 'red';
+      return;
+    }
+    // هنا ممكن تضيف قواعد تحقق أكثر تعقيداً، الآن فقط يظهر المقطع
+    result.textContent = `المقطع الذي كوّنته: ${syllable}`;
+    result.style.color = 'green';
+  }
+</script>
+
+</body>
+</html>

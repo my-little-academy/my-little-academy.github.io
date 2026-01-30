@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>الوقوف بعرفة - رحلة الحاج الصغير</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(to top, #fff8e1, #bbdefb);
+      overflow: hidden;
+      text-align: center;
+    }
+
+    h1 {
+      color: #4e342e;
+      margin-top: 20px;
+    }
+
+    #gameArea {
+      position: relative;
+      width: 100%;
+      height: 80vh;
+      background: url('https://i.imgur.com/oG7nH6p.png') no-repeat center bottom;
+      background-size: cover;
+      overflow: hidden;
+    }
+
+    #sun {
+      position: absolute;
+      top: 50px;
+      right: -100px;
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(circle, #ffeb3b, #fbc02d);
+      border-radius: 50%;
+      box-shadow: 0 0 60px #fdd835;
+      transition: right 1s linear;
+    }
+
+    .duaa {
+      position: absolute;
+      background-color: #fffde7;
+      border: 2px solid #fbc02d;
+      border-radius: 12px;
+      padding: 10px;
+      font-size: 1.1em;
+      color: #6d4c41;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      cursor: pointer;
+      animation: float 6s linear forwards;
+    }
+
+    @keyframes float {
+      0% { top: 100%; opacity: 1; }
+      100% { top: -50px; opacity: 0; }
+    }
+
+    #scoreBoard {
+      margin-top: 10px;
+      font-size: 1.2em;
+      color: #388e3c;
+      font-weight: bold;
+    }
+
+    #endMessage {
+      font-size: 1.5em;
+      color: #d84315;
+      margin-top: 20px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🕋 الوقوف بعرفة</h1>
+  <p>اجمع أكبر عدد من الأدعية قبل غروب الشمس!</p>
+
+  <div id="gameArea">
+    <div id="sun"></div>
+  </div>
+
+  <div id="scoreBoard">الأدعية التي جمعتها: <span id="score">0</span></div>
+  <div id="endMessage"></div>
+
+  <script>
+    const sun = document.getElementById('sun');
+    const gameArea = document.getElementById('gameArea');
+    const scoreEl = document.getElementById('score');
+    const endMessage = document.getElementById('endMessage');
+
+    let score = 0;
+    let gameOver = false;
+    const duaaList = [
+      "اللهم اغفر لي",
+      "اللهم اجعلني من الصالحين",
+      "اللهم ارحم والديّ",
+      "اللهم ارزقني حبك",
+      "اللهم تقبل حجي",
+      "اللهم احفظ المسلمين",
+      "اللهم طهر قلبي",
+      "اللهم اجعلني شاكراً",
+      "اللهم زدني علماً",
+      "اللهم اجعلني بارًا"
+    ];
+
+    // تحريك الشمس تدريجيًا من اليمين لليسار
+    let sunPos = -100;
+    const sunInterval = setInterval(() => {
+      if (sunPos >= window.innerWidth) {
+        endGame();
+        return;
+      }
+      sunPos += 2;
+      sun.style.right = sunPos + 'px';
+    }, 100); // 100ms × ~60 مرة ≈ دقيقة واحدة
+
+    // توليد ورقة دعاء كل 2 ثانية
+    const duaaInterval = setInterval(() => {
+      if (gameOver) return;
+      createDuaa();
+    }, 2000);
+
+    function createDuaa() {
+      const duaa = document.createElement('div');
+      duaa.className = 'duaa';
+      duaa.textContent = duaaList[Math.floor(Math.random() * duaaList.length)];
+      duaa.style.left = Math.random() * (gameArea.clientWidth - 120) + 'px';
+      gameArea.appendChild(duaa);
+
+      duaa.onclick = () => {
+        if (!gameOver) {
+          score++;
+          scoreEl.textContent = score;
+          duaa.remove();
+        }
+      };
+
+      // إزالة الورقة بعد انتهاء التحليق
+      setTimeout(() => {
+        duaa.remove();
+      }, 6000);
+    }
+
+    function endGame() {
+      gameOver = true;
+      clearInterval(sunInterval);
+      clearInterval(duaaInterval);
+      endMessage.style.display = 'block';
+      endMessage.textContent = `🌅 انتهى وقت الوقوف بعرفة! جمعت ${score} دعاء. أحسنت يا حاج الصغير!`;
+    }
+  </script>
+
+</body>
+</html>

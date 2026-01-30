@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8" />
+<title>غابة الأفعال 🌿</title>
+<style>
+  body {
+    font-family: 'Arial', sans-serif;
+    background: #e0f7fa;
+    text-align: center;
+    direction: rtl;
+    transition: background-color 0.5s ease;
+    padding: 20px;
+  }
+  h1 {
+    color: #006064;
+    margin-bottom: 30px;
+  }
+  #verb-box {
+    font-size: 2em;
+    margin: 20px auto;
+    padding: 20px 40px;
+    background-color: #ffffff;
+    border-radius: 15px;
+    display: inline-block;
+    box-shadow: 0 6px 8px rgba(0,0,0,0.1);
+    min-width: 280px;
+    user-select: none;
+  }
+  /* أزرار الصور */
+  .image-button {
+    border: none;
+    background: none;
+    cursor: pointer;
+    margin: 10px;
+    padding: 0;
+    user-select: none;
+  }
+  .image-button img {
+    width: 110px; /* عدل حسب حجم الصورة */
+    height: auto;
+    border-radius: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: transform 0.2s ease;
+  }
+  .image-button:hover img:enabled {
+    transform: scale(1.1);
+  }
+  .image-button:disabled img {
+    filter: grayscale(100%);
+    opacity: 0.6;
+    cursor: default;
+    transform: none !important;
+  }
+  #result {
+    margin-top: 25px;
+    font-size: 1.5em;
+    color: #00695c;
+    min-height: 40px;
+    user-select: none;
+  }
+  #next-btn {
+    margin-top: 25px;
+    padding: 12px 30px;
+    font-size: 1.2em;
+    background-color: #00796b;
+    color: white;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    display: none;
+    transition: background-color 0.3s ease;
+    user-select: none;
+  }
+  #next-btn:hover {
+    background-color: #004d40;
+  }
+</style>
+</head>
+<body>
+  <h1>🌳 غابة الأفعال 🌳</h1>
+  <div id="verb-box">اضغط على "التالي" لبدء اللعبة!</div><br />
+
+  <!--
+    استبدل مسارات الصور في src بالصور التي تمثل الأزمنة:
+    past.png = صورة زمن الماضي
+    present.png = صورة زمن المضارع
+    command.png = صورة زمن الأمر
+    يمكن استخدام صور PNG بخلفية شفافة.
+  -->
+  <button class="image-button" onclick="checkAnswer('past')" id="btn-past">
+    <img src="past.png" alt="ماضٍ" />
+  </button>
+
+  <button class="image-button" onclick="checkAnswer('present')" id="btn-present">
+    <img src="present.png" alt="مضارع" />
+  </button>
+
+  <button class="image-button" onclick="checkAnswer('command')" id="btn-command">
+    <img src="command.png" alt="أمر" />
+  </button>
+
+  <div id="result"></div>
+  <button id="next-btn" onclick="displayVerb()">التالي</button>
+
+<script>
+  const verbs = [
+    { word: "أغلق الباب", correct: "past" },
+    { word: "نسمع الصوت", correct: "present" },
+    { word: "اسمع جيدًا", correct: "command" },
+    { word: "شربت الماء", correct: "past" },
+    { word: "يكتب الدرس", correct: "present" },
+    { word: "اكتب الجواب", correct: "command" },
+    { word: "دخلنا الفصل", correct: "past" },
+    { word: "نلعب في الحديقة", correct: "present" },
+    { word: "البس معطفك", correct: "command" },
+    { word: "ركبت السيارة", correct: "past" },
+    { word: "اركب الدراجة", correct: "command" },
+    { word: "يقرأ الكتاب", correct: "present" },
+    { word: "أكلنا الطعام", correct: "past" },
+    { word: "افتح الكتاب", correct: "command" },
+    { word: "ينام الطفل", correct: "present" },
+    { word: "سمعوا الخبر", correct: "past" },
+    { word: "أشاهد التلفاز", correct: "present" },
+    { word: "اذهب بسرعة", correct: "command" },
+    { word: "أجبت عن السؤال", correct: "past" },
+    { word: "أمشي في الطريق", correct: "present" }
+  ];
+
+  let currentVerb = {};
+
+  function getRandomVerb() {
+    const index = Math.floor(Math.random() * verbs.length);
+    return verbs[index];
+  }
+
+  function displayVerb() {
+    currentVerb = getRandomVerb();
+    document.getElementById("verb-box").innerText = currentVerb.word;
+    document.getElementById("result").innerText = "";
+    document.getElementById("next-btn").style.display = "none";
+    enableButtons(true);
+    document.body.style.backgroundColor = "#e0f7fa";
+  }
+
+  function checkAnswer(answer) {
+    if (answer === currentVerb.correct) {
+      document.getElementById("result").innerText = "✔️ أحسنت!";
+      flashBackground("#a8e6a1");
+      enableButtons(false);
+      document.getElementById("next-btn").style.display = "inline-block";
+    } else {
+      document.getElementById("result").innerText = "❌ حاول مرة أخرى!";
+      flashBackground("#f8a5a5");
+      enableButtons(true);
+      document.getElementById("next-btn").style.display = "none";
+    }
+  }
+
+  function enableButtons(enable) {
+    const buttons = document.querySelectorAll(".image-button");
+    buttons.forEach(btn => btn.disabled = !enable);
+  }
+
+  function flashBackground(color) {
+    document.body.style.backgroundColor = color;
+    setTimeout(() => {
+      document.body.style.backgroundColor = "#e0f7fa";
+    }, 700);
+  }
+
+  // بدء اللعبة تلقائيًا
+  displayVerb();
+
+</script>
+</body>
+</html>
+

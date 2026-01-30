@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>الاختبار السحري – بنك الأسئلة</title>
+  <style>
+    body {
+      background: linear-gradient(to bottom, #fdf6ec, #f6e58d);
+      font-family: 'Cairo', sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #6c5ce7;
+      margin-bottom: 10px;
+    }
+
+    .quiz-box {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      padding: 30px;
+      max-width: 600px;
+      margin: auto;
+      position: relative;
+    }
+
+    .question {
+      font-size: 1.4em;
+      margin-bottom: 20px;
+    }
+
+    .option {
+      display: block;
+      background: #81ecec;
+      color: #2d3436;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 20px;
+      font-size: 1.1em;
+      margin: 10px auto;
+      width: 80%;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .option:hover {
+      background: #00cec9;
+      transform: scale(1.05);
+    }
+
+    .score {
+      font-size: 1.2em;
+      color: #0984e3;
+      margin-top: 10px;
+    }
+
+    .end-screen {
+      display: none;
+      font-size: 1.5em;
+      margin-top: 30px;
+      color: #2ecc71;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🧙‍♂️ الاختبار السحري – بنك الأسئلة</h1>
+<div class="score" id="scoreBox">النقاط: 0</div>
+
+<div class="quiz-box" id="quizBox">
+  <div class="question" id="questionText"></div>
+  <div id="options"></div>
+</div>
+
+<div class="end-screen" id="endScreen"></div>
+
+<script>
+  const questions = [
+    { q: "من هو خالق السماوات؟", options: ["الله", "محمد", "جبريل", "آدم"], correct: 0 },
+    { q: "كم عدد أركان الإسلام؟", options: ["3", "5", "7", "10"], correct: 1 },
+    { q: "ما أول ركن من أركان الإسلام؟", options: ["الصلاة", "الزكاة", "الشهادة", "الصوم"], correct: 2 },
+    { q: "ما اسم كتاب الله؟", options: ["القرآن", "الإنجيل", "الزبور", "الحديث"], correct: 0 },
+    { q: "ما اسم خاتم الأنبياء؟", options: ["موسى", "عيسى", "محمد", "نوح"], correct: 2 },
+    { q: "ما عدد الصلوات المفروضة؟", options: ["3", "4", "5", "6"], correct: 2 }
+  ];
+
+  let score = 0;
+  let usedQuestions = [];
+  let questionCount = 0;
+  const maxQuestions = 5;
+
+  function getRandomQuestion() {
+    let index;
+    do {
+      index = Math.floor(Math.random() * questions.length);
+    } while (usedQuestions.includes(index));
+    usedQuestions.push(index);
+    return questions[index];
+  }
+
+  function showQuestion() {
+    if (questionCount >= maxQuestions) return endQuiz();
+    const q = getRandomQuestion();
+    document.getElementById('questionText').textContent = q.q;
+    const optionsBox = document.getElementById('options');
+    optionsBox.innerHTML = "";
+    q.options.forEach((opt, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'option';
+      btn.textContent = opt;
+      btn.onclick = () => handleAnswer(idx === q.correct);
+      optionsBox.appendChild(btn);
+    });
+  }
+
+  function handleAnswer(correct) {
+    if (correct) score++;
+    document.getElementById('scoreBox').textContent = `النقاط: ${score}`;
+    questionCount++;
+    setTimeout(showQuestion, 500);
+  }
+
+  function endQuiz() {
+    document.getElementById('quizBox').style.display = 'none';
+    const result = document.getElementById('endScreen');
+    result.textContent = score >= 4 ? "🎉 ممتاز! أنت فارس العلم!" : "📚 جيد، تابع التعلم!";
+    result.style.display = 'block';
+  }
+
+  showQuestion();
+</script>
+
+</body>
+</html>

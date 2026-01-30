@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الله الكبير - اختيار من متعدد</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            color: #4a5568;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            color: #718096;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .level-indicator {
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            background: #e2e8f0;
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            height: 100%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .question-card {
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .question-number {
+            color: #4facfe;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            color: #2d3748;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .options {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            color: #4a5568;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option:hover {
+            border-color: #4facfe;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.2);
+        }
+
+        .option.selected {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border-color: #4facfe;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+        }
+
+        .option.correct {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            border-color: #48bb78;
+            color: white;
+        }
+
+        .option.incorrect {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+            border-color: #f56565;
+            color: white;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
+        }
+
+        .next-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .score-display {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #4a5568;
+            margin-bottom: 20px;
+        }
+
+        .final-score {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .final-score h2 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .final-score p {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .restart-btn {
+            background: white;
+            color: #667eea;
+            border: 2px solid white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            background: transparent;
+            color: white;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+
+        .feedback.correct {
+            background: rgba(72, 187, 120, 0.1);
+            color: #38a169;
+            border: 1px solid rgba(72, 187, 120, 0.3);
+        }
+
+        .feedback.incorrect {
+            background: rgba(245, 101, 101, 0.1);
+            color: #e53e3e;
+            border: 1px solid rgba(245, 101, 101, 0.3);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🕌 الله الكبير 🕌</h1>
+            <p class="subtitle">لعبة تعليمية تفاعلية</p>
+        </div>
+
+        <div id="gameContent">
+            <div class="level-indicator" id="levelIndicator">المستوى الأول - السهل</div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+
+            <div class="score-display" id="scoreDisplay">النقاط: 0</div>
+
+            <div class="question-card" id="questionCard">
+                <div class="question-number" id="questionNumber">السؤال 1 من 5</div>
+                <div class="question-text" id="questionText"></div>
+                <div class="options" id="optionsContainer"></div>
+                <div class="feedback" id="feedback" style="display: none;"></div>
+            </div>
+
+            <button class="next-btn" id="nextBtn" onclick="nextQuestion()" disabled>السؤال التالي</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = {
+            level1: [
+                {
+                    question: "ما معنى اسم الله 'الكبير'؟",
+                    options: ["العظيم في ذاته وصفاته", "الكبير في الحجم", "الأكبر عمراً", "القوي في الجسم"],
+                    correct: 0,
+                    explanation: "اسم الله الكبير يعني العظيم في ذاته وصفاته وأفعاله"
+                },
+                {
+                    question: "كم مرة ورد اسم 'الكبير' في القرآن الكريم؟",
+                    options: ["مرة واحدة", "مرتان", "ثلاث مرات", "أربع مرات"],
+                    correct: 2,
+                    explanation: "ورد اسم الله الكبير في القرآن الكريم ثلاث مرات"
+                },
+                {
+                    question: "في أي سورة ورد قوله تعالى 'وأن الله هو العلي الكبير'؟",
+                    options: ["سورة البقرة", "سورة الحج", "سورة النور", "سورة الفرقان"],
+                    correct: 1,
+                    explanation: "وردت الآية في سورة الحج: 'وأن الله هو العلي الكبير'"
+                },
+                {
+                    question: "ما الفرق بين 'الكبير' و'الأكبر'؟",
+                    options: ["لا فرق بينهما", "الكبير صفة مطلقة والأكبر للمقارنة", "الأكبر أعظم من الكبير", "الكبير للذات والأكبر للصفات"],
+                    correct: 1,
+                    explanation: "الكبير صفة مطلقة لله، والأكبر تستخدم للمقارنة كما في 'الله أكبر'"
+                },
+                {
+                    question: "أي من هذه الأسماء يرتبط بمعنى 'الكبير'؟",
+                    options: ["الرحمن", "العظيم", "الغفور", "الصبور"],
+                    correct: 1,
+                    explanation: "اسم الله العظيم يرتبط بمعنى الكبير في الدلالة على عظمة الله"
+                }
+            ],
+            level2: [
+                {
+                    question: "ما الحكمة من تكرار 'الله أكبر' في الصلاة؟",
+                    options: ["للزينة والجمال", "لتذكير القلب بعظمة الله", "لملء الوقت", "لأنها سنة فقط"],
+                    correct: 1,
+                    explanation: "تكرار 'الله أكبر' يذكر القلب بعظمة الله ويخضع النفس لله"
+                },
+                {
+                    question: "كيف يؤثر الإيمان باسم الله 'الكبير' على سلوك المؤمن؟",
+                    options: ["يجعله متكبراً", "يجعله متواضعاً خاشعاً", "لا يؤثر عليه", "يجعله خائفاً فقط"],
+                    correct: 1,
+                    explanation: "الإيمان بأن الله هو الكبير يجعل المؤمن متواضعاً خاشعاً أمام عظمة الله"
+                },
+                {
+                    question: "ما الآية التي تجمع بين اسمي 'العلي' و'الكبير'؟",
+                    options: ["'إن ربكم الله الذي خلق السماوات والأرض'", "'وأن الله هو العلي الكبير'", "'الله لا إله إلا هو الحي القيوم'", "'قل هو الله أحد'"],
+                    correct: 1,
+                    explanation: "الآية 'وأن الله هو العلي الكبير' تجمع بين الاسمين الكريمين"
+                },
+                {
+                    question: "متى يستحب للمسلم أن يقول 'الله أكبر'؟",
+                    options: ["في الصلاة فقط", "عند النوم فقط", "في جميع الأوقات والأحوال", "في المسجد فقط"],
+                    correct: 2,
+                    explanation: "يستحب ذكر 'الله أكبر' في جميع الأوقات والأحوال للتذكير بعظمة الله"
+                },
+                {
+                    question: "ما علاقة اسم الله 'الكبير' بالتوكل على الله؟",
+                    options: ["لا علاقة بينهما", "من آمن بأن الله أكبر من كل شيء توكل عليه", "التوكل يمنع من قول الله أكبر", "الكبير يعني القوة فقط"],
+                    correct: 1,
+                    explanation: "من آمن بأن الله أكبر من كل شيء وأعظم من كل قوة توكل عليه واعتمد عليه"
+                }
+            ],
+            level3: [
+                {
+                    question: "كيف يرتبط اسم الله 'الكبير' بقضية القدر والقضاء؟",
+                    options: ["لا يرتبط بالقدر", "الله أكبر من أن يعلم كل شيء", "كبرياء الله تشمل علمه المطلق وحكمته في القدر", "القدر أكبر من الله"],
+                    correct: 2,
+                    explanation: "كبرياء الله تعالى تشمل علمه المطلق وحكمته البالغة في تقدير الأمور"
+                },
+                {
+                    question: "ما الفرق بين كبرياء الله وكبر الإنسان؟",
+                    options: ["لا فرق بينهما", "كبرياء الله حق وكبر الإنسان باطل", "كلاهما مذموم", "كلاهما محمود"],
+                    correct: 1,
+                    explanation: "كبرياء الله حق لأنه العظيم حقاً، أما كبر الإنسان فباطل لأنه مخلوق ضعيف"
+                },
+                {
+                    question: "في الحديث القدسي: 'الكبرياء ردائي والعظمة إزاري'، ما المعنى؟",
+                    options: ["وصف لملابس الله", "الكبرياء والعظمة من صفات الله وحده", "الله يلبس الكبرياء", "وصف مجازي للقوة"],
+                    correct: 1,
+                    explanation: "الحديث يؤكد أن الكبرياء والعظمة من خصائص الله وحده لا يشاركه فيها أحد"
+                },
+                {
+                    question: "كيف يوازن المؤمن بين الخوف من الله والرجاء في رحمته عند التأمل في اسم 'الكبير'؟",
+                    options: ["الخوف فقط دون رجاء", "الرجاء فقط دون خوف", "الجمع بين الخوف والرجاء", "عدم التفكير في ذلك"],
+                    correct: 2,
+                    explanation: "المؤمن يجمع بين الخوف من عظمة الله والرجاء في رحمته الواسعة"
+                },
+                {
+                    question: "ما أثر تدبر اسم الله 'الكبير' على مواجهة المصائب والابتلاءات؟",
+                    options: ["يزيد الحزن والألم", "يجعل الإنسان متشائماً", "يقوي اليقين ويهون المصائب", "لا يؤثر على الابتلاءات"],
+                    correct: 2,
+                    explanation: "تدبر عظمة الله وأنه أكبر من كل مصيبة يقوي اليقين ويهون البلاء على المؤمن"
+                }
+            ]
+        };
+
+        let currentLevel = 1;
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedOption = -1;
+        let answered = false;
+
+        const levelNames = {
+            1: "المستوى الأول - السهل",
+            2: "المستوى الثاني - المتوسط", 
+            3: "المستوى الثالث - المتقدم"
+        };
+
+        function updateDisplay() {
+            const levelKey = `level${currentLevel}`;
+            const questions_array = questions[levelKey];
+            const totalQuestions = questions_array.length;
+            
+            document.getElementById('levelIndicator').textContent = levelNames[currentLevel];
+            document.getElementById('questionNumber').textContent = `السؤال ${currentQuestion + 1} من ${totalQuestions}`;
+            document.getElementById('scoreDisplay').textContent = `النقاط: ${score}`;
+            
+            const progress = ((currentQuestion) / totalQuestions) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const levelKey = `level${currentLevel}`;
+            const q = questions[levelKey][currentQuestion];
+            
+            document.getElementById('questionText').textContent = q.question;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            q.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.textContent = option;
+                optionDiv.onclick = () => selectOption(index);
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            selectedOption = -1;
+            answered = false;
+            document.getElementById('nextBtn').disabled = true;
+            document.getElementById('feedback').style.display = 'none';
+        }
+
+        function selectOption(index) {
+            if (answered) return;
+            
+            const options = document.querySelectorAll('.option');
+            options.forEach(opt => opt.classList.remove('selected'));
+            options[index].classList.add('selected');
+            
+            selectedOption = index;
+            document.getElementById('nextBtn').disabled = false;
+        }
+
+        function nextQuestion() {
+            if (selectedOption === -1 && !answered) return;
+            
+            if (!answered) {
+                checkAnswer();
+                return;
+            }
+            
+            const levelKey = `level${currentLevel}`;
+            const totalQuestions = questions[levelKey].length;
+            
+            currentQuestion++;
+            
+            if (currentQuestion >= totalQuestions) {
+                if (currentLevel < 3) {
+                    nextLevel();
+                } else {
+                    showFinalScore();
+                }
+            } else {
+                updateDisplay();
+            }
+        }
+
+        function checkAnswer() {
+            const levelKey = `level${currentLevel}`;
+            const q = questions[levelKey][currentQuestion];
+            const options = document.querySelectorAll('.option');
+            
+            answered = true;
+            
+            options.forEach((option, index) => {
+                if (index === q.correct) {
+                    option.classList.add('correct');
+                } else if (index === selectedOption && index !== q.correct) {
+                    option.classList.add('incorrect');
+                }
+                option.style.pointerEvents = 'none';
+            });
+            
+            const feedback = document.getElementById('feedback');
+            feedback.style.display = 'block';
+            
+            if (selectedOption === q.correct) {
+                score += 10;
+                feedback.className = 'feedback correct';
+                feedback.textContent = '✅ إجابة صحيحة! ' + q.explanation;
+                document.getElementById('questionCard').classList.add('pulse');
+                setTimeout(() => {
+                    document.getElementById('questionCard').classList.remove('pulse');
+                }, 500);
+            } else {
+                feedback.className = 'feedback incorrect';
+                feedback.textContent = '❌ إجابة خاطئة. ' + q.explanation;
+            }
+            
+            document.getElementById('scoreDisplay').textContent = `النقاط: ${score}`;
+            document.getElementById('nextBtn').textContent = currentQuestion === questions[levelKey].length - 1 ? 
+                (currentLevel === 3 ? 'عرض النتيجة النهائية' : 'الانتقال للمستوى التالي') : 'السؤال التالي';
+        }
+
+        function nextLevel() {
+            currentLevel++;
+            currentQuestion = 0;
+            
+            alert(`🎉 أحسنت! لقد أكملت المستوى ${currentLevel - 1} بنجاح!\nالآن ننتقل إلى ${levelNames[currentLevel]}`);
+            
+            updateDisplay();
+        }
+
+        function showFinalScore() {
+            const totalPossibleScore = 150; // 5 questions × 3 levels × 10 points
+            const percentage = Math.round((score / totalPossibleScore) * 100);
+            
+            let message = '';
+            let emoji = '';
+            
+            if (percentage >= 90) {
+                message = 'ممتاز جداً! أنت عالم حقيقي!';
+                emoji = '🏆';
+            } else if (percentage >= 75) {
+                message = 'أحسنت! مستوى رائع!';
+                emoji = '🌟';
+            } else if (percentage >= 60) {
+                message = 'جيد! يمكنك التحسن أكثر!';
+                emoji = '👍';
+            } else {
+                message = 'تحتاج للمزيد من المراجعة!';
+                emoji = '📚';
+            }
+            
+            document.getElementById('gameContent').innerHTML = `
+                <div class="final-score">
+                    <h2>${emoji} انتهت اللعبة! ${emoji}</h2>
+                    <p>نقاطك النهائية: ${score} من ${totalPossibleScore}</p>
+                    <p>نسبة النجاح: ${percentage}%</p>
+                    <p>${message}</p>
+                    <button class="restart-btn" onclick="restartGame()">🔄 إعادة اللعب</button>
+                </div>
+            `;
+        }
+
+        function restartGame() {
+            currentLevel = 1;
+            currentQuestion = 0;
+            score = 0;
+            selectedOption = -1;
+            answered = false;
+            
+            document.getElementById('gameContent').innerHTML = `
+                <div class="level-indicator" id="levelIndicator">المستوى الأول - السهل</div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar"></div>
+                </div>
+
+                <div class="score-display" id="scoreDisplay">النقاط: 0</div>
+
+                <div class="question-card" id="questionCard">
+                    <div class="question-number" id="questionNumber">السؤال 1 من 5</div>
+                    <div class="question-text" id="questionText"></div>
+                    <div class="options" id="optionsContainer"></div>
+                    <div class="feedback" id="feedback" style="display: none;"></div>
+                </div>
+
+                <button class="next-btn" id="nextBtn" onclick="nextQuestion()" disabled>السؤال التالي</button>
+            `;
+            
+            updateDisplay();
+        }
+
+        // Initialize the game
+        updateDisplay();
+    </script>
+</body>
+</html>

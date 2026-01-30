@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الحروف التي تسبح</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Amiri', serif;
+            background: linear-gradient(180deg, #87CEEB 0%, #4682B4 50%, #1e3c72 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .ocean-container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            background: 
+                radial-gradient(ellipse at center bottom, rgba(30, 144, 255, 0.3) 0%, transparent 70%),
+                radial-gradient(ellipse at 20% 80%, rgba(0, 191, 255, 0.2) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 60%, rgba(65, 105, 225, 0.2) 0%, transparent 50%);
+        }
+
+        .water-surface {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, 
+                rgba(135, 206, 235, 0.3) 0%, 
+                rgba(70, 130, 180, 0.4) 50%, 
+                rgba(30, 60, 114, 0.6) 100%);
+            animation: wave-animation 8s ease-in-out infinite;
+        }
+
+        .game-header {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 20px 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 1000;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .game-title {
+            font-size: 2rem;
+            color: #1e3c72;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .game-stats {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .score-stat { color: #ff6b6b; }
+        .words-stat { color: #4ecdc4; }
+        .time-stat { color: #ffa726; }
+
+        .target-word {
+            position: fixed;
+            top: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(45deg, #ff6b6b, #ff8a80);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 20px;
+            font-size: 2rem;
+            font-weight: bold;
+            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.4);
+            z-index: 999;
+            text-align: center;
+            animation: target-glow 2s ease-in-out infinite alternate;
+        }
+
+        .swimming-letter {
+            position: absolute;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 8px 20px rgba(102, 126, 234, 0.4),
+                inset 0 2px 10px rgba(255, 255, 255, 0.3);
+            border: 3px solid rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(5px);
+            user-select: none;
+            animation: swim 6s linear infinite;
+        }
+
+        .swimming-letter:hover {
+            transform: scale(1.2);
+            box-shadow: 
+                0 12px 30px rgba(102, 126, 234, 0.6),
+                inset 0 2px 15px rgba(255, 255, 255, 0.4);
+        }
+
+        .swimming-letter.correct {
+            background: linear-gradient(135deg, #56ab2f, #a8e6cf);
+            animation: collect-letter 0.8s ease-out forwards, swim 6s linear infinite;
+        }
+
+        .swimming-letter.wrong {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            animation: wrong-shake 0.5s ease-out, swim 6s linear infinite;
+        }
+
+        .bubble {
+            position: absolute;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(135, 206, 235, 0.3));
+            border-radius: 50%;
+            pointer-events: none;
+            animation: bubble-rise 4s linear infinite;
+            box-shadow: 
+                inset 0 0 20px rgba(255, 255, 255, 0.5),
+                0 0 20px rgba(135, 206, 235, 0.3);
+        }
+
+        .water-ripple {
+            position: absolute;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: ripple-expand 1s ease-out forwards;
+        }
+
+        .fish {
+            position: absolute;
+            font-size: 2rem;
+            pointer-events: none;
+            animation: fish-swim 8s linear infinite;
+            z-index: 5;
+        }
+
+        .seaweed {
+            position: absolute;
+            bottom: 0;
+            width: 20px;
+            height: 150px;
+            background: linear-gradient(to top, #2e8b57, #90ee90);
+            border-radius: 10px 10px 50% 50%;
+            animation: seaweed-sway 3s ease-in-out infinite alternate;
+            z-index: 1;
+        }
+
+        .word-complete {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(45deg, #56ab2f, #a8e6cf);
+            color: white;
+            padding: 30px 50px;
+            border-radius: 25px;
+            font-size: 2.5rem;
+            font-weight: bold;
+            box-shadow: 0 15px 40px rgba(86, 171, 47, 0.5);
+            z-index: 1001;
+            text-align: center;
+            animation: word-complete-celebration 2s ease-out forwards;
+            display: none;
+        }
+
+        .game-over {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(30, 60, 114, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 1002;
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+
+        .game-over-title {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .final-stats {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #87CEEB;
+        }
+
+        .restart-btn {
+            padding: 20px 40px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.5rem;
+            font-family: 'Amiri', serif;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        }
+
+        @keyframes wave-animation {
+            0%, 100% { transform: translateY(0) scaleY(1); }
+            50% { transform: translateY(-10px) scaleY(1.02); }
+        }
+
+        @keyframes swim {
+            0% { transform: translateX(-100px) rotate(0deg); }
+            25% { transform: translateX(25vw) rotate(90deg) translateY(-20px); }
+            50% { transform: translateX(50vw) rotate(180deg); }
+            75% { transform: translateX(75vw) rotate(270deg) translateY(20px); }
+            100% { transform: translateX(calc(100vw + 100px)) rotate(360deg); }
+        }
+
+        @keyframes bubble-rise {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) scale(1);
+                opacity: 0;
+            }
+        }
+
+        @keyframes fish-swim {
+            0% { transform: translateX(-100px); }
+            100% { transform: translateX(calc(100vw + 100px)); }
+        }
+
+        @keyframes seaweed-sway {
+            0% { transform: rotate(-5deg); }
+            100% { transform: rotate(5deg); }
+        }
+
+        @keyframes target-glow {
+            0% { box-shadow: 0 10px 25px rgba(255, 107, 107, 0.4); }
+            100% { box-shadow: 0 15px 40px rgba(255, 107, 107, 0.7); }
+        }
+
+        @keyframes collect-letter {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.5) rotate(360deg); }
+            100% { transform: scale(0) translateY(-100px); opacity: 0; }
+        }
+
+        @keyframes wrong-shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        @keyframes ripple-expand {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 1;
+            }
+            100% {
+                width: 200px;
+                height: 200px;
+                opacity: 0;
+            }
+        }
+
+        @keyframes word-complete-celebration {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            50% { transform: translate(-50%, -50%) scale(1.2); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            .game-title { font-size: 1.5rem; }
+            .game-stats { font-size: 1rem; gap: 20px; }
+            .target-word { font-size: 1.5rem; padding: 15px 30px; }
+            .swimming-letter { width: 60px; height: 60px; font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="ocean-container">
+        <div class="water-surface"></div>
+        
+        <!-- رأس اللعبة -->
+        <div class="game-header">
+            <div class="game-title">🌊 لعبة الحروف التي تسبح 🐠</div>
+            <div class="game-stats">
+                <div class="stat-item score-stat">
+                    <span>🏆</span>
+                    <span id="score">0</span>
+                </div>
+                <div class="stat-item words-stat">
+                    <span>📝</span>
+                    <span id="wordsCompleted">0</span>
+                </div>
+                <div class="stat-item time-stat">
+                    <span>⏰</span>
+                    <span id="timer">90</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- الكلمة المطلوب تكوينها -->
+        <div class="target-word" id="targetWord">اجمع الحروف لتكوين: بحر</div>
+
+        <!-- رسالة اكتمال الكلمة -->
+        <div class="word-complete" id="wordComplete">
+            🎉 أحسنت! اكتملت الكلمة! 🎉
+        </div>
+    </div>
+
+    <!-- شاشة نهاية اللعبة -->
+    <div class="game-over" id="gameOver">
+        <div class="game-over-title">🌊 انتهت الرحلة البحرية! 🌊</div>
+        <div class="final-stats" id="finalStats"></div>
+        <button class="restart-btn" onclick="restartGame()">🔄 ابحر مرة أخرى</button>
+    </div>
+
+    <script>
+        const words = [
+            'بحر', 'سمك', 'ماء', 'نهر', 'شمس', 'قمر', 'نجم', 'سحب',
+            'مطر', 'ريح', 'ورد', 'زهر', 'شجر', 'عصفور', 'فراشة', 'نحلة',
+            'كتاب', 'قلم', 'باب', 'نافذة', 'بيت', 'حديقة', 'طريق', 'جبل'
+        ];
+
+        const gameState = {
+            score: 0,
+            wordsCompleted: 0,
+            timeLeft: 90,
+            currentWord: '',
+            currentLetterIndex: 0,
+            gameRunning: false,
+            letters: []
+        };
+
+        let gameTimer;
+        let bubbleTimer;
+        let fishTimer;
+
+        function initGame() {
+            gameState.score = 0;
+            gameState.wordsCompleted = 0;
+            gameState.timeLeft = 90;
+            gameState.gameRunning = true;
+            gameState.letters = [];
+            
+            selectNewWord();
+            updateUI();
+            startGameTimer();
+            createBubbles();
+            createFish();
+            createSeaweed();
+            startLetterSpawning();
+        }
+
+        function selectNewWord() {
+            gameState.currentWord = words[Math.floor(Math.random() * words.length)];
+            gameState.currentLetterIndex = 0;
+            
+            document.getElementById('targetWord').textContent = 
+                `اجمع الحروف لتكوين: ${gameState.currentWord}`;
+            
+            // إزالة الحروف القديمة
+            document.querySelectorAll('.swimming-letter').forEach(letter => letter.remove());
+        }
+
+        function spawnLetter() {
+            if (!gameState.gameRunning) return;
+
+            // تحديد الحرف المطلوب
+            const neededLetter = gameState.currentWord[gameState.currentLetterIndex];
+            
+            // إنشاء حروف عشوائية + الحرف المطلوب
+            const letters = [];
+            
+            // إضافة الحرف المطلوب
+            letters.push(neededLetter);
+            
+            // إضافة حروف عشوائية
+            const arabicLetters = 'أبتثجحخدذرزسشصضطظعغفقكلمنهويءئؤإآة';
+            for (let i = 0; i < 2; i++) {
+                const randomLetter = arabicLetters[Math.floor(Math.random() * arabicLetters.length)];
+                letters.push(randomLetter);
+            }
+
+            // خلط الحروف
+            letters.sort(() => Math.random() - 0.5);
+
+            letters.forEach((letter, index) => {
+                setTimeout(() => {
+                    createSwimmingLetter(letter, neededLetter === letter);
+                }, index * 1000);
+            });
+        }
+
+        function createSwimmingLetter(letter, isCorrect) {
+            const letterEl = document.createElement('div');
+            letterEl.className = 'swimming-letter';
+            letterEl.textContent = letter;
+            letterEl.dataset.letter = letter;
+            letterEl.dataset.correct = isCorrect;
+
+            // موضع بداية عشوائي على اليمين
+            const startY = Math.random() * (window.innerHeight - 200) + 100;
+            letterEl.style.left = '-100px';
+            letterEl.style.top = startY + 'px';
+
+            // سرعة عشوائية
+            const duration = 8 + Math.random() * 4;
+            letterEl.style.animationDuration = duration + 's';
+
+            // إضافة مستمع النقر
+            letterEl.addEventListener('click', () => collectLetter(letterEl));
+
+            document.querySelector('.ocean-container').appendChild(letterEl);
+            gameState.letters.push(letterEl);
+
+            // إزالة الحرف بعد انتهاء الحركة
+            setTimeout(() => {
+                if (letterEl.parentNode) {
+                    letterEl.remove();
+                    gameState.letters = gameState.letters.filter(l => l !== letterEl);
+                }
+            }, duration * 1000);
+        }
+
+        function collectLetter(letterEl) {
+            const letter = letterEl.dataset.letter;
+            const isCorrect = letterEl.dataset.correct === 'true';
+            const neededLetter = gameState.currentWord[gameState.currentLetterIndex];
+
+            if (letter === neededLetter && isCorrect) {
+                // إجابة صحيحة
+                letterEl.classList.add('correct');
+                gameState.score += 10;
+                gameState.currentLetterIndex++;
+
+                createWaterRipple(letterEl);
+                createCollectionEffect(letterEl);
+
+                // تحقق من اكتمال الكلمة
+                if (gameState.currentLetterIndex >= gameState.currentWord.length) {
+                    setTimeout(() => {
+                        completeWord();
+                    }, 500);
+                }
+            } else {
+                // إجابة خاطئة
+                letterEl.classList.add('wrong');
+                gameState.score = Math.max(0, gameState.score - 5);
+            }
+
+            updateUI();
+        }
+
+        function completeWord() {
+            gameState.wordsCompleted++;
+            gameState.score += 50; // مكافأة إضافية لإكمال الكلمة
+            
+            // إظهار رسالة التهنئة
+            const wordComplete = document.getElementById('wordComplete');
+            wordComplete.style.display = 'block';
+            wordComplete.textContent = `🎉 أحسنت! اكتملت كلمة "${gameState.currentWord}"! 🎉`;
+
+            // تأثيرات التهنئة
+            createCelebrationBubbles();
+            
+            setTimeout(() => {
+                wordComplete.style.display = 'none';
+                selectNewWord();
+            }, 2000);
+
+            updateUI();
+        }
+
+        function createWaterRipple(element) {
+            const rect = element.getBoundingClientRect();
+            const ripple = document.createElement('div');
+            
+            ripple.className = 'water-ripple';
+            ripple.style.left = (rect.left + rect.width / 2 - 100) + 'px';
+            ripple.style.top = (rect.top + rect.height / 2 - 100) + 'px';
+            
+            document.body.appendChild(ripple);
+            
+            setTimeout(() => ripple.remove(), 1000);
+        }
+
+        function createCollectionEffect(element) {
+            const rect = element.getBoundingClientRect();
+            
+            // إنشاء فقاعات صغيرة
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const bubble = document.createElement('div');
+                    bubble.className = 'bubble';
+                    bubble.style.width = '20px';
+                    bubble.style.height = '20px';
+                    bubble.style.left = (rect.left + Math.random() * rect.width) + 'px';
+                    bubble.style.top = rect.top + 'px';
+                    bubble.style.animationDuration = '2s';
+                    
+                    document.body.appendChild(bubble);
+                    
+                    setTimeout(() => bubble.remove(), 2000);
+                }, i * 100);
+            }
+        }
+
+        function createBubbles() {
+            if (!gameState.gameRunning) return;
+            
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            
+            const size = 20 + Math.random() * 40;
+            bubble.style.width = size + 'px';
+            bubble.style.height = size + 'px';
+            bubble.style.left = Math.random() * window.innerWidth + 'px';
+            bubble.style.bottom = '0px';
+            
+            const duration = 4 + Math.random() * 3;
+            bubble.style.animationDuration = duration + 's';
+            
+            document.querySelector('.ocean-container').appendChild(bubble);
+            
+            setTimeout(() => bubble.remove(), duration * 1000);
+            
+            // إنشاء فقاعة جديدة
+            setTimeout(() => createBubbles(), 1000 + Math.random() * 2000);
+        }
+
+        function createFish() {
+            if (!gameState.gameRunning) return;
+            
+            const fishEmojis = ['🐠', '🐟', '🐡', '🦈', '🐙', '🦀'];
+            const fish = document.createElement('div');
+            fish.className = 'fish';
+            fish.textContent = fishEmojis[Math.floor(Math.random() * fishEmojis.length)];
+            
+            const y = Math.random() * (window.innerHeight - 200) + 100;
+            fish.style.left = '-100px';
+            fish.style.top = y + 'px';
+            
+            const duration = 8 + Math.random() * 4;
+            fish.style.animationDuration = duration + 's';
+            
+            document.querySelector('.ocean-container').appendChild(fish);
+            
+            setTimeout(() => fish.remove(), duration * 1000);
+            
+            // إنشاء سمكة جديدة
+            setTimeout(() => createFish(), 5000 + Math.random() * 10000);
+        }
+
+        function createSeaweed() {
+            for (let i = 0; i < 8; i++) {
+                const seaweed = document.createElement('div');
+                seaweed.className = 'seaweed';
+                seaweed.style.left = (i * 15 + Math.random() * 10) + '%';
+                seaweed.style.animationDelay = Math.random() * 3 + 's';
+                
+                document.querySelector('.ocean-container').appendChild(seaweed);
+            }
+        }
+
+        function createCelebrationBubbles() {
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const bubble = document.createElement('div');
+                    bubble.className = 'bubble';
+                    bubble.style.width = '30px';
+                    bubble.style.height = '30px';
+                    bubble.style.left = Math.random() * window.innerWidth + 'px';
+                    bubble.style.bottom = '0px';
+                    bubble.style.background = `radial-gradient(circle at 30% 30%, rgba(255, 215, 0, 0.8), rgba(255, 107, 107, 0.3))`;
+                    bubble.style.animationDuration = '3s';
+                    
+                    document.body.appendChild(bubble);
+                    
+                    setTimeout(() => bubble.remove(), 3000);
+                }, i * 100);
+            }
+        }
+
+        function startLetterSpawning() {
+            // إنشاء حروف كل 4 ثوانِ
+            const spawnInterval = setInterval(() => {
+                if (!gameState.gameRunning) {
+                    clearInterval(spawnInterval);
+                    return;
+                }
+                spawnLetter();
+            }, 4000);
+
+            // إنشاء أول مجموعة حروف فوراً
+            spawnLetter();
+        }
+
+        function startGameTimer() {
+            gameTimer = setInterval(() => {
+                gameState.timeLeft--;
+                updateUI();
+                
+                if (gameState.timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function updateUI() {
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('wordsCompleted').textContent = gameState.wordsCompleted;
+            document.getElementById('timer').textContent = gameState.timeLeft;
+        }
+
+        function endGame() {
+            gameState.gameRunning = false;
+            clearInterval(gameTimer);
+            
+            // إزالة جميع الحروف
+            gameState.letters.forEach(letter => letter.remove());
+            
+            // إظهار شاشة النهاية
+            const gameOver = document.getElementById('gameOver');
+            const finalStats = document.getElementById('finalStats');
+            
+            let performance = '';
+            if (gameState.wordsCompleted >= 5) {
+                performance = '🏆 أداء ممتاز! أنت بطل البحار!';
+            } else if (gameState.wordsCompleted >= 3) {
+                performance = '👏 أداء جيد جداً! سباح ماهر!';
+            } else {
+                performance = '💪 ابدأ من جديد وستتحسن!';
+            }
+            
+            finalStats.innerHTML = `
+                النقاط النهائية: ${gameState.score}<br>
+                الكلمات المكتملة: ${gameState.wordsCompleted}<br>
+                ${performance}
+            `;
+            
+            gameOver.style.display = 'flex';
+            
+            if (gameState.wordsCompleted >= 3) {
+                createCelebrationBubbles();
+            }
+        }
+
+        function restartGame() {
+            document.getElementById('gameOver').style.display = 'none';
+            
+            // تنظيف الشاشة
+            document.querySelectorAll('.swimming-letter, .bubble, .fish, .water-ripple').forEach(el => el.remove());
+            
+            initGame();
+        }
+
+        // بدء اللعبة
+        window.onload = initGame;
+    </script>
+</body>
+</html>

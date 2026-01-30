@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الطرح الممتعة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap" rel="stylesheet">
+    <style>
+        /* --- أكواد CSS هنا --- */
+        body {
+            font-family: 'Cairo', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(to right, #FFA07A, #FA8072); /* ألوان دافئة وجذابة */
+            color: #333;
+            direction: rtl;
+            text-align: right;
+            background-image: url('http://googleusercontent.com/image_generation_content/1'); /* خلفية اللعبة */
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+
+        .game-container {
+            background-color: #FFF0F5; /* لون وردي فاتح */
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #FF6347; /* برتقالي محمر */
+            font-size: 2.5em;
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #9400D3; /* بنفسجي غامق */
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+
+        .level-selection button,
+        .action-button {
+            background-color: #00CED1; /* تركواز */
+            color: #FFFFFF;
+            border: none;
+            padding: 15px 25px;
+            margin: 10px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .level-selection button:hover,
+        .action-button:hover {
+            background-color: #00B2EE; /* تركواز أغمق قليلاً */
+            transform: translateY(-3px);
+        }
+
+        .level-button {
+            min-width: 180px;
+        }
+
+        .game-area {
+            margin-top: 30px;
+            border: 3px dashed #FF4500; /* أحمر برتقالي */
+            padding: 20px;
+            border-radius: 15px;
+            background-color: #FFF5EE; /* صدفة البحر */
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            font-size: 1.1em; /* تم تعديل هذا السطر لتقليل الحجم */
+            color: #2F4F4F; /* رمادي داكن */
+            margin-bottom: 20px;
+            background-color: #F0FFF0; /* أخضر نعناعي فاتح */
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .problem-display {
+             display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 3em;
+            font-weight: bold;
+            color: #8B008B; /* بنفسجي داكن */
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .problem-display .number {
+            margin: -10px 0;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        .problem-display .operator {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5em;
+        }
+
+        hr {
+            border: 2px solid #A0522D; /* بني رملي */
+            width: 80%;
+            margin: 15px 0;
+        }
+
+        .answer-input-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .answer-input {
+            width: 60px;
+            height: 60px;
+            font-size: 2em;
+            text-align: center;
+            margin: 0 5px;
+            border: 3px solid #008080; /* تيل */
+            border-radius: 10px;
+            outline: none;
+            transition: border-color 0.3s ease;
+            color: #333;
+        }
+
+        .answer-input:focus {
+            border-color: #DC143C; /* قرمزي */
+        }
+
+        .feedback {
+            margin-top: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+            min-height: 40px;
+        }
+
+        .feedback.correct {
+            color: #008000; /* أخضر */
+        }
+
+        .feedback.incorrect {
+            color: #B22222; /* أحمر ناري */
+        }
+
+        .explanation-area {
+            background-color: #F0FFF0;
+            border: 2px solid #3CB371; /* أخضر بحري */
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .explanation-area h3 {
+            color: #4682B4; /* أزرق فولاذي */
+            margin-bottom: 10px;
+        }
+
+        .explanation-area p {
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .help-section {
+            margin-top: 30px;
+            width: 100%;
+        }
+
+        .help-button {
+            background-color: #DDA0DD; /* أرجواني فاتح */
+            color: white;
+            font-size: 1.2em;
+        }
+
+        .help-content {
+            background-color: #FFF0F5; /* وردي فاتح */
+            border: 2px solid #FF69B4; /* وردي زاهي */
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 15px;
+            text-align: right;
+        }
+
+        .help-content h3 {
+            color: #BA55D3; /* بنفسجي متوسط */
+            margin-bottom: 15px;
+        }
+
+        .help-content p {
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 10px;
+        }
+
+        .help-content pre {
+            background-color: #E6E6FA;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            overflow-x: auto;
+            font-size: 0.9em;
+            text-align: left;
+            direction: ltr;
+        }
+
+        .help-content ol {
+            padding-right: 25px;
+            color: #555;
+        }
+
+        .help-content ol li {
+            margin-bottom: 8px;
+        }
+
+        /* For smaller screens */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            .level-selection button {
+                font-size: 1em;
+                padding: 12px 20px;
+                margin: 8px;
+            }
+            .problem-display {
+                font-size: 2.5em;
+            }
+            .answer-input {
+                width: 50px;
+                height: 50px;
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>لعبة الطرح الممتعة</h1>
+
+        <div class="level-selection">
+            <h2>اختر مستوى الصعوبة:</h2>
+            <button id="easyBtn" class="level-button">مبتدئ (طرح بسيط)</button>
+            <button id="mediumBtn" class="level-button">متوسط (استلاف بسيط)</button>
+            <button id="hardBtn" class="level-button">متقدم (استلاف متعدد)</button>
+        </div>
+
+        <div class="game-area" style="display: none;">
+            <div class="score-board">
+                <span>النقاط: <span id="score">0</span></span>
+                <span>النجوم: <span id="stars">0</span> ⭐</span>
+            </div>
+
+            <div class="problem-display">
+                <p class="number" id="num1"></p>
+                <p class="operator">-</p>
+                <p class="number" id="num2"></p>
+                <hr>
+                <div class="answer-input-container">
+                    </div>
+                <button id="checkAnswerBtn" class="action-button">تحقق من الإجابة</button>
+                <button id="nextProblemBtn" class="action-button" style="display: none;">المسألة التالية</button>
+            </div>
+
+            <div class="feedback" id="feedback"></div>
+            <button id="showExplanationBtn" class="action-button" style="display: none;">شرح الحل</button>
+
+            <div class="explanation-area" id="explanationArea" style="display: none;">
+                <h3>شرح الحل:</h3>
+                <div id="explanationContent"></div>
+            </div>
+        </div>
+
+        <div class="help-section" id="helpSection">
+            <button id="showHelpBtn" class="action-button help-button">دليل المساعدة</button>
+            <div class="help-content" style="display: none;">
+                <h3>دليل المساعدة: فهم الطرح مع الاستلاف</h3>
+                <p>الطرح مع الاستلاف قد يبدو معقدًا، لكنه في الحقيقة بسيط وممتع!</p>
+                <p>تخيل أن لديك 32 قلمًا، وتريد أن تعطي 15 قلمًا لصديقك. كيف ستحسب عدد الأقلام المتبقية؟</p>
+                <p>في هذه الحالة، نحتاج إلى "الاستلاف" لأننا لا نستطيع طرح 5 من 2 مباشرة.</p>
+                <p><strong>مثال:</strong></p>
+                <pre>
+   3  2
+-  1  5
+-----
+                </pre>
+                <ol>
+                    <li><strong>ابدأ من اليمين (خانة الآحاد):</strong> لا يمكننا طرح 5 من 2.</li>
+                    <li><strong>الاستلاف:</strong> نستلف 1 من خانة العشرات (الـ 3 تصبح 2)، والـ 2 في خانة الآحاد تصبح 12.</li>
+                     <li><strong>اطرح الآحاد:</strong> الآن نطرح 5 من 12، والناتج هو 7.</li>
+                    <li><strong>اطرح العشرات:</strong> نطرح 1 من 2 (التي أصبحت بعد الاستلاف)، والناتج هو 1.</li>
+                    <li><strong>الناتج:</strong> 17.</li>
+                </ol>
+                <button id="hideHelpBtn" class="action-button">إخفاء المساعدة</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- أكواد JavaScript هنا ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const easyBtn = document.getElementById('easyBtn');
+            const mediumBtn = document.getElementById('mediumBtn');
+            const hardBtn = document.getElementById('hardBtn');
+            const levelSelection = document.querySelector('.level-selection');
+            const gameArea = document.querySelector('.game-area');
+            const num1Display = document.getElementById('num1');
+            const num2Display = document.getElementById('num2');
+            const answerInputContainer = document.querySelector('.answer-input-container');
+            const checkAnswerBtn = document.getElementById('checkAnswerBtn');
+            const nextProblemBtn = document.getElementById('nextProblemBtn');
+            const feedbackDisplay = document.getElementById('feedback');
+            const scoreDisplay = document.getElementById('score');
+            const starsDisplay = document.getElementById('stars');
+            const showExplanationBtn = document.getElementById('showExplanationBtn');
+            const explanationArea = document.getElementById('explanationArea');
+            const explanationContent = document.getElementById('explanationContent');
+            const showHelpBtn = document.getElementById('showHelpBtn');
+            const hideHelpBtn = document.getElementById('hideHelpBtn');
+            const helpContent = document.querySelector('.help-content');
+
+            let currentLevel = 'easy';
+            let currentNum1, currentNum2, correctAnswer;
+            let score = 0;
+            let stars = 0;
+            let problemDigits = 2;
+
+            // --- وظائف اللعبة الأساسية ---
+
+             function generateProblem() {
+                feedbackDisplay.textContent = '';
+                explanationArea.style.display = 'none';
+                showExplanationBtn.style.display = 'none';
+                nextProblemBtn.style.display = 'none';
+                checkAnswerBtn.style.display = 'inline-block';
+
+                let maxVal;
+                let minVal = 10;
+
+                if (currentLevel === 'easy') {
+                    maxVal = 40;
+                    problemDigits = 2;
+                    do {
+                        currentNum1 = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
+                        currentNum2 = Math.floor(Math.random() * (currentNum1 - 10 + 1)) + 10; // Ensure num2 < num1 and both are two-digit
+                    } while (currentNum1 < currentNum2); // Ensure num1 is always greater
+                } else if (currentLevel === 'medium') {
+                     maxVal = 99;
+                    problemDigits = 2;
+                    do {
+                        currentNum1 = Math.floor(Math.random() * (maxVal - 10 + 1)) + 10;
+                        currentNum2 = Math.floor(Math.random() * (currentNum1 - 10 + 1)) + 10;
+                    } while (currentNum1 < currentNum2 || (currentNum1 % 10) >= (currentNum2 % 10)); // Ensure num1 >= num2 and at least one borrow
+                } else if (currentLevel === 'hard') {
+                    maxVal = 999;
+                    minVal = 100;
+                    problemDigits = 3;
+                    do {
+                        currentNum1 = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
+                        currentNum2 = Math.floor(Math.random() * (currentNum1 - 100 + 1)) + 100;
+                    } while (currentNum1 <= currentNum2);
+                }
+
+                correctAnswer = currentNum1 - currentNum2;
+
+                num1Display.textContent = currentNum1;
+                num2Display.textContent = currentNum2;
+
+                createAnswerInputs();
+            }
+
+            function createAnswerInputs() {
+                answerInputContainer.innerHTML = '';
+                const answerString = String(correctAnswer);
+                const maxLen = Math.max(String(currentNum1).length, String(currentNum2).length, answerString.length);
+
+                for (let i = 0; i < maxLen; i++) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.min = '0';
+                    input.max = '9';
+                    input.maxLength = '1';
+                    input.classList.add('answer-input');
+                    input.dataset.digitIndex = maxLen - 1 - i;
+                    answerInputContainer.prepend(input);
+
+                    input.addEventListener('input', function() {
+                        if (this.value.length >= this.maxLength) {
+                            const nextInput = this.nextElementSibling;
+                            if (nextInput) {
+                                nextInput.focus();
+                            } else {
+                                checkAnswerBtn.focus();
+                            }
+                        }
+                        this.value = this.value.replace(/\D/g, '');
+                    });
+                }
+                answerInputContainer.querySelector('.answer-input').focus();
+            }
+
+            function checkAnswer() {
+                let userAnswer = '';
+                const inputs = Array.from(answerInputContainer.querySelectorAll('.answer-input')).reverse();
+                inputs.forEach(input => {
+                    userAnswer += input.value || '';
+                });
+
+                if (userAnswer === '') {
+                    feedbackDisplay.textContent = 'الرجاء إدخال إجابتك أولاً!';
+                    feedbackDisplay.className = 'feedback incorrect';
+                    return;
+                }
+
+                userAnswer = parseInt(userAnswer, 10);
+
+                if (userAnswer === correctAnswer) {
+                    feedbackDisplay.textContent = 'أحسنت! إجابة صحيحة! ✨';
+                    feedbackDisplay.className = 'feedback correct';
+                    score += 10;
+                    stars++;
+                    updateScoreBoard();
+                    nextProblemBtn.style.display = 'inline-block';
+                    checkAnswerBtn.style.display = 'none';
+                } else {
+                    feedbackDisplay.textContent = 'حاول مرة أخرى. أنت قريب! 🤔';
+                    feedbackDisplay.className = 'feedback incorrect';
+                    showExplanationBtn.style.display = 'inline-block';
+                }
+            }
+
+            function updateScoreBoard() {
+                scoreDisplay.textContent = score;
+                starsDisplay.textContent = stars;
+            }
+
+            function showExplanation() {
+                explanationArea.style.display = 'block';
+                explanationContent.innerHTML = '';
+
+                const num1Arr = String(currentNum1).split('').map(Number);
+                const num2Arr = String(currentNum2).split('').map(Number);
+                const resultArr = [];
+                const borrows = new Array(Math.max(num1Arr.length, num2Arr.length) + 1).fill(0);
+
+                const maxLength = Math.max(num1Arr.length, num2Arr.length);
+                const paddedNum1 = Array(maxLength - num1Arr.length).fill(0).concat(num1Arr);
+                const paddedNum2 = Array(maxLength - num2Arr.length).fill(0).concat(num2Arr);
+
+                let explanationHtml = `
+                    <p>لنحل المسألة خطوة بخطوة:</p>
+                    <pre style="text-align: center;">
+                    ${paddedNum1.join(' ')}
+                  - ${paddedNum2.join(' ')}
+                  -----
+                    </pre>
+                `;
+
+                for (let i = maxLength - 1; i >= 0; i--) {
+                    let digit1 = paddedNum1[i] - borrows[i + 1];
+                    const digit2 = paddedNum2[i];
+
+                    explanationHtml += `<p><strong>خطوة ${maxLength - i}: خانة ${getPlaceName(maxLength - i)}</strong></p>`;
+                    explanationHtml += `<p>نطرح: ${digit1} - ${digit2}</p>`;
+
+                    if (digit1 < digit2) {
+                        explanationHtml += `<p>لا يمكننا طرح ${digit2} من ${digit1}. <strong>نستلف 1</strong> من خانة ${getPlaceName(maxLength - i + 1)}.</p>`;
+                        borrows[i] = 1;
+                        digit1 += 10;
+                    } else {
+                        borrows[i] = 0;
+                    }
+
+                    const resultDigit = digit1 - digit2;
+                    resultArr.unshift(resultDigit);
+                    explanationHtml += `<p>الناتج هو ${resultDigit}.</p>`;
+                }
+
+                explanationHtml += `<p><strong>إذن، الإجابة النهائية هي: ${correctAnswer}</strong></p>`;
+                explanationContent.innerHTML = explanationHtml;
+            }
+
+            function getPlaceName(index) {
+                switch (index) {
+                    case 1: return 'الآحاد';
+                    case 2: return 'العشرات';
+                    case 3: return 'المئات';
+                    case 4: return 'الآلاف';
+                    default: return 'الخانات الأعلى';
+                }
+            }
+
+            // --- معالجات الأحداث ---
+
+            easyBtn.addEventListener('click', () => {
+                currentLevel = 'easy';
+                levelSelection.style.display = 'none';
+                gameArea.style.display = 'block';
+                score = 0;
+                stars = 0;
+                updateScoreBoard();
+                generateProblem();
+            });
+
+            mediumBtn.addEventListener('click', () => {
+                currentLevel = 'medium';
+                levelSelection.style.display = 'none';
+                gameArea.style.display = 'block';
+                score = 0;
+                stars = 0;
+                updateScoreBoard();
+                generateProblem();
+            });
+
+            hardBtn.addEventListener('click', () => {
+                currentLevel = 'hard';
+                levelSelection.style.display = 'none';
+                gameArea.style.display = 'block';
+                score = 0;
+                stars = 0;
+                updateScoreBoard();
+                generateProblem();
+            });
+
+            checkAnswerBtn.addEventListener('click', checkAnswer);
+
+            nextProblemBtn.addEventListener('click', generateProblem);
+
+            showExplanationBtn.addEventListener('click', showExplanation);
+
+            showHelpBtn.addEventListener('click', () => {
+                helpContent.style.display = 'block';
+                showHelpBtn.style.display = 'none';
+            });
+
+            hideHelpBtn.addEventListener('click', () => {
+                helpContent.style.display = 'none';
+                showHelpBtn.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

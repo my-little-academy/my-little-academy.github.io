@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>لعبة ترتيب الجملة</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    direction: rtl;
+    text-align: center;
+    background-color: #f0f0f0;
+    padding: 20px;
+  }
+  h1 {
+    margin-bottom: 20px;
+  }
+  #word-bank, #drop-area {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 30px;
+  }
+  .word {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: grab;
+    user-select: none;
+    font-size: 18px;
+  }
+  .drop-slot {
+    width: 120px;
+    height: 40px;
+    border: 2px dashed #888;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    background-color: white;
+  }
+  .drop-slot.over {
+    border-color: #4CAF50;
+  }
+  #check-btn {
+    padding: 10px 20px;
+    font-size: 18px;
+    cursor: pointer;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+  }
+  #fireworks-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 9999;
+  }
+</style>
+</head>
+<body>
+
+<h1>رتب الجملة التالية</h1>
+
+<div id="word-bank" aria-label="كلمات الجملة غير مرتبة" role="list"></div>
+
+<div id="drop-area" aria-label="مكان ترتيب الكلمات" role="list"></div>
+
+<button id="check-btn" aria-label="تحقق من الإجابة">تحقق من الإجابة</button>
+
+<canvas id="fireworks-canvas"></canvas>
+
+<script>
+  // الجملة الصحيحة
+  const correctSentence = ["أنا", "أحب", "البرمجة", "بلغة", "جافاسكريبت"];
+  
+  // كلمات الجملة غير مرتبة (مخفوطة)
+  const shuffledWords = [...correctSentence].sort(() => Math.random() - 0.5);
+
+  const wordBank = document.getElementById("word-bank");
+  const dropArea = document.getElementById("drop-area");
+  const checkBtn = document.getElementById("check-btn");
+  const canvas = document.getElementById("fireworks-canvas");
+  const ctx = canvas.getContext("2d");
+
+  // ضبط حجم الكانفس
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener("resize", resizeCanvas);
+  resizeCanvas();
+
+  // إنشاء عناصر الكلمات في بنك الكلمات
+  shuffledWords.forEach(word => {
+    const wordDiv = document.createElement("div");
+    wordDiv.className = "word";
+    wordDiv.textContent = word;
+    wordDiv.setAttribute("draggable", "true");
+    wordDiv.setAttribute("role", "listitem");
+    wordBank.appendChild(wordDiv);
+  });
+
+  // إنشاء أماكن السحب (drop slots)
+  for(let i=0; i<correctSentence.length; i++) {
+    const slot = document.createElement("div");
+    slot.className = "drop-slot";
+    slot.setAttribute("role", "listitem");
+    dropArea.appendChild(slot);
+  }
+
+  // متغير لتخزين العنصر المسحوب
+  let draggedWord = null;
+
+  // أحداث السحب والإفلات
+  wordBank.addEventListener("dragstart", e => {
+    if(e.target.classList.contains("word")) {
+      draggedWord = e.target;
+      e.dataTransfer.setData("text/plain", e.target.textContent);
+      setTimeout(() => {
+        e.target.style.visibility = "hidden";
+      }, 0);
+    }
+  });
+
+  wordBank.addEventListener("dragend", e => {
+    if(e.target.classList.contains("word")) {
+      e.target.style.visibility = "visible";
+    }
+  });
+
+  // السماح بالإفلات على drop slots
+  dropArea.addEventListener("dragover", e => {
+    e.preventDefault();
+    if(e.target.classList.contains("drop-slot")) {
+      e.target.classList.add("over");
+    }
+  });
+
+  dropArea.addEventListener("dragleave", e => {
+    if(e.target.classList.contains("drop-slot")) {
+      e.target.classList.remove("over");
+    }
+  });
+
+  dropArea.addEventListener("drop", e => {
+    e.preventDefault();
+    if(e.target.classList.contains("drop-slot")) {
+      e.target.classList.remove("over");
+
+      // إذا كان هناك كلمة موجودة مسبقاً في هذا المكان، نعيدها إلى بنك الكلمات
+      if(e.target.firstChild) {
+        wordBank.appendChild(e.target.firstChild);
+      }
+
+      // نقل الكلمة المسحوبة إلى المكان الجديد
+      e.target.appendChild(draggedWord);
+      draggedWord.style.visibility = "visible";
+      draggedWord = null;
+    }
+  });
+
+  // السماح بإعادة السحب من drop-area إلى word-bank
+  dropArea.addEventListener("dragstart", e => {
+    if(e.target.classList.contains("word")) {
+      draggedWord = e.target;
+      e.dataTransfer.setData("text/plain", e.target.textContent);
+      setTimeout(() => {
+        e.target.style.visibility = "hidden";
+      }, 0);
+    }
+  });
+
+  dropArea.addEventListener("dragend", e => {
+    if(e.target.classList.contains("word")) {
+      e.target.style.visibility = "visible";
+    }
+  });
+
+  wordBank.addEventListener("dragover", e => {
+    e.preventDefault();
+  });
+
+  wordBank.addEventListener("drop", e => {
+    e.preventDefault();
+    if(draggedWord) {
+      // إعادة الكلمة إلى بنك الكلمات
+      wordBank.appendChild(draggedWord);
+      draggedWord.style.visibility = "visible";
+      draggedWord = null;
+    }
+  });
+
+  // التحقق من الجواب
+  checkBtn.addEventListener("click", () => {
+    const arrangedWords = [];
+    const slots = dropArea.querySelectorAll(".drop-slot");
+    slots.forEach(slot => {
+      if(slot.firstChild) {
+        arrangedWords.push(slot.firstChild.textContent);
+      } else {
+        arrangedWords.push("");
+      }
+    });
+
+    if(arrangedWords.join(" ") === correctSentence.join(" ")) {
+      alert("إجابة صحيحة! 🎉");
+      launchFireworks();
+    } else {
+      alert("الإجابة غير صحيحة، حاول مرة أخرى.");
+    }
+  });
+
+  // ألعاب نارية بسيطة باستخدام كانفاس
+  // كود ألعاب نارية مقتبس ومبسط
+  let fireworks = [];
+  let particles = [];
+
+  class Firework {
+    constructor(x, y) {
+      this.x = x;
+      this.y = y;
+      this.sx = x;
+      this.sy = window.innerHeight;
+      this.targetY = y;
+      this.speed = 5;
+      this.exploded = false;
+      this.color = `hsl(${Math.random()*360}, 100%, 50%)`;
+    }
+    update() {
+      if(!this.exploded) {
+        this.sy -= this.speed;
+        if(this.sy <= this.targetY) {
+          this.exploded = true;
+          this.explode();
+        }
+      }
+    }
+    draw() {
+      if(!this.exploded) {
+        ctx.beginPath();
+        ctx.arc(this.x, this.sy, 3, 0, Math.PI*2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+      }
+    }
+    explode() {
+      for(let i=0; i<30; i++) {
+        particles.push(new Particle(this.x, this.sy, this.color));
+      }
+    }
+  }
+
+  class Particle {
+    constructor(x, y, color) {
+      this.x = x;
+      this.y = y;
+      this.color = color;
+      this.speedX = (Math.random() - 0.5) * 6;
+      this.speedY = (Math.random() - 0.5) * 6;
+      this.alpha = 1;
+      this.size = 3;
+      this.gravity = 0.05;
+    }
+    update() {
+      this.speedY += this.gravity;
+      this.x += this.speedX;
+      this.y += this.speedY;
+      this.alpha -= 0.02;
+      if(this.alpha < 0) this.alpha = 0;
+    }
+    draw() {
+      ctx.save();
+      ctx.globalAlpha = this.alpha;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
+      ctx.fillStyle = this.color;
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  function launchFireworks() {
+    for(let i=0; i<5; i++) {
+      fireworks.push(new Firework(Math.random()*window.innerWidth, Math.random()*window.innerHeight/2 + 50));
+    }
+    animateFireworks();
+  }
+
+  function animateFireworks() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    fireworks.forEach((fw, i) => {
+      fw.update();
+      fw.draw();
+      if(fw.exploded) {
+        fireworks.splice(i, 1);
+      }
+    });
+    particles.forEach((p, i) => {
+      if(p.alpha <= 0) {
+        particles.splice(i, 1);
+      } else {
+        p.update();
+        p.draw();
+      }
+    });
+    if(fireworks.length > 0 || particles.length > 0) {
+      requestAnimationFrame(animateFireworks);
+    }
+  }
+</script>
+
+</body>
+</html>

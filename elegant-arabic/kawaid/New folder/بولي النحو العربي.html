@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مونوبولي النحو العربي</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        #game-board {
+            width: 700px;
+            height: 700px;
+            margin: 20px auto;
+            background-color: #e8f4f8;
+            position: relative;
+            border: 3px solid #2c3e50;
+            border-radius: 10px;
+            overflow: visible;
+        }
+        
+        .cell {
+            width: 100px;
+            height: 100px;
+            border: 2px solid #333;
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 14px;
+            background-color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            padding: 5px;
+            box-sizing: border-box;
+        }
+        
+        .cell:hover {
+            transform: scale(1.1);
+            z-index: 10;
+            background-color: #f0f8ff;
+        }
+        
+        /* ألوان مختلفة لأنواع المربعات */
+        .rule { background-color: #ffeb99; }
+        .question { background-color: #c2e0ff; }
+        .start { background-color: #a3e4a3; }
+        .jail { background-color: #ffb3b3; }
+        .surprise { background-color: #e0b0ff; }
+        
+        #player-info {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #2c3e50;
+            color: white;
+            border-radius: 5px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <h1>مونوبولي النحو العربي</h1>
+    
+    <div id="game-board"></div>
+    
+    <div id="player-info">
+        <h3>معلومات اللاعب</h3>
+        <p>النقاط النحوية: <span id="points">100</span></p>
+        <p>القواعد المملوكة: <span id="owned-rules">لا شيء</span></p>
+    </div>
+    
+    <div style="text-align: center; margin-top: 20px;">
+        <button id="roll-dice">اطر النرد</button>
+        <button id="buy-rule">شراء القاعدة</button>
+    </div>
+    
+    <script>
+        // أنواع المربعات
+        const cellTypes = [
+            { name: "البداية", type: "start" },
+            { name: "المرفوعات", type: "rule", price: 60, owned: false },
+            { name: "المنصوبات", type: "rule", price: 80, owned: false },
+            { name: "المجرورات", type: "rule", price: 100, owned: false },
+            { name: "المجزومات", type: "rule", price: 120, owned: false },
+            { name: "سؤال نحوي", type: "question" },
+            { name: "المجاز", type: "rule", price: 140, owned: false },
+            { name: "السجن النحوي", type: "jail" },
+            { name: "التوكيد", type: "rule", price: 160, owned: false },
+            { name: "العطف", type: "rule", price: 180, owned: false },
+            { name: "البدل", type: "rule", price: 200, owned: false },
+            { name: "المفاجآت", type: "surprise" }
+        ];
+
+        let currentPlayer = {
+            position: 0,
+            points: 100,
+            ownedRules: []
+        };
+
+        // تهيئة لوحة اللعب
+        function initBoard() {
+            const board = document.getElementById('game-board');
+            board.innerHTML = ''; // تنظيف اللوحة أولاً
+            
+            // إنشاء 12 خلية في دائرة
+            const centerX = 350, centerY = 350, radius = 250;
+            const angleStep = (2 * Math.PI) / cellTypes.length;
+            
+            cellTypes.forEach((cell, index) => {
+                const cellElement = document.createElement('div');
+                cellElement.className = `cell ${cell.type}`;
+                cellElement.textContent = cell.name;
+                
+                // حساب المواقع في دائرة
+                const angle = angleStep * index - Math.PI/2;
+                const x = centerX + radius * Math.cos(angle);
+                const y = centerY + radius * Math.sin(angle);
+                
+                // وضع الخلية في المركز الصحيح
+                cellElement.style.left = (x - 50) + 'px';
+                cellElement.style.top = (y - 50) + 'px';
+                
+                board.appendChild(cellElement);
+            });
+        }
+
+        // دالة رمي النرد
+        document.getElementById('roll-dice').addEventListener('click', function() {
+            const dice = Math.floor(Math.random() * 6) + 1;
+            alert(`لقد حصلت على ${dice} في النرد!`);
+            
+            // تحديث موقع اللاعب
+            currentPlayer.position = (currentPlayer.position + dice) % cellTypes.length;
+            const currentCell = cellTypes[currentPlayer.position];
+            
+            alert(`وقفت على: ${currentCell.name}`);
+            
+            // معالجة أنواع المربعات المختلفة
+            if (currentCell.type === 'question') {
+                askQuestion();
+            } else if (currentCell.type === 'rule' && currentCell.owned) {
+                payRuleFee(currentCell);
+            }
+        });
+
+        // طرح سؤال نحوي
+        function askQuestion() {
+            const questions = [
+                {
+                    question: "ما إعراب كلمة 'الطالب' في الجملة: 'الطالب مجتهد'؟",
+                    options: ["1. مبتدأ مرفوع", "2. خبر مرفوع", "3. فاعل مرفوع", "4. اسم كان مرفوع"],
+                    answer: 0
+                },
+                {
+                    question: "ما نوع 'إن' في الجملة: 'إن الطالبَ مجتهد'؟",
+                    options: ["1. حرف نصب", "2. حرف جر", "3. حرف جزم", "4. حرف رفع"],
+                    answer: 0
+                }
+            ];
+            
+            const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
+            const userAnswer = prompt(`${randomQuestion.question}\n\n${randomQuestion.options.join('\n')}\n\nأدخل رقم الإجابة الصحيحة:`);
+            
+            if (parseInt(userAnswer) - 1 === randomQuestion.answer) {
+                alert("إجابة صحيحة! لقد ربحت 20 نقطة نحوية.");
+                currentPlayer.points += 20;
+                updatePlayerInfo();
+            } else {
+                alert(`إجابة خاطئة! الإجابة الصحيحة هي: ${randomQuestion.options[randomQuestion.answer]}`);
+            }
+        }
+
+        // تحديث معلومات اللاعب
+        function updatePlayerInfo() {
+            document.getElementById('points').textContent = currentPlayer.points;
+            document.getElementById('owned-rules').textContent = 
+                currentPlayer.ownedRules.length > 0 ? currentPlayer.ownedRules.join(', ') : 'لا شيء';
+        }
+
+        // تهيئة اللعبة عند تحميل الصفحة
+        window.onload = function() {
+            initBoard();
+            updatePlayerInfo();
+        };
+    </script>
+</body>
+</html>

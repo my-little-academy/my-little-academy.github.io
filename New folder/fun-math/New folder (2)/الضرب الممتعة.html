@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الضرب الممتعة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap" rel="stylesheet">
+    <style>
+        /* --- CSS for the game --- */
+        body {
+            font-family: 'Cairo', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(to right, #90EE90, #ADD8E6); /* Light green to light blue gradient */
+            color: #333;
+            direction: rtl;
+            text-align: right;
+            background-image: url('http://googleusercontent.com/image_generation_content/0'); /* Playful background */
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+
+        .game-container {
+            background-color: #F8F8FF; /* Ghost White */
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #4B0082; /* Indigo */
+            font-size: 2.5em;
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #DAA520; /* Goldenrod */
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+
+        .level-selection button,
+        .action-button {
+            background-color: #FF6347; /* Tomato */
+            color: #FFFFFF;
+            border: none;
+            padding: 15px 25px;
+            margin: 10px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .level-selection button:hover,
+        .action-button:hover {
+            background-color: #FF4500; /* OrangeRed */
+            transform: translateY(-3px);
+        }
+
+        .level-button {
+            min-width: 180px;
+        }
+
+        .game-area {
+            margin-top: 30px;
+            border: 3px dashed #3CB371; /* Medium Sea Green */
+            padding: 20px;
+            border-radius: 15px;
+            background-color: #F0FFF0; /* Honeydew */
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            font-size: 1.1em;
+            color: #2E8B57; /* Sea Green */
+            margin-bottom: 20px;
+            background-color: #E0FFFF; /* Light Cyan */
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .problem-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 3em;
+            font-weight: bold;
+            color: #8A2BE2; /* Blue Violet */
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .problem-display .number {
+            margin: -10px 0;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        .problem-display .operator {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5em;
+        }
+
+        hr {
+            border: 2px solid #5F9EA0; /* Cadet Blue */
+            width: 80%;
+            margin: 15px 0;
+        }
+
+        .answer-input-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .answer-input {
+            width: 60px;
+            height: 60px;
+            font-size: 2em;
+            text-align: center;
+            margin: 0 5px;
+            border: 3px solid #6495ED; /* Cornflower Blue */
+            border-radius: 10px;
+            outline: none;
+            transition: border-color 0.3s ease;
+            color: #333;
+        }
+
+        .answer-input:focus {
+            border-color: #DC143C; /* Crimson */
+        }
+
+        .feedback {
+            margin-top: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+            min-height: 40px;
+        }
+
+        .feedback.correct {
+            color: #32CD32; /* Lime Green */
+        }
+
+        .feedback.incorrect {
+            color: #FF0000; /* Red */
+        }
+
+        .explanation-area {
+            background-color: #F5FFFA; /* Mint Cream */
+            border: 2px solid #20B2AA; /* Light Sea Green */
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .explanation-area h3 {
+            color: #4682B4; /* Steel Blue */
+            margin-bottom: 10px;
+        }
+
+        .explanation-area p {
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .explanation-area .step-details {
+            background-color: #e8f5e9; /* Light green for step details */
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border-left: 5px solid #4CAF50;
+        }
+
+        .explanation-area .step-details strong {
+            color: #1B5E20; /* Darker green */
+        }
+
+        .explanation-area pre {
+            background-color: #e0f2f7; /* Light blue for preformatted text */
+            padding: 10px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            overflow-x: auto;
+            font-size: 1em; /* Slightly larger for clarity */
+            text-align: left;
+            direction: ltr;
+            line-height: 1.5;
+            margin-top: 10px;
+        }
+
+        .help-section {
+            margin-top: 30px;
+            width: 100%;
+        }
+
+        .help-button {
+            background-color: #BA55D3; /* Medium Orchid */
+            color: white;
+            font-size: 1.2em;
+        }
+
+        .help-content {
+            background-color: #E6E6FA; /* Lavender */
+            border: 2px solid #9932CC; /* Dark Orchid */
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 15px;
+            text-align: right;
+        }
+
+        .help-content h3 {
+            color: #4B0082; /* Indigo */
+            margin-bottom: 15px;
+        }
+
+        .help-content p {
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 10px;
+        }
+
+        .help-content pre {
+            background-color: #DDA0DD; /* Plum */
+            padding: 10px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            overflow-x: auto;
+            font-size: 0.9em;
+            text-align: left;
+            direction: ltr;
+        }
+
+        .help-content ol {
+            padding-right: 25px;
+            color: #555;
+        }
+
+        .help-content ol li {
+            margin-bottom: 8px;
+        }
+
+        /* For smaller screens */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            .level-selection button {
+                font-size: 1em;
+                padding: 12px 20px;
+                margin: 8px;
+            }
+            .problem-display {
+                font-size: 2.5em;
+            }
+            .answer-input {
+                width: 50px;
+                height: 50px;
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>لعبة الضرب الممتعة</h1>
+
+        <div class="level-selection">
+            <h2>اختر مستوى الصعوبة:</h2>
+            <button id="easyBtn" class="level-button">مبتدئ (جداول بسيطة)</button>
+            <button id="mediumBtn" class="level-button">متوسط (رقم في رقمين)</button>
+            <button id="hardBtn" class="level-button">متقدم (رقمين في رقمين)</button>
+        </div>
+
+        <div class="game-area" style="display: none;">
+            <div class="score-board">
+                <span>النقاط: <span id="score">0</span></span>
+                <span>النجوم: <span id="stars">0</span> ⭐</span>
+            </div>
+
+            <div class="problem-display">
+                <p class="number" id="num1"></p>
+                <p class="operator">×</p>
+                <p class="number" id="num2"></p>
+                <hr>
+                <div class="answer-input-container">
+                    </div>
+                <button id="checkAnswerBtn" class="action-button">تحقق من الإجابة</button>
+                <button id="nextProblemBtn" class="action-button" style="display: none;">المسألة التالية</button>
+            </div>
+
+            <div class="feedback" id="feedback"></div>
+            <button id="showExplanationBtn" class="action-button" style="display: none;">شرح الحل</button>
+
+            <div class="explanation-area" id="explanationArea" style="display: none;">
+                <h3>شرح الحل:</h3>
+                <div id="explanationContent"></div>
+            </div>
+        </div>
+
+        <div class="help-section" id="helpSection">
+            <button id="showHelpBtn" class="action-button help-button">دليل المساعدة</button>
+            <div class="help-content" style="display: none;">
+                <h3>دليل المساعدة: فهم الضرب</h3>
+                <p>الضرب هو طريقة سريعة لجمع الأرقام المتشابهة!</p>
+                <p>تخيل أن لديك 3 مجموعات من التفاح، وفي كل مجموعة 4 تفاحات. كم تفاحة لديك بالمجموع؟</p>
+                <p>يمكنك أن تقول: 4 + 4 + 4 = 12 تفاحة.</p>
+                <p>أو ببساطة تقول: 3 مجموعات × 4 تفاحات في كل مجموعة = 12 تفاحة.</p>
+                <p><strong>مثال: 5 × 3 = 15</strong> (يعني 5 + 5 + 5 أو 3 + 3 + 3 + 3 + 3)</p>
+                
+                <h4>الضرب العمودي (لرقمين أو أكثر):</h4>
+                <p>عندما نضرب أرقامًا كبيرة، نستخدم طريقة الضرب العمودي:</p>
+                <pre>
+   2  3
+×  4
+-----
+                </pre>
+                <ol>
+                    <li><strong>ابدأ بضرب الآحاد:</strong> اضرب الرقم السفلي (4) في آحاد الرقم العلوي (3). 4 × 3 = 12.</li>
+                    <li><strong>اكتب واحتفظ:</strong> اكتب 2 في خانة الآحاد تحت الخط، واحتفظ بالـ 1 (العشرة) فوق خانة العشرات في الرقم العلوي.</li>
+                    <li><strong>اضرب العشرات:</strong> اضرب الرقم السفلي (4) في عشرات الرقم العلوي (2). 4 × 2 = 8.</li>
+                    <li><strong>أضف الاحتفاظ:</strong> أضف الرقم الذي احتفظت به (1) إلى الناتج: 8 + 1 = 9.</li>
+                    <li><strong>اكتب الناتج:</strong> اكتب 9 في خانة العشرات.</li>
+                    <li><strong>الناتج النهائي:</strong> 92.</li>
+                </ol>
+                <button id="hideHelpBtn" class="action-button">إخفاء المساعدة</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- JavaScript for the game ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const easyBtn = document.getElementById('easyBtn');
+            const mediumBtn = document.getElementById('mediumBtn');
+            const hardBtn = document.getElementById('hardBtn');
+            const levelSelection = document.querySelector('.level-selection');
+            const gameArea = document.querySelector('.game-area');
+            const num1Display = document.getElementById('num1');
+            const num2Display = document.getElementById('num2');
+            const answerInputContainer = document.querySelector('.answer-input-container');
+            const checkAnswerBtn = document.getElementById('checkAnswerBtn');
+            const nextProblemBtn = document.getElementById('nextProblemBtn');
+            const feedbackDisplay = document.getElementById('feedback');
+            const scoreDisplay = document.getElementById('score');
+            const starsDisplay = document.getElementById('stars');
+            const showExplanationBtn = document.getElementById('showExplanationBtn');
+            const explanationArea = document.getElementById('explanationArea');
+            const explanationContent = document.getElementById('explanationContent');
+            const showHelpBtn = document.getElementById('showHelpBtn');
+            const hideHelpBtn = document.getElementById('hideHelpBtn');
+            const helpContent = document.querySelector('.help-content');
+
+            let currentLevel = 'easy';
+            let currentNum1, currentNum2, correctAnswer;
+            let score = 0;
+            let stars = 0;
+
+            function generateProblem() {
+                feedbackDisplay.textContent = '';
+                explanationArea.style.display = 'none';
+                showExplanationBtn.style.display = 'none';
+                nextProblemBtn.style.display = 'none';
+                checkAnswerBtn.style.display = 'inline-block';
+
+                if (currentLevel === 'easy') {
+                    currentNum1 = Math.floor(Math.random() * 10) + 1; // 1-10
+                    // Ensure tables of 2,3,5,10 for easy
+                    const easyMultipliers = [2, 3, 5, 10];
+                    currentNum2 = easyMultipliers[Math.floor(Math.random() * easyMultipliers.length)];
+                } else if (currentLevel === 'medium') {
+                    currentNum1 = Math.floor(Math.random() * 90) + 10; // Two-digit (10-99)
+                    currentNum2 = Math.floor(Math.random() * 9) + 1;  // Single-digit (1-9)
+                } else if (currentLevel === 'hard') {
+                    currentNum1 = Math.floor(Math.random() * 90) + 10; // Two-digit (10-99)
+                    currentNum2 = Math.floor(Math.random() * 90) + 10; // Two-digit (10-99)
+                }
+
+                correctAnswer = currentNum1 * currentNum2;
+
+                num1Display.textContent = currentNum1;
+                num2Display.textContent = currentNum2;
+
+                createAnswerInputs();
+            }
+
+            function createAnswerInputs() {
+                answerInputContainer.innerHTML = '';
+                const answerString = String(correctAnswer);
+                
+                for (let i = 0; i < answerString.length; i++) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.min = '0';
+                    input.max = '9';
+                    input.maxLength = '1';
+                    input.classList.add('answer-input');
+                    input.dataset.digitIndex = answerString.length - 1 - i; 
+                    answerInputContainer.prepend(input);
+                    
+                    input.addEventListener('input', function() {
+                        if (this.value.length >= this.maxLength) {
+                            const nextInput = this.nextElementSibling;
+                            if (nextInput) {
+                                nextInput.focus();
+                            } else {
+                                checkAnswerBtn.focus();
+                            }
+                        }
+                        this.value = this.value.replace(/\D/g, ''); 
+                    });
+                }
+                answerInputContainer.querySelector('.answer-input').focus();
+            }
+
+            function checkAnswer() {
+                let userAnswer = '';
+                const inputs = Array.from(answerInputContainer.querySelectorAll('.answer-input')).reverse(); 
+                inputs.forEach(input => {
+                    userAnswer += input.value || '';
+                });
+
+                if (userAnswer === '') {
+                    feedbackDisplay.textContent = 'الرجاء إدخال إجابتك أولاً!';
+                    feedbackDisplay.className = 'feedback incorrect';
+                    return;
+                }
+
+                userAnswer = parseInt(userAnswer, 10);
+
+                if (userAnswer === correctAnswer) {
+                    feedbackDisplay.textContent = 'أحسنت! إجابة صحيحة! ✨';
+                    feedbackDisplay.className = 'feedback correct';
+                    score += 10;
+                    stars++;
+                    updateScoreBoard();
+                    nextProblemBtn.style.display = 'inline-block';
+                    checkAnswerBtn.style.display = 'none';
+                } else {
+                    feedbackDisplay.textContent = 'حاول مرة أخرى. أنت قريب! 🤔';
+                    feedbackDisplay.className = 'feedback incorrect';
+                    showExplanationBtn.style.display = 'inline-block';
+                }
+            }
+
+            function updateScoreBoard() {
+                scoreDisplay.textContent = score;
+                starsDisplay.textContent = stars;
+            }
+
+            // --- Updated showExplanation function for detailed vertical multiplication ---
+            function showExplanation() {
+                explanationArea.style.display = 'block';
+                explanationContent.innerHTML = '';
+
+                let explanationHtml = `<p>لنحل المسألة خطوة بخطوة: <strong>${currentNum1} × ${currentNum2}</strong></p>`;
+
+                if (currentLevel === 'easy') {
+                    explanationHtml += `<div class="step-details"><p>الضرب هو <strong>جمع متكرر</strong>.</p>`;
+                    explanationHtml += `<p> ${currentNum1} × ${currentNum2} يعني جمع ${currentNum1} بنفسها ${currentNum2} مرة:</p>`;
+                    let sumString = '';
+                    for(let i = 0; i < currentNum2; i++) {
+                        sumString += currentNum1;
+                        if (i < currentNum2 - 1) {
+                            sumString += ' + ';
+                        }
+                    }
+                    explanationHtml += `<pre>${sumString} = ${correctAnswer}</pre></div>`;
+                } else {
+                    const num1Str = String(currentNum1);
+                    const num2Str = String(currentNum2);
+                    const num1Len = num1Str.length;
+                    const num2Len = num2Str.length;
+
+                    explanationHtml += `<p>سنستخدم طريقة الضرب العمودي:</p>`;
+                    
+                    let intermediateProducts = [];
+                    let finalSumPreformatted = '';
+                    let longestLineLength = String(correctAnswer).length + (num2Len > 1 ? 1 : 0); // For alignment
+
+                    // Initial setup of the problem
+                    explanationHtml += `<pre>`;
+                    explanationHtml += `   ${num1Str}\n`;
+                    explanationHtml += `×  ${num2Str}\n`;
+                    explanationHtml += `-----\n`;
+                    explanationHtml += `</pre>`;
+
+                    // Step-by-step multiplication by each digit of num2
+                    for (let i = num2Len - 1; i >= 0; i--) {
+                        const digit2 = parseInt(num2Str[i]);
+                        let partialProduct = '';
+                        let currentCarry = 0;
+                        let stepProductValue = 0; // Value for this intermediate step
+                        let stepExplanation = '';
+
+                        stepExplanation += `<strong>الخطوة ${num2Len - i}: اضرب (${digit2} في ${num1Str})</strong>`;
+                        stepExplanation += `<p>نبدأ بضرب الرقم ${digit2} (في خانة ${getPlaceName(num2Len - i)} في الرقم السفلي) في كل رقم من الرقم العلوي (${num1Str}).</p>`;
+                        
+                        // Trailing zeros for place value
+                        let trailingZeros = '';
+                        for (let z = 0; z < (num2Len - 1 - i); z++) {
+                            trailingZeros += '0';
+                        }
+                        
+                        let currentPartialLine = '';
+                        let detailedMultiplications = [];
+
+                        for (let j = num1Len - 1; j >= 0; j--) {
+                            const digit1 = parseInt(num1Str[j]);
+                            let product = digit2 * digit1 + currentCarry;
+                            let resultDigit = product % 10;
+                            currentCarry = Math.floor(product / 10);
+                            partialProduct = resultDigit + partialProduct;
+                            
+                            detailedMultiplications.unshift(`${digit2} × ${digit1} = ${product}. نكتب ${resultDigit}`);
+                            if (currentCarry > 0) {
+                                detailedMultiplications[0] += ` ونحتفظ بـ ${currentCarry}.`;
+                            }
+                        }
+                        if (currentCarry > 0) {
+                            partialProduct = currentCarry + partialProduct;
+                            detailedMultiplications.unshift(`أضف الاحتفاظ ${currentCarry}.`);
+                        }
+                        
+                        explanationHtml += `<div class="step-details">`;
+                        explanationHtml += `<p>${stepExplanation}</p>`;
+                        explanationHtml += `<p> ${detailedMultiplications.join('<br>')}</p>`;
+
+                        stepProductValue = parseInt(partialProduct + trailingZeros);
+                        intermediateProducts.push({ value: stepProductValue, raw: partialProduct, zeros: trailingZeros });
+                        
+                        explanationHtml += `<p>الناتج الجزئي لهذه الخطوة هو: <strong>${partialProduct}${trailingZeros}</strong></p>`;
+                        explanationHtml += `<pre>   ${partialProduct.padStart(num1Len + num2Len - i, ' ')}${trailingZeros}</pre>`; // Aligned partial product
+                        explanationHtml += `</div>`;
+                    }
+
+                    // Summing intermediate products if num2 has more than one digit
+                    if (num2Len > 1) {
+                        explanationHtml += `<div class="step-details">`;
+                        explanationHtml += `<p><strong>الخطوة الأخيرة: اجمع النواتج الجزئية</strong></p>`;
+                        explanationHtml += `<p>الآن، نجمع كل النواتج الجزئية التي حصلنا عليها:</p>`;
+                        explanationHtml += `<pre>`;
+                        // Display intermediate products for summation, aligned
+                        for (let k = 0; k < intermediateProducts.length; k++) {
+                            const prod = intermediateProducts[k];
+                            // Pad to align them correctly, considering the final answer length
+                            explanationHtml += `${String(prod.value).padStart(String(correctAnswer).length + num2Len - 1, ' ')}\n`;
+                            if (k < intermediateProducts.length - 1) {
+                                explanationHtml += `+\n`;
+                            }
+                        }
+                        explanationHtml += `-----\n`;
+                        explanationHtml += `${String(correctAnswer).padStart(String(correctAnswer).length + num2Len - 1, ' ')}\n`; // Final answer aligned
+                        explanationHtml += `</pre>`;
+                        explanationHtml += `</div>`;
+                    }
+                }
+
+                explanationHtml += `<p><strong>إذن، الإجابة النهائية هي: ${correctAnswer}</strong></p>`;
+                explanationContent.innerHTML = explanationHtml;
+            }
+
+            function getPlaceName(index) {
+                switch (index) {
+                    case 1: return 'الآحاد';
+                    case 2: return 'العشرات';
+                    case 3: return 'المئات';
+                    case 4: return 'الآلاف';
+                    default: return 'الخانات الأعلى';
+                }
+            }
+
+            // --- Event Handlers ---
+
+            easyBtn.addEventListener('click', () => {
+                currentLevel = 'easy';
+                levelSelection.style.display = 'none';
+                gameArea.style.display = 'block';
+                score = 0;
+                stars = 0;
+                updateScoreBoard();
+                generateProblem();
+            });
+
+            mediumBtn.addEventListener('click', () => {
+                currentLevel = 'medium';
+                levelSelection.style.display = 'none';
+                gameArea.style.display = 'block';
+                score = 0;
+                stars = 0;
+                updateScoreBoard();
+                generateProblem();
+            });
+
+            hardBtn.addEventListener('click', () => {
+                currentLevel = 'hard';
+                levelSelection.style.display = 'none';
+                gameArea.style.display = 'block';
+                score = 0;
+                stars = 0;
+                updateScoreBoard();
+                generateProblem();
+            });
+
+            checkAnswerBtn.addEventListener('click', checkAnswer);
+            nextProblemBtn.addEventListener('click', generateProblem);
+            showExplanationBtn.addEventListener('click', showExplanation);
+
+            showHelpBtn.addEventListener('click', () => {
+                helpContent.style.display = 'block';
+                showHelpBtn.style.display = 'none';
+            });
+
+            hideHelpBtn.addEventListener('click', () => {
+                helpContent.style.display = 'none';
+                showHelpBtn.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

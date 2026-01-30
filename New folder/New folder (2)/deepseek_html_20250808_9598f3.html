@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الحروف والأصوات - مملكة النحو العربي</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* خلفية متحركة */
+        .floating-letters {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .floating-letter {
+            position: absolute;
+            font-size: 3rem;
+            color: rgba(255, 255, 255, 0.1);
+            animation: floatLetter 8s linear infinite;
+            font-weight: bold;
+        }
+        
+        @keyframes floatLetter {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 1s ease-out;
+        }
+        
+        .back-button {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            color: #fff;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+            gap: 1rem;
+        }
+        
+        .tab {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .tab.active {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            transform: scale(1.05);
+        }
+        
+        .tab:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+        
+        /* شبكة الحروف */
+        .letters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .letter-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .letter-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .letter-card.playing {
+            animation: pulse 0.8s ease-in-out;
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            color: white;
+        }
+        
+        .letter-arabic {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .letter-name {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        
+        .letter-sound {
+            font-size: 0.9rem;
+            color: #888;
+            font-style: italic;
+        }
+        
+        /* قسم التدريب */
+        .practice-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+        
+        .practice-title {
+            font-size: 2rem;
+            color: #333;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-weight: 600;
+        }
+        
+        .word-practice {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        
+        .word-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .word-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .word-arabic {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+        
+        .word-meaning {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .word-pronunciation {
+            font-size: 1rem;
+            opacity: 0.8;
+            font-style: italic;
+        }
+        
+        /* لعبة التطابق */
+        .matching-game {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .game-title {
+            font-size: 2rem;
+            color: #333;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .matching-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .match-card {
+            background: linear-gradient(135deg, #ff9a9e, #fecfef);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.5rem;
+            font-weight: bold;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .match-card:hover {
+            transform: scale(1.05);
+        }
+        
+        .match-card.flipped {
+            background: linear-gradient(135deg, #4ecdc4, #45b7d1);
+            transform: rotateY(180deg);
+        }
+        
+        .match-card.matched {
+            background: linear-gradient(135deg, #96ceb4, #feca57);
+            animation: celebration 0.6s ease-in-out;
+        }
+        
+        .score-board {
+            text-align: center;
+            margin: 2rem 0;
+        }
+        
+        .score {
+            font-size: 1.5rem;
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 5px;
+        }
+        
+        /* تأثيرات الصوت */
+        .sound-button {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .sound-button:hover {
+            transform: scale(1.1);
+        }
+        
+        /* قسم التدريبات */
+        .practice-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .practice-question {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+        
+        .practice-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .practice-option {
+            background: rgba(255, 255, 255, 0.8);
+            border: 2px solid #ddd;
+            border-radius: 15px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+        
+        .practice-option:hover {
+            background: #f0f0f0;
+            transform: translateY(-3px);
+        }
+        
+        .practice-option.correct {
+            background: #96ceb4;
+            color: white;
+        }
+        
+        .practice-option.wrong {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        .practice-feedback {
+            font-size: 1.2rem;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        
+        .practice-feedback.correct {
+            background: #96ceb4;
+            color: white;
+            display: block;
+        }
+        
+        .practice-feedback.wrong {
+            background: #ff6b6b;
+            color: white;
+            display: block;
+        }
+        
+        .next-button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+            margin: 0 auto;
+        }
+        
+        .next-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* قسم تتبع الحروف */
+        .tracing-container {
+            text-align: center;
+            margin: 2rem 0;
+        }
+        
+        .tracing-canvas {
+            border: 2px solid #ddd;
+            border-radius: 15px;
+            background: white;
+            margin: 1rem auto;
+            display: block;
+        }
+        
+        .tracing-instructions {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 1rem;
+        }
+        
+        .tracing-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        @keyframes celebration {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.1) rotate(-5deg); }
+            75% { transform: scale(1.1) rotate(5deg); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* استجابة للشاشات الصغيرة */
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2rem; }
+            .letters-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+            .tabs { flex-wrap: wrap; }
+            .matching-grid { grid-template-columns: repeat(2, 1fr); }
+            .container { padding: 1rem; }
+            .word-practice { grid-template-columns: 1fr; }
+            .practice-options { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-letters" id="floatingLetters"></div>
+    
+    <div class="container">
+        <button class="back-button" onclick="goBack()">← العودة للرئيسية</button>
+        
+        <div class="header">
+            <h1>🔤 الحروف والأصوات العربية 🔤</h1>
+            <p>اكتشف الحروف العربية الجميلة واستمع لأصواتها المميزة مع أنشطة ممتعة وألعاب تفاعلية!</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showSection('letters')">📝 الحروف</button>
+            <button class="tab" onclick="showSection('words')">📚 كلمات</button>
+            <button class="tab" onclick="showSection('game')">🎮 لعبة التطابق</button>
+            <button class="tab" onclick="showSection('practice')">💪 تدريبات</button>
+        </div>
+        
+        <!-- قسم الحروف -->
+        <div id="letters" class="content-section active">
+            <div class="letters-grid" id="lettersGrid"></div>
+        </div>
+        
+        <!-- قسم الكلمات -->
+        <div id="words" class="content-section">
+            <div class="practice-section">
+                <h2 class="practice-title">🌟 كلمات تبدأ بالحروف</h2>
+                <div class="word-practice" id="wordsGrid"></div>
+            </div>
+        </div>
+        
+        <!-- لعبة التطابق -->
+        <div id="game" class="content-section">
+            <div class="matching-game">
+                <h2 class="game-title">🎯 لعبة تطابق الحروف</h2>
+                <div class="score-board">
+                    <div class="score">النقاط: <span id="score">0</span></div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+                <div class="matching-grid" id="matchingGrid"></div>
+                <button class="tab" onclick="resetGame()" style="margin-top: 2rem;">🔄 لعبة جديدة</button>
+            </div>
+        </div>
+        
+        <!-- قسم التدريبات -->
+        <div id="practice" class="content-section">
+            <div class="practice-section">
+                <h2 class="practice-title">✏️ تدريبات الحروف</h2>
+                <div id="practiceContent"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // بيانات الحروف العربية
+        const arabicLetters = [
+            { arabic: 'أ', name: 'ألف', sound: 'أَ', example: 'أسد' },
+            { arabic: 'ب', name: 'باء', sound: 'بَ', example: 'بيت' },
+            { arabic: 'ت', name: 'تاء', sound: 'تَ', example: 'تفاح' },
+            { arabic: 'ث', name: 'ثاء', sound: 'ثَ', example: 'ثعلب' },
+            { arabic: 'ج', name: 'جيم', sound: 'جَ', example: 'جمل' },
+            { arabic: 'ح', name: 'حاء', sound: 'حَ', example: 'حصان' },
+            { arabic: 'خ', name: 'خاء', sound: 'خَ', example: 'خروف' },
+            { arabic: 'د', name: 'دال', sound: 'دَ', example: 'دجاج' },
+            { arabic: 'ذ', name: 'ذال', sound: 'ذَ', example: 'ذئب' },
+            { arabic: 'ر', name: 'راء', sound: 'رَ', example: 'رمان' },
+            { arabic: 'ز', name: 'زاي', sound: 'زَ', example: 'زرافة' },
+            { arabic: 'س', name: 'سين', sound: 'سَ', example: 'سمك' },
+            { arabic: 'ش', name: 'شين', sound: 'شَ', example: 'شمس' },
+            { arabic: 'ص', name: 'صاد', sound: 'صَ', example: 'صقر' },
+            { arabic: 'ض', name: 'ضاد', sound: 'ضَ', example: 'ضفدع' },
+            { arabic: 'ط', name: 'طاء', sound: 'طَ', example: 'طائر' },
+            { arabic: 'ظ', name: 'ظاء', sound: 'ظَ', example: 'ظبي' },
+            { arabic: 'ع', name: 'عين', sound: 'عَ', example: 'عصفور' },
+            { arabic: 'غ', name: 'غين', sound: 'غَ', example: 'غزال' },
+            { arabic: 'ف', name: 'فاء', sound: 'فَ', example: 'فيل' },
+            { arabic: 'ق', name: 'قاف', sound: 'قَ', example: 'قط' },
+            { arabic: 'ك', name: 'كاف', sound: 'كَ', example: 'كلب' },
+            { arabic: 'ل', name: 'لام', sound: 'لَ', example: 'ليمون' },
+            { arabic: 'م', name: 'ميم', sound: 'مَ', example: 'ماعز' },
+            { arabic: 'ن', name: 'نون', sound: 'نَ', example: 'نمر' },
+            { arabic: 'ه', name: 'هاء', sound: 'هَ', example: 'هدهد' },
+            { arabic: 'و', name: 'واو', sound: 'وَ', example: 'وردة' },
+            { arabic: 'ي', name: 'ياء', sound: 'يَ', example: 'يد' }
+        ];
+        
+        const wordExamples = [
+            { word: 'أسد', meaning: 'حيوان مفترس', letter: 'أ' },
+            { word: 'بيت', meaning: 'مكان السكن', letter: 'ب' },
+            { word: 'تفاح', meaning: 'فاكهة حمراء', letter: 'ت' },
+            { word: 'ثعلب', meaning: 'حيوان ماكر', letter: 'ث' },
+            { word: 'جمل', meaning: 'سفينة الصحراء', letter: 'ج' },
+            { word: 'حصان', meaning: 'حيوان للركوب', letter: 'ح' },
+            { word: 'خروف', meaning: 'حيوان أليف', letter: 'خ' },
+            { word: 'دجاج', meaning: 'طائر منزلي', letter: 'د' },
+            { word: 'ذئب', meaning: 'حيوان بري', letter: 'ذ' },
+            { word: 'رمان', meaning: 'فاكهة حمراء', letter: 'ر' },
+            { word: 'زرافة', meaning: 'حيوان طويل', letter: 'ز' },
+            { word: 'سمك', meaning: 'حيوان بحري', letter: 'س' }
+        ];
+        
+        let gameData = [];
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let score = 0;
+        let currentPracticeIndex = 0;
+        
+        // تمارين التدريب
+        const practiceExercises = [
+            {
+                type: 'quiz',
+                question: 'ما هو الحرف الذي يبدأ به كلمة "جمل"؟',
+                options: ['ج', 'ح', 'خ', 'د'],
+                answer: 'ج'
+            },
+            {
+                type: 'quiz',
+                question: 'أي من هذه الحروف ينطق "ثَ"؟',
+                options: ['ت', 'ث', 'ب', 'ج'],
+                answer: 'ث'
+            },
+            {
+                type: 'quiz',
+                question: 'ما هو صوت حرف "س"؟',
+                options: ['سَ', 'شَ', 'صَ', 'ضَ'],
+                answer: 'سَ'
+            },
+            {
+                type: 'tracing',
+                letter: 'ب',
+                instructions: 'تابع رسم حرف الباء بالترتيب الصحيح'
+            },
+            {
+                type: 'quiz',
+                question: 'أي من هذه الكلمات تبدأ بحرف "ع"؟',
+                options: ['عصفور', 'غزال', 'فيل', 'قلم'],
+                answer: 'عصفور'
+            }
+        ];
+        
+        // تهيئة الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            createLettersGrid();
+            createWordsGrid();
+            createFloatingLetters();
+            initGame();
+            createPracticeContent();
+        });
+        
+        // إنشاء شبكة الحروف
+        function createLettersGrid() {
+            const grid = document.getElementById('lettersGrid');
+            
+            arabicLetters.forEach((letter, index) => {
+                const card = document.createElement('div');
+                card.className = 'letter-card';
+                card.style.animationDelay = `${index * 0.1}s`;
+                
+                card.innerHTML = `
+                    <div class="letter-arabic">${letter.arabic}</div>
+                    <div class="letter-name">${letter.name}</div>
+                    <div class="letter-sound">${letter.sound}</div>
+                    <button class="sound-button" onclick="playLetterSound('${letter.arabic}')">🔊</button>
+                `;
+                
+                card.addEventListener('click', () => playLetterAnimation(card, letter));
+                grid.appendChild(card);
+            });
+        }
+        
+        // إنشاء شبكة الكلمات
+        function createWordsGrid() {
+            const grid = document.getElementById('wordsGrid');
+            
+            wordExamples.forEach((word, index) => {
+                const card = document.createElement('div');
+                card.className = 'word-card';
+                card.style.animationDelay = `${index * 0.1}s`;
+                
+                card.innerHTML = `
+                    <div class="word-arabic">${word.word}</div>
+                    <div class="word-meaning">${word.meaning}</div>
+                    <div class="word-pronunciation">يبدأ بحرف: ${word.letter}</div>
+                    <button class="sound-button" onclick="playWordSound('${word.word}')">🔊</button>
+                `;
+                
+                card.addEventListener('click', () => highlightLetter(word.letter));
+                grid.appendChild(card);
+            });
+        }
+        
+        // إنشاء الحروف المتطايرة
+        function createFloatingLetters() {
+            const container = document.getElementById('floatingLetters');
+            
+            setInterval(() => {
+                const letter = document.createElement('div');
+                letter.className = 'floating-letter';
+                letter.textContent = arabicLetters[Math.floor(Math.random() * arabicLetters.length)].arabic;
+                letter.style.left = Math.random() * 100 + '%';
+                letter.style.animationDuration = (Math.random() * 3 + 5) + 's';
+                
+                container.appendChild(letter);
+                
+                setTimeout(() => {
+                    letter.remove();
+                }, 8000);
+            }, 2000);
+        }
+        
+        // تشغيل صوت الحرف (محاكاة)
+        function playLetterSound(letter) {
+            console.log(`تشغيل صوت الحرف: ${letter}`);
+            // في التطبيق الحقيقي، يمكن استخدام Web Audio API
+            showNotification(`🔊 صوت حرف ${letter}`);
+        }
+        
+        // تشغيل صوت الكلمة (محاكاة)
+        function playWordSound(word) {
+            console.log(`تشغيل صوت الكلمة: ${word}`);
+            showNotification(`🔊 صوت كلمة ${word}`);
+        }
+        
+        // تحريك البطاقة عند النقر
+        function playLetterAnimation(card, letter) {
+            card.classList.add('playing');
+            
+            setTimeout(() => {
+                card.classList.remove('playing');
+            }, 800);
+            
+            playLetterSound(letter.arabic);
+        }
+        
+        // تمييز الحرف في شبكة الحروف
+        function highlightLetter(letter) {
+            const cards = document.querySelectorAll('.letter-card');
+            cards.forEach(card => {
+                const letterText = card.querySelector('.letter-arabic').textContent;
+                if (letterText === letter) {
+                    card.style.background = 'linear-gradient(45deg, #ff6b6b, #feca57)';
+                    card.style.color = 'white';
+                    card.style.transform = 'scale(1.1)';
+                    
+                    setTimeout(() => {
+                        card.style.background = 'rgba(255, 255, 255, 0.95)';
+                        card.style.color = '';
+                        card.style.transform = '';
+                    }, 2000);
+                }
+            });
+        }
+        
+        // إظهار الأقسام
+        function showSection(sectionName) {
+            // إخفاء جميع الأقسام
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // إزالة التفعيل من جميع التبويبات
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // إظهار القسم المحدد
+            document.getElementById(sectionName).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        // تهيئة لعبة التطابق
+        function initGame() {
+            const selectedLetters = arabicLetters.slice(0, 6); // اختيار 6 حروف
+            gameData = [];
+            
+            selectedLetters.forEach(letter => {
+                gameData.push({ type: 'letter', value: letter.arabic, id: letter.arabic });
+                gameData.push({ type: 'sound', value: letter.sound, id: letter.arabic });
+            });
+            
+            // خلط البيانات
+            gameData = gameData.sort(() => Math.random() - 0.5);
+            
+            createMatchingGrid();
+        }
+        
+        // إنشاء شبكة لعبة التطابق
+        function createMatchingGrid() {
+            const grid = document.getElementById('matchingGrid');
+            grid.innerHTML = '';
+            
+            gameData.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'match-card';
+                card.dataset.id = item.id;
+                card.dataset.type = item.type;
+                card.textContent = '?';
+                
+                card.addEventListener('click', () => flipCard(card, item.value));
+                grid.appendChild(card);
+            });
+        }
+        
+        // قلب البطاقة في اللعبة
+        function flipCard(card, value) {
+            if (card.classList.contains('flipped') || card.classList.contains('matched')) return;
+            if (flippedCards.length >= 2) return;
+            
+            card.classList.add('flipped');
+            card.textContent = value;
+            flippedCards.push(card);
+            
+            if (flippedCards.length === 2) {
+                setTimeout(checkMatch, 1000);
+            }
+        }
+        
+        // فحص التطابق
+        function checkMatch() {
+            const [card1, card2] = flippedCards;
+            
+            if (card1.dataset.id === card2.dataset.id) {
+                card1.classList.add('matched');
+                card2.classList.add('matched');
+                matchedPairs++;
+                score += 10;
+                
+                updateScore();
+                
+                if (matchedPairs === 6) {
+                    setTimeout(() => {
+                        showNotification('🎉 مبروك! لقد أكملت اللعبة بنجاح!');
+                    }, 500);
+                }
+            } else {
+                card1.classList.remove('flipped');
+                card2.classList.remove('flipped');
+                card1.textContent = '?';
+                card2.textContent = '?';
+            }
+            
+            flippedCards = [];
+        }
+        
+        // تحديث النقاط
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+            const progress = (matchedPairs / 6) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+        
+        // إعادة تشغيل اللعبة
+        function resetGame() {
+            flippedCards = [];
+            matchedPairs = 0;
+            score = 0;
+            updateScore();
+            initGame();
+        }
+        
+        // إنشاء محتوى التدريبات
+        function createPracticeContent() {
+            showPracticeExercise(currentPracticeIndex);
+        }
+        
+        // عرض تمرين التدريب
+        function showPracticeExercise(index) {
+            const container = document.getElementById('practiceContent');
+            const exercise = practiceExercises[index];
+            
+            if (exercise.type === 'quiz') {
+                container.innerHTML = `
+                    <div class="practice-card">
+                        <div class="practice-question">${exercise.question}</div>
+                        <div class="practice-options" id="practiceOptions"></div>
+                        <div class="practice-feedback" id="practiceFeedback"></div>
+                        <button class="next-button" id="nextButton" onclick="nextPractice()">التالي →</button>
+                    </div>
+                `;
+                
+                const optionsContainer = document.getElementById('practiceOptions');
+                exercise.options.forEach(option => {
+                    const optionElement = document.createElement('div');
+                    optionElement.className = 'practice-option';
+                    optionElement.textContent = option;
+                    optionElement.addEventListener('click', () => checkAnswer(option, exercise.answer));
+                    optionsContainer.appendChild(optionElement);
+                });
+            } else if (exercise.type === 'tracing') {
+                container.innerHTML = `
+                    <div class="practice-card">
+                        <div class="practice-question">تمرين تتبع الحروف</div>
+                        <div class="tracing-container">
+                            <p class="tracing-instructions">${exercise.instructions}</p>
+                            <canvas class="tracing-canvas" id="tracingCanvas" width="300" height="300"></canvas>
+                            <div class="tracing-controls">
+                                <button class="tab" onclick="clearTracingCanvas()">مسح</button>
+                                <button class="tab" onclick="nextPractice()">التالي</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                initTracingCanvas(exercise.letter);
+            }
+        }
+        
+        // التحقق من الإجابة في التدريبات
+        function checkAnswer(selectedAnswer, correctAnswer) {
+            const options = document.querySelectorAll('.practice-option');
+            const feedback = document.getElementById('practiceFeedback');
+            const nextButton = document.getElementById('nextButton');
+            
+            options.forEach(option => {
+                option.style.pointerEvents = 'none';
+                if (option.textContent === correctAnswer) {
+                    option.classList.add('correct');
+                } else if (option.textContent === selectedAnswer && selectedAnswer !== correctAnswer) {
+                    option.classList.add('wrong');
+                }
+            });
+            
+            if (selectedAnswer === correctAnswer) {
+                feedback.textContent = 'إجابة صحيحة! أحسنت!';
+                feedback.className = 'practice-feedback correct';
+            } else {
+                feedback.textContent = `إجابة خاطئة. الإجابة الصحيحة هي: ${correctAnswer}`;
+                feedback.className = 'practice-feedback wrong';
+            }
+            
+            nextButton.style.display = 'block';
+        }
+        
+        // التمرين التالي
+        function nextPractice() {
+            currentPracticeIndex = (currentPracticeIndex + 1) % practiceExercises.length;
+            showPracticeExercise(currentPracticeIndex);
+        }
+        
+        // تهيئة لوحة التتبع
+        function initTracingCanvas(letter) {
+            const canvas = document.getElementById('tracingCanvas');
+            const ctx = canvas.getContext('2d');
+            let isDrawing = false;
+            
+            // رسم الحرف كدليل
+            ctx.font = '150px Arial';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(letter, canvas.width/2, canvas.height/2);
+            
+            // إعداد لوحة الرسم
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+            
+            function startDrawing(e) {
+                isDrawing = true;
+                draw(e);
+            }
+            
+            function draw(e) {
+                if (!isDrawing) return;
+                
+                ctx.lineWidth = 5;
+                ctx.lineCap = 'round';
+                ctx.strokeStyle = '#667eea';
+                
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                ctx.lineTo(x, y);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+            }
+            
+            function stopDrawing() {
+                isDrawing = false;
+                ctx.beginPath();
+            }
+        }
+        
+        // مسح لوحة التتبع
+        function clearTracingCanvas() {
+            const canvas = document.getElementById('tracingCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // إعادة رسم الحرف كدليل
+            const letter = practiceExercises[currentPracticeIndex].letter;
+            ctx.font = '150px Arial';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(letter, canvas.width/2, canvas.height/2);
+        }
+        
+        // عرض إشعار
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.position = 'fixed';
+            notification.style.bottom = '20px';
+            notification.style.left = '50%';
+            notification.style.transform = 'translateX(-50%)';
+            notification.style.backgroundColor = '#333';
+            notification.style.color = 'white';
+            notification.style.padding = '15px 30px';
+            notification.style.borderRadius = '25px';
+            notification.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
+            notification.style.zIndex = '1000';
+            notification.style.animation = 'fadeIn 0.3s ease-in';
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'fadeIn 0.3s ease-out reverse';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        // العودة للصفحة الرئيسية
+        function goBack() {
+            window.location.href = 'index.html'; // تغيير هذا حسب احتياجاتك
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>لعبة مقارنة الأعداد للأطفال 🧸</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      text-align: center;
+      background: linear-gradient(to bottom right, #ffecd2, #fcb69f);
+      padding-top: 40px;
+      color: #333;
+    }
+    h1 {
+      font-size: 1.8em;
+      margin-bottom: 20px;
+      color: #4a148c;
+    }
+    .cards-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      margin: 30px 0;
+    }
+    .card {
+      width: 120px;
+      height: 120px;
+      border: 4px solid #8e24aa;
+      border-radius: 20px;
+      font-size: 2.5em;
+      line-height: 120px;
+      background-color: #fce4ec;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      transition: transform 0.2s ease;
+    }
+    .card:hover {
+      transform: scale(1.05);
+    }
+    .card.empty {
+      border-style: dashed;
+      border-color: #e040fb;
+      background-color: #fffde7;
+      color: #aaa;
+      font-size: 2em;
+    }
+    .choices {
+      margin: 20px;
+    }
+    .choices button {
+      margin: 10px;
+      padding: 12px 24px;
+      font-size: 1.4em;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      background-color: #ba68c8;
+      color: white;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      transition: background-color 0.3s ease;
+    }
+    .choices button:hover {
+      background-color: #ab47bc;
+    }
+    .check-btn {
+      background-color: #66bb6a !important;
+      color: white !important;
+      font-weight: bold;
+    }
+    .check-btn:hover {
+      background-color: #388e3c !important;
+    }
+    #result {
+      font-size: 1.5em;
+      margin-top: 20px;
+      min-height: 40px;
+    }
+    .correct {
+      color: green;
+      animation: pop 0.5s ease-in-out;
+    }
+    .wrong {
+      color: red;
+      animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>اسحب رمز المقارنة المناسب 👇</h1>
+  <div style="font-size: 2em;">🧸 هل العدد الأول أكبر؟ أصغر؟ يساوي؟ 🐾</div>
+
+  <div class="cards-container">
+    <div class="card" id="num1">0</div>
+    <div class="card empty" id="dropArea"
+         ondragover="allowDrop(event)"
+         ondrop="drop(event)">
+      ❓
+    </div>
+    <div class="card" id="num2">0</div>
+  </div>
+
+  <div class="choices">
+    <button onclick="dragSymbol('>')">></button>
+    <button onclick="dragSymbol('<')"><</button>
+    <button onclick="dragSymbol('==')">=</button>
+  </div>
+
+  <button class="choices check-btn" onclick="checkAnswer()">✅ تحقق</button>
+
+  <div id="result"></div>
+
+  <script>
+    let num1, num2;
+    let selectedSymbol = null;
+
+    function generateNumbers() {
+      num1 = Math.floor(Math.random() * 10000); // من 0 إلى 9999
+      num2 = Math.floor(Math.random() * 10000);
+      document.getElementById("num1").textContent = num1;
+      document.getElementById("num2").textContent = num2;
+      document.getElementById("dropArea").textContent = "❓";
+      selectedSymbol = null;
+      document.getElementById("result").textContent = "";
+    }
+
+    function dragSymbol(symbol) {
+      selectedSymbol = symbol;
+      document.getElementById("dropArea").textContent = symbol;
+    }
+
+    function checkAnswer() {
+      if (selectedSymbol === null) {
+        alert("الرجاء اختيار رمز للمقارنة أولاً.");
+        return;
+      }
+
+      let correctAnswer;
+      if (num1 > num2) correctAnswer = '>';
+      else if (num1 < num2) correctAnswer = '<';
+      else correctAnswer = '==';
+
+      const resultDiv = document.getElementById("result");
+
+      if (selectedSymbol === correctAnswer) {
+        resultDiv.innerHTML = "🎉 رائع! إجابة صحيحة!";
+        resultDiv.className = "correct";
+      } else {
+        resultDiv.innerHTML = `😢 خطأ! الإجابة الصحيحة هي: ${correctAnswer}`;
+        resultDiv.className = "wrong";
+      }
+
+      setTimeout(generateNumbers, 2500); // سؤال جديد بعد 2.5 ثانية
+    }
+
+    // Drag and drop functions (اختياري)
+    function allowDrop(ev) {
+      ev.preventDefault();
+    }
+
+    function drop(ev) {
+      ev.preventDefault();
+      alert("يمكنك فقط وضع الرمز عبر النقر على الأزرار");
+    }
+
+    window.onload = generateNumbers;
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>لعبة تمثيل الأعداد - الوحدات والعشرات والمئات والآلاف</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #e8f5e9;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #2e7d32;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin: 20px auto;
+      max-width: 900px;
+    }
+
+    .column {
+      border: 2px dashed #a5d6a7;
+      padding: 10px;
+      border-radius: 10px;
+      min-height: 220px;
+      background: #ffffffcc;
+      overflow: auto;
+    }
+
+    .column h3 {
+      margin-bottom: 10px;
+      color: #388e3c;
+    }
+
+    .unit, .rod, .plate, .cube {
+      margin: 4px auto;
+      cursor: pointer;
+    }
+
+    .unit {
+      width: 20px;
+      height: 20px;
+      background: #ffcc80;
+      border: 1px solid #ffb300;
+    }
+
+    .rod {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #ff9800;
+      background-color: #ffe0b2;
+      width: 20px;
+      height: 200px;
+    }
+
+    .rod .unit {
+      width: 20px;
+      height: 20px;
+      border: none;
+      background: transparent;
+    }
+
+    .plate {
+      width: 100px;
+      height: 100px;
+      display: flex;
+      flex-wrap: wrap;
+      border: 1px solid #ff9800;
+      background-color: #ffe0b2;
+    }
+
+    .plate .unit {
+      width: 10px;
+      height: 10px;
+      border: none;
+      background: transparent;
+    }
+
+    .cube {
+      width: 150px;
+      height: 150px;
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .cube .plate {
+      width: 50px;
+      height: 50px;
+      margin: 1px;
+    }
+
+    .toolbox {
+      margin-top: 30px;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .toolbox div {
+      text-align: center;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin-top: 20px;
+      background: #66bb6a;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #resultMsg {
+      margin-top: 15px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌟 لعبة تمثيل الأعداد بالمجسمات</h1>
+  <p>مثّل العدد التالي باستخدام الوحدات، القضبان، الصفائح، مكعب الآلاف:</p>
+  <h2 id="targetNumber">___</h2>
+
+  <div class="container" id="board">
+    <div class="column" id="thousands"><h3>الآلاف</h3></div>
+    <div class="column" id="hundreds"><h3>المئات</h3></div>
+    <div class="column" id="tens"><h3>العشرات</h3></div>
+    <div class="column" id="ones"><h3>الوحدات</h3></div>
+  </div>
+
+  <div class="toolbox">
+    <div><div id="addCube" class="cube"></div><small>أضف ألفًا</small></div>
+    <div><div id="addPlate" class="plate"></div><small>أضف مئة</small></div>
+    <div><div id="addRod" class="rod"></div><small>أضف عشرة</small></div>
+    <div><div id="addUnit" class="unit"></div><small>أضف وحدة</small></div>
+  </div>
+
+  <button id="checkBtn">✅ تحقق</button>
+  <div id="resultMsg"></div>
+
+  <script>
+    const board = {
+      thousands: document.getElementById("thousands"),
+      hundreds: document.getElementById("hundreds"),
+      tens: document.getElementById("tens"),
+      ones: document.getElementById("ones")
+    };
+
+    function createUnit() {
+      const u = document.createElement("div");
+      u.className = "unit";
+      u.onclick = () => u.remove();
+      return u;
+    }
+
+    function createRod() {
+      const rod = document.createElement("div");
+      rod.className = "rod";
+      rod.setAttribute("data-type", "rod");
+      for (let i = 0; i < 10; i++) rod.appendChild(createUnit());
+      rod.onclick = () => rod.remove();
+      return rod;
+    }
+
+    function createPlate() {
+      const plate = document.createElement("div");
+      plate.className = "plate";
+      plate.setAttribute("data-type", "plate");
+      for (let i = 0; i < 100; i++) plate.appendChild(createUnit());
+      plate.onclick = () => plate.remove();
+      return plate;
+    }
+
+    function createCube() {
+      const cube = document.createElement("div");
+      cube.className = "cube";
+      cube.setAttribute("data-type", "cube");
+      for (let i = 0; i < 10; i++) cube.appendChild(createPlate());
+      cube.onclick = () => cube.remove();
+      return cube;
+    }
+
+    document.getElementById("addUnit").onclick = () => board.ones.appendChild(createUnit());
+    document.getElementById("addRod").onclick = () => board.tens.appendChild(createRod());
+    document.getElementById("addPlate").onclick = () => board.hundreds.appendChild(createPlate());
+    document.getElementById("addCube").onclick = () => board.thousands.appendChild(createCube());
+
+    let target = 0;
+    function generateNumber() {
+      target = Math.floor(Math.random() * 9000 + 1000);
+      document.getElementById("targetNumber").textContent = target;
+      Object.values(board).forEach(zone => zone.innerHTML = `<h3>${zone.querySelector('h3').textContent}</h3>`);
+      document.getElementById("resultMsg").textContent = "";
+    }
+
+    document.getElementById("checkBtn").onclick = () => {
+      const ones = board.ones.querySelectorAll(".unit").length;
+      const tens = board.tens.querySelectorAll(".rod").length;
+      const hundreds = board.hundreds.querySelectorAll(".plate").length;
+      const thousands = board.thousands.querySelectorAll(".cube").length;
+
+      const actual = thousands * 1000 + hundreds * 100 + tens * 10 + ones;
+      const msg = document.getElementById("resultMsg");
+      if (actual === target) {
+        msg.style.color = "green";
+        msg.textContent = "🎉 ممتاز! التمثيل صحيح.";
+      } else {
+        msg.style.color = "red";
+        msg.textContent = `❌ التمثيل غير صحيح. حصلت على ${actual}`;
+      }
+    }
+
+    generateNumber();
+  </script>
+</body>
+</html>

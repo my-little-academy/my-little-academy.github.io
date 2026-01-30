@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الكلمات المتقاطعة العربية</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            direction: rtl;
+        }
+        
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: slideIn 0.8s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        h1 {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 2px;
+            margin-bottom: 30px;
+            background: #2d3748;
+            padding: 10px;
+            border-radius: 15px;
+            box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .cell {
+            width: 40px;
+            height: 40px;
+            background: #e2e8f0;
+            border: 2px solid #cbd5e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 6px;
+            position: relative;
+        }
+        
+        .cell.active {
+            background: #ffffff;
+            border-color: #4299e1;
+            box-shadow: 0 0 15px rgba(66, 153, 225, 0.4);
+            transform: scale(1.05);
+        }
+        
+        .cell.black {
+            background: #2d3748;
+            border-color: #2d3748;
+            cursor: default;
+        }
+        
+        .cell.correct {
+            background: #c6f6d5;
+            border-color: #68d391;
+            animation: pulse 0.6s ease-in-out;
+        }
+        
+        .cell.incorrect {
+            background: #fed7d7;
+            border-color: #fc8181;
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .cell-number {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            font-size: 10px;
+            color: #4a5568;
+            font-weight: 700;
+        }
+        
+        .clues-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .clues-section {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .clues-section h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            font-weight: 600;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .clue {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            background: #ffffff;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .clue:hover {
+            background: #edf2f7;
+            transform: translateX(5px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .clue.selected {
+            background: #bee3f8;
+            border-color: #4299e1;
+            box-shadow: 0 0 10px rgba(66, 153, 225, 0.3);
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #4299e1, #667eea);
+            color: white;
+            box-shadow: 0 5px 15px rgba(66, 153, 225, 0.4);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(66, 153, 225, 0.6);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(45deg, #ed8936, #f6ad55);
+            color: white;
+            box-shadow: 0 5px 15px rgba(237, 137, 54, 0.4);
+        }
+        
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(237, 137, 54, 0.6);
+        }
+        
+        .score {
+            text-align: center;
+            font-size: 1.2em;
+            color: #2d3748;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .completion-message {
+            text-align: center;
+            font-size: 1.5em;
+            color: #38a169;
+            font-weight: 700;
+            margin: 20px 0;
+            padding: 20px;
+            background: #c6f6d5;
+            border-radius: 15px;
+            border: 2px solid #68d391;
+            display: none;
+            animation: celebration 1s ease-in-out;
+        }
+        
+        @keyframes celebration {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: 'Tajawal', sans-serif;
+            text-align: center;
+            direction: rtl;
+            background: transparent;
+            color: #2d3748;
+            font-weight: 500;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 10px rgba(66, 153, 225, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 20px;
+            }
+            
+            .clues-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .cell {
+                width: 35px;
+                height: 35px;
+                font-size: 16px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🧩 لعبة الكلمات المتقاطعة العربية</h1>
+        
+        <div class="score">
+            <span id="score">النقاط: 0</span> | 
+            <span id="progress">التقدم: 0/10</span>
+        </div>
+        
+        <div class="game-board" id="gameBoard"></div>
+        
+        <div class="clues-container">
+            <div class="clues-section">
+                <h3>📋 الكلمات الأفقية</h3>
+                <div id="horizontalClues"></div>
+            </div>
+            <div class="clues-section">
+                <h3>📋 الكلمات العمودية</h3>
+                <div id="verticalClues"></div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn btn-primary" onclick="checkAnswers()">✓ تحقق من الإجابات</button>
+            <button class="btn btn-secondary" onclick="resetGame()">🔄 إعادة تعيين</button>
+        </div>
+        
+        <div class="completion-message" id="completionMessage">
+            🎉 مبروك! لقد أكملت اللعبة بنجاح! 🎉
+        </div>
+    </div>
+
+    <script>
+        // Game data
+        const gameData = {
+            grid: [
+                ['', '', '', 'ك', '', '', '', '', ''],
+                ['', '', '', 'ت', '', '', '', '', ''],
+                ['ن', 'ج', 'م', 'ا', 'ب', '', '', '', ''],
+                ['', '', '', 'ب', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', '', ''],
+                ['', '', 'ق', 'ل', 'م', '', '', '', ''],
+                ['', '', '', '', '', '', '', '', ''],
+                ['', '', '', 'ش', 'م', 'س', '', '', ''],
+                ['', '', '', '', '', '', '', '', '']
+            ],
+            words: [
+                {
+                    word: 'نجماب',
+                    clue: 'مجموعة من النجوم في السماء',
+                    direction: 'horizontal',
+                    row: 2,
+                    col: 0,
+                    number: 1
+                },
+                {
+                    word: 'كتاب',
+                    clue: 'مجموعة من الصفحات المطبوعة',
+                    direction: 'vertical',
+                    row: 0,
+                    col: 3,
+                    number: 2
+                },
+                {
+                    word: 'قلم',
+                    clue: 'أداة للكتابة',
+                    direction: 'horizontal',
+                    row: 5,
+                    col: 2,
+                    number: 3
+                },
+                {
+                    word: 'شمس',
+                    clue: 'النجم الذي يضيء الأرض',
+                    direction: 'horizontal',
+                    row: 7,
+                    col: 3,
+                    number: 4
+                }
+            ]
+        };
+
+        let currentScore = 0;
+        let completedWords = 0;
+        let selectedClue = null;
+        let currentCells = [];
+
+        // Initialize game
+        function initGame() {
+            createGrid();
+            createClues();
+            updateScore();
+        }
+
+        // Create grid
+        function createGrid() {
+            const gameBoard = document.getElementById('gameBoard');
+            gameBoard.innerHTML = '';
+            
+            for (let row = 0; row < 9; row++) {
+                for (let col = 0; col < 9; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    
+                    if (gameData.grid[row][col] === '') {
+                        cell.classList.add('black');
+                    } else {
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.maxLength = 1;
+                        input.className = 'input-field';
+                        input.addEventListener('input', handleInput);
+                        input.addEventListener('focus', handleFocus);
+                        cell.appendChild(input);
+                        
+                        // Add number if it's the start of a word
+                        const wordStart = gameData.words.find(w => w.row === row && w.col === col);
+                        if (wordStart) {
+                            const number = document.createElement('div');
+                            number.className = 'cell-number';
+                            number.textContent = wordStart.number;
+                            cell.appendChild(number);
+                        }
+                    }
+                    
+                    gameBoard.appendChild(cell);
+                }
+            }
+        }
+
+        // Create clues
+        function createClues() {
+            const horizontalClues = document.getElementById('horizontalClues');
+            const verticalClues = document.getElementById('verticalClues');
+            
+            horizontalClues.innerHTML = '';
+            verticalClues.innerHTML = '';
+            
+            gameData.words.forEach(word => {
+                const clueDiv = document.createElement('div');
+                clueDiv.className = 'clue';
+                clueDiv.textContent = `${word.number}. ${word.clue}`;
+                clueDiv.addEventListener('click', () => selectClue(word));
+                
+                if (word.direction === 'horizontal') {
+                    horizontalClues.appendChild(clueDiv);
+                } else {
+                    verticalClues.appendChild(clueDiv);
+                }
+            });
+        }
+
+        // Select clue
+        function selectClue(word) {
+            // Remove previous selection
+            document.querySelectorAll('.clue').forEach(clue => clue.classList.remove('selected'));
+            document.querySelectorAll('.cell').forEach(cell => cell.classList.remove('active'));
+            
+            // Add selection
+            event.target.classList.add('selected');
+            selectedClue = word;
+            
+            // Highlight cells for this word
+            currentCells = [];
+            for (let i = 0; i < word.word.length; i++) {
+                let row = word.row;
+                let col = word.col;
+                
+                if (word.direction === 'horizontal') {
+                    col += i;
+                } else {
+                    row += i;
+                }
+                
+                const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                if (cell) {
+                    cell.classList.add('active');
+                    currentCells.push(cell);
+                }
+            }
+        }
+
+        // Handle input
+        function handleInput(event) {
+            const input = event.target;
+            const cell = input.parentElement;
+            const row = parseInt(cell.dataset.row);
+            const col = parseInt(cell.dataset.col);
+            
+            // Move to next cell automatically
+            if (input.value && selectedClue) {
+                const currentIndex = currentCells.indexOf(cell);
+                if (currentIndex < currentCells.length - 1) {
+                    const nextCell = currentCells[currentIndex + 1];
+                    const nextInput = nextCell.querySelector('input');
+                    if (nextInput) {
+                        nextInput.focus();
+                    }
+                }
+            }
+        }
+
+        // Handle focus
+        function handleFocus(event) {
+            const cell = event.target.parentElement;
+            const row = parseInt(cell.dataset.row);
+            const col = parseInt(cell.dataset.col);
+            
+            // Find word that contains this cell
+            const word = gameData.words.find(w => {
+                if (w.direction === 'horizontal') {
+                    return w.row === row && col >= w.col && col < w.col + w.word.length;
+                } else {
+                    return w.col === col && row >= w.row && row < w.row + w.word.length;
+                }
+            });
+            
+            if (word) {
+                selectClue(word);
+                // Find and select the corresponding clue element
+                const clueElements = document.querySelectorAll('.clue');
+                clueElements.forEach(clueEl => {
+                    if (clueEl.textContent.includes(`${word.number}. ${word.clue}`)) {
+                        clueEl.classList.add('selected');
+                    }
+                });
+            }
+        }
+
+        // Check answers
+        function checkAnswers() {
+            let correctCount = 0;
+            
+            gameData.words.forEach(word => {
+                let isCorrect = true;
+                let wordCells = [];
+                
+                for (let i = 0; i < word.word.length; i++) {
+                    let row = word.row;
+                    let col = word.col;
+                    
+                    if (word.direction === 'horizontal') {
+                        col += i;
+                    } else {
+                        row += i;
+                    }
+                    
+                    const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                    const input = cell.querySelector('input');
+                    wordCells.push(cell);
+                    
+                    if (!input || input.value.toLowerCase() !== word.word[i].toLowerCase()) {
+                        isCorrect = false;
+                    }
+                }
+                
+                // Apply styling
+                wordCells.forEach(cell => {
+                    cell.classList.remove('correct', 'incorrect');
+                    if (isCorrect) {
+                        cell.classList.add('correct');
+                    } else {
+                        cell.classList.add('incorrect');
+                    }
+                });
+                
+                if (isCorrect) {
+                    correctCount++;
+                }
+            });
+            
+            currentScore = correctCount * 10;
+            completedWords = correctCount;
+            updateScore();
+            
+            if (correctCount === gameData.words.length) {
+                document.getElementById('completionMessage').style.display = 'block';
+            }
+        }
+
+        // Reset game
+        function resetGame() {
+            document.querySelectorAll('.cell input').forEach(input => {
+                input.value = '';
+            });
+            
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.classList.remove('correct', 'incorrect', 'active');
+            });
+            
+            document.querySelectorAll('.clue').forEach(clue => {
+                clue.classList.remove('selected');
+            });
+            
+            document.getElementById('completionMessage').style.display = 'none';
+            
+            currentScore = 0;
+            completedWords = 0;
+            selectedClue = null;
+            currentCells = [];
+            updateScore();
+        }
+
+        // Update score
+        function updateScore() {
+            document.getElementById('score').textContent = `النقاط: ${currentScore}`;
+            document.getElementById('progress').textContent = `التقدم: ${completedWords}/${gameData.words.length}`;
+        }
+
+        // Initialize game on load
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html>

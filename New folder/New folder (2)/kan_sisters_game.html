@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مهرجان كان وأخواتها</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            animation: backgroundPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes backgroundPulse {
+            0%, 100% { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%); }
+            50% { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 50%, #ffd3a5 100%); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .title {
+            font-size: 3em;
+            color: #ff6b6b;
+            text-shadow: 3px 3px 0px #fff, 6px 6px 0px #ffaaa5;
+            margin-bottom: 10px;
+            transform: rotate(-2deg);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #4ecdc4;
+            background: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-width: 800px;
+            width: 100%;
+            animation: slideUp 1s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .score {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .question-area {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 1.4em;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .verbs-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .verb-card {
+            background: linear-gradient(45deg, #ffa726, #ffcc02);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .verb-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+            transform: rotate(45deg);
+            transition: all 0.6s;
+            opacity: 0;
+        }
+
+        .verb-card:hover::before {
+            animation: shine 0.6s ease-in-out;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); opacity: 0; }
+        }
+
+        .verb-card:hover {
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .verb-card.correct {
+            background: linear-gradient(45deg, #4caf50, #8bc34a);
+            animation: correctPulse 0.6s ease-in-out;
+        }
+
+        .verb-card.incorrect {
+            background: linear-gradient(45deg, #f44336, #e91e63);
+            animation: shake 0.6s ease-in-out;
+        }
+
+        @keyframes correctPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .feedback {
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 15px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .feedback.show {
+            opacity: 1;
+        }
+
+        .feedback.correct {
+            background: linear-gradient(45deg, #c8e6c9, #4caf50);
+            color: white;
+        }
+
+        .feedback.incorrect {
+            background: linear-gradient(45deg, #ffcdd2, #f44336);
+            color: white;
+        }
+
+        .next-btn {
+            background: linear-gradient(45deg, #9c27b0, #673ab7);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border-radius: 20px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .next-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ff6b6b;
+            animation: confetti-fall 3s linear infinite;
+        }
+
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100vh) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+        }
+
+        .game-over {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .final-score {
+            font-size: 2.5em;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .restart-btn {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+
+        .floating-hearts {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 500;
+        }
+
+        .heart {
+            position: absolute;
+            color: #ff6b6b;
+            font-size: 20px;
+            animation: float-heart 4s ease-in-out infinite;
+            opacity: 0;
+        }
+
+        @keyframes float-heart {
+            0% { opacity: 0; transform: translateY(100vh) scale(0); }
+            10% { opacity: 1; transform: translateY(90vh) scale(1); }
+            90% { opacity: 1; transform: translateY(-10vh) scale(1); }
+            100% { opacity: 0; transform: translateY(-20vh) scale(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">🌟 مهرجان كان وأخواتها 🌟</h1>
+        <p class="subtitle">تعلم الأفعال الناسخة بطريقة ممتعة!</p>
+    </div>
+
+    <div class="game-container" id="gameContainer">
+        <div class="score-board">
+            <div class="score">النقاط: <span id="score">0</span></div>
+            <div class="score">السؤال: <span id="questionNum">1</span>/10</div>
+        </div>
+
+        <div class="question-area" id="questionArea">
+            <p>اختر الفعل الناسخ المناسب لإكمال الجملة:</p>
+            <p id="sentence" style="margin-top: 15px; font-size: 1.6em;"></p>
+        </div>
+
+        <div class="verbs-container" id="verbsContainer">
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <button class="next-btn" id="nextBtn" onclick="nextQuestion()" style="display: none;">السؤال التالي ➡️</button>
+    </div>
+
+    <div class="celebration" id="celebration"></div>
+    <div class="floating-hearts" id="floatingHearts"></div>
+
+    <script>
+        const kanSisters = ['كان', 'أصبح', 'صار', 'أمسى', 'بات', 'ظل', 'مازال', 'مابرح', 'مادام', 'ليس'];
+        
+        const sentences = [
+            { text: "الطفل ___ نشيطاً في الصباح", correct: "أصبح", options: ["أصبح", "كان", "ليس"] },
+            { text: "الجو ___ بارداً في الليل", correct: "بات", options: ["بات", "صار", "ظل"] },
+            { text: "الطالب ___ مجتهداً دائماً", correct: "مازال", options: ["مازال", "أمسى", "مابرح"] },
+            { text: "النهار ___ طويلاً في الصيف", correct: "صار", options: ["صار", "كان", "أصبح"] },
+            { text: "المعلم ___ صبوراً مع الطلاب", correct: "ظل", options: ["ظل", "بات", "أمسى"] },
+            { text: "الطقس ___ جميلاً اليوم", correct: "كان", options: ["كان", "ليس", "مادام"] },
+            { text: "الولد ___ مريضاً في المساء", correct: "أمسى", options: ["أمسى", "أصبح", "صار"] },
+            { text: "الدرس ___ صعباً على الطلاب", correct: "ليس", options: ["ليس", "كان", "ظل"] },
+            { text: "الطعام ___ ساخناً منذ الصباح", correct: "مابرح", options: ["مابرح", "مازال", "مادام"] },
+            { text: "اللعب مستمر ___ النهار طويل", correct: "مادام", options: ["مادام", "مابرح", "ظل"] }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function displayQuestion() {
+            const question = sentences[currentQuestion];
+            document.getElementById('sentence').textContent = question.text;
+            document.getElementById('questionNum').textContent = currentQuestion + 1;
+            
+            const verbsContainer = document.getElementById('verbsContainer');
+            verbsContainer.innerHTML = '';
+            
+            const shuffledOptions = shuffleArray(question.options);
+            
+            shuffledOptions.forEach(verb => {
+                const button = document.createElement('button');
+                button.className = 'verb-card';
+                button.textContent = verb;
+                button.onclick = () => selectAnswer(verb, button);
+                verbsContainer.appendChild(button);
+            });
+            
+            answered = false;
+            document.getElementById('feedback').classList.remove('show');
+            document.getElementById('nextBtn').style.display = 'none';
+        }
+
+        function selectAnswer(selectedVerb, buttonElement) {
+            if (answered) return;
+            answered = true;
+            
+            const question = sentences[currentQuestion];
+            const feedback = document.getElementById('feedback');
+            const allButtons = document.querySelectorAll('.verb-card');
+            
+            allButtons.forEach(btn => {
+                btn.style.pointerEvents = 'none';
+                if (btn.textContent === question.correct) {
+                    btn.classList.add('correct');
+                } else if (btn === buttonElement) {
+                    btn.classList.add('incorrect');
+                }
+            });
+            
+            if (selectedVerb === question.correct) {
+                score += 10;
+                feedback.textContent = '🎉 ممتاز! إجابة صحيحة! 🎉';
+                feedback.className = 'feedback correct show';
+                createCelebration();
+                createFloatingHearts();
+                document.getElementById('score').textContent = score;
+            } else {
+                feedback.textContent = `❌ خطأ! الإجابة الصحيحة هي: ${question.correct}`;
+                feedback.className = 'feedback incorrect show';
+            }
+            
+            setTimeout(() => {
+                document.getElementById('nextBtn').style.display = 'block';
+            }, 1500);
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion >= sentences.length) {
+                showGameOver();
+            } else {
+                resetButtonStyles();
+                displayQuestion();
+            }
+        }
+
+        function resetButtonStyles() {
+            const allButtons = document.querySelectorAll('.verb-card');
+            allButtons.forEach(btn => {
+                btn.classList.remove('correct', 'incorrect');
+                btn.style.pointerEvents = 'auto';
+            });
+        }
+
+        function showGameOver() {
+            const gameContainer = document.getElementById('gameContainer');
+            const percentage = (score / 100) * 100;
+            let message = '';
+            
+            if (percentage >= 80) {
+                message = 'ممتاز جداً! أنت بطل الأفعال الناسخة! 🏆';
+            } else if (percentage >= 60) {
+                message = 'جيد جداً! تحتاج لمراجعة بسيطة 📚';
+            } else {
+                message = 'حاول مرة أخرى، ستتحسن! 💪';
+            }
+            
+            gameContainer.innerHTML = `
+                <div class="game-over">
+                    <h2>🎊 انتهت اللعبة! 🎊</h2>
+                    <div class="final-score">${score} / 100</div>
+                    <p style="font-size: 1.3em; margin: 20px 0;">${message}</p>
+                    <button class="restart-btn" onclick="restartGame()">🔄 العب مرة أخرى</button>
+                </div>
+            `;
+            
+            createMegaCelebration();
+        }
+
+        function restartGame() {
+            currentQuestion = 0;
+            score = 0;
+            answered = false;
+            
+            document.getElementById('gameContainer').innerHTML = `
+                <div class="score-board">
+                    <div class="score">النقاط: <span id="score">0</span></div>
+                    <div class="score">السؤال: <span id="questionNum">1</span>/10</div>
+                </div>
+
+                <div class="question-area" id="questionArea">
+                    <p>اختر الفعل الناسخ المناسب لإكمال الجملة:</p>
+                    <p id="sentence" style="margin-top: 15px; font-size: 1.6em;"></p>
+                </div>
+
+                <div class="verbs-container" id="verbsContainer">
+                </div>
+
+                <div class="feedback" id="feedback"></div>
+
+                <button class="next-btn" id="nextBtn" onclick="nextQuestion()" style="display: none;">السؤال التالي ➡️</button>
+            `;
+            
+            displayQuestion();
+        }
+
+        function createCelebration() {
+            const celebration = document.getElementById('celebration');
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7'];
+            
+            for (let i = 0; i < 30; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                celebration.appendChild(confetti);
+                
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+
+        function createMegaCelebration() {
+            const celebration = document.getElementById('celebration');
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7', '#fd79a8', '#fdcb6e'];
+            
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 3 + 's';
+                confetti.style.animationDuration = (Math.random() * 4 + 2) + 's';
+                confetti.style.width = Math.random() * 8 + 5 + 'px';
+                confetti.style.height = confetti.style.width;
+                celebration.appendChild(confetti);
+                
+                setTimeout(() => {
+                    confetti.remove();
+                }, 8000);
+            }
+        }
+
+        function createFloatingHearts() {
+            const heartsContainer = document.getElementById('floatingHearts');
+            const hearts = ['❤️', '💖', '💕', '💗', '💓'];
+            
+            for (let i = 0; i < 5; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = Math.random() * 90 + '%';
+                heart.style.animationDelay = Math.random() * 2 + 's';
+                heartsContainer.appendChild(heart);
+                
+                setTimeout(() => {
+                    heart.remove();
+                }, 4000);
+            }
+        }
+
+        // Initialize the game
+        displayQuestion();
+    </script>
+</body>
+</html>

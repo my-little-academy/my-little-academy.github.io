@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مملكة الإضافة - تعلم المضاف والمضاف إليه</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            border-radius: 15px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: white;
+            padding: 25px 0;
+            text-align: center;
+            border-radius: 15px 15px 0 0;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 2.8em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        h2 {
+            color: #6a11cb;
+            border-bottom: 3px solid #6a11cb;
+            padding-bottom: 8px;
+            margin-top: 35px;
+            font-size: 1.8em;
+        }
+        
+        .story {
+            background-color: #f5f0ff;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 35px;
+            border-left: 7px solid #6a11cb;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.05);
+        }
+        
+        .rule-building {
+            background-color: #e6f7ff;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border: 2px dashed #2575fc;
+        }
+        
+        .exercise {
+            background-color: #f0f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #2575fc;
+        }
+        
+        .game {
+            background-color: #f0fff4;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 40px;
+            border: 3px solid #38a169;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+        
+        button {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 17px;
+            margin: 12px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 10px rgba(0,0,0,0.2);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .highlight {
+            background-color: #e6e6ff;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #6a11cb;
+        }
+        
+        .feedback {
+            font-weight: bold;
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1.1em;
+        }
+        
+        .correct {
+            background-color: #c6f6d5;
+            color: #22543d;
+            border: 2px solid #38a169;
+        }
+        
+        .incorrect {
+            background-color: #fed7d7;
+            color: #742a2a;
+            border: 2px solid #e53e3e;
+        }
+        
+        #game-container {
+            margin-top: 25px;
+            padding: 20px;
+        }
+        
+        .word-pair {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+        }
+        
+        .draggable {
+            padding: 12px 20px;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+            border-radius: 8px;
+            cursor: grab;
+            user-select: none;
+            font-size: 1.1em;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        
+        .draggable:hover {
+            transform: scale(1.05);
+        }
+        
+        .dropzone {
+            width: 180px;
+            height: 60px;
+            border: 3px dashed #6a11cb;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 15px auto;
+            background-color: #f8f9fa;
+            transition: all 0.3s;
+        }
+        
+        .dropzone.highlight {
+            background-color: #e6e6ff;
+            border-color: #2575fc;
+        }
+        
+        .success-message {
+            color: #38a169;
+            font-weight: bold;
+            font-size: 1.3em;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .example-box {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 5px solid #6a11cb;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+        
+        .example-title {
+            color: #6a11cb;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .interactive-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 25px 0;
+        }
+        
+        .diagram-part {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 0 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .mudaf {
+            background-color: #e6e6ff;
+            color: #6a11cb;
+        }
+        
+        .mudaf-ilayh {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .arrow {
+            font-size: 24px;
+            color: #6a11cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>مملكة الإضافة</h1>
+            <p>رحلة تعليمية شيقة في عالم المضاف والمضاف إليه</p>
+        </header>
+        
+        <section class="story">
+            <h2>القصة المشوقة: سر القلعة القديمة</h2>
+            <p>في يوم من الأيام، بينما كان <span class="highlight">أحمد</span> يبحث في <span class="highlight">مكتبة جده</span>، وجد <span class="highlight">خريطة قديمة</span> تظهر موقع <span class="highlight">قلعة الأسرار</span>. قرر أحمد أن يتبع <span class="highlight">إشارات الخريطة</span> التي قادته إلى <span class="highlight">غابة الظلام</span>.</p>
+            
+            <p>في <span class="highlight">وسط الغابة</span>، وجد أحمد <span class="highlight">باباً حديدياً</span> عليه <span class="highlight">نقوش غريبة</span>. حاول فتحه بمفتاح <span class="highlight">جدته</span> الذي كان يحمله في <span class="highlight">جيب سترته</span>. عندما فتح الباب، دخل إلى <span class="highlight">قاعة الكنوز</span> المليئة بـ <span class="highlight">صناديق الذهب</span> و <span class="highlight">تماثيل الملوك</span>.</p>
+            
+            <p>في <span class="highlight">زاوية القاعة</span>، لاحظ أحمد <span class="highlight">لوحة نحاسية</span> مكتوب عليها: "كنوز <span class="highlight">العلماء الأوائل</span> هي أعظم من <span class="highlight">ذهب الأرض</span>". عندها فهم أحمد أن <span class="highlight">سر القلعة</span> ليس الذهب، بل هو <span class="highlight">علم الأجداد</span> و <span class="highlight">حكمة الأسلاف</span>!</p>
+        </section>
+        
+        <section class="rule-building">
+            <h2>بناء القاعدة: المضاف والمضاف إليه</h2>
+            
+            <div class="interactive-diagram">
+                <div class="diagram-part mudaf">مضاف</div>
+                <div class="arrow">+</div>
+                <div class="diagram-part mudaf-ilayh">مضاف إليه</div>
+            </div>
+            
+            <div class="example-box">
+                <div class="example-title">أمثلة من القصة:</div>
+                <ul>
+                    <li><strong>مكتبة جده</strong> ← مكتبة (مضاف) + جده (مضاف إليه)</li>
+                    <li><strong>خريطة قديمة</strong> ← خريطة (مضاف) + قديمة (نعت وليست مضافاً إليه)</li>
+                    <li><strong>باباً حديدياً</strong> ← باباً (مضاف) + حديدياً (نعت وليست مضافاً إليه)</li>
+                </ul>
+            </div>
+            
+            <h3>قواعد الإضافة:</h3>
+            <ol>
+                <li>المضاف إليه <strong>يجر</strong> دائماً</li>
+                <li>المضاف <strong>يفقد</strong> التنكير والـ (أل) التعريف</li>
+                <li>المضاف إليه يكون:
+                    <ul>
+                        <li>اسمًا ظاهرًا: <strong>كتاب الطالب</strong></li>
+                        <li>ضميرًا متصلًا: <strong>كتابه</strong></li>
+                    </ul>
+                </li>
+                <li>أنواع الإضافة:
+                    <ul>
+                        <li>إضافة معنوية (للملكية): <strong>بيت الرجل</strong></li>
+                        <li>إضافة لفظية (للتخصيص): <strong>ساعة حائط</strong></li>
+                    </ul>
+                </li>
+            </ol>
+        </section>
+        
+        <section>
+            <h2>تمارين تفاعلية</h2>
+            
+            <div class="exercise">
+                <h3>تمرين 1: تعرف على المضاف والمضاف إليه</h3>
+                <p>حدد المضاف والمضاف إليه في الجمل التالية:</p>
+                <ol>
+                    <li>قرأت <strong>كتابَ النحوِ</strong>.
+                        <button onclick="showAnswer(1)">إظهار الإجابة</button>
+                        <div id="answer1" class="hidden feedback">
+                            المضاف: كتابَ - المضاف إليه: النحوِ
+                        </div>
+                    </li>
+                    <li>زرت <strong>مدينةَ الأسودِ</strong>.
+                        <button onclick="showAnswer(2)">إظهار الإجابة</button>
+                        <div id="answer2" class="hidden feedback">
+                            المضاف: مدينةَ - المضاف إليه: الأسودِ
+                        </div>
+                    </li>
+                    <li>شاهدت <strong>فيلمَ المغامراتِ</strong>.
+                        <button onclick="showAnswer(3)">إظهار الإجابة</button>
+                        <div id="answer3" class="hidden feedback">
+                            المضاف: فيلمَ - المضاف إليه: المغامراتِ
+                        </div>
+                    </li>
+                </ol>
+            </div>
+            
+            <div class="exercise">
+                <h3>تمرين 2: اختر المضاف إليه المناسب</h3>
+                <p>اختر المضاف إليه المناسب لكل مضاف:</p>
+                <ol>
+                    <li>عصا ______ (المعلم - معلم - المعلمِ)
+                        <button onclick="checkAnswer(4, 'المعلمِ')">تحقق</button>
+                        <div id="answer4" class="hidden feedback"></div>
+                    </li>
+                    <li>سيارة ______ (أبي - أبيِ - أبِ)
+                        <button onclick="checkAnswer(5, 'أبيِ')">تحقق</button>
+                        <div id="answer5" class="hidden feedback"></div>
+                    </li>
+                    <li>باب ______ (الغرفةِ - غرفة - الغرفة)
+                        <button onclick="checkAnswer(6, 'الغرفةِ')">تحقق</button>
+                        <div id="answer6" class="hidden feedback"></div>
+                    </li>
+                </ol>
+            </div>
+            
+            <div class="exercise">
+                <h3>تمرين 3: كون جملة بإضافة مناسبة</h3>
+                <p>أكمل الجمل التالية بوضع مضاف إليه مناسب:</p>
+                <ol>
+                    <li>اشتريت كتاب ______.
+                        <button onclick="showExample(7)">أمثلة</button>
+                        <div id="example7" class="hidden feedback">
+                            أمثلة: النحوِ، العلومِ، التاريخِ، الأدبِ
+                        </div>
+                    </li>
+                    <li>زرت مدرسة ______.
+                        <button onclick="showExample(8)">أمثلة</button>
+                        <div id="example8" class="hidden feedback">
+                            أمثلة: الأولادِ، البناتِ، القريةِ، اللغاتِ
+                        </div>
+                    </li>
+                    <li>رأيت حديقة ______.
+                        <button onclick="showExample(9)">أمثلة</button>
+                        <div id="example9" class="hidden feedback">
+                            أمثلة: الحيوانِ، الأزهارِ، المدينةِ، المنزلِ
+                        </div>
+                    </li>
+                </ol>
+            </div>
+        </section>
+        
+        <section class="game">
+            <h2>لعبة الإضافة الممتعة: اربط المضاف بمضافه</h2>
+            <p>اسحب كل مضاف إلى المضاف إليه المناسب له!</p>
+            
+            <div id="game-container">
+                <div class="word-pair">
+                    <div class="draggable" draggable="true" data-type="mudaf" data-match="النحوِ">كتاب</div>
+                    <div class="draggable" draggable="true" data-type="mudaf-ilayh" data-match="كتاب">النحوِ</div>
+                </div>
+                
+                <div class="word-pair">
+                    <div class="draggable" draggable="true" data-type="mudaf" data-match="المدرسةِ">سيارة</div>
+                    <div class="draggable" draggable="true" data-type="mudaf-ilayh" data-match="سيارة">المدرسةِ</div>
+                </div>
+                
+                <div class="word-pair">
+                    <div class="draggable" draggable="true" data-type="mudaf" data-match="الأسدِ">قفص</div>
+                    <div class="draggable" draggable="true" data-type="mudaf-ilayh" data-match="قفص">الأسدِ</div>
+                </div>
+                
+                <div class="dropzone" id="dropzone1"><p>المضاف</p></div>
+                <div class="dropzone" id="dropzone2"><p>المضاف إليه</p></div>
+                
+                <div id="game-feedback" class="hidden"></div>
+            </div>
+            
+            <button onclick="resetGame()">إعادة المحاولة</button>
+            <button onclick="showHint()">مساعدة</button>
+        </section>
+    </div>
+
+    <script>
+        // Functions for exercises
+        function showAnswer(num) {
+            document.getElementById(`answer${num}`).classList.remove('hidden');
+        }
+        
+        function checkAnswer(num, correctAnswer) {
+            const userAnswer = prompt("أدخل إجابتك:");
+            const feedback = document.getElementById(`answer${num}`);
+            
+            if(userAnswer && userAnswer.trim() === correctAnswer) {
+                feedback.textContent = "إجابة صحيحة! أحسنت! 🌟";
+                feedback.className = "feedback correct";
+            } else {
+                feedback.textContent = `الإجابة الصحيحة هي: ${correctAnswer}`;
+                feedback.className = "feedback incorrect";
+            }
+            
+            feedback.classList.remove('hidden');
+        }
+        
+        function showExample(num) {
+            document.getElementById(`example${num}`).classList.remove('hidden');
+        }
+        
+        // Game functionality
+        let draggedItem = null;
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const draggables = document.querySelectorAll('.draggable');
+            const dropzones = document.querySelectorAll('.dropzone');
+            
+            draggables.forEach(draggable => {
+                draggable.addEventListener('dragstart', dragStart);
+            });
+            
+            dropzones.forEach(dropzone => {
+                dropzone.addEventListener('dragover', dragOver);
+                dropzone.addEventListener('dragenter', dragEnter);
+                dropzone.addEventListener('dragleave', dragLeave);
+                dropzone.addEventListener('drop', drop);
+            });
+        });
+        
+        function dragStart() {
+            draggedItem = this;
+            setTimeout(() => this.style.opacity = '0.4', 0);
+        }
+        
+        function dragOver(e) {
+            e.preventDefault();
+        }
+        
+        function dragEnter(e) {
+            e.preventDefault();
+            this.classList.add('highlight');
+        }
+        
+        function dragLeave() {
+            this.classList.remove('highlight');
+        }
+        
+        function drop() {
+            this.classList.remove('highlight');
+            
+            if (draggedItem.getAttribute('data-type') === 'mudaf') {
+                document.getElementById('dropzone1').appendChild(draggedItem);
+            } else {
+                document.getElementById('dropzone2').appendChild(draggedItem);
+            }
+            
+            draggedItem.style.opacity = '1';
+            checkMatches();
+        }
+        
+        function checkMatches() {
+            const dropzone1 = document.getElementById('dropzone1');
+            const dropzone2 = document.getElementById('dropzone2');
+            
+            if (dropzone1.children.length > 1 && dropzone2.children.length > 1) {
+                const mudaf = Array.from(dropzone1.children).find(el => el.getAttribute('data-type') === 'mudaf');
+                const mudafIlayh = Array.from(dropzone2.children).find(el => el.getAttribute('data-type') === 'mudaf-ilayh');
+                
+                const feedback = document.getElementById('game-feedback');
+                
+                if (mudaf && mudafIlayh && 
+                    mudaf.getAttribute('data-match') === mudafIlayh.textContent && 
+                    mudafIlayh.getAttribute('data-match') === mudaf.textContent) {
+                    feedback.innerHTML = "أحسنت! لقد نجحت في المطابقة! �<br>الجملة الصحيحة: " + mudaf.textContent + " " + mudafIlayh.textContent;
+                    feedback.className = "feedback correct success-message";
+                } else {
+                    feedback.textContent = "حاول مرة أخرى! هذه الكلمات لا تتطابق.";
+                    feedback.className = "feedback incorrect";
+                }
+                
+                feedback.classList.remove('hidden');
+            }
+        }
+        
+        function resetGame() {
+            const dropzone1 = document.getElementById('dropzone1');
+            const dropzone2 = document.getElementById('dropzone2');
+            const feedback = document.getElementById('game-feedback');
+            
+            // Remove all except the initial <p> elements
+            while (dropzone1.children.length > 1) {
+                const item = dropzone1.lastChild;
+                item.style.opacity = '1';
+                document.querySelector(`[data-type="${item.getAttribute('data-type')}"][data-match="${item.getAttribute('data-match')}"]`).parentNode.appendChild(item);
+            }
+            
+            while (dropzone2.children.length > 1) {
+                const item = dropzone2.lastChild;
+                item.style.opacity = '1';
+                document.querySelector(`[data-type="${item.getAttribute('data-type')}"][data-match="${item.getAttribute('data-match')}"]`).parentNode.appendChild(item);
+            }
+            
+            feedback.classList.add('hidden');
+        }
+        
+        function showHint() {
+            alert("تذكر أن:\n- المضاف يفقد التنكير والـ (أل)\n- المضاف إليه يكون مجروراً\nمثال: كتابُ النحوِ ← كتاب (مضاف) + النحوِ (مضاف إليه مجرور)");
+        }
+    </script>
+</body>
+</html>

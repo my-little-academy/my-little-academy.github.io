@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>المستقيم العددي</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    .number-line {
+      margin: 40px auto;
+      width: 80%;
+      height: 2px;
+      background-color: #000;
+      position: relative;
+    }
+
+    .tick {
+      position: absolute;
+      top: -10px;
+      width: 2px;
+      height: 20px;
+      background-color: black;
+    }
+
+    .label {
+      position: absolute;
+      top: 15px;
+      font-size: 14px;
+    }
+
+    .point {
+      position: absolute;
+      top: -10px;
+      width: 10px;
+      height: 10px;
+      background-color: red;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    #question {
+      font-size: 20px;
+      margin-bottom: 20px;
+      color: #007BFF;
+    }
+
+    #feedback {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>ابحث عن العدد!</h1>
+  <div id="question">أين يقع العدد ___؟</div>
+
+  <div class="number-line" id="numberLine">
+    <!-- سيتم إنشاء العلامات ديناميكياً -->
+  </div>
+
+  <div id="feedback"></div>
+
+  <button onclick="checkAnswer()">تحقق من الإجابة</button>
+  <button onclick="nextQuestion()">سؤال جديد</button>
+
+  <script>
+    const numberLine = document.getElementById("numberLine");
+    const question = document.getElementById("question");
+    const feedback = document.getElementById("feedback");
+
+    const min = 0;
+    const max = 100;
+    const step = 10;
+
+    let correctNumber = 0;
+    let answerPlaced = false;
+    let answerPoint = null;
+
+    // رسم المستقيم العددي
+    function drawNumberLine() {
+      numberLine.innerHTML = "";
+      for (let i = min; i <= max; i += step) {
+        const tick = document.createElement("div");
+        tick.className = "tick";
+        tick.style.left = `${((i - min) / (max - min)) * 100}%`;
+        numberLine.appendChild(tick);
+
+        const label = document.createElement("div");
+        label.className = "label";
+        label.textContent = i;
+        label.style.left = `${((i - min) / (max - min)) * 100}%`;
+        numberLine.appendChild(label);
+      }
+
+      // عند النقر على المستقيم
+      numberLine.onclick = function(e) {
+        if (answerPlaced) {
+          numberLine.removeChild(answerPoint);
+        }
+
+        const rect = numberLine.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const percent = x / rect.width;
+        const clickedNumber = Math.round(percent * (max - min) + min);
+
+        answerPoint = document.createElement("div");
+        answerPoint.className = "point";
+        answerPoint.style.left = `${percent * 100}%`;
+        numberLine.appendChild(answerPoint);
+
+        localStorage.setItem("userAnswer", clickedNumber);
+        answerPlaced = true;
+      };
+    }
+
+    function nextQuestion() {
+      correctNumber = Math.floor(Math.random() * ((max - min) / step + 1)) * step;
+      question.textContent = `أين يقع العدد ${correctNumber}؟`;
+      feedback.textContent = "";
+      if (answerPlaced) {
+        numberLine.removeChild(answerPoint);
+        answerPlaced = false;
+      }
+    }
+
+    function checkAnswer() {
+      if (!answerPlaced) {
+        feedback.textContent = "يرجى تحديد موقع العدد أولاً.";
+        feedback.style.color = "red";
+        return;
+      }
+
+      const userAnswer = parseInt(localStorage.getItem("userAnswer"));
+
+      if (Math.abs(userAnswer - correctNumber) <= step / 2) {
+        feedback.textContent = "✅ صحيح! رائع 👏";
+        feedback.style.color = "green";
+      } else {
+        feedback.textContent = `❌ خطأ! العدد الصحيح كان عند ${correctNumber}`;
+        feedback.style.color = "red";
+      }
+    }
+
+    // بدء اللعبة
+    drawNumberLine();
+    nextQuestion();
+  </script>
+
+</body>
+</html>

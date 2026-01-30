@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الهجرة إلى المدينة 🕌</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-dark: #6B4C38; /* Warm Brown - لتراب الصحراء والأصالة */
+            --secondary-light: #F8F4E3; /* Cream/Sand - لخلفية ناعمة */
+            --text-color: #333333; /* Dark Gray for main text */
+            --accent-gold: #D4AF37; /* Gold - للبركة والنور */
+            --accent-blue: #5DADE2; /* Sky Blue - للسماء والأمل */
+            --bg-page: #FAF8F0; /* Lighter Cream */
+            --card-bg: white;
+            --shadow-color: rgba(0, 0, 0, 0.15);
+            --border-radius-lg: 30px;
+            --border-radius-md: 18px;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-page);
+            margin: 0;
+            padding: 0;
+            color: var(--text-color);
+            line-height: 1.8;
+            overflow-x: hidden;
+            direction: rtl;
+            text-align: right;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M0 0 L100 0 L100 100 L0 100 Z" fill="%236B4C3803"/><circle cx="50" cy="50" r="30" fill="%23D4AF3705"/></svg>');
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 25px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, #A07F5E 100%);
+            color: var(--secondary-light);
+            padding: 60px 20px;
+            text-align: center;
+            border-bottom-left-radius: 50px;
+            border-bottom-right-radius: 50px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInDown 1.5s ease-out;
+        }
+
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><text x="10" y="50" font-family="Arial" font-size="40" fill="%23ffffff10">🐫</text></svg>') repeat;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        h1 {
+            font-family: 'Amiri', serif;
+            font-size: 4.8rem;
+            margin: 0;
+            text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.6);
+            letter-spacing: 2px;
+        }
+
+        .header-subtitle {
+            font-size: 2.2rem;
+            margin-top: 15px;
+            color: var(--accent-gold);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+            font-weight: bold;
+        }
+
+        /* Games Grid */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        /* Game Card */
+        .game-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius-lg);
+            padding: 35px;
+            text-align: center;
+            box-shadow: 0 15px 40px var(--shadow-color);
+            border: 3px solid var(--accent-blue);
+            transition: all 0.5s cubic-bezier(.25,.8,.25,1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            animation: scaleIn 0.8s ease-out forwards;
+            opacity: 0;
+        }
+
+        .game-card:nth-child(1) { animation-delay: 0.2s; }
+        .game-card:nth-child(2) { animation-delay: 0.4s; }
+        .game-card:nth-child(3) { animation-delay: 0.6s; }
+
+        .game-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M0 0 L100 100 M100 0 L0 100" stroke="%23D4AF37" stroke-width="1" opacity="0.05"/></svg>') repeat;
+            opacity: 0.05;
+            pointer-events: none;
+        }
+
+        .game-card:hover {
+            transform: translateY(-15px) scale(1.04);
+            box-shadow: 0 25px 50px var(--shadow-color);
+            border-color: var(--accent-gold);
+            background: linear-gradient(145deg, #FFFACD 0%, white 100%);
+        }
+
+        .game-icon {
+            font-size: 5rem;
+            color: var(--accent-blue);
+            margin-bottom: 25px;
+            transition: transform 0.4s ease-in-out, color 0.4s ease-in-out;
+        }
+
+        .game-card:hover .game-icon {
+            transform: rotate(-5deg) scale(1.1);
+            color: var(--accent-gold);
+        }
+
+        .game-title {
+            font-family: 'Amiri', serif;
+            font-size: 2.8rem;
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .game-description {
+            font-size: 1.3rem;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* Game Modals */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease-in-out;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: linear-gradient(160deg, var(--secondary-light) 0%, #FFFDF5 100%);
+            border-radius: var(--border-radius-lg);
+            width: 90%;
+            max-width: 900px;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+            transform: translateY(50px) scale(0.7);
+            transition: all 0.5s cubic-bezier(.17,.67,.83,.67);
+            border: 4px solid var(--accent-blue);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0) scale(1);
+        }
+
+        .modal-header {
+            background: linear-gradient(90deg, var(--primary-dark) 0%, #A07F5E 100%);
+            color: var(--secondary-light);
+            padding: 20px;
+            border-radius: var(--border-radius-md);
+            margin-bottom: 30px;
+            text-align: center;
+            font-family: 'Amiri', serif;
+            font-size: 2.2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .modal-body {
+            padding: 20px 0;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-color);
+        }
+
+        .modal-footer {
+            text-align: center;
+            padding-top: 30px;
+        }
+
+        .close-btn {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: bold;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .close-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Game Specific Styles */
+        /* Hijra Map Game */
+        #hijra-map-container {
+            width: 100%;
+            max-width: 800px;
+            height: 450px;
+            background-color: #D2B48C; /* Desert Sand */
+            border: 3px solid var(--primary-dark);
+            border-radius: var(--border-radius-md);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            color: var(--primary-dark);
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M0 50 Q 25 25 50 50 T 100 50" stroke="%236B4C38" stroke-width="2" fill="none" opacity="0.1"/><circle cx="20" cy="80" r="5" fill="%23D4AF3708"/><circle cx="80" cy="20" r="5" fill="%23D4AF3708"/></svg>');
+            background-size: 100px 100px;
+        }
+        .map-point {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: var(--accent-blue);
+            border-radius: 50%;
+            border: 3px solid var(--primary-dark);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            color: white;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            z-index: 5;
+        }
+        .map-point:hover {
+            transform: scale(1.2);
+            background-color: var(--accent-gold);
+        }
+        .map-point.active {
+            background-color: var(--accent-gold);
+            transform: scale(1.3);
+            animation: pulse 1s infinite alternate;
+        }
+        .map-point.visited {
+            background-color: #4CAF50; /* Green for visited */
+            border-color: #2E8B57;
+            pointer-events: none;
+        }
+
+        #map-feedback {
+            margin-top: 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent-blue);
+        }
+        #map-next-btn {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            display: none;
+        }
+        #map-next-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Ghar Thawr Secrets (Quiz) Styles - Reuse general quiz styles */
+        .ghar-quiz-question {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            color: var(--primary-dark);
+            animation: fadeIn 0.8s ease-out;
+            text-align: center;
+        }
+        .ghar-quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .ghar-quiz-option-btn {
+            background: var(--secondary-light);
+            border: 2px solid var(--accent-gold);
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: right;
+            width: 100%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .ghar-quiz-option-btn:hover:not(:disabled) {
+            background: var(--accent-gold);
+            color: white;
+            transform: translateX(-5px);
+        }
+        .ghar-quiz-option-btn.correct {
+            background-color: #8FBC8F; /* DarkSeaGreen */
+            color: white;
+            border-color: #2E8B57;
+            animation: pulseCorrect 0.5s ease-out;
+        }
+        .ghar-quiz-option-btn.wrong {
+            background-color: #FF6347; /* Tomato */
+            color: white;
+            border-color: #CD5C5C;
+            animation: shake 0.3s ease-out;
+        }
+        .ghar-quiz-option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        #ghar-quiz-feedback {
+            margin-top: 25px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            animation: fadeIn 0.5s ease-out;
+            text-align: center;
+        }
+        #ghar-quiz-next-btn {
+            background: var(--accent-gold);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            display: none;
+        }
+        #ghar-quiz-next-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Hijra Companions Game (Memory) Styles - Reuse general memory styles */
+        #hijra-companions-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            width: 100%;
+            max-width: 650px; /* Slightly larger for text */
+            margin: 0 auto;
+            perspective: 1000px;
+        }
+        .hijra-card {
+            width: 150px; /* Wider for names/roles */
+            height: 100px;
+            background-color: var(--accent-blue);
+            border-radius: var(--border-radius-md);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            color: var(--secondary-light);
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            position: relative;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+        .hijra-card.flipped {
+            transform: rotateY(180deg);
+        }
+        .hijra-card .front, .hijra-card .back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: var(--border-radius-md);
+            padding: 5px;
+            box-sizing: border-box;
+            text-align: center;
+            line-height: 1.3;
+        }
+        .hijra-card .front {
+            background-color: var(--accent-blue);
+            color: var(--secondary-light);
+            font-size: 3rem;
+            border: 2px solid var(--primary-dark);
+        }
+        .hijra-card .back {
+            background-color: var(--secondary-light);
+            color: var(--primary-dark);
+            transform: rotateY(180deg);
+            font-size: 1.3rem; /* Adjusted for text */
+            font-weight: bold;
+            border: 2px solid var(--accent-gold);
+        }
+        .hijra-card.matched .back {
+            background-color: #A5D6A7; /* Light Green */
+            animation: pulseCorrect 0.5s ease-out;
+        }
+        #hijra-companions-feedback {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 1.4rem;
+            color: var(--accent-blue);
+        }
+
+
+        /* Animations */
+        @keyframes fadeInDown {
+            0% { opacity: 0; transform: translateY(-80px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes scaleIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes pulseCorrect {
+            0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(76, 175, 80, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1.3); }
+            100% { transform: scale(1.4); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 3.8rem; }
+            .header-subtitle { font-size: 1.8rem; }
+            .games-grid { grid-template-columns: 1fr; gap: 30px; }
+            .game-card { padding: 25px; }
+            .game-icon { font-size: 4rem; }
+            .game-title { font-size: 2.2rem; }
+            .game-description { font-size: 1.1rem; }
+            .modal-content { max-width: 95%; padding: 20px; }
+            .modal-header { font-size: 1.8rem; padding: 15px; }
+            
+            #hijra-map-container { height: 350px; font-size: 1.2rem; }
+            .map-point { width: 25px; height: 25px; font-size: 1rem; }
+
+            .ghar-quiz-question { font-size: 1.5rem; }
+            .ghar-quiz-option-btn { font-size: 1.1rem; padding: 12px 20px; }
+            
+            #hijra-companions-container { grid-template-columns: repeat(3, 1fr); max-width: 450px;}
+            .hijra-card { width: 120px; height: 80px; font-size: 2rem; }
+            .hijra-card .back { font-size: 1.1rem; }
+        }
+        @media (max-width: 480px) {
+            #hijra-companions-container { grid-template-columns: repeat(2, 1fr); }
+            .hijra-card { width: 100px; height: 70px; font-size: 1.8rem; }
+            .hijra-card .back { font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>ألعاب الهجرة النبوية 🕌</h1>
+            <div class="header-subtitle">استكشف رحلة النور من مكة إلى المدينة!</div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="games-grid">
+            <div class="game-card" onclick="openGameModal('hijraMapGameModal')">
+                <div class="game-icon"><i class="fas fa-map-marked-alt"></i></div>
+                <h3 class="game-title">خريطة الهجرة</h3>
+                <p class="game-description">تتبع مسار الهجرة النبوية وحدد أهم المحطات على الطريق.</p>
+            </div>
+
+            <div class="game-card" onclick="openGameModal('gharThawrSecretsModal')">
+                <div class="game-icon"><i class="fas fa-mountain"></i></div>
+                <h3 class="game-title">أسرار الغار</h3>
+                <p class="game-description">اختبر معلوماتك حول الأحداث العجيبة التي وقعت في غار ثور.</p>
+            </div>
+
+            <div class="game-card" onclick="openGameModal('hijraCompanionsModal')">
+                <div class="game-icon"><i class="fas fa-users-line"></i></div>
+                <h3 class="game-title">أصحاب الهجرة</h3>
+                <p class="game-description">طابق بين الشخصيات العظيمة ودورها في إنجاح رحلة الهجرة.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="hijraMapGameModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>تتبع مسار الهجرة 🗺️</h3>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 1.2rem; margin-bottom: 20px;">اضغط على النقاط بالترتيب الصحيح لتتبع مسار الهجرة:</p>
+                <div id="hijra-map-container">
+                    <div class="map-point" id="point-makkah" style="top: 85%; left: 10%;">مكة</div>
+                    <div class="map-point" id="point-ghar" style="top: 70%; left: 15%;">غار ثور</div>
+                    <div class="map-point" id="point-kuba" style="top: 15%; left: 80%;">قباء</div>
+                    <div class="map-point" id="point-madinah" style="top: 5%; left: 85%;">المدينة</div>
+                </div>
+                <p id="map-feedback"></p>
+                <button id="map-next-btn">إعادة اللعب <i class="fas fa-redo"></i></button>
+            </div>
+            <div class="modal-footer">
+                <button class="close-btn" onclick="closeGameModal('hijraMapGameModal')">إغلاق اللعبة</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="gharThawrSecretsModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>أسرار غار ثور 🧐</h3>
+            </div>
+            <div class="modal-body">
+                <div id="ghar-quiz-container">
+                    <p class="ghar-quiz-question" id="ghar-quiz-question">السؤال هنا؟</p>
+                    <div class="ghar-quiz-options" id="ghar-quiz-options">
+                        </div>
+                    <p id="ghar-quiz-feedback"></p>
+                    <button id="ghar-quiz-next-btn">السؤال التالي <i class="fas fa-arrow-left"></i></button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="close-btn" onclick="closeGameModal('gharThawrSecretsModal')">إغلاق التحدي</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="hijraCompanionsModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>أصحاب الهجرة 👥</h3>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 1.2rem; margin-bottom: 20px;">طابق بين الشخصيات ودورها في الهجرة النبوية.</p>
+                <div id="hijra-companions-container">
+                    </div>
+                <p id="hijra-companions-feedback"></p>
+            </div>
+            <div class="modal-footer">
+                <button class="close-btn" onclick="closeGameModal('hijraCompanionsModal')">إغلاق اللعبة</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>تعلّم واستمتع برحلة الهجرة النبوية 🌟</p>
+            <p>&copy; 2025 ألعاب السيرة النبوية | الهجرة إلى المدينة 🕌</p>
+        </div>
+    </footer>
+
+    <script>
+        // Universal Modal Functions
+        function openGameModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+            document.body.style.overflow = 'hidden';
+            // Initialize game when modal opens
+            if (modalId === 'hijraMapGameModal') initializeHijraMapGame();
+            if (modalId === 'gharThawrSecretsModal') initializeGharThawrSecretsQuiz();
+            if (modalId === 'hijraCompanionsModal') initializeHijraCompanionsGame();
+        }
+
+        function closeGameModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeGameModal(this.id);
+                }
+            });
+        });
+
+        // --- Game 1: Hijra Map Game ---
+        const mapPointsOrder = ['point-makkah', 'point-ghar', 'point-kuba', 'point-madinah'];
+        let currentMapPointIndex = 0;
+        const mapFeedback = document.getElementById('map-feedback');
+        const mapNextBtn = document.getElementById('map-next-btn');
+
+        function initializeHijraMapGame() {
+            currentMapPointIndex = 0;
+            mapFeedback.textContent = 'ابـدأ من مكة المكرمة!';
+            mapFeedback.style.color = 'var(--accent-blue)';
+            mapNextBtn.style.display = 'none';
+
+            // Reset all points
+            document.querySelectorAll('.map-point').forEach(point => {
+                point.classList.remove('active', 'visited');
+                point.removeEventListener('click', handleMapPointClick);
+                point.addEventListener('click', handleMapPointClick);
+            });
+
+            // Set the first point as active
+            document.getElementById(mapPointsOrder[0]).classList.add('active');
+        }
+
+        function handleMapPointClick(event) {
+            const clickedPointId = event.target.id;
+
+            if (clickedPointId === mapPointsOrder[currentMapPointIndex]) {
+                event.target.classList.remove('active');
+                event.target.classList.add('visited');
+                mapFeedback.textContent = 'أحسنت! تابع المسار.';
+                mapFeedback.style.color = 'var(--accent-blue)';
+                currentMapPointIndex++;
+
+                if (currentMapPointIndex < mapPointsOrder.length) {
+                    document.getElementById(mapPointsOrder[currentMapPointIndex]).classList.add('active');
+                } else {
+                    mapFeedback.textContent = 'تهانينا! لقد أكملت مسار الهجرة بنجاح! 🎉';
+                    mapFeedback.style.color = '#2E8B57'; // Green
+                    mapNextBtn.style.display = 'block';
+                }
+            } else {
+                mapFeedback.textContent = 'هذه ليست النقطة التالية. حاول مرة أخرى. 😞';
+                mapFeedback.style.color = '#CD5C5C'; // Red
+            }
+        }
+
+        mapNextBtn.addEventListener('click', initializeHijraMapGame);
+
+
+        // --- Game 2: Ghar Thawr Secrets (Quiz) ---
+        const gharQuizQuestionEl = document.getElementById('ghar-quiz-question');
+        const gharQuizOptionsEl = document.getElementById('ghar-quiz-options');
+        const gharQuizFeedbackEl = document.getElementById('ghar-quiz-feedback');
+        const gharQuizNextBtn = document.getElementById('ghar-quiz-next-btn');
+        let gharCurrentQuizQuestionIndex = 0;
+        const gharQuizQuestions = [
+            {
+                question: "لماذا اتجه النبي صلى الله عليه وسلم وأبو بكر إلى غار ثور بدلاً من المدينة مباشرة؟",
+                options: ["للاستراحة من عناء الطريق", "للتضليل والمكث ثلاثة أيام", "لانتظار مجموعة أخرى", "لجمع المؤن"],
+                answer: "للتضليل والمكث ثلاثة أيام"
+            },
+            {
+                question: "من الذي كان يأتي بالطعام إلى غار ثور ليلاً؟",
+                options: ["أسماء بنت أبي بكر", "عائشة بنت أبي بكر", "عبد الله بن أبي بكر", "عامر بن فهيرة"],
+                answer: "أسماء بنت أبي بكر"
+            },
+            {
+                question: "من الذي كان يمحو آثار الأقدام حول غار ثور ليلاً؟",
+                options: ["أبو بكر الصديق", "عامر بن فهيرة", "الدليل عبد الله بن أريقط", "علي بن أبي طالب"],
+                answer: "عامر بن فهيرة"
+            },
+            {
+                question: "ما هو اسم العنكبوت والطير اللذين ذُكرا في قصة غار ثور (حسب بعض الروايات)؟",
+                options: ["حمامة وعنكبوت", "نملة ونورس", "لا ذكر لهما في الأحاديث الصحيحة", "صقر وغراب"],
+                answer: "لا ذكر لهما في الأحاديث الصحيحة" // This aims to teach the correct understanding
+            },
+            {
+                question: "ما هي العبرة الأساسية من قصة غار ثور؟",
+                options: ["الاعتماد على الحيل البشرية", "اليأس عند الشدائد", "الثقة المطلقة بنصر الله والتخطيط المحكم", "تجنب الأخطار تمامًا"],
+                answer: "الثقة المطلقة بنصر الله والتخطيط المحكم"
+            }
+        ];
+
+        function initializeGharThawrSecretsQuiz() {
+            gharCurrentQuizQuestionIndex = 0;
+            loadGharQuizQuestion();
+        }
+
+        function loadGharQuizQuestion() {
+            gharQuizFeedbackEl.textContent = '';
+            gharQuizNextBtn.style.display = 'none';
+
+            if (gharCurrentQuizQuestionIndex >= gharQuizQuestions.length) {
+                gharQuizQuestionEl.textContent = 'لقد أكملت اختبار أسرار الغار بنجاح! أنت مذهل! 🎉';
+                gharQuizOptionsEl.innerHTML = '<p style="text-align: center; font-size: 1.3rem;">يمكنك إعادة الاختبار بإغلاق النافذة وفتحها مرة أخرى.</p>';
+                return;
+            }
+
+            const questionData = gharQuizQuestions[gharCurrentQuizQuestionIndex];
+            gharQuizQuestionEl.textContent = questionData.question;
+            gharQuizOptionsEl.innerHTML = '';
+            questionData.options.forEach(option => {
+                const button = document.createElement('button');
+                button.classList.add('ghar-quiz-option-btn');
+                button.textContent = option;
+                button.onclick = () => checkGharQuizAnswer(option);
+                gharQuizOptionsEl.appendChild(button);
+            });
+        }
+
+        function checkGharQuizAnswer(selectedOption) {
+            const questionData = gharQuizQuestions[gharCurrentQuizQuestionIndex];
+            const buttons = gharQuizOptionsEl.querySelectorAll('.ghar-quiz-option-btn');
+
+            buttons.forEach(button => {
+                button.disabled = true;
+                if (button.textContent === questionData.answer) {
+                    button.classList.add('correct');
+                } else if (button.textContent === selectedOption) {
+                    button.classList.add('wrong');
+                }
+            });
+
+            if (selectedOption === questionData.answer) {
+                gharQuizFeedbackEl.textContent = 'إجابة صحيحة! 🎉';
+                gharQuizFeedbackEl.style.color = '#2E8B57'; // Green
+            } else {
+                gharQuizFeedbackEl.textContent = `إجابة خاطئة. الإجابة الصحيحة هي: ${questionData.answer} 😞`;
+                gharQuizFeedbackEl.style.color = '#CD5C5C'; // Red
+            }
+            gharQuizNextBtn.style.display = 'block';
+        }
+
+        gharQuizNextBtn.addEventListener('click', () => {
+            gharCurrentQuizQuestionIndex++;
+            loadGharQuizQuestion();
+        });
+
+        // --- Game 3: Hijra Companions (Memory Game) ---
+        const hijraCompanionsContainer = document.getElementById('hijra-companions-container');
+        const hijraCompanionsFeedback = document.getElementById('hijra-companions-feedback');
+        let hijraFlippedCards = [];
+        let hijraMatchedPairs = 0;
+        let hijraLockBoard = false;
+
+        const hijraCompanionsData = [
+            { name: "أبو بكر الصديق", role: "رفيق الرحلة" },
+            { name: "أسماء بنت أبي بكر", role: "ناقلة الطعام" },
+            { name: "عامر بن فهيرة", role: "راعي الغنم وماحي الأثر" },
+            { name: "عبد الله بن أبي بكر", role: "ناقل الأخبار" },
+            { name: "الدليل ابن أريقط", role: "دليل الطريق" },
+            { name: "علي بن أبي طالب", role: "نام مكانه" }
+        ];
+
+        function initializeHijraCompanionsGame() {
+            hijraCompanionsContainer.innerHTML = ''; // Clear previous cards
+            hijraCompanionsFeedback.textContent = '';
+            hijraFlippedCards = [];
+            hijraMatchedPairs = 0;
+            hijraLockBoard = false;
+
+            let cardsData = [];
+            hijraCompanionsData.forEach(item => {
+                cardsData.push({ type: 'name', value: item.name, match: item.role });
+                cardsData.push({ type: 'role', value: item.role, match: item.name });
+            });
+
+            cardsData.sort(() => 0.5 - Math.random()); // Shuffle cards
+
+            cardsData.forEach(item => {
+                const card = document.createElement('div');
+                card.classList.add('hijra-card');
+                card.dataset.value = item.value;
+                card.dataset.match = item.match;
+                card.dataset.type = item.type;
+
+                const frontFace = document.createElement('div');
+                frontFace.classList.add('front');
+                frontFace.innerHTML = '<i class="fas fa-question"></i>';
+
+                const backFace = document.createElement('div');
+                backFace.classList.add('back');
+                backFace.textContent = item.value;
+
+                card.appendChild(frontFace);
+                card.appendChild(backFace);
+                hijraCompanionsContainer.appendChild(card);
+
+                card.addEventListener('click', flipHijraCard);
+            });
+        }
+
+        function flipHijraCard() {
+            if (hijraLockBoard || this === hijraFlippedCards[0] || this.classList.contains('matched')) return;
+
+            this.classList.add('flipped');
+            hijraFlippedCards.push(this);
+
+            if (hijraFlippedCards.length === 2) {
+                hijraLockBoard = true;
+                checkForHijraMatch();
+            }
+        }
+
+        function checkForHijraMatch() {
+            let [card1, card2] = hijraFlippedCards;
+            const isMatch = (card1.dataset.value === card2.dataset.match && card2.dataset.value === card1.dataset.match);
+
+            if (isMatch) {
+                disableHijraCards();
+            } else {
+                unflipHijraCards();
+            }
+        }
+
+        function disableHijraCards() {
+            hijraFlippedCards.forEach(card => {
+                card.removeEventListener('click', flipHijraCard);
+                card.classList.add('matched');
+            });
+            hijraMatchedPairs++;
+            resetHijraBoard();
+
+            if (hijraMatchedPairs === hijraCompanionsData.length) {
+                hijraCompanionsFeedback.textContent = 'تهانينا! لقد طابقت جميع الشخصيات وأدوارها! 🎉';
+                hijraCompanionsFeedback.style.color = '#2E8B57';
+            }
+        }
+
+        function unflipHijraCards() {
+            setTimeout(() => {
+                hijraFlippedCards.forEach(card => card.classList.remove('flipped'));
+                resetHijraBoard();
+            }, 1000);
+        }
+
+        function resetHijraBoard() {
+            hijraFlippedCards = [];
+            hijraLockBoard = false;
+        }
+
+    </script>
+</body>
+</html>

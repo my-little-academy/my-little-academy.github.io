@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>لعبة فك الجملة</title>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(to bottom, #fffde7, #fff8e1);
+      text-align: center;
+      direction: rtl;
+      padding: 40px;
+    }
+
+    h1 {
+      color: #ef6c00;
+      font-size: 32px;
+    }
+
+    .joined-text {
+      font-size: 24px;
+      background: #ffe0b2;
+      padding: 15px;
+      border-radius: 12px;
+      margin: 20px 0;
+      display: inline-block;
+      color: #4e342e;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .drop-zone, .pieces-zone {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 20px auto;
+      min-height: 80px;
+      padding: 15px;
+      border-radius: 15px;
+    }
+
+    .drop-zone {
+      background-color: #fff3e0;
+      border: 2px dashed #fb8c00;
+    }
+
+    .pieces-zone {
+      background-color: #fff8e1;
+      border: 2px solid #ffcc80;
+    }
+
+    .piece {
+      background-color: #ffcc80;
+      border: 2px solid #fb8c00;
+      padding: 10px 16px;
+      margin: 8px;
+      border-radius: 12px;
+      cursor: grab;
+      font-size: 18px;
+      transition: 0.3s;
+    }
+
+    .piece:hover {
+      background-color: #ffa726;
+    }
+
+    .feedback {
+      font-size: 20px;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    .correct {
+      color: green;
+    }
+
+    .wrong {
+      color: red;
+    }
+
+    button {
+      padding: 10px 25px;
+      font-size: 18px;
+      background-color: #fb8c00;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      margin-top: 25px;
+    }
+
+    button:hover {
+      background-color: #ef6c00;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎯 فكك الجملة ورتّبها!</h1>
+  <div class="joined-text" id="joinedText"></div>
+
+  <div class="drop-zone" id="dropZone" ondragover="event.preventDefault();" ondrop="dropHandler(event)"></div>
+  <div class="pieces-zone" id="piecesZone"></div>
+
+  <button onclick="checkAnswer()">تحقق من ترتيبك</button>
+  <div class="feedback" id="feedback"></div>
+
+  <script>
+    const sentences = [
+      "تَشْرَبُ ٱلْقِطَّةُ ٱلْحَليبَ مِنْ طَبَقِها",
+      "يَذْهَبُ ٱلطِّفْلُ ٱلَى ٱلْمَدْرَسَةِ",
+      "تَجْلِسُ ٱلْأُمُّ مَعَ ٱلْطِّفْلِ",
+      "أَكَلَ ٱلْوَلَدُ تُفَّاحَةً لَذِيذَةً",
+      "طَارَ ٱلْعُصْفُورُ فَوْقَ ٱلشَّجَرَةِ",
+      "يَقْرَأُ ٱلطِّفْلُ ٱلْكِتَابَ فِي ٱلْمَكْتَبَةِ",
+      "زَارَ ٱلْأَبُ ٱلْمُسْتَشْفَى ٱلْيَوْمَ",
+      "تَلْعَبُ ٱلْبِنْتُ بِٱلدُّمْيَةِ ٱلْجَمِيلَةِ",
+      "شَاهَدْنَا ٱلْقِصَّةَ فِي ٱلتِّلْفَازِ",
+      "قَرَأْتُ كِتَابًا مُفِيدًا قَبْلَ ٱلنَّوْمِ",
+      "ذَهَبْنَا إِلَى ٱلْحَدِيقَةِ مَعَ ٱلْأَصْدِقَاءِ",
+      "تَكْتُبُ ٱلطَّالِبَةُ دَرْسَهَا فِي ٱلدَّفْتَرِ",
+      "يُشَاهِدُ ٱلْأَوْلَادُ فِيلْمًا مُسَلِّيًا",
+      "أَعْطَتِ ٱلْمُعَلِّمَةُ هَدِيَّةً لِلطِّفْلِ",
+      "نَزَلَ ٱلْمَطَرُ فِي ٱللَّيْلِ",
+      "نَامَ ٱلرَّضِيعُ فِي سَرِيرِهِ",
+      "ٱشْتَرَيْنَا خُبْزًا وَحَلْوَى",
+      "رَكِبْتُ ٱلسَّيَّارَةَ مَعَ أَبِي",
+      "سَبَحْنَا فِي ٱلْبَحْرِ فِي ٱلصَّيْفِ",
+      "غَسَلَتِ ٱلْبِنْتُ يَدَيْهَا قَبْلَ ٱلْأَكْلِ",
+      "أَكَلَ ٱلْقِطُّ ٱلسَّمَكَةَ",
+      "ٱسْتَيْقَظْتُ مُبَكِّرًا لِلْمَدْرَسَةِ",
+      "كَتَبَ ٱلطِّفْلُ رِسَالَةً جَمِيلَةً",
+      "يَرْسُمُ ٱلطِّفْلُ بَيْتًا فِي ٱلدَّفْتَرِ",
+      "ٱجْتَمَعْنَا فِي ٱلْمَسْجِدِ لِلصَّلَاةِ",
+      "تَعَلَّمْتُ حُرُوفَ ٱلْهَجَاءِ",
+      "رَأَيْنَا ٱلنُّجُومَ فِي ٱلسَّمَاءِ",
+      "ٱسْتَمَعْنَا لِقِصَّةٍ جَمِيلَةٍ",
+      "ٱشْتَرَيْتُ كُرَةً جَدِيدَةً",
+      "تُرَتِّبُ ٱلْأُخْتُ غُرْفَتَهَا",
+      "ٱنْكَسَرَ ٱلْكُوبُ عَلَى ٱلْأَرْضِ",
+      "ٱحْتَفَلْنَا بِيَوْمِ ٱلْمِيلَادِ فِي ٱلْمَدْرَسَةِ",
+      "ٱلْقِطَّةُ تَلْعَبُ فِي ٱلْحَدِيقَةِ"
+    ];
+
+    let currentSentence = "";
+    let correctPieces = [];
+
+    function loadNewSentence() {
+      const randomSentence = sentences[Math.floor(Math.random() * sentences.length)];
+      correctPieces = randomSentence.split(" ");
+      document.getElementById("joinedText").textContent = correctPieces.join('').replace(/\s/g, '');
+
+      // مسح المناطق السابقة
+      document.getElementById("dropZone").innerHTML = "";
+      document.getElementById("piecesZone").innerHTML = "";
+      document.getElementById("feedback").textContent = "";
+
+      // خلط المقاطع
+      const shuffled = [...correctPieces].sort(() => Math.random() - 0.5);
+      shuffled.forEach(text => {
+        const span = document.createElement("span");
+        span.textContent = text;
+        span.className = "piece";
+        span.draggable = true;
+        span.ondragstart = e => e.dataTransfer.setData("text", text);
+        document.getElementById("piecesZone").appendChild(span);
+      });
+    }
+
+    function dropHandler(e) {
+      const text = e.dataTransfer.getData("text");
+      const span = document.createElement("span");
+      span.textContent = text;
+      span.className = "piece";
+      span.onclick = () => span.remove();
+      e.target.appendChild(span);
+    }
+
+    function checkAnswer() {
+      const userAnswer = Array.from(document.getElementById("dropZone").children).map(el => el.textContent);
+      const feedback = document.getElementById("feedback");
+      if (userAnswer.join(' ') === correctPieces.join(' ')) {
+        feedback.textContent = "✔️ أحسنت! ترتيبك صحيح!";
+        feedback.className = "feedback correct";
+      } else {
+        feedback.textContent = "❌ هناك خطأ، جرّب مرة أخرى.";
+        feedback.className = "feedback wrong";
+      }
+    }
+
+    window.onload = loadNewSentence;
+  </script>
+</body>
+</html>

@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>معداد الأباكوس الياباني - السوروبان</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 2.8rem;
+            color: #ff6b9d;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+            animation: bounce 3s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 450px;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .abacus-container {
+            background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .abacus-frame {
+            background: #654321;
+            border: 8px solid #8B4513;
+            border-radius: 15px;
+            padding: 25px;
+            position: relative;
+            min-height: 400px;
+        }
+
+        .crossbar {
+            position: absolute;
+            left: 20px;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 8px;
+            background: #2F4F4F;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
+
+        .columns-container {
+            display: flex;
+            justify-content: space-between;
+            height: 100%;
+            position: relative;
+        }
+
+        .column {
+            width: 80px;
+            height: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .column-rod {
+            width: 6px;
+            height: 100%;
+            background: linear-gradient(to bottom, #333, #555);
+            border-radius: 3px;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .column-label {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            color: #8B4513;
+            font-weight: bold;
+            font-size: 0.9rem;
+            padding: 5px 8px;
+            border-radius: 8px;
+            text-align: center;
+            min-width: 50px;
+        }
+
+        .upper-section {
+            height: 40%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 10px 0;
+        }
+
+        .lower-section {
+            height: 40%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 10px 0;
+        }
+
+        .bead {
+            width: 50px;
+            height: 25px;
+            border-radius: 12px;
+            cursor: pointer;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            z-index: 5;
+        }
+
+        .bead:hover {
+            transform: translateX(-50%) scale(1.1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .bead.active {
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.8), 0 0 25px rgba(255, 215, 0, 0.4);
+            border-color: rgba(255, 215, 0, 0.8);
+        }
+
+        .upper-bead {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+
+        .lower-bead {
+            background: linear-gradient(135deg, #4834d4 0%, #686de0 100%);
+        }
+
+        /* مواقع الخرزة العلوية الواحدة */
+        .upper-bead.inactive { top: 20px; }
+        .upper-bead.active { top: 80px; }
+
+        /* مواقع الخرزات السفلية الأربع */
+        .lower-bead.position-0 { bottom: 20px; }
+        .lower-bead.position-1 { bottom: 50px; }
+        .lower-bead.position-2 { bottom: 80px; }
+        .lower-bead.position-3 { bottom: 110px; }
+
+        .lower-bead.position-0.active { bottom: 80px; }
+        .lower-bead.position-1.active { bottom: 110px; }
+        .lower-bead.position-2.active { bottom: 140px; }
+        .lower-bead.position-3.active { bottom: 170px; }
+
+        .result-display {
+            text-align: center;
+            margin: 25px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+        }
+
+        .result-number {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            margin-bottom: 10px;
+        }
+
+        .result-breakdown {
+            font-size: 1.1rem;
+            color: #fff;
+            opacity: 0.9;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-reset {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+            color: white;
+        }
+
+        .btn-random {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .instructions {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .instructions h3 {
+            color: #d63384;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .component-section {
+            background: rgba(255, 255, 255, 0.8);
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 12px;
+            border-right: 4px solid #d63384;
+        }
+
+        .component-title {
+            font-weight: bold;
+            color: #d63384;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        .component-description {
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .values-section {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .values-section h4 {
+            color: #6c5ce7;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .value-explanation {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .value-icon {
+            width: 30px;
+            height: 15px;
+            border-radius: 7px;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .upper-icon {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+
+        .lower-icon {
+            background: linear-gradient(135deg, #4834d4 0%, #686de0 100%);
+        }
+
+        .practice-section {
+            background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            color: white;
+        }
+
+        .practice-problem {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .column {
+                width: 60px;
+            }
+            
+            .bead {
+                width: 40px;
+                height: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🧮 معداد الأباكوس الياباني (السوروبان) 🧮</h1>
+            <p class="subtitle">تعلم الحساب التقليدي بالطريقة اليابانية الأصيلة</p>
+        </div>
+
+        <div class="main-content">
+            <div class="abacus-container">
+                <div class="abacus-frame">
+                    <div class="crossbar"></div>
+                    
+                    <div class="columns-container" id="columns-container">
+                        <!-- سيتم إنشاء الأعمدة ديناميكياً -->
+                    </div>
+                </div>
+
+                <div class="result-display">
+                    <div class="result-number" id="result">0</div>
+                    <div class="result-breakdown" id="breakdown">جاهز للحساب</div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-reset" onclick="resetAbacus()">🔄 إعادة تعيين</button>
+                    <button class="btn btn-random" onclick="setRandomNumber()">🎲 رقم عشوائي</button>
+                </div>
+
+                <div class="practice-section">
+                    <h4>🎯 تمرين الحساب</h4>
+                    <div class="practice-problem" id="practice-problem">
+                        <div style="font-size: 1.2rem;">اضغط على "رقم عشوائي" لبدء التمرين!</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="instructions">
+                <h3>📚 مكونات الأباكوس</h3>
+                
+                <div class="component-section">
+                    <div class="component-title">🏗️ الإطار</div>
+                    <div class="component-description">الهيكل الخارجي المستطيل الذي يحوي جميع مكونات المعداد</div>
+                </div>
+
+                <div class="component-section">
+                    <div class="component-title">📏 العارضة الأفقية</div>
+                    <div class="component-description">الحاجز الأفقي الذي يقسم الإطار إلى قسمين علوي وسفلي</div>
+                </div>
+
+                <div class="component-section">
+                    <div class="component-title">🎯 الأعمدة الرأسية</div>
+                    <div class="component-description">القضبان التي تتحرك عليها الخرزات، كل عمود يمثل منزلة عددية</div>
+                </div>
+
+                <div class="component-section">
+                    <div class="component-title">🔴 القسم العلوي</div>
+                    <div class="component-description">يحتوي على خرزة واحدة في كل عمود، كل خرزة تساوي 5</div>
+                </div>
+
+                <div class="component-section">
+                    <div class="component-title">🔵 القسم السفلي</div>
+                    <div class="component-description">يحتوي على 4 خرزات في كل عمود، كل خرزة تساوي 1</div>
+                </div>
+
+                <div class="values-section">
+                    <h4>🎨 قيم الخرزات</h4>
+                    
+                    <div class="value-explanation">
+                        <div class="value-icon upper-icon"></div>
+                        <div>
+                            <strong>الخرزة العلوية (حمراء)</strong><br>
+                            القيمة = 5 لكل خرزة
+                        </div>
+                    </div>
+                    
+                    <div class="value-explanation">
+                        <div class="value-icon lower-icon"></div>
+                        <div>
+                            <strong>الخرزة السفلية (زرقاء)</strong><br>
+                            القيمة = 1 لكل خرزة
+                        </div>
+                    </div>
+                    
+                    <div style="background: rgba(255, 255, 255, 0.8); padding: 15px; border-radius: 10px; margin-top: 15px;">
+                        <strong>📖 طريقة الاستخدام:</strong><br>
+                        • اضغط على الخرزات لتحريكها نحو العارضة الوسطى<br>
+                        • الخرزات النشطة تضيء بلون ذهبي<br>
+                        • مجموع القيم يظهر في الأسفل تلقائياً<br>
+                        • كل عمود يمثل منزلة: آحاد، عشرات، مئات...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // إعداد المتغيرات
+        const columns = ['الآحاد', 'العشرات', 'المئات', 'الألوف', 'عشرات الألوف'];
+        const columnValues = [1, 10, 100, 1000, 10000];
+        let abacusState = {};
+
+        // إنشاء الأعمدة
+        function createAbacus() {
+            const container = document.getElementById('columns-container');
+            container.innerHTML = '';
+
+            for (let i = 0; i < 5; i++) {
+                const column = document.createElement('div');
+                column.className = 'column';
+                column.innerHTML = `
+                    <div class="column-rod"></div>
+                    <div class="column-label">${columns[i]}</div>
+                    
+                    <div class="upper-section">
+                        <div class="bead upper-bead inactive" 
+                             data-column="${i}" 
+                             data-section="upper" 
+                             data-value="5">
+                        </div>
+                    </div>
+                    
+                    <div class="lower-section">
+                        <div class="bead lower-bead position-0" 
+                             data-column="${i}" 
+                             data-section="lower" 
+                             data-position="0"
+                             data-value="1">
+                        </div>
+                        <div class="bead lower-bead position-1" 
+                             data-column="${i}" 
+                             data-section="lower" 
+                             data-position="1"
+                             data-value="1">
+                        </div>
+                        <div class="bead lower-bead position-2" 
+                             data-column="${i}" 
+                             data-section="lower" 
+                             data-position="2"
+                             data-value="1">
+                        </div>
+                        <div class="bead lower-bead position-3" 
+                             data-column="${i}" 
+                             data-section="lower" 
+                             data-position="3"
+                             data-value="1">
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(column);
+                
+                // تهيئة حالة العمود
+                abacusState[i] = {
+                    upper: false,
+                    lower: 0
+                };
+            }
+            
+            addEventListeners();
+        }
+
+        // إضافة مستمعات الأحداث
+        function addEventListeners() {
+            document.querySelectorAll('.bead').forEach(bead => {
+                bead.addEventListener('click', function() {
+                    const column = parseInt(this.dataset.column);
+                    const section = this.dataset.section;
+                    
+                    if (section === 'upper') {
+                        toggleUpperBead(column);
+                    } else {
+                        const position = parseInt(this.dataset.position);
+                        toggleLowerBead(column, position);
+                    }
+                    
+                    updateDisplay();
+                });
+            });
+        }
+
+        // تبديل الخرزة العلوية الواحدة
+        function toggleUpperBead(column) {
+            const upperBead = document.querySelector(`[data-column="${column}"][data-section="upper"]`);
+            
+            abacusState[column].upper = !abacusState[column].upper;
+            
+            if (abacusState[column].upper) {
+                upperBead.classList.remove('inactive');
+                upperBead.classList.add('active');
+            } else {
+                upperBead.classList.remove('active');
+                upperBead.classList.add('inactive');
+            }
+        }
+
+        // تبديل الخرزات السفلية
+        function toggleLowerBead(column, position) {
+            const currentActive = abacusState[column].lower;
+            
+            if (position < currentActive) {
+                // إلغاء تفعيل من هذا الموضع إلى النهاية
+                abacusState[column].lower = position;
+            } else {
+                // تفعيل حتى هذا الموضع
+                abacusState[column].lower = position + 1;
+            }
+            
+            // تحديث المظهر
+            for (let i = 0; i < 4; i++) {
+                const bead = document.querySelector(`[data-column="${column}"][data-section="lower"][data-position="${i}"]`);
+                if (i < abacusState[column].lower) {
+                    bead.classList.add('active');
+                } else {
+                    bead.classList.remove('active');
+                }
+            }
+        }
+
+        // تحديث العرض
+        function updateDisplay() {
+            let total = 0;
+            let breakdown = [];
+            
+            for (let i = 0; i < 5; i++) {
+                let columnValue = 0;
+                
+                if (abacusState[i].upper) {
+                    columnValue += 5 * columnValues[i];
+                }
+                
+                columnValue += abacusState[i].lower * columnValues[i];
+                
+                total += columnValue;
+                
+                if (columnValue > 0) {
+                    breakdown.push(`${columns[i]}: ${columnValue}`);
+                }
+            }
+            
+            document.getElementById('result').textContent = total;
+            document.getElementById('breakdown').textContent = 
+                breakdown.length > 0 ? breakdown.join(' + ') : 'جاهز للحساب';
+        }
+
+        // إعادة تعيين المعداد
+        function resetAbacus() {
+            for (let i = 0; i < 5; i++) {
+                abacusState[i] = { upper: false, lower: 0 };
+            }
+            
+            document.querySelectorAll('.bead').forEach(bead => {
+                bead.classList.remove('active');
+            });
+            
+            updateDisplay();
+            document.getElementById('practice-problem').innerHTML = 
+                '<div style="font-size: 1.2rem;">اضغط على "رقم عشوائي" لبدء التمرين!</div>';
+        }
+
+        // رقم عشوائي
+        function setRandomNumber() {
+            resetAbacus();
+            
+            const randomNum = Math.floor(Math.random() * 99999) + 1;
+            let remaining = randomNum;
+            
+            // تحويل الرقم إلى خرزات
+            for (let i = 4; i >= 0; i--) {
+                const digitValue = Math.floor(remaining / columnValues[i]);
+                remaining %= columnValues[i];
+                
+                if (digitValue >= 5) {
+                    abacusState[i].upper = true;
+                    const upperBead = document.querySelector(`[data-column="${i}"][data-section="upper"]`);
+                    upperBead.classList.add('active');
+                    
+                    abacusState[i].lower = digitValue - 5;
+                } else {
+                    abacusState[i].lower = digitValue;
+                }
+                
+                // تحديث الخرزات السفلية
+                for (let j = 0; j < 4; j++) {
+                    const bead = document.querySelector(`[data-column="${i}"][data-section="lower"][data-position="${j}"]`);
+                    if (j < abacusState[i].lower) {
+                        bead.classList.add('active');
+                    }
+                }
+            }
+            
+            updateDisplay();
+            
+            document.getElementById('practice-problem').innerHTML = 
+                `<div style="font-size: 1.5rem; margin-bottom: 10px;">🎯 العدد المطلوب: ${randomNum}</div>
+                 <div style="font-size: 1rem;">حاول إنشاء هذا العدد باستخدام خرزات المعداد!</div>`;
+        }
+
+        // تهيئة المعداد عند تحميل الصفحة
+        window.addEventListener('load', function() {
+            createAbacus();
+            updateDisplay();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة البحث عن الاختلافات للأطفال</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f8ff;
+            padding: 20px;
+        }
+        
+        h1 {
+            color: #ff6b6b;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        
+        .images-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        
+        .image-box {
+            position: relative;
+            width: 48%;
+        }
+        
+        .image-box img {
+            width: 100%;
+            border: 3px solid #ddd;
+            border-radius: 10px;
+            cursor: crosshair;
+        }
+        
+        .difference {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: rgba(255, 255, 0, 0.5);
+            border-radius: 50%;
+            border: 2px solid red;
+            transform: translate(-15px, -15px);
+            pointer-events: none;
+        }
+        
+        .found {
+            background-color: rgba(0, 255, 0, 0.5);
+            border-color: green;
+        }
+        
+        .info {
+            margin: 20px 0;
+            font-size: 1.2em;
+            color: #333;
+        }
+        
+        .score {
+            font-weight: bold;
+            color: #ff6b6b;
+            font-size: 1.3em;
+        }
+        
+        .timer {
+            font-weight: bold;
+            color: #4ecdc4;
+            font-size: 1.3em;
+        }
+        
+        button {
+            background-color: #4ecdc4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1.1em;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #ff6b6b;
+        }
+        
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 100;
+            display: none;
+        }
+        
+        .celebration h2 {
+            color: gold;
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px #000;
+        }
+        
+        .celebration img {
+            width: 200px;
+            animation: bounce 1s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>لعبة البحث عن الاختلافات</h1>
+        <div class="info">
+            <span>الاختلافات المتبقية: <span class="score">5</span></span>
+            | 
+            <span>الوقت: <span class="timer">01:00</span></span>
+        </div>
+        
+        <div class="images-container">
+            <div class="image-box" id="image1">
+                <img src="https://i.imgur.com/JQ9wY1D.png" alt="الصورة الأولى">
+            </div>
+            <div class="image-box" id="image2">
+                <img src="https://i.imgur.com/JQ9wY1D.png" alt="الصورة الثانية">
+            </div>
+        </div>
+        
+        <button id="hint">مساعدة</button>
+        <button id="restart">إعادة اللعب</button>
+    </div>
+    
+    <div class="celebration">
+        <h2>أحسنت! لقد فزت!</h2>
+        <img src="https://i.imgur.com/5qY9X9r.png" alt="نجاح">
+        <button id="play-again">العب مرة أخرى</button>
+    </div>
+    
+    <script>
+        // تعريف الاختلافات (إحداثيات x,y ونصف القطر)
+        const differences = [
+            {x: 120, y: 180, r: 15},
+            {x: 250, y: 90, r: 15},
+            {x: 400, y: 220, r: 15},
+            {x: 180, y: 300, r: 15},
+            {x: 350, y: 150, r: 15}
+        ];
+        
+        let foundDifferences = [];
+        let score = differences.length;
+        let timeLeft = 60;
+        let timer;
+        let hintTimeout;
+        
+        // عناصر DOM
+        const image1 = document.getElementById('image1');
+        const image2 = document.getElementById('image2');
+        const scoreElement = document.querySelector('.score');
+        const timerElement = document.querySelector('.timer');
+        const hintButton = document.getElementById('hint');
+        const restartButton = document.getElementById('restart');
+        const celebration = document.querySelector('.celebration');
+        const playAgainButton = document.getElementById('play-again');
+        
+        // تهيئة اللعبة
+        function initGame() {
+            // إضافة الاختلافات إلى الصورتين
+            differences.forEach(diff => {
+                addDifferenceMarker(image1, diff);
+                addDifferenceMarker(image2, diff);
+            });
+            
+            // بدء المؤقت
+            startTimer();
+            
+            // إضافة مستمعي الأحداث
+            image1.addEventListener('click', handleImageClick);
+            image2.addEventListener('click', handleImageClick);
+            hintButton.addEventListener('click', giveHint);
+            restartButton.addEventListener('click', restartGame);
+            playAgainButton.addEventListener('click', restartGame);
+        }
+        
+        // إضافة علامة الاختلاف إلى الصورة
+        function addDifferenceMarker(imageBox, diff) {
+            const marker = document.createElement('div');
+            marker.className = 'difference';
+            marker.style.left = `${diff.x}px`;
+            marker.style.top = `${diff.y}px`;
+            marker.style.width = `${diff.r * 2}px`;
+            marker.style.height = `${diff.r * 2}px`;
+            marker.dataset.x = diff.x;
+            marker.dataset.y = diff.y;
+            imageBox.appendChild(marker);
+        }
+        
+        // التعامل مع النقر على الصورة
+        function handleImageClick(e) {
+            const rect = e.target.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // التحقق مما إذا كان النقر على اختلاف
+            differences.forEach(diff => {
+                const distance = Math.sqrt(Math.pow(x - diff.x, 2) + Math.pow(y - diff.y, 2));
+                
+                if (distance <= diff.r && !foundDifferences.some(fd => fd.x === diff.x && fd.y === diff.y)) {
+                    // تم العثور على اختلاف
+                    foundDifferences.push(diff);
+                    updateFoundDifferences();
+                    
+                    // تحديث النتيجة
+                    score--;
+                    scoreElement.textContent = score;
+                    
+                    // التحقق من الفوز
+                    if (score === 0) {
+                        endGame(true);
+                    }
+                }
+            });
+        }
+        
+        // تحديث العلامات التي تم العثور عليها
+        function updateFoundDifferences() {
+            document.querySelectorAll('.difference').forEach(marker => {
+                const x = parseInt(marker.dataset.x);
+                const y = parseInt(marker.dataset.y);
+                
+                if (foundDifferences.some(diff => diff.x === x && diff.y === y)) {
+                    marker.classList.add('found');
+                }
+            });
+        }
+        
+        // بدء المؤقت
+        function startTimer() {
+            clearInterval(timer);
+            timeLeft = 60;
+            updateTimerDisplay();
+            
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if (timeLeft <= 0) {
+                    endGame(false);
+                }
+            }, 1000);
+        }
+        
+        // تحديث عرض المؤقت
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft <= 10) {
+                timerElement.style.color = 'red';
+            }
+        }
+        
+        // تقديم مساعدة
+        function giveHint() {
+            if (hintTimeout) return;
+            
+            // العثور على اختلاف لم يتم العثور عليه بعد
+            const remainingDiffs = differences.filter(diff => 
+                !foundDifferences.some(fd => fd.x === diff.x && fd.y === diff.y)
+            );
+            
+            if (remainingDiffs.length > 0) {
+                const randomDiff = remainingDiffs[Math.floor(Math.random() * remainingDiffs.length)];
+                
+                // إبراز الاختلاف لمدة 2 ثانية
+                const markers = document.querySelectorAll(`.difference[data-x="${randomDiff.x}"][data-y="${randomDiff.y}"]`);
+                markers.forEach(marker => {
+                    marker.style.boxShadow = '0 0 15px 10px rgba(255, 165, 0, 0.7)';
+                });
+                
+                hintTimeout = setTimeout(() => {
+                    markers.forEach(marker => {
+                        marker.style.boxShadow = 'none';
+                    });
+                    hintTimeout = null;
+                }, 2000);
+            }
+        }
+        
+        // إنهاء اللعبة
+        function endGame(isWin) {
+            clearInterval(timer);
+            
+            if (isWin) {
+                celebration.style.display = 'flex';
+            } else {
+                alert('انتهى الوقت! حاول مرة أخرى.');
+            }
+        }
+        
+        // إعادة تشغيل اللعبة
+        function restartGame() {
+            // إعادة تعيين المتغيرات
+            foundDifferences = [];
+            score = differences.length;
+            scoreElement.textContent = score;
+            timerElement.textContent = '01:00';
+            timerElement.style.color = '#4ecdc4';
+            celebration.style.display = 'none';
+            
+            // إزالة جميع العلامات
+            document.querySelectorAll('.difference').forEach(marker => marker.remove());
+            
+            // إعادة تهيئة اللعبة
+            initGame();
+        }
+        
+        // بدء اللعبة عند تحميل الصفحة
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html>

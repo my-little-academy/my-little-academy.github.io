@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة أنواع الأسماء: الجنس والعدد</title>
+    <style>
+        :root {
+            --male: #3498db;
+            --female: #e91e63;
+            --singular: #2ecc71;
+            --dual: #9b59b6;
+            --plural: #f39c12;
+            --light: #f5f6fa;
+            --dark: #2f3640;
+        }
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #8e44ad, #3498db);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 2.8em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .game-container {
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .word-bank {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            min-height: 100px;
+        }
+        
+        .word {
+            background-color: white;
+            padding: 12px 20px;
+            border-radius: 50px;
+            cursor: grab;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            user-select: none;
+        }
+        
+        .word:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .word.dragging {
+            opacity: 0.5;
+            transform: scale(1.1);
+        }
+        
+        .categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .category {
+            flex: 1;
+            min-width: 200px;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            min-height: 150px;
+        }
+        
+        .category-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+            padding: 10px;
+            border-radius: 5px;
+            color: white;
+        }
+        
+        .male { background-color: var(--male); }
+        .female { background-color: var(--female); }
+        .singular { background-color: var(--singular); }
+        .dual { background-color: var(--dual); }
+        .plural { background-color: var(--plural); }
+        
+        .category-content {
+            min-height: 100px;
+            padding: 10px;
+        }
+        
+        .btn {
+            background: linear-gradient(to right, #3498db, #8e44ad);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            margin: 20px auto;
+            display: block;
+            font-weight: bold;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .result {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            
+            .categories {
+                flex-direction: column;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>لعبة أنواع الأسماء</h1>
+            <p>سحب وإفلات الكلمات لتصنيفها حسب الجنس والعدد</p>
+        </header>
+        
+        <div class="game-container">
+            <h2>🎮 لعبة السحب والإفلات</h2>
+            <p>اسحب كل كلمة إلى خانة التصنيف الصحيح</p>
+            
+            <div class="word-bank" id="word-bank">
+                <div class="word" draggable="true" data-gender="male" data-number="singular">رجل</div>
+                <div class="word" draggable="true" data-gender="female" data-number="singular">فتاة</div>
+                <div class="word" draggable="true" data-gender="male" data-number="plural">معلمون</div>
+                <div class="word" draggable="true" data-gender="female" data-number="plural">معلمات</div>
+                <div class="word" draggable="true" data-gender="male" data-number="dual">كتابان</div>
+                <div class="word" draggable="true" data-gender="female" data-number="dual">شجرتان</div>
+                <div class="word" draggable="true" data-gender="male" data-number="singular">قلم</div>
+                <div class="word" draggable="true" data-gender="female" data-number="singular">وردة</div>
+            </div>
+            
+            <h3>الجنس:</h3>
+            <div class="categories">
+                <div class="category" id="male-category">
+                    <div class="category-title male">مذكر</div>
+                    <div class="category-content" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+                </div>
+                
+                <div class="category" id="female-category">
+                    <div class="category-title female">مؤنث</div>
+                    <div class="category-content" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+                </div>
+            </div>
+            
+            <h3>العدد:</h3>
+            <div class="categories">
+                <div class="category" id="singular-category">
+                    <div class="category-title singular">مفرد</div>
+                    <div class="category-content" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+                </div>
+                
+                <div class="category" id="dual-category">
+                    <div class="category-title dual">مثنى</div>
+                    <div class="category-content" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+                </div>
+                
+                <div class="category" id="plural-category">
+                    <div class="category-title plural">جمع</div>
+                    <div class="category-content" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+                </div>
+            </div>
+            
+            <button class="btn" onclick="checkAnswers()">تحقق من الإجابات</button>
+            <div id="result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        // المتغيرات العامة
+        let draggedWord = null;
+        
+        // تحديد العنصر الذي يتم سحبه
+        document.addEventListener('dragstart', function(event) {
+            if (event.target.classList.contains('word')) {
+                draggedWord = event.target;
+                event.target.classList.add('dragging');
+                event.dataTransfer.setData('text/plain', event.target.textContent);
+                event.dataTransfer.effectAllowed = 'move';
+            }
+        });
+        
+        // إنهاء السحب
+        document.addEventListener('dragend', function(event) {
+            if (event.target.classList.contains('word')) {
+                event.target.classList.remove('dragging');
+            }
+        });
+        
+        // السماح بالإفلات
+        function allowDrop(event) {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'move';
+        }
+        
+        // معالجة الإفلات
+        function drop(event) {
+            event.preventDefault();
+            if (draggedWord) {
+                const dropZone = event.target.closest('.category-content');
+                if (dropZone) {
+                    dropZone.appendChild(draggedWord);
+                    draggedWord.style.transform = 'translateY(0)';
+                }
+                draggedWord = null;
+            }
+        }
+        
+        // التحقق من الإجابات
+        function checkAnswers() {
+            const categories = {
+                'male-category': 'male',
+                'female-category': 'female',
+                'singular-category': 'singular',
+                'dual-category': 'dual',
+                'plural-category': 'plural'
+            };
+            
+            let correct = 0;
+            let total = 0;
+            
+            // التحقق من تصنيف الجنس
+            for (const [categoryId, gender] of Object.entries(categories)) {
+                if (gender === 'male' || gender === 'female') {
+                    const category = document.getElementById(categoryId).querySelector('.category-content');
+                    const words = category.querySelectorAll('.word');
+                    
+                    words.forEach(word => {
+                        total++;
+                        if (word.dataset.gender === gender) {
+                            correct++;
+                            word.style.borderColor = '#28a745';
+                        } else {
+                            word.style.borderColor = '#dc3545';
+                        }
+                    });
+                }
+            }
+            
+            // التحقق من تصنيف العدد
+            for (const [categoryId, number] of Object.entries(categories)) {
+                if (number === 'singular' || number === 'dual' || number === 'plural') {
+                    const category = document.getElementById(categoryId).querySelector('.category-content');
+                    const words = category.querySelectorAll('.word');
+                    
+                    words.forEach(word => {
+                        total++;
+                        if (word.dataset.number === number) {
+                            correct++;
+                            word.style.borderColor = '#28a745';
+                        } else {
+                            word.style.borderColor = '#dc3545';
+                        }
+                    });
+                }
+            }
+            
+            // عرض النتيجة
+            const result = document.getElementById('result');
+            result.style.display = 'block';
+            
+            if (correct === total) {
+                result.classList.add('success');
+                result.textContent = `🎉 ممتاز! جميع إجاباتك صحيحة (${correct}/${total})`;
+            } else if (correct >= total / 2) {
+                result.classList.add('warning');
+                result.textContent = `جيد! لديك ${correct} إجابات صحيحة من ${total}`;
+            } else {
+                result.style.backgroundColor = '#f8d7da';
+                result.style.color = '#721c24';
+                result.textContent = `حاول مرة أخرى! لديك ${correct} إجابات صحيحة من ${total}`;
+            }
+        }
+        
+        // إعادة تعيين اللعبة (اختياري)
+        function resetGame() {
+            const wordBank = document.getElementById('word-bank');
+            const words = document.querySelectorAll('.word');
+            
+            words.forEach(word => {
+                word.style.borderColor = 'transparent';
+                wordBank.appendChild(word);
+            });
+            
+            document.getElementById('result').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

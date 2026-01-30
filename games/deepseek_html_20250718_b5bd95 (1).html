@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 لعبة الرسم والتلوين للأطفال</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 5px solid #ff6b9d;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ff6b9d, #c44569);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .game-area {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tools-panel {
+            flex: 1;
+            min-width: 250px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .canvas-container {
+            flex: 3;
+            min-width: 300px;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .canvas-wrapper {
+            border: 3px dashed #ff6b9d;
+            border-radius: 10px;
+            background: #f9f9f9;
+            position: relative;
+            width: 100%;
+            height: 500px;
+        }
+
+        #drawingCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            cursor: crosshair;
+        }
+
+        #templateCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        .tools-section {
+            margin-bottom: 20px;
+        }
+
+        .tools-title {
+            color: white;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .color-btn {
+            width: 50px;
+            height: 50px;
+            border: 3px solid white;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .color-btn.active {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px white;
+        }
+
+        .brush-sizes {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .brush-size {
+            width: 40px;
+            height: 40px;
+            border: 2px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background: white;
+        }
+
+        .brush-size::after {
+            content: '';
+            background: #333;
+            border-radius: 50%;
+        }
+
+        .brush-size.small::after {
+            width: 8px;
+            height: 8px;
+        }
+
+        .brush-size.medium::after {
+            width: 16px;
+            height: 16px;
+        }
+
+        .brush-size.large::after {
+            width: 24px;
+            height: 24px;
+        }
+
+        .brush-size.active {
+            border-color: #ff6b9d;
+            background: #ffe0ec;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-eraser {
+            background: linear-gradient(45deg, #ffa726, #ff7043);
+        }
+
+        .btn-clear {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+        }
+
+        .btn-save {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+
+        .coloring-pages {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .coloring-page {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border: 3px solid white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .coloring-page.active {
+            border-color: #ff6b9d;
+            background: #ffe0ec;
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+            .game-area {
+                flex-direction: column;
+            }
+            
+            .canvas-container {
+                order: -1;
+            }
+            
+            .canvas-wrapper {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🎨 لعبة الرسم والتلوين</h1>
+            <p>ارسم وألون واستمتع بالإبداع!</p>
+        </div>
+
+        <div class="game-area">
+            <div class="canvas-container">
+                <div class="canvas-wrapper">
+                    <canvas id="drawingCanvas"></canvas>
+                    <canvas id="templateCanvas"></canvas>
+                </div>
+            </div>
+
+            <div class="tools-panel">
+                <div class="tools-section">
+                    <h3 class="tools-title">🖼️ اختر الرسمة</h3>
+                    <div class="coloring-pages">
+                        <div class="coloring-page active" data-template="blank">📝</div>
+                        <div class="coloring-page" data-template="cat">🐱</div>
+                        <div class="coloring-page" data-template="flower">🌸</div>
+                        <div class="coloring-page" data-template="house">🏠</div>
+                        <div class="coloring-page" data-template="butterfly">🦋</div>
+                        <div class="coloring-page" data-template="tree">🌳</div>
+                    </div>
+                </div>
+
+                <div class="tools-section">
+                    <h3 class="tools-title">🎨 اختر اللون</h3>
+                    <div class="color-palette">
+                        <div class="color-btn active" style="background: #ff6b9d" data-color="#ff6b9d"></div>
+                        <div class="color-btn" style="background: #4ecdc4" data-color="#4ecdc4"></div>
+                        <div class="color-btn" style="background: #45b7d1" data-color="#45b7d1"></div>
+                        <div class="color-btn" style="background: #f9ca24" data-color="#f9ca24"></div>
+                        <div class="color-btn" style="background: #6c5ce7" data-color="#6c5ce7"></div>
+                        <div class="color-btn" style="background: #a29bfe" data-color="#a29bfe"></div>
+                        <div class="color-btn" style="background: #fd79a8" data-color="#fd79a8"></div>
+                        <div class="color-btn" style="background: #00b894" data-color="#00b894"></div>
+                    </div>
+                </div>
+
+                <div class="tools-section">
+                    <h3 class="tools-title">🖌️ حجم الفرشاة</h3>
+                    <div class="brush-sizes">
+                        <div class="brush-size small active" data-size="5"></div>
+                        <div class="brush-size medium" data-size="15"></div>
+                        <div class="brush-size large" data-size="25"></div>
+                    </div>
+                </div>
+
+                <div class="tools-section">
+                    <h3 class="tools-title">🔧 الأدوات</h3>
+                    <div class="action-buttons">
+                        <button class="btn btn-eraser" id="eraserBtn">🧹 ممحاة</button>
+                        <button class="btn btn-clear" id="clearBtn">🗑️ مسح الكل</button>
+                        <button class="btn btn-save" id="saveBtn">💾 حفظ الرسمة</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // العناصر الرئيسية
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        const templateCanvas = document.getElementById('templateCanvas');
+        const templateCtx = templateCanvas.getContext('2d');
+        
+        // متغيرات الرسم
+        let isDrawing = false;
+        let currentColor = '#ff6b9d';
+        let currentSize = 5;
+        let isErasing = false;
+        let lastX = 0;
+        let lastY = 0;
+
+        // قوالب الرسم
+        const templates = {
+            blank: () => {
+                templateCtx.clearRect(0, 0, templateCanvas.width, templateCanvas.height);
+            },
+            cat: (ctx) => {
+                ctx.beginPath();
+                // الرأس
+                ctx.arc(300, 200, 80, 0, Math.PI * 2);
+                // الأذنين
+                ctx.moveTo(250, 150);
+                ctx.lineTo(270, 120);
+                ctx.lineTo(290, 150);
+                ctx.moveTo(310, 150);
+                ctx.lineTo(330, 120);
+                ctx.lineTo(350, 150);
+                // العينين
+                ctx.moveTo(275, 180);
+                ctx.arc(275, 180, 10, 0, Math.PI * 2);
+                ctx.moveTo(325, 180);
+                ctx.arc(325, 180, 10, 0, Math.PI * 2);
+                // الأنف والفم
+                ctx.moveTo(300, 200);
+                ctx.lineTo(290, 210);
+                ctx.lineTo(310, 210);
+                ctx.closePath();
+                ctx.moveTo(300, 210);
+                ctx.lineTo(285, 230);
+                ctx.moveTo(300, 210);
+                ctx.lineTo(315, 230);
+                ctx.stroke();
+            },
+            flower: (ctx) => {
+                ctx.beginPath();
+                // مركز الزهرة
+                ctx.arc(300, 200, 30, 0, Math.PI * 2);
+                // البتلات
+                for (let i = 0; i < 8; i++) {
+                    const angle = (i * Math.PI * 2) / 8;
+                    const x = 300 + Math.cos(angle) * 60;
+                    const y = 200 + Math.sin(angle) * 60;
+                    ctx.moveTo(300 + Math.cos(angle) * 30, 200 + Math.sin(angle) * 30);
+                    ctx.arc(x, y, 25, 0, Math.PI * 2);
+                }
+                // الساق والأوراق
+                ctx.moveTo(300, 230);
+                ctx.lineTo(300, 400);
+                ctx.moveTo(300, 300);
+                ctx.quadraticCurveTo(250, 280, 270, 320);
+                ctx.quadraticCurveTo(300, 340, 300, 300);
+                ctx.moveTo(300, 350);
+                ctx.quadraticCurveTo(350, 330, 330, 370);
+                ctx.quadraticCurveTo(300, 390, 300, 350);
+                ctx.stroke();
+            },
+            house: (ctx) => {
+                ctx.beginPath();
+                // المنزل
+                ctx.rect(200, 250, 200, 150);
+                // السقف
+                ctx.moveTo(200, 250);
+                ctx.lineTo(300, 150);
+                ctx.lineTo(400, 250);
+                ctx.closePath();
+                // الباب والنوافذ
+                ctx.rect(270, 320, 60, 80);
+                ctx.rect(220, 280, 40, 40);
+                ctx.rect(340, 280, 40, 40);
+                // تفاصيل النوافذ
+                ctx.moveTo(240, 280);
+                ctx.lineTo(240, 320);
+                ctx.moveTo(220, 300);
+                ctx.lineTo(260, 300);
+                ctx.moveTo(360, 280);
+                ctx.lineTo(360, 320);
+                ctx.moveTo(340, 300);
+                ctx.lineTo(380, 300);
+                ctx.stroke();
+            },
+            butterfly: (ctx) => {
+                ctx.beginPath();
+                // الجسم
+                ctx.moveTo(300, 150);
+                ctx.lineTo(300, 350);
+                // الأجنحة العلوية
+                ctx.moveTo(300, 200);
+                ctx.quadraticCurveTo(250, 150, 220, 200);
+                ctx.quadraticCurveTo(250, 250, 300, 200);
+                ctx.moveTo(300, 200);
+                ctx.quadraticCurveTo(350, 150, 380, 200);
+                ctx.quadraticCurveTo(350, 250, 300, 200);
+                // الأجنحة السفلية
+                ctx.moveTo(300, 250);
+                ctx.quadraticCurveTo(260, 280, 240, 320);
+                ctx.quadraticCurveTo(270, 350, 300, 250);
+                ctx.moveTo(300, 250);
+                ctx.quadraticCurveTo(340, 280, 360, 320);
+                ctx.quadraticCurveTo(330, 350, 300, 250);
+                // قرون الاستشعار
+                ctx.moveTo(300, 150);
+                ctx.lineTo(290, 130);
+                ctx.moveTo(300, 150);
+                ctx.lineTo(310, 130);
+                ctx.stroke();
+            },
+            tree: (ctx) => {
+                ctx.beginPath();
+                // الجذع
+                ctx.rect(280, 300, 40, 100);
+                // التاج والفروع
+                ctx.arc(300, 200, 80, 0, Math.PI * 2);
+                ctx.moveTo(350, 250);
+                ctx.arc(330, 230, 50, 0, Math.PI * 2);
+                ctx.moveTo(300, 250);
+                ctx.arc(270, 230, 50, 0, Math.PI * 2);
+                ctx.moveTo(300, 280);
+                ctx.lineTo(250, 200);
+                ctx.moveTo(300, 280);
+                ctx.lineTo(350, 200);
+                ctx.moveTo(300, 300);
+                ctx.lineTo(260, 250);
+                ctx.moveTo(300, 300);
+                ctx.lineTo(340, 250);
+                ctx.stroke();
+            }
+        };
+
+        // تهيئة الكانفاس
+        function initCanvas() {
+            const container = document.querySelector('.canvas-wrapper');
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            templateCanvas.width = container.clientWidth;
+            templateCanvas.height = container.clientHeight;
+            
+            // إعدادات الرسم الأساسية
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = currentColor;
+            ctx.lineWidth = currentSize;
+            ctx.fillStyle = currentColor;
+            
+            templateCtx.strokeStyle = '#ddd';
+            templateCtx.lineWidth = 2;
+            
+            // تحميل القالب الافتراضي
+            loadTemplate('blank');
+        }
+
+        // تحميل قالب الرسم
+        function loadTemplate(templateName) {
+            templateCtx.clearRect(0, 0, templateCanvas.width, templateCanvas.height);
+            
+            // حساب عامل التحجيم
+            const scaleX = templateCanvas.width / 600;
+            const scaleY = templateCanvas.height / 500;
+            const scale = Math.min(scaleX, scaleY);
+            
+            templateCtx.save();
+            templateCtx.scale(scale, scale);
+            
+            if (templates[templateName]) {
+                templates[templateName](templateCtx);
+            }
+            
+            templateCtx.restore();
+        }
+
+        // وظائف الرسم
+        function startDrawing(e) {
+            isDrawing = true;
+            [lastX, lastY] = getPosition(e);
+            
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            
+            // رسم نقطة أولية للضغطات السريعة
+            ctx.arc(lastX, lastY, currentSize/2, 0, Math.PI*2);
+            ctx.fill();
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            
+            const [x, y] = getPosition(e);
+            
+            ctx.globalCompositeOperation = isErasing ? 'destination-out' : 'source-over';
+            ctx.strokeStyle = isErasing ? 'rgba(0,0,0,1)' : currentColor;
+            ctx.lineWidth = currentSize;
+            
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            
+            [lastX, lastY] = [x, y];
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        // الحصول على موضع المؤشر
+        function getPosition(e) {
+            const rect = canvas.getBoundingClientRect();
+            return [
+                e.clientX - rect.left,
+                e.clientY - rect.top
+            ];
+        }
+
+        // مسح الكانفاس
+        function clearCanvas() {
+            if (confirm('هل تريد مسح الرسمة بالكامل؟')) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const activeTemplate = document.querySelector('.coloring-page.active').dataset.template;
+                loadTemplate(activeTemplate);
+            }
+        }
+
+        // حفظ الرسمة
+        function saveDrawing() {
+            const link = document.createElement('a');
+            link.download = 'رسمتي-' + new Date().toLocaleDateString() + '.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            
+            alert('تم حفظ الرسمة بنجاح!');
+        }
+
+        // تبديل وضع الممحاة
+        function toggleEraser() {
+            isErasing = !isErasing;
+            const eraserBtn = document.getElementById('eraserBtn');
+            
+            if (isErasing) {
+                eraserBtn.textContent = '🖌️ فرشاة';
+                eraserBtn.style.background = 'linear-gradient(45deg, #666, #333)';
+            } else {
+                eraserBtn.textContent = '🧹 ممحاة';
+                eraserBtn.style.background = 'linear-gradient(45deg, #ffa726, #ff7043)';
+            }
+        }
+
+        // إعداد مستمعي الأحداث
+        function setupEventListeners() {
+            // أحداث الماوس
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseleave', stopDrawing);
+            
+            // أحداث الأزرار
+            document.getElementById('clearBtn').addEventListener('click', clearCanvas);
+            document.getElementById('saveBtn').addEventListener('click', saveDrawing);
+            document.getElementById('eraserBtn').addEventListener('click', toggleEraser);
+            
+            // تغيير الألوان
+            document.querySelectorAll('.color-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentColor = this.dataset.color;
+                    ctx.fillStyle = currentColor;
+                    isErasing = false;
+                    document.getElementById('eraserBtn').textContent = '🧹 ممحاة';
+                    document.getElementById('eraserBtn').style.background = 'linear-gradient(45deg, #ffa726, #ff7043)';
+                });
+            });
+            
+            // تغيير حجم الفرشاة
+            document.querySelectorAll('.brush-size').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.brush-size').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentSize = parseInt(this.dataset.size);
+                });
+            });
+            
+            // تغيير قوالب الرسم
+            document.querySelectorAll('.coloring-page').forEach(page => {
+                page.addEventListener('click', function() {
+                    document.querySelectorAll('.coloring-page').forEach(p => p.classList.remove('active'));
+                    this.classList.add('active');
+                    loadTemplate(this.dataset.template);
+                });
+            });
+        }
+
+        // بدء التطبيق
+        window.addEventListener('load', () => {
+            initCanvas();
+            setupEventListeners();
+        });
+
+        window.addEventListener('resize', () => {
+            // حفظ القالب الحالي قبل إعادة التحجيم
+            const activeTemplate = document.querySelector('.coloring-page.active').dataset.template;
+            
+            initCanvas();
+            loadTemplate(activeTemplate);
+        });
+    </script>
+</body>
+</html>

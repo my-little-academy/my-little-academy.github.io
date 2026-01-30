@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محاكي رحلة الحج: خطوة بخطوة</title>
+    <!-- تضمين الخطوط من Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&family=IBM+Plex+Sans+Arabic:wght[400,500]&display=swap" rel="stylesheet">
+    <style>
+        /* الأنماط العامة للجسم والصفحة */
+        body {
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
+            background-color: #fcf8e3; /* لون كريمي فاتح يرمز للسكينة */
+            margin: 0;
+            padding: 0;
+            color: #333;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* خلفية متحركة: دوائر متمركزة خفيفة تحاكي الطواف حول الكعبة */
+        .animated-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            background: radial-gradient(circle at center, rgba(255, 235, 59, 0.05) 0%, transparent 20%),
+                        radial-gradient(circle at center, rgba(255, 213, 79, 0.04) 20%, transparent 40%),
+                        radial-gradient(circle at center, rgba(255, 193, 7, 0.03) 40%, transparent 60%);
+            animation: concentricCircles 40s infinite linear;
+            background-size: 200% 200%;
+            background-repeat: no-repeat;
+            background-position: center center;
+        }
+
+        @keyframes concentricCircles {
+            0% { transform: scale(1) rotate(0deg); opacity: 1; }
+            100% { transform: scale(1.5) rotate(360deg); opacity: 0.5; }
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            flex-grow: 1; /* للسماح للمحتوى بالتمدد */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* رأس الصفحة (Header) */
+        header {
+            background: linear-gradient(135deg, #FFD700, #FFC107); /* تدرج ذهبي يرمز للكعبة وعظمتها */
+            color: #333;
+            padding: 30px;
+            text-align: center;
+            border-radius: 25px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+            border: 3px solid #FFAB00;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top right, rgba(255,255,255,0.4) 0%, transparent 70%);
+            animation: headerSparkle 8s infinite ease-in-out alternate;
+        }
+
+        @keyframes headerSparkle {
+            0% { opacity: 0.7; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.03); }
+            100% { opacity: 0.7; transform: scale(1); }
+        }
+
+        h1 {
+            font-family: 'Tajawal', sans-serif;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            margin: 0;
+            font-size: 3.5em;
+            animation: scaleIn 1s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        header p {
+            font-size: 1.2em;
+            animation: fadeInUp 1s ease-out 0.3s forwards;
+            opacity: 0;
+            color: #555;
+        }
+
+        /* مؤشر الكعبة الذي يتبع المؤشر */
+        .kaaba-cursor {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            pointer-events: none;
+            transition: transform 0.1s, opacity 0.1s;
+            z-index: 1000;
+            opacity: 0.9;
+        }
+
+        /* منطقة اللعبة الرئيسية */
+        .game-area {
+            background-color: #ffffff;
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border: 3px solid #FFECB3;
+            flex-grow: 1; /* للسماح لمنطقة اللعب بالتمدد */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .game-canvas {
+            border: 2px solid #FFD700;
+            border-radius: 15px;
+            background-color: #fcfcfc;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+            width: 100%; /* اجعل الكانفاس يتجاوب مع العرض */
+            max-width: 700px; /* حد أقصى للعرض */
+            height: 450px; /* ارتفاع ثابت أو نسبة مئوية */
+            display: block;
+            margin-bottom: 20px;
+        }
+
+        .game-instructions {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #E65100;
+            margin-bottom: 20px;
+            min-height: 30px; /* لتجنب اهتزاز التخطيط */
+        }
+
+        .game-feedback {
+            font-size: 1.2em;
+            color: #2e7d32;
+            font-weight: bold;
+            margin-top: 15px;
+            min-height: 25px;
+        }
+
+        .game-controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            position: relative; /* ليعمل z-index */
+            z-index: 101; /* أعلى من الأزرار نفسها لضمان التفاعل */
+        }
+
+        .action-button {
+            background-color: #FFC107;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            transition: all 0.2s ease-in-out;
+            min-width: 120px;
+            /* z-index: 100;  تم نقل z-index إلى game-controls */
+        }
+
+        .action-button:hover {
+            background-color: #FFA000;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        .action-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* تذييل الصفحة (Footer) */
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 25px;
+            color: #777;
+            font-size: 1em;
+            background-color: #fffaf0;
+            border-top: 3px solid #FFECB3;
+            border-radius: 15px 15px 0 0;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
+        }
+
+        /* التجاوبية (Responsive Design) */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.8em;
+            }
+            header p {
+                font-size: 1.1em;
+            }
+            .game-area {
+                padding: 20px;
+            }
+            .game-canvas {
+                height: 300px; /* ارتفاع أقل على الجوال */
+            }
+            .game-instructions {
+                font-size: 1.1em;
+            }
+            .action-button {
+                padding: 10px 20px;
+                font-size: 1em;
+                min-width: 100px;
+            }
+            .kaaba-cursor {
+                width: 40px;
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- الخلفية المتحركة: دوائر متمركزة خفيفة تحاكي الطواف -->
+    <div class="animated-background"></div>
+
+    <!-- مؤشر الكعبة الذي يتبع المؤشر -->
+    <img id="kaabaCursor" class="kaaba-cursor hidden" src="../../images/New folder (4)/Untitled-1.png" alt="الكعبة">
+
+    <div class="container">
+        <header>
+            <h1>محاكي رحلة الحج: خطوة بخطوة</h1>
+            <p>ابدأ رحلتك الإيمانية العظيمة الآن!</p>
+        </header>
+
+        <div class="game-area">
+            <canvas id="hajjCanvas" class="game-canvas"></canvas>
+            <p class="game-instructions" id="gameInstructions">مرحباً بك في محاكي الحج! اضغط "ابدأ الرحلة" لبدء المناسك.</p>
+            <p class="game-feedback" id="gameFeedback"></p>
+            <div class="game-controls" id="gameControls">
+                <!-- تم إزالة onclick مباشر للتصحيح -->
+                <button class="action-button" id="startButton">ابدأ الرحلة ✨</button>
+                <button class="action-button hidden" id="nextButton">المنسك التالي ➡️</button>
+                <button class="action-button hidden" id="actionButton">أداء المنسك</button>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2024 رحلة الإسلام | محاكي الحج</p>
+        </footer>
+    </div>
+
+    <script>
+        console.log("Script loaded and DOMContentLoaded listener will be attached."); // Debug log at script load
+
+        // مؤشر الكعبة الذي يتبع المؤشر
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("DOMContentLoaded fired. Initializing game elements."); // Debug log inside DOMContentLoaded
+
+            const kaabaCursor = document.getElementById('kaabaCursor');
+            let mouseX = 0, mouseY = 0;
+            let cursorX = 0, cursorY = 0;
+            let visible = false;
+
+            const kaabaImages = [
+                'https://cdn-icons-png.flaticon.com/512/3233/3233515.png', // الكعبة
+                'https://cdn-icons-png.flaticon.com/512/3233/3233529.png', // خيمة عرفة
+                'https://cdn-icons-png.flaticon.com/512/3233/3233536.png'  // حجاج يطوفون
+            ];
+            let currentKaabaImageIndex = 0;
+
+            document.addEventListener('mousemove', function(e) {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+
+                if (!visible) {
+                    kaabaCursor.classList.remove('hidden');
+                    visible = true;
+                }
+            });
+
+            function animateCursor() {
+                cursorX += (mouseX - cursorX - (kaabaCursor.offsetWidth / 2)) / 10;
+                cursorY += (mouseY - cursorY - (kaabaCursor.offsetHeight / 2)) / 10;
+
+                kaabaCursor.style.left = cursorX + 'px';
+                kaabaCursor.style.top = cursorY + 'px';
+
+                requestAnimationFrame(animateCursor);
+            }
+
+            animateCursor();
+
+            kaabaCursor.addEventListener('click', function() {
+                currentKaabaImageIndex = (currentKaabaImageIndex + 1) % kaabaImages.length;
+                kaabaCursor.src = kaabaImages[currentKaabaImageIndex];
+            });
+
+            // منطق لعبة محاكي الحج
+            const canvas = document.getElementById('hajjCanvas');
+            const ctx = canvas.getContext('2d');
+            const instructionsElem = document.getElementById('gameInstructions');
+            const feedbackElem = document.getElementById('gameFeedback');
+            const startButton = document.getElementById('startButton');
+            const nextButton = document.getElementById('nextButton');
+            const actionButton = document.getElementById('actionButton');
+
+            let currentStage = 0;
+            let tawafCount = 0;
+            let saiCount = 0;
+            let jamaratCount = 0;
+            let animationFrameId;
+
+            // تعريف مصفوفة المراحل هنا (تم نقلها للأعلى لحل مشكلة ReferenceError)
+            const stages = [
+                {
+                    name: "الإحرام والنية",
+                    instructions: "ابدأ رحلتك بالحج. انوِ الدخول في النسك (الحج) وارتدِ ملابس الإحرام. ثم اضغط 'أداء المنسك'.",
+                    draw: drawIhramStage,
+                    actionText: "أداء الإحرام والنية",
+                    action: () => {
+                        feedbackElem.textContent = "أحسنت! نويت الإحرام ودخلت في النسك.";
+                        actionButton.disabled = true;
+                        nextButton.classList.remove('hidden');
+                    }
+                },
+                {
+                    name: "الطواف حول الكعبة",
+                    instructions: "ابدأ الطواف من الحجر الأسود. انقر 'أداء المنسك' لإكمال كل شوط. (7 أشواط)",
+                    draw: drawTawafStage,
+                    actionText: "طواف شوط",
+                    action: () => {
+                        tawafCount++;
+                        feedbackElem.textContent = `أكملت الشوط ${tawafCount} من 7.`;
+                        if (tawafCount === 7) {
+                            feedbackElem.textContent = "أكملت الطواف بنجاح! 🕋";
+                            actionButton.disabled = true;
+                            nextButton.classList.remove('hidden');
+                        }
+                    }
+                },
+                {
+                    name: "السعي بين الصفا والمروة",
+                    instructions: "ابدأ السعي من الصفا. انقر 'أداء المنسك' لإكمال كل شوط. (7 أشواط)",
+                    draw: drawSaiStage,
+                    actionText: "سعي شوط",
+                    action: () => {
+                        saiCount++;
+                        feedbackElem.textContent = `أكملت الشوط ${saiCount} من 7.`;
+                        if (saiCount === 7) {
+                            feedbackElem.textContent = "أكملت السعي بنجاح! 🎉";
+                            actionButton.disabled = true;
+                            nextButton.classList.remove('hidden');
+                        }
+                    }
+                },
+                {
+                    name: "الوقوف بعرفة",
+                    instructions: "يوم عرفة هو ركن الحج الأعظم. اقف وادعُ الله بقلب خاشع. انقر 'أداء المنسك' لتأكيد الوقوف.",
+                    draw: drawArafatStage,
+                    actionText: "الوقوف بعرفة والدعاء",
+                    action: () => {
+                        feedbackElem.textContent = "تقبل الله منك الوقوف والدعاء في عرفة. 🤲";
+                        actionButton.disabled = true;
+                        nextButton.classList.remove('hidden');
+                    }
+                },
+                {
+                    name: "رمي جمرة العقبة الكبرى",
+                    instructions: "ارمي 7 حصيات على جمرة العقبة الكبرى. انقر 'أداء المنسك' لكل حصاة.",
+                    draw: drawJamaratStage,
+                    actionText: "رمي حصاة",
+                    action: () => {
+                        jamaratCount++;
+                        feedbackElem.textContent = `رميت ${jamaratCount} حصاة من 7.`;
+                        if (jamaratCount === 7) {
+                            feedbackElem.textContent = "أتممت رمي جمرة العقبة الكبرى بنجاح! 🪨";
+                            actionButton.disabled = true;
+                            nextButton.classList.remove('hidden');
+                        }
+                    }
+                },
+                {
+                    name: "الحلق أو التقصير",
+                    instructions: "بعد رمي جمرة العقبة، احلق شعرك أو قصّره للتحلل الأصغر. انقر 'أداء المنسك'.",
+                    draw: drawHairStage,
+                    actionText: "الحلق/التقصير",
+                    action: () => {
+                        feedbackElem.textContent = "أتممت التحلل الأصغر. مبارك عليك! 💇";
+                        actionButton.disabled = true;
+                        nextButton.classList.remove('hidden');
+                    }
+                },
+                {
+                    name: "طواف الوداع",
+                    instructions: "أداء طواف الوداع هو آخر عهدك بالبيت الحرام. انقر 'أداء المنسك' لإكمال كل شوط. (7 أشواط)",
+                    draw: drawTawafStage, // إعادة استخدام مرحلة الطواف
+                    actionText: "طواف شوط",
+                    action: () => {
+                        tawafCount++; // نستخدم نفس العداد لكن نُعيد تعيينه
+                        feedbackElem.textContent = `أكملت الشوط ${tawafCount} من 7.`;
+                        if (tawafCount === 7) {
+                            feedbackElem.textContent = "أتممت طواف الوداع بنجاح! 🕋";
+                            actionButton.disabled = true;
+                            nextButton.classList.remove('hidden');
+                        }
+                    }
+                }
+            ];
+
+            // وظائف الرسم لكل مرحلة
+            function drawBackground() {
+                ctx.fillStyle = '#fcfcfc';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            function drawPilgrim(x, y, radius = 10, color = '#f2f2f2') { // لون الإحرام
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI * 2);
+                ctx.fillStyle = color;
+                ctx.fill();
+                ctx.closePath();
+            }
+
+            function drawKaaba(x, y, size = 100) {
+                const halfSize = size / 2;
+                ctx.fillStyle = '#333'; // لون الكعبة
+                ctx.fillRect(x - halfSize, y - halfSize, size, size);
+                ctx.strokeStyle = '#FFD700'; // خط ذهبي
+                ctx.lineWidth = 3;
+                ctx.strokeRect(x - halfSize, y - halfSize, size, size);
+
+                // إضافة تفاصيل بسيطة (باب ذهبي)
+                ctx.fillStyle = '#FFD700';
+                ctx.fillRect(x - (size * 0.15), y - halfSize, size * 0.3, size * 0.4);
+            }
+
+            function drawIhramStage() {
+                drawBackground();
+                instructionsElem.textContent = stages[currentStage].instructions;
+                actionButton.textContent = stages[currentStage].actionText;
+                actionButton.disabled = false;
+                nextButton.classList.add('hidden');
+
+                ctx.font = '20px Tajawal';
+                ctx.fillStyle = '#555';
+                ctx.textAlign = 'center'; // Align text to center for consistent positioning
+                ctx.fillText('الميقات', canvas.width / 2, canvas.height / 2 - 50);
+                drawPilgrim(canvas.width / 2, canvas.height / 2 + 20, 20); // شخصية بملابس الإحرام (لون أبيض/فاتح)
+                ctx.fillText('ارتداء الإحرام والنية', canvas.width / 2, canvas.height / 2 + 60);
+                ctx.textAlign = 'start'; // Reset for other drawings
+            }
+
+            function drawTawafStage() {
+                drawBackground();
+                instructionsElem.textContent = stages[currentStage].instructions;
+                actionButton.textContent = stages[currentStage].actionText + ` (${tawafCount + 1}/7)`;
+                actionButton.disabled = false;
+                nextButton.classList.add('hidden');
+
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                const radius = Math.min(canvas.width, canvas.height) / 2.5; // Make radius responsive
+
+                // رسم الكعبة في المنتصف
+                drawKaaba(centerX, centerY, Math.min(canvas.width, canvas.height) / 5); // Make Kaaba size responsive
+
+                // رسم مسار الطواف (دائرة خفيفة)
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                ctx.strokeStyle = '#FFD700';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]); // خط متقطع
+                ctx.stroke();
+                ctx.setLineDash([]); // إعادة الخط العادي
+
+                // رسم الحجر الأسود (نقطة بداية الطواف)
+                ctx.beginPath();
+                ctx.arc(centerX + radius, centerY, 8, 0, Math.PI * 2);
+                ctx.fillStyle = 'black';
+                ctx.fill();
+                ctx.closePath();
+                ctx.font = '14px IBM Plex Sans Arabic';
+                ctx.fillStyle = '#333';
+                ctx.textAlign = 'right'; // Align text to right for consistent positioning
+                ctx.fillText('الحجر الأسود', centerX + radius - 10, centerY + 25);
+                ctx.textAlign = 'start'; // Reset for other drawings
+
+                // رسم الحاج (الحركة ستكون رمزية بالنقر)
+                const angle = (tawafCount % 7) * (Math.PI * 2 / 7) - Math.PI / 2; // زاوية الحاج
+                const pilgrimX = centerX + radius * Math.cos(angle);
+                const pilgrimY = centerY + radius * Math.sin(angle);
+                drawPilgrim(pilgrimX, pilgrimY, 15); // شخصية الحاج
+            }
+
+            function drawSaiStage() {
+                drawBackground();
+                instructionsElem.textContent = stages[currentStage].instructions;
+                actionButton.textContent = stages[currentStage].actionText + ` (${saiCount + 1}/7)`;
+                actionButton.disabled = false;
+                nextButton.classList.add('hidden');
+
+                const startX = canvas.width / 4;
+                const endX = canvas.width * 3 / 4;
+                const centerY = canvas.height / 2;
+                const mountainHeight = Math.min(canvas.width, canvas.height) / 4;
+
+                // رسم الصفا والمروة
+                ctx.fillStyle = '#8B4513'; // لون بني
+                ctx.fillRect(startX - 20, centerY - mountainHeight / 2, 40, mountainHeight); // الصفا
+                ctx.fillRect(endX - 20, centerY - mountainHeight / 2, 40, mountainHeight); // المروة
+
+                ctx.font = '18px Tajawal';
+                ctx.fillStyle = '#333';
+                ctx.textAlign = 'center';
+                ctx.fillText('الصفا', startX, centerY - mountainHeight / 2 - 10);
+                ctx.fillText('المروة', endX, centerY - mountainHeight / 2 - 10);
+
+                // رسم مسار السعي
+                ctx.beginPath();
+                ctx.moveTo(startX, centerY);
+                ctx.lineTo(endX, centerY);
+                ctx.strokeStyle = '#689F38'; // لون أخضر للمسار
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                // منطقة الهرولة (رمزية)
+                const herwalaWidth = (endX - startX) * 0.4;
+                ctx.fillStyle = 'rgba(144, 238, 144, 0.3)'; // أخضر فاتح شفاف
+                ctx.fillRect(startX + (endX - startX - herwalaWidth) / 2, centerY - 20, herwalaWidth, 40);
+                ctx.fillText('منطقة الهرولة', canvas.width / 2, centerY + 50);
+                ctx.textAlign = 'start'; // Reset
+
+                // رسم الحاج (الحركة ستكون رمزية بالنقر)
+                const pilgrimX = (saiCount % 2 === 0) ? startX + 50 : endX - 50; // يبدأ من الصفا
+                drawPilgrim(pilgrimX, centerY, 15);
+            }
+
+            function drawArafatStage() {
+                drawBackground();
+                instructionsElem.textContent = stages[currentStage].instructions;
+                actionButton.textContent = stages[currentStage].actionText;
+                actionButton.disabled = false;
+                nextButton.classList.add('hidden');
+
+                ctx.font = '24px Tajawal';
+                ctx.fillStyle = '#555';
+                ctx.textAlign = 'center';
+                ctx.fillText('جبل الرحمة', canvas.width / 2, canvas.height / 2 - 80);
+
+                // رسم جبل بسيط
+                const mountainBase = canvas.height * 0.8;
+                const mountainPeakX = canvas.width / 2;
+                const mountainPeakY = canvas.height / 2 - 50;
+                const mountainWidth = canvas.width * 0.6;
+
+                ctx.beginPath();
+                ctx.moveTo(mountainPeakX - mountainWidth / 2, mountainBase);
+                ctx.lineTo(mountainPeakX, mountainPeakY);
+                ctx.lineTo(mountainPeakX + mountainWidth / 2, mountainBase);
+                ctx.fillStyle = '#A9A9A9'; // لون رمادي للجبل
+                ctx.fill();
+                ctx.closePath();
+
+                // رسم الحجاج حول الجبل
+                drawPilgrim(canvas.width / 2 - 80, mountainBase - 50, 15);
+                drawPilgrim(canvas.width / 2 + 80, mountainBase - 70, 15);
+                drawPilgrim(canvas.width / 2, mountainBase - 100, 15);
+
+                ctx.font = '18px IBM Plex Sans Arabic';
+                ctx.fillStyle = '#333';
+                ctx.fillText('يوم الدعاء والوقوف', canvas.width / 2, mountainBase + 50);
+                ctx.textAlign = 'start'; // Reset
+            }
+
+            function drawJamaratStage() {
+                drawBackground();
+                instructionsElem.textContent = stages[currentStage].instructions;
+                actionButton.textContent = stages[currentStage].actionText + ` (${jamaratCount + 1}/7)`;
+                actionButton.disabled = false;
+                nextButton.classList.add('hidden');
+
+                const jamarahX = canvas.width / 2;
+                const jamarahY = canvas.height / 2;
+                const jamarahWidth = 40;
+                const jamarahHeight = 160;
+
+                // رسم الجمرة (عمود بسيط)
+                ctx.fillStyle = '#8B0000'; // أحمر داكن
+                ctx.fillRect(jamarahX - jamarahWidth / 2, jamarahY - jamarahHeight / 2, jamarahWidth, jamarahHeight);
+                ctx.strokeStyle = '#555';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(jamarahX - jamarahWidth / 2, jamarahY - jamarahHeight / 2, jamarahWidth, jamarahHeight);
+
+                ctx.font = '20px Tajawal';
+                ctx.fillStyle = '#333';
+                ctx.textAlign = 'center';
+                ctx.fillText('جمرة العقبة الكبرى', jamarahX, jamarahY - jamarahHeight / 2 - 20);
+
+                // رسم الحصى (رمزية)
+                for (let i = 0; i < jamaratCount; i++) {
+                    ctx.beginPath();
+                    ctx.arc(jamarahX + Math.random() * 30 - 15, jamarahY + Math.random() * 30 - 15 + (i * 5), 5, 0, Math.PI * 2);
+                    ctx.fillStyle = '#696969'; // رمادي للحصى
+                    ctx.fill();
+                    ctx.closePath();
+                }
+
+                drawPilgrim(jamarahX - 150, jamarahY + 50, 20); // الحاج يرمي
+                ctx.font = '16px IBM Plex Sans Arabic';
+                ctx.fillStyle = '#555';
+                ctx.fillText('ارمي الحصى', jamarahX - 190, jamarahY + 100);
+                ctx.textAlign = 'start'; // Reset
+            }
+
+            function drawHairStage() {
+                drawBackground();
+                instructionsElem.textContent = stages[currentStage].instructions;
+                actionButton.textContent = stages[currentStage].actionText;
+                actionButton.disabled = false;
+                nextButton.classList.add('hidden');
+
+                const pilgrimX = canvas.width / 2;
+                const pilgrimY = canvas.height / 2;
+
+                // رسم شخصية مبسطة
+                ctx.beginPath();
+                ctx.arc(pilgrimX, pilgrimY - 30, 30, 0, Math.PI * 2); // الرأس
+                ctx.fillStyle = '#f2f2f2';
+                ctx.fill();
+                ctx.closePath();
+
+                ctx.beginPath();
+                ctx.rect(pilgrimX - 40, pilgrimY, 80, 100); // الجسم
+                ctx.fillStyle = '#f2f2f2';
+                ctx.fill();
+                ctx.closePath();
+
+                // شعر (قبل الحلق)
+                ctx.beginPath();
+                ctx.arc(pilgrimX, pilgrimY - 55, 35, 0, Math.PI, true); // شكل شعر
+                ctx.fillStyle = '#8B4513'; // لون بني للشعر
+                ctx.fill();
+                ctx.closePath();
+
+                ctx.font = '20px Tajawal';
+                ctx.fillStyle = '#333';
+                ctx.textAlign = 'center';
+                ctx.fillText('الحلق أو التقصير', pilgrimX, pilgrimY + 150);
+                ctx.textAlign = 'start'; // Reset
+            }
+
+
+            // وظائف التحكم في اللعبة
+            function startGame() {
+                console.log("startGame() called. Hiding start button, showing game controls.");
+                startButton.classList.add('hidden');
+                nextButton.classList.remove('hidden');
+                actionButton.classList.remove('hidden');
+                currentStage = 0;
+                tawafCount = 0;
+                saiCount = 0;
+                jamaratCount = 0;
+                loadStage(currentStage);
+            }
+
+            function loadStage(stageIndex) {
+                console.log("loadStage() called for stage:", stageIndex);
+                if (stageIndex < stages.length) {
+                    currentStage = stageIndex;
+                    const stage = stages[currentStage];
+                    instructionsElem.textContent = stage.instructions;
+                    actionButton.textContent = stage.actionText;
+                    actionButton.disabled = false;
+                    nextButton.classList.add('hidden'); // إخفاء زر التالي حتى يتم الأداء
+                    feedbackElem.textContent = ''; // مسح أي رسائل سابقة
+
+                    // إعادة تعيين العدادات للمراحل التي تتطلب ذلك
+                    if (stage.name === "الطواف حول الكعبة" || stage.name === "طواف الوداع") {
+                        tawafCount = 0;
+                        actionButton.textContent = stage.actionText + ` (${tawafCount + 1}/7)`;
+                    } else if (stage.name === "السعي بين الصفا والمروة") {
+                        saiCount = 0;
+                        actionButton.textContent = stage.actionText + ` (${saiCount + 1}/7)`;
+                    } else if (stage.name === "رمي جمرة العقبة الكبرى") {
+                        jamaratCount = 0;
+                        actionButton.textContent = stage.actionText + ` (${jamaratCount + 1}/7)`;
+                    }
+
+                    drawCurrentStage(); // رسم المشهد الجديد
+                } else {
+                    // نهاية اللعبة
+                    instructionsElem.textContent = "تهانينا! لقد أتممت مناسك الحج بنجاح! حج مبرور وسعي مشكور وذنب مغفور! 🎉";
+                    feedbackElem.textContent = "نسأل الله أن يرزقنا وإياكم حج بيته الحرام.";
+                    feedbackElem.style.color = '#FF8F00';
+                    actionButton.classList.add('hidden');
+                    nextButton.classList.add('hidden');
+                    
+                    // إظهار زر إعادة التشغيل
+                    let restartButton = document.getElementById('restartButton');
+                    if (!restartButton) { // Create only if it doesn't exist
+                        restartButton = document.createElement('button');
+                        restartButton.id = 'restartButton';
+                        restartButton.classList.add('action-button');
+                        restartButton.textContent = 'ابدأ رحلة جديدة';
+                        restartButton.addEventListener('click', () => {
+                            // إعادة تعيين اللعبة بالكامل
+                            currentStage = 0;
+                            tawafCount = 0;
+                            saiCount = 0;
+                            jamaratCount = 0;
+                            loadStage(currentStage);
+                            restartButton.classList.add('hidden'); // إخفاء زر إعادة التشغيل
+                            startButton.classList.add('hidden'); // إخفاء زر البدء الأصلي
+                            actionButton.classList.remove('hidden'); // إظهار زر الأداء
+                            nextButton.classList.remove('hidden'); // إظهار زر التالي
+                            instructionsElem.textContent = stages[0].instructions; // إعادة التعليمات الأولية
+                            feedbackElem.textContent = ''; // مسح الرسائل
+                        });
+                        document.getElementById('gameControls').appendChild(restartButton);
+                    } else {
+                        restartButton.classList.remove('hidden');
+                    }
+                }
+            }
+
+            function drawCurrentStage() {
+                // التأكد من أن stages معرفة قبل الوصول إليها
+                if (typeof stages === 'undefined' || !stages[currentStage]) {
+                    console.error("Error: 'stages' array is not defined or currentStage is out of bounds.");
+                    return;
+                }
+                console.log("drawCurrentStage() called for stage:", stages[currentStage].name);
+                const stage = stages[currentStage];
+                if (stage && stage.draw) {
+                    stage.draw();
+                }
+            }
+
+            // إضافة مستمعي الأحداث بعد التأكد من وجود العناصر
+            if (startButton) {
+                startButton.addEventListener('click', function() { // استخدام function() لرسائل التصحيح
+                    console.log("Start button clicked via event listener!");
+                    startGame();
+                });
+            } else {
+                console.error("Error: Start button element not found!");
+            }
+
+            if (nextButton) {
+                nextButton.addEventListener('click', () => {
+                    console.log("Next button clicked!");
+                    loadStage(currentStage + 1);
+                });
+            } else {
+                console.error("Error: Next button element not found!");
+            }
+
+            if (actionButton) {
+                actionButton.addEventListener('click', () => {
+                    console.log("Action button clicked!");
+                    const stage = stages[currentStage];
+                    if (stage && stage.action) {
+                        stage.action();
+                        drawCurrentStage();
+                    }
+                });
+            } else {
+                console.error("Error: Action button element not found!");
+            }
+
+            // الرسم الأولي عند تحميل الصفحة
+            drawBackground();
+            // تأكد من أن زر البدء مرئي في البداية والباقي مخفي
+            if (startButton) startButton.classList.remove('hidden');
+            if (nextButton) nextButton.classList.add('hidden');
+            if (actionButton) actionButton.classList.add('hidden');
+        });
+    </script>
+</body>
+</html>

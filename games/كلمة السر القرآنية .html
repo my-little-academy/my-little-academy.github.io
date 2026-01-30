@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>كلمة السر القرآنية: سورة الأعلى</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        /* خصائص CSS مخصصة لتسهيل التعديل على الثيم */
+        :root {
+            --primary-bg: #e0f2f7; /* أزرق سماوي فاتح */
+            --card-bg: #f5f5f5; /* رمادي فاتح */
+            --header-color: #2c3e50; /* أزرق داكن */
+            --accent-color: #f39c12; /* برتقالي ذهبي */
+            --button-primary: #2ecc71; /* أخضر زمردي */
+            --button-hover: #27ae60;
+            --feedback-correct: #28a745; /* أخضر */
+            --feedback-wrong: #dc3545; /* أحمر */
+            --shadow-light: rgba(0, 0, 0, 0.1);
+            --shadow-medium: rgba(0, 0, 0, 0.2);
+            --border-radius: 10px;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(to bottom right, var(--primary-bg), #b3e0ff); /* خلفية متدرجة */
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--header-color);
+            direction: rtl; /* تعيين الاتجاه من اليمين لليسار لكامل الجسم */
+            text-align: right; /* محاذاة النص الافتراضية */
+            overflow-x: hidden; /* لمنع ظهور شريط التمرير الأفقي */
+        }
+
+        .game-container {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px var(--shadow-medium);
+            padding: 30px 40px;
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            overflow: hidden; /* لأي تأثيرات تتجاوز الحواف */
+        }
+
+        h1 {
+            font-family: 'Amiri', serif;
+            font-size: 3rem;
+            color: var(--header-color);
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 5px var(--shadow-light);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        .verse-display {
+            min-height: 80px;
+            border: 2px dashed #ccc;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            background-color: var(--card-bg);
+            margin-bottom: 20px;
+            box-shadow: inset 0 2px 5px var(--shadow-light);
+        }
+
+        .word-bank {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            padding: 20px;
+            background-color: #f0f8ff; /* AliceBlue */
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px var(--shadow-light);
+        }
+
+        /* نمط بطاقة الكلمة القابلة للسحب */
+        .word-card {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: grab; /* يشير إلى أنها قابلة للسحب */
+            font-size: 1.3rem;
+            font-weight: bold;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+            user-select: none; /* منع تحديد النص */
+            direction: rtl; /* التأكد من اتجاه النص الصحيح */
+        }
+
+        .word-card:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .word-card:active {
+            cursor: grabbing;
+            transform: scale(0.98);
+        }
+
+        /* العنصر النائب للكلمات المسحوبة */
+        .word-placeholder {
+            height: 50px; /* نفس ارتفاع بطاقة الكلمة للمحاذاة */
+            width: 100px; /* عرض أدنى للرؤية */
+            background-color: #e9ecef;
+            border: 1px dashed #adb5bd;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #6c757d;
+            font-size: 1rem;
+            padding: 5px 10px;
+            opacity: 0.7;
+            transition: all 0.2s;
+        }
+
+        /* نمط الكلمات عند وضعها في منطقة العرض */
+        .verse-display .word-card {
+            background-color: #4CAF50; /* لون أخضر للكلمات الموضوعة */
+            cursor: pointer; /* يمكن سحبها مرة أخرى */
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .action-button {
+            background-color: var(--button-primary);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-button:hover {
+            background-color: var(--button-hover);
+            transform: translateY(-2px);
+        }
+
+        .action-button:active {
+            transform: translateY(0);
+        }
+
+        .action-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .next-button {
+            background-color: #3498db; /* أزرق للزر التالي */
+        }
+        .next-button:hover {
+            background-color: #2980b9;
+        }
+
+        .reset-button {
+            background-color: #e74c3c; /* أحمر لزر إعادة التعيين */
+        }
+        .reset-button:hover {
+            background-color: #c0392b;
+        }
+
+        .feedback-message {
+            font-size: 1.4rem;
+            font-weight: bold;
+            min-height: 30px; /* لحجز مساحة */
+            margin-top: 25px;
+        }
+
+        .game-over-screen {
+            background-color: rgba(255, 255, 255, 0.95);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: var(--border-radius);
+            z-index: 10;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .game-over-screen h2 {
+            font-family: 'Amiri', serif;
+            font-size: 3.5rem;
+            color: var(--button-primary);
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 7px var(--shadow-medium);
+        }
+
+        .game-over-screen p {
+            font-size: 1.5rem;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        /* تأثيرات حركية (اختيارية لكنها تضيف جاذبية) */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideInUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .word-card, .action-button {
+            animation: slideInUp 0.5s ease-out backwards;
+        }
+        /* لتأخير ظهور الكلمات والأزرار بشكل متتالي */
+        .word-card:nth-child(2) { animation-delay: 0.1s; }
+        .word-card:nth-child(3) { animation-delay: 0.2s; }
+        .word-card:nth-child(4) { animation-delay: 0.3s; }
+        .word-card:nth-child(5) { animation-delay: 0.4s; }
+        .word-card:nth-child(6) { animation-delay: 0.5s; }
+        .word-card:nth-child(7) { animation-delay: 0.6s; }
+        /* يمكنك إضافة المزيد حسب عدد الكلمات في الآية الأطول */
+
+
+        /* التعديلات المتجاوبة للشاشات الأصغر */
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 20px 25px;
+            }
+            h1 {
+                font-size: 2.5rem;
+            }
+            .subtitle {
+                font-size: 1rem;
+            }
+            .word-card {
+                padding: 10px 15px;
+                font-size: 1.1rem;
+            }
+            .action-button {
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+            .game-over-screen h2 {
+                font-size: 2.5rem;
+            }
+            .game-over-screen p {
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            .game-container {
+                padding: 15px;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            .subtitle {
+                font-size: 0.9rem;
+            }
+            .word-card {
+                padding: 8px 12px;
+                font-size: 1rem;
+            }
+            .controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .action-button {
+                width: 100%;
+                justify-content: center;
+            }
+            .game-over-screen h2 {
+                font-size: 2rem;
+            }
+            .game-over-screen p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>كلمة السر القرآنية 📖</h1>
+        <p class="subtitle">رتب كلمات الآية الكريمة من سورة الأعلى</p>
+
+        <div class="verse-display" id="verse-display">
+            </div>
+
+        <div class="word-bank" id="word-bank">
+            </div>
+
+        <div class="controls">
+            <button id="check-btn" class="action-button">تحقق <i class="fas fa-check-circle"></i></button>
+            <button id="next-btn" class="action-button next-button" style="display: none;">الآية التالية <i class="fas fa-arrow-left"></i></button>
+            <button id="reset-btn" class="action-button reset-button">إعادة تعيين <i class="fas fa-redo"></i></button>
+        </div>
+
+        <div class="feedback-message" id="feedback-message"></div>
+
+        <div class="game-over-screen" id="game-over-screen" style="display: none;">
+            <h2>🎉 أحسنت! لقد أتممت السورة! 🎉</h2>
+            <p>بارك الله فيك يا بطل القرآن!</p>
+            <button class="action-button" id="play-again-btn">العب مرة أخرى <i class="fas fa-sync-alt"></i></button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // مصفوفة تحتوي على آيات سورة الأعلى مقسمة إلى كلمات
+            const verses = [
+                ["سَبِّحِ", "اسْمَ", "رَبِّكَ", "الْأَعْلَى"], // آية 1
+                ["الَّذِي", "خَلَقَ", "فَسَوَّىٰ"], // آية 2
+                ["وَالَّذِي", "قَدَّرَ", "فَهَدَىٰ"], // آية 3
+                ["وَالَّذِي", "أَخْرَجَ", "الْمَرْعَىٰ"], // آية 4
+                ["فَجَعَلَهُ", "غُثَاءً", "أَحْوَىٰ"], // آية 5
+                ["سَنُقْرِئُكَ", "فَلَا", "تَنسَىٰ"], // آية 6
+                ["إِلَّا", "مَا", "شَاءَ", "اللَّهُ", "إِنَّهُ", "يَعْلَمُ", "الْجَهْرَ", "وَمَا", "يَخْفَىٰ"], // آية 7
+                ["وَنُيَسِّرُكَ", "لِلْيُسْرَىٰ"], // آية 8
+                ["فَذَكِّرْ", "إِن", "نَّفَعَتِ", "الذِّكْرَىٰ"], // آية 9
+                ["سَيَذَّكَّرُ", "مَن", "يَخْشَىٰ"], // آية 10
+                ["وَيَتَجَنَّبُهَا", "الْأَشْقَى"], // آية 11
+                ["الَّذِي", "يَصْلَى", "النَّارَ", "الْكُبْرَىٰ"], // آية 12
+                ["ثُمَّ", "لَا", "يَمُوتُ", "فِيهَا", "وَلَا", "يَحْيَىٰ"], // آية 13
+                ["قَدْ", "أَفْلَحَ", "مَن", "تَزَكَّىٰ"], // آية 14
+                ["وَذَكَرَ", "اسْمَ", "رَبِّهِ", "فَصَلَّىٰ"], // آية 15
+                ["بَلْ", "تُؤْثِرُونَ", "الْحَيَاةَ", "الدُّنْيَا"], // آية 16
+                ["وَالْآخِرَةُ", "خَيْرٌ", "وَأَبْقَىٰ"], // آية 17
+                ["إِنَّ", "هَـٰذَا", "لَفِي", "الصُّحُفِ", "الْأُولَىٰ"], // آية 18
+                ["صُحُفِ", "إِبْرَاهِيمَ", "وَمُوسَىٰ"] // آية 19
+            ];
+
+            let currentVerseIndex = 0; // مؤشر الآية الحالية
+            let shuffledWords = []; // الكلمات المبعثرة للآية الحالية
+            // مصفوفة لتتبع الكلمات الموضوعة في "verse-display"، مع الحفاظ على الترتيب والربط بالعنصر DOM
+            let placedWords = [];
+
+            // جلب عناصر DOM
+            const verseDisplay = document.getElementById('verse-display');
+            const wordBank = document.getElementById('word-bank');
+            const checkBtn = document.getElementById('check-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const feedbackMessage = document.getElementById('feedback-message');
+            const gameOverScreen = document.getElementById('game-over-screen');
+            const playAgainBtn = document.getElementById('play-again-btn');
+
+            let draggedItem = null; // العنصر الذي يتم سحبه حاليًا
+
+            // دالة مساعدة لبعثرة مصفوفة (خلط الكلمات)
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+
+            // تحميل آية جديدة للعب
+            function loadVerse(index) {
+                // إذا تم الانتهاء من جميع الآيات، اعرض شاشة نهاية اللعبة
+                if (index >= verses.length) {
+                    showGameOverScreen();
+                    return;
+                }
+
+                currentVerseIndex = index;
+                const currentVerseWords = verses[currentVerseIndex];
+                shuffledWords = shuffleArray([...currentVerseWords]); // عمل نسخة مبعثرة من كلمات الآية
+                // تهيئة مصفوفة الكلمات الموضوعة بعناصر null بعدد كلمات الآية
+                placedWords = Array(currentVerseWords.length).fill(null);
+
+                // تفريغ المحتوى السابق وإعداد الأزرار
+                verseDisplay.innerHTML = '';
+                wordBank.innerHTML = '';
+                feedbackMessage.textContent = '';
+                nextBtn.style.display = 'none';
+                checkBtn.style.display = 'inline-flex';
+                resetBtn.style.display = 'inline-flex';
+
+                // إنشاء عناصر نائبة (placeholders) في منطقة `verse-display`
+                for (let i = 0; i < currentVerseWords.length; i++) {
+                    const placeholder = document.createElement('div');
+                    placeholder.classList.add('word-placeholder');
+                    placeholder.textContent = `كلمة ${i + 1}`; // نص توضيحي
+                    placeholder.dataset.index = i; // تخزين الفهرس الصحيح
+                    verseDisplay.appendChild(placeholder);
+                }
+
+                // إنشاء بطاقات الكلمات القابلة للسحب في `word-bank`
+                shuffledWords.forEach((word) => {
+                    const wordCard = document.createElement('div');
+                    wordCard.classList.add('word-card');
+                    wordCard.textContent = word;
+                    wordCard.setAttribute('draggable', 'true'); // جعل العنصر قابل للسحب
+                    wordCard.dataset.originalText = word; // تخزين النص الأصلي للمقارنة
+                    wordBank.appendChild(wordCard);
+                });
+
+                // إضافة مستمعي أحداث السحب والإفلات
+                addDragAndDropListeners();
+            }
+
+            // دالة لإضافة مستمعي أحداث السحب والإفلات
+            function addDragAndDropListeners() {
+                const wordCards = document.querySelectorAll('.word-card');
+                const placeholders = document.querySelectorAll('.word-placeholder');
+
+                // أحداث السحب للكلمات
+                wordCards.forEach(card => {
+                    card.addEventListener('dragstart', (e) => {
+                        draggedItem = e.target;
+                        // إضافة تأخير بسيط لإخفاء العنصر الذي يتم سحبه
+                        setTimeout(() => {
+                            e.target.style.opacity = '0.5';
+                        }, 0);
+                    });
+
+                    card.addEventListener('dragend', (e) => {
+                        e.target.style.opacity = '1';
+                        draggedItem = null;
+                    });
+                });
+
+                // أحداث الإفلات للعناصر النائبة في `verse-display`
+                placeholders.forEach(placeholder => {
+                    placeholder.addEventListener('dragover', (e) => {
+                        e.preventDefault(); // السماح بالإفلات
+                    });
+
+                    placeholder.addEventListener('dragenter', (e) => {
+                        e.preventDefault();
+                        // تمييز العنصر النائب عند دخول العنصر المسحوب فوقه
+                        if (e.target.classList.contains('word-placeholder')) {
+                            e.target.style.backgroundColor = '#d0d8e0';
+                        }
+                    });
+
+                    placeholder.addEventListener('dragleave', (e) => {
+                        // إزالة التمييز عند مغادرة العنصر المسحوب
+                        if (e.target.classList.contains('word-placeholder')) {
+                            e.target.style.backgroundColor = '';
+                        }
+                    });
+
+                    placeholder.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        if (draggedItem && e.target.classList.contains('word-placeholder')) {
+                            const targetPlaceholder = e.target;
+                            const placeholderIndex = parseInt(targetPlaceholder.dataset.index);
+
+                            // إذا كان هناك كلمة موجودة مسبقًا في هذا العنصر النائب، أعدها إلى `word-bank`
+                            if (placedWords[placeholderIndex] !== null) {
+                                const existingWordCard = placedWords[placeholderIndex];
+                                wordBank.appendChild(existingWordCard);
+                                existingWordCard.style.cursor = 'grab'; // إعادة المؤشر إلى "grab"
+                            }
+
+                            // ضع الكلمة الجديدة في العنصر النائب المستهدف
+                            targetPlaceholder.replaceWith(draggedItem); // استبدال العنصر النائب بالكلمة
+                            placedWords[placeholderIndex] = draggedItem; // تحديث مصفوفة الكلمات الموضوعة
+                            draggedItem.style.opacity = '1'; // إعادة الشفافية
+                            draggedItem.style.cursor = 'pointer'; // تغيير المؤشر ليصبح قابلًا للنقر لإعادته
+                            draggedItem.setAttribute('draggable', 'true'); // التأكد من إبقائه draggable لإمكانية السحب منه لاحقًا
+                            draggedItem.classList.add('in-verse-display'); // إضافة فئة لتتبع موقعه
+
+                            // إزالة التمييز
+                            targetPlaceholder.style.backgroundColor = '';
+                        }
+                    });
+                });
+
+                // السماح بنقل الكلمات من `verse-display` إلى `word-bank` بالنقر عليها
+                verseDisplay.addEventListener('click', (e) => {
+                    // تحقق إذا كان العنصر الذي تم النقر عليه هو بطاقة كلمة وموجود داخل verse-display
+                    if (e.target.classList.contains('word-card') && e.target.closest('#verse-display')) {
+                        const clickedWordCard = e.target;
+                        // ابحث عن فهرس الكلمة في مصفوفة placedWords
+                        const indexInPlacedWords = placedWords.findIndex(card => card === clickedWordCard);
+
+                        if (indexInPlacedWords !== -1) {
+                            placedWords[indexInPlacedWords] = null; // إزالة الكلمة من المصفوفة
+                            wordBank.appendChild(clickedWordCard); // إعادة الكلمة إلى word-bank
+                            clickedWordCard.style.cursor = 'grab'; // تغيير المؤشر إلى "grab"
+                            clickedWordCard.classList.remove('in-verse-display'); // إزالة فئة الموقع
+
+                            // إعادة إنشاء عنصر نائب في المكان الذي كانت فيه الكلمة
+                            repopulateVerseDisplayPlaceholders();
+                        }
+                    }
+                });
+
+                // دالة مساعدة لإعادة ملء العناصر النائبة بعد نقل كلمة يدوياً
+                function repopulateVerseDisplayPlaceholders() {
+                    verseDisplay.innerHTML = ''; // تفريغ المحتوى
+                    const currentVerseWordsCount = verses[currentVerseIndex].length;
+                    for (let i = 0; i < currentVerseWordsCount; i++) {
+                        if (placedWords[i]) {
+                            // إذا كان هناك كلمة في هذا الفهرس، ضعها
+                            verseDisplay.appendChild(placedWords[i]);
+                        } else {
+                            // وإلا، ضع عنصر نائب
+                            const placeholder = document.createElement('div');
+                            placeholder.classList.add('word-placeholder');
+                            placeholder.textContent = `كلمة ${i + 1}`;
+                            placeholder.dataset.index = i;
+                            verseDisplay.appendChild(placeholder);
+                        }
+                    }
+                    // إعادة إضافة مستمعي الأحداث للعناصر النائبة الجديدة
+                    addDragAndDropListeners();
+                }
+
+
+                // السماح بإفلات الكلمات مرة أخرى في `word-bank`
+                wordBank.addEventListener('dragover', (e) => {
+                    e.preventDefault(); // السماح بالإفلات
+                });
+
+                wordBank.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    // تحقق ما إذا كان العنصر المسحوب يأتي من `verse-display`
+                    if (draggedItem && draggedItem.classList.contains('in-verse-display')) {
+                        const movedWordText = draggedItem.textContent;
+                        // إزالة الكلمة من `placedWords` إذا كانت موجودة
+                        const indexInPlacedWords = placedWords.findIndex(card => card && card.textContent === movedWordText);
+                        if (indexInPlacedWords !== -1) {
+                            placedWords[indexInPlacedWords] = null;
+                        }
+
+                        wordBank.appendChild(draggedItem); // إعادة الكلمة إلى `word-bank`
+                        draggedItem.style.opacity = '1';
+                        draggedItem.style.cursor = 'grab'; // إعادة المؤشر
+                        draggedItem.classList.remove('in-verse-display'); // إزالة فئة الموقع
+
+                        // إعادة إنشاء عنصر نائب في المكان الذي كانت فيه الكلمة في `verse-display`
+                        repopulateVerseDisplayPlaceholders();
+                    }
+                });
+            }
+
+            // دالة للتحقق من ترتيب الكلمات
+            function checkOrder() {
+                const currentVerseWords = verses[currentVerseIndex];
+                let userOrderedWords = [];
+
+                // جمع الكلمات المرتبة من `verse-display` مع الحفاظ على ترتيبها
+                // iterating through `verseDisplay.children` directly to get the current visual order
+                const verseChildren = Array.from(verseDisplay.children);
+                userOrderedWords = verseChildren.filter(child => child.classList.contains('word-card'))
+                                                .map(card => card.textContent);
+
+                // مقارنة مع الآية الصحيحة
+                let isCorrect = true;
+                if (userOrderedWords.length !== currentVerseWords.length) {
+                    isCorrect = false;
+                } else {
+                    for (let i = 0; i < currentVerseWords.length; i++) {
+                        if (userOrderedWords[i] !== currentVerseWords[i]) {
+                            isCorrect = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (isCorrect) {
+                    feedbackMessage.textContent = 'أحسنت! الإجابة صحيحة! 🎉';
+                    feedbackMessage.style.color = varToCss('feedback-correct');
+                    checkBtn.style.display = 'none';
+                    resetBtn.style.display = 'none';
+                    nextBtn.style.display = 'inline-flex';
+                    // تعطيل التفاعل بعد الإجابة الصحيحة
+                    disableInteractions();
+                } else {
+                    feedbackMessage.textContent = 'للأسف، الإجابة غير صحيحة. حاول مرة أخرى.';
+                    feedbackMessage.style.color = varToCss('feedback-wrong');
+                }
+            }
+
+            // دالة لتعطيل جميع تفاعلات السحب والإفلات
+            function disableInteractions() {
+                document.querySelectorAll('.word-card').forEach(card => {
+                    card.setAttribute('draggable', 'false');
+                    card.style.cursor = 'default';
+                });
+                document.querySelectorAll('.word-placeholder').forEach(ph => {
+                    // إزالة جميع مستمعي الأحداث لضمان التعطيل الكامل
+                    const newPh = ph.cloneNode(true);
+                    ph.parentNode.replaceChild(newPh, ph);
+                });
+                // إزالة مستمعي الأحداث من مناطق السحب
+                // (هذه الطريقة فعالة في التعطيل ولكنها تتطلب إعادة تعيين المتغيرات المرتبطة بالـ DOM عند إعادة التفعيل)
+                const newVerseDisplay = verseDisplay.cloneNode(true);
+                verseDisplay.parentNode.replaceChild(newVerseDisplay, verseDisplay);
+                // تحديث مرجع verseDisplay بعد الاستنساخ
+                verseDisplay = document.getElementById('verse-display'); // يجب تحديث المرجع بعد استبدال العنصر
+                
+                const newWordBank = wordBank.cloneNode(true);
+                wordBank.parentNode.replaceChild(newWordBank, wordBank);
+                // تحديث مرجع wordBank
+                wordBank = document.getElementById('word-bank'); // يجب تحديث المرجع بعد استبدال العنصر
+            }
+
+
+            // دالة لإعادة تعيين الآية الحالية
+            function resetVerse() {
+                loadVerse(currentVerseIndex); // ببساطة قم بإعادة تحميل الآية الحالية
+            }
+
+            // عرض شاشة نهاية اللعبة
+            function showGameOverScreen() {
+                gameOverScreen.style.display = 'flex';
+                checkBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+                resetBtn.style.display = 'none';
+                feedbackMessage.textContent = '';
+                // يمكنك إضافة مؤثرات احتفالية هنا (مثل قصاصات الورق)
+            }
+
+            // دالة مساعدة للحصول على قيمة متغير CSS
+            function varToCss(varName) {
+                return getComputedStyle(document.documentElement).getPropertyValue(`--${varName}`);
+            }
+
+            // مستمعو أحداث الأزرار الرئيسية
+            checkBtn.addEventListener('click', checkOrder);
+            nextBtn.addEventListener('click', () => loadVerse(currentVerseIndex + 1));
+            resetBtn.addEventListener('click', resetVerse);
+            playAgainBtn.addEventListener('click', () => {
+                gameOverScreen.style.display = 'none';
+                loadVerse(0); // ابدأ من الآية الأولى
+            });
+
+            // التحميل الأولي للعبة عند فتح الصفحة
+            loadVerse(0);
+        });
+    </script>
+</body>
+</html>

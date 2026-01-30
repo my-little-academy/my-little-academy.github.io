@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لعبة زهرة الأرقام</title>
+  <style>
+    body {
+      background-color: #fff0f5;
+      text-align: center;
+      font-family: 'Arial', sans-serif;
+    }
+    h1 {
+      color: #d81b60;
+    }
+    #flower {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      margin: 0 auto;
+    }
+    .petal {
+      width: 120px;
+      height: 90px;
+      background-color: lightgray;
+      border-radius: 50px 50px 0 0;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform-origin: bottom center;
+      cursor: pointer;
+      transition: background-color 0.3s, top 1s ease;
+    }
+    .center {
+      width: 220px;
+      height: 220px;
+      background-color: gold;
+      border-radius: 50%;
+      position: absolute;
+      top: -15px;
+      left: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      font-weight: bold;
+      box-shadow: 0 0 20px #ffd700;
+    }
+    .fall {
+      top: 350px !important;
+    }
+    #btnNext {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: #ff4081;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+  </style>
+  <link href="css/bootstrap-4.4.1.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+  <div class="container">
+    <div class="container"></div>
+  </div>
+
+  <h1>🌸 لعبة زهرة الأرقام 🌸</h1>
+  <p>انقر على عدد البتلات المناسب للرقم الظاهر في قلب الزهرة!</p>
+<div id="flower">
+  <div class="center" id="center">1</div>
+<!-- 9 بتلات -->
+    <div class="petal" style="transform: rotate(0deg) translate(-50%, -120px);" onclick="colorPetal(this)"></div>
+    <div class="petal" style="transform: rotate(40deg) translate(-50%, -120px);" onclick="colorPetal(this)"></div>
+    <div class="petal" style="transform: rotate(80deg) translate(-50%, -120px);" onclick="colorPetal(this)"></div>
+    <div class="petal" style="transform: rotate(120deg) translate(-50%, -120px);" onclick="colorPetal(this)"></div>
+    <div class="petal" style="transform: rotate(160deg) translate(-50%, -120px);" onclick="colorPetal(this)"></div>
+    <div class="petal" style="transform: rotate(200deg) translate(-50%, -120px);" onclick="colorPetal(this)"></div>
+    <div class="petal" style="transform: rotate(240deg) translate(-50%, -120px);" onclick="colorPetal(this)"></div>
+    <div class="petal" style="transform: rotate(280deg) translate(-50%, -120px);" onclick="colorPetal(this)"></div>
+    <div class="petal" style="transform: rotate(320deg) translate(-50%, -120px);" onclick="colorPetal(this)"></div>
+</div>
+
+  <button id="btnNext" onclick="nextRound()">🔄 جولة جديدة</button>
+
+  <script>
+    let currentNumber = 1;
+    let coloredCount = 0;
+    let maxPetals = 9;
+
+    function setNumber(n) {
+      currentNumber = n;
+      document.getElementById("center").textContent = n;
+      coloredCount = 0;
+
+      document.querySelectorAll(".petal").forEach(p => {
+        p.style.backgroundColor = "lightgray";
+        p.classList.remove("fall");
+        p.onclick = () => colorPetal(p);
+      });
+    }
+
+    function colorPetal(petal) {
+      if (petal.style.backgroundColor !== "lightgray") return;
+
+      petal.style.backgroundColor = "pink";
+      coloredCount++;
+
+      if (coloredCount === currentNumber) {
+        // النجاح
+        document.querySelectorAll(".petal").forEach(p => {
+          p.onclick = null; // منع التكرار
+        });
+      } else if (coloredCount > currentNumber) {
+        // خطأ - تساقط البتلات الزائدة
+        document.querySelectorAll(".petal").forEach((p, i) => {
+          if (p.style.backgroundColor === "pink" && i >= currentNumber) {
+            setTimeout(() => p.classList.add("fall"), 300);
+          }
+        });
+        document.querySelectorAll(".petal").forEach(p => {
+          p.onclick = null; // منع النقر بعد الخطأ
+        });
+      }
+    }
+
+    function nextRound() {
+      const newNumber = Math.floor(Math.random() * maxPetals) + 1;
+      setNumber(newNumber);
+    }
+
+    // بدء اللعبة
+
+    setNumber(currentNumber);
+  </script>
+
+</body>
+</html>

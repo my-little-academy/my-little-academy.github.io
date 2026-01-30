@@ -1,0 +1,848 @@
+<!doctype html>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لغز الكلمات: كلمات متقاطعة في العقيدة</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-crossword: #00796B; /* أخضر غامق (تركوازي) */
+            --secondary-crossword: #80CBC4; /* أخضر فاتح للمربعات النشطة */
+            --background-crossword: #E0F2F7; /* أزرق سماوي فاتح جداً */
+            --cell-border: #4DB6AC; /* لون حدود المربعات */
+            --text-color: #37474F; /* رمادي أزرق غامق للنصوص */
+            --filled-cell-bg: #E8F5E9; /* أخضر فاتح جداً للمربعات المملوءة */
+            --shadow-crossword: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, var(--background-crossword) 0%, #B2DFDB 100%); /* تدرج أخضر/أزرق مريح */
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .container {
+            width: 98%;
+            max-width: 1200px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: var(--shadow-crossword);
+            text-align: center;
+            animation: fadeInScale 1s ease-out;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Header */
+        h1 {
+            font-size: 3.5rem;
+            color: var(--primary-crossword);
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
+            animation: bounceInDown 1s ease-out;
+        }
+
+        .game-description-text {
+            font-size: 1.5rem;
+            color: #546E7A;
+            margin-bottom: 30px;
+            line-height: 1.7;
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        /* Game Layout */
+        .game-layout {
+            display: flex;
+            flex-direction: row;
+            gap: 40px;
+            justify-content: center;
+            align-items: flex-start;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+        }
+
+        /* Crossword Grid Area */
+        .crossword-grid-container {
+            flex: 1;
+            min-width: 400px;
+            max-width: 500px;
+            background-color: #F5F5F5;
+            border: 3px solid var(--primary-crossword);
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            animation: zoomIn 1s ease-out 0.5s;
+        }
+
+        .crossword-grid {
+            display: grid;
+            grid-template-columns: repeat(var(--grid-cols), 1fr);
+            gap: 2px;
+        }
+
+        .cell {
+            width: 40px; /* Adjust cell size as needed */
+            height: 40px;
+            background-color: white;
+            border: 1px solid var(--cell-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--text-color);
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            user-select: none; /* Prevent text selection */
+        }
+
+        .cell.empty {
+            background-color: #CFD8DC; /* لون للمربعات الفارغة (غير مستخدمة) */
+            cursor: default;
+            pointer-events: none; /* Make it unclickable */
+        }
+
+        .cell.active {
+            background-color: var(--secondary-crossword);
+            transform: scale(1.05);
+            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .cell.highlighted {
+            background-color: #B2EBF2; /* لون لتظليل الكلمة الكاملة */
+        }
+
+        .cell.correct {
+            background-color: #A5D6A7; /* أخضر فاتح جدًا للإجابة الصحيحة */
+        }
+
+        .cell.incorrect {
+            background-color: #EF9A9A; /* أحمر فاتح جدًا للإجابة الخاطئة */
+        }
+
+        .cell span.clue-number {
+            position: absolute;
+            top: 2px;
+            left: 3px;
+            font-size: 0.8em;
+            font-weight: normal;
+            color: #555;
+        }
+        
+        /* Clues Area */
+        .clues-area {
+            flex: 1;
+            min-width: 350px;
+            max-width: 600px;
+            background-color: #F8F8F8;
+            border: 2px solid #CFD8DC;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            text-align: right;
+        }
+
+        .clues-area h2 {
+            font-size: 2.2rem;
+            color: var(--primary-crossword);
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--secondary-crossword);
+            padding-bottom: 10px;
+        }
+
+        .clues-list {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+
+        .clues-list li {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: color 0.2s ease, background-color 0.2s ease;
+            padding: 8px 12px;
+            border-radius: 8px;
+            line-height: 1.5;
+        }
+
+        .clues-list li:hover {
+            color: var(--primary-crossword);
+            background-color: #E0F7FA;
+        }
+
+        .clues-list li.active-clue {
+            background-color: var(--secondary-crossword);
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Input and Control Area */
+        .input-control-area {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .answer-input-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .answer-input {
+            padding: 15px 20px;
+            font-size: 1.8rem;
+            border: 2px solid var(--primary-crossword);
+            border-radius: 12px;
+            width: 70%;
+            max-width: 400px;
+            text-align: center;
+            font-family: 'Tajawal', sans-serif;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .answer-input:focus {
+            border-color: var(--secondary-crossword);
+            box-shadow: 0 0 0 3px rgba(128, 203, 196, 0.5);
+        }
+
+        .action-button {
+            background-color: var(--primary-crossword);
+            color: white;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.6rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-button:hover {
+            background-color: #004D40; /* أغمق */
+            transform: translateY(-3px);
+        }
+        
+        .action-button.check-all {
+            background-color: #3F51B5; /* لون مختلف لزر التحقق الكلي */
+        }
+        .action-button.check-all:hover {
+            background-color: #303F9F;
+        }
+
+        .hint-button {
+            background-color: #FFC107; /* أصفر للتلميح */
+            color: var(--text-color);
+        }
+        .hint-button:hover {
+            background-color: #FFA000;
+        }
+
+        /* Feedback Area */
+        .feedback-area {
+            min-height: 50px;
+            margin-top: 20px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feedback-message {
+            animation: fadeIn 0.5s ease-out;
+        }
+        .feedback-message.correct { color: #4CAF50; }
+        .feedback-message.incorrect { color: #F44336; }
+
+        .hidden {
+            display: none;
+        }
+
+        /* End Screen */
+        .end-screen {
+            text-align: center;
+            animation: zoomIn 1s ease-out;
+        }
+
+        .end-screen h2 {
+            font-size: 3.5rem;
+            color: var(--primary-crossword);
+            margin-bottom: 25px;
+            text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
+            animation: tada 1s ease-out;
+        }
+
+        .end-screen p {
+            font-size: 1.8rem;
+            color: var(--text-color);
+            margin-bottom: 30px;
+        }
+
+        /* Animated Background Elements */
+        .animated-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-shape {
+            position: absolute;
+            background: rgba(0, 121, 107, 0.1); /* Transparent primary color */
+            border-radius: 50%;
+            animation: floatAndFade 20s infinite linear;
+            filter: blur(8px);
+        }
+
+        .bg-shape:nth-child(1) { width: 100px; height: 100px; top: 10%; left: -5%; animation-duration: 22s; }
+        .bg-shape:nth-child(2) { width: 80px; height: 80px; top: 70%; left: 10%; animation-duration: 18s; transform: rotate(30deg); }
+        .bg-shape:nth-child(3) { width: 120px; height: 120px; top: 20%; right: -5%; animation-duration: 25s; transform: rotate(-45deg); }
+        .bg-shape:nth-child(4) { width: 90px; height: 90px; top: 85%; right: 15%; animation-duration: 20s; }
+        .bg-shape:nth-child(5) { width: 70px; height: 70px; top: 5%; left: 40%; animation-duration: 23s; }
+
+        @keyframes floatAndFade {
+            0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0.3; }
+            50% { transform: translateY(-50px) translateX(20px) rotate(180deg); opacity: 0.5; }
+            100% { transform: translateY(0) translateX(0) rotate(360deg); opacity: 0.3; }
+        }
+
+        /* Top Home Button */
+        .top-home-button {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            background-color: var(--secondary-crossword);
+            color: var(--text-color);
+            padding: 10px 18px;
+            border-radius: 15px;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .top-home-button:hover {
+            background-color: #4DB6AC;
+            transform: translateY(-3px);
+        }
+
+        .top-home-button i {
+            font-size: 1.5rem;
+            color: var(--text-color);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .game-layout {
+                flex-direction: column;
+                align-items: center;
+                gap: 30px;
+            }
+            .crossword-grid-container, .clues-area {
+                min-width: unset;
+                width: 90%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.8rem; }
+            .game-description-text { font-size: 1.2rem; margin-bottom: 20px; }
+            .container { padding: 25px; border-radius: 20px; }
+            .cell { width: 35px; height: 35px; font-size: 1.5rem; }
+            .cell span.clue-number { font-size: 0.7em; }
+            .crossword-grid-container { padding: 10px; }
+            .clues-area { padding: 20px; }
+            .clues-area h2 { font-size: 1.8rem; margin-bottom: 15px; }
+            .clues-list li { font-size: 1.2rem; margin-bottom: 10px; padding: 6px 10px; }
+            .answer-input { padding: 12px 15px; font-size: 1.5rem; }
+            .action-button { padding: 12px 20px; font-size: 1.4rem; }
+            .feedback-area { font-size: 1.1rem; margin-top: 15px; }
+            .end-screen h2 { font-size: 2.8rem; }
+            .end-screen p { font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="animated-bg">
+        <div class="bg-shape"></div>
+        <div class="bg-shape"></div>
+        <div class="bg-shape"></div>
+        <div class="bg-shape"></div>
+        <div class="bg-shape"></div>
+    </div>
+
+    <a href="games_page.html" class="top-home-button animate__animated animate__bounceInRight">
+        <i class="fas fa-home"></i>
+        <span>العودة للألعاب</span>
+    </a>
+
+    <div class="container">
+        <h1 class="animate__animated animate__flipInX">لغز الكلمات: كلمات متقاطعة في العقيدة</h1>
+        <p class="game-description-text">
+            اختبر معلوماتك في العقيدة! أجب عن الأسئلة واملأ الفراغات في الكلمات المتقاطعة.
+        </p>
+
+        <div class="game-layout">
+            <div class="crossword-grid-container">
+                <div class="crossword-grid" id="crosswordGrid">
+                    </div>
+            </div>
+
+            <div class="clues-area">
+                <div id="cluesList">
+                    </div>
+
+                <div class="input-control-area">
+                    <div class="answer-input-group">
+                        <input type="text" id="answerInput" class="answer-input" placeholder="اكتب إجابتك هنا..." maxlength="15" dir="rtl" lang="ar">
+                        <button class="action-button" id="submitAnswerButton"><i class="fas fa-check"></i> تحقق</button>
+                    </div>
+                    <div class="feedback-area" id="feedbackArea">
+                        </div>
+                    <div class="navigation-buttons">
+                        <button class="action-button hint-button" id="hintButton"><i class="fas fa-lightbulb"></i> تلميح</button>
+                        <button class="action-button check-all" id="checkAllButton"><i class="fas fa-clipboard-check"></i> تحقق من الكل</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="end-screen" class="end-screen hidden">
+            <h2 class="animate__animated animate__tada">رائع! لقد أكملت اللغز!</h2>
+            <p class="animate__animated animate__fadeIn">أنت عبقري في العقيدة!</p>
+            <div class="navigation-buttons">
+                <button class="restart-button" id="restartButton"><i class="fas fa-redo"></i> ابدأ من جديد</button>
+                <a href="games_page.html" class="home-button-small"><i class="fas fa-gamepad"></i> العودة لقائمة الألعاب</a>
+            </div>
+        </div>
+    </div>
+
+    <audio id="selectAudio" src="select.mp3" preload="auto"></audio>
+    <audio id="typeAudio" src="type.mp3" preload="auto"></audio>
+    <audio id="correctAudio" src="correct_word.mp3" preload="auto"></audio>
+    <audio id="incorrectAudio" src="incorrect_word.mp3" preload="auto"></audio>
+    <audio id="puzzleCompleteAudio" src="puzzle_complete.mp3" preload="auto"></audio>
+    <audio id="hintAudio" src="hint_sound.mp3" preload="auto"></audio>
+
+    <script>
+        // Define the crossword puzzle structure
+        // Grid size: max row/col index + 1
+        // Each word: { clueNumber, direction, startRow, startCol, answer, clue }
+        const puzzleWords = [
+            { clueNumber: 1, direction: 'across', startRow: 0, startCol: 0, answer: "الله", clue: "خالق الكون ومدبره، وهو واحد لا شريك له." },
+            { clueNumber: 2, direction: 'down', startRow: 0, startCol: 0, answer: "آدم", clue: "أول البشر وأول الأنبياء عليه السلام." },
+            { clueNumber: 3, direction: 'across', startRow: 2, startCol: 1, answer: "قرآن", clue: "الكتاب المقدس الذي أنزل على نبينا محمد صلى الله عليه وسلم." },
+            { clueNumber: 4, direction: 'down', startRow: 0, startCol: 4, answer: "رسل", clue: "الذين أرسلهم الله لهداية الناس وتبليغ رسالته." },
+            { clueNumber: 5, direction: 'across', startRow: 4, startCol: 3, answer: "ملائكة", clue: "كائنات نورانية لا تعصي الله أمره." },
+            { clueNumber: 6, direction: 'down', startRow: 2, startCol: 3, answer: "قدر", clue: "الإيمان بأن كل شيء يحدث بعلم الله وإرادته." }
+        ];
+
+        let grid = [];
+        let gridRows = 0;
+        let gridCols = 0;
+        let activeCells = []; // Stores current active word cells
+        let activeClueId = null; // Stores the clue number of the active word
+        let cells = {}; // Map 'row-col' to cell element
+        let solvedWords = new Set(); // Stores solved word clueNumbers
+
+        const crosswordGridElem = document.getElementById('crosswordGrid');
+        const cluesListElem = document.getElementById('cluesList');
+        const answerInput = document.getElementById('answerInput');
+        const submitAnswerButton = document.getElementById('submitAnswerButton');
+        const hintButton = document.getElementById('hintButton');
+        const checkAllButton = document.getElementById('checkAllButton');
+        const feedbackArea = document.getElementById('feedbackArea');
+        const gameContainer = document.querySelector('.game-layout');
+        const endScreen = document.getElementById('end-screen');
+        const restartButton = document.getElementById('restartButton');
+
+        const selectAudio = document.getElementById('selectAudio');
+        const typeAudio = document.getElementById('typeAudio');
+        const correctAudio = document.getElementById('correct_word');
+        const incorrectAudio = document.getElementById('incorrect_word');
+        const puzzleCompleteAudio = document.getElementById('puzzle_complete');
+        const hintAudio = document.getElementById('hintAudio');
+
+        function initializeGrid() {
+            // Determine grid size
+            gridRows = 0;
+            gridCols = 0;
+            puzzleWords.forEach(word => {
+                if (word.direction === 'across') {
+                    gridRows = Math.max(gridRows, word.startRow + 1);
+                    gridCols = Math.max(gridCols, word.startCol + word.answer.length);
+                } else { // 'down'
+                    gridRows = Math.max(gridRows, word.startRow + word.answer.length);
+                    gridCols = Math.max(gridCols, word.startCol + 1);
+                }
+            });
+
+            // Add some padding to the grid
+            gridRows += 2; 
+            gridCols += 2;
+
+            grid = Array.from({ length: gridRows }, () => Array(gridCols).fill(''));
+            cells = {};
+            solvedWords.clear();
+
+            // Populate grid with answers
+            puzzleWords.forEach(word => {
+                for (let i = 0; i < word.answer.length; i++) {
+                    const row = word.direction === 'across' ? word.startRow : word.startRow + i;
+                    const col = word.direction === 'across' ? word.startCol + i : word.startCol;
+                    grid[row][col] = word.answer[i];
+                }
+            });
+
+            // Render grid HTML
+            crosswordGridElem.innerHTML = '';
+            crosswordGridElem.style.setProperty('--grid-cols', gridCols);
+
+            for (let r = 0; r < gridRows; r++) {
+                for (let c = 0; c < gridCols; c++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell');
+                    if (grid[r][c] === '') {
+                        cell.classList.add('empty');
+                    } else {
+                        cell.dataset.row = r;
+                        cell.dataset.col = c;
+                        cells[`${r}-${c}`] = cell;
+
+                        // Add clue numbers
+                        const hasAcrossClue = puzzleWords.some(w => 
+                            w.direction === 'across' && w.startRow === r && w.startCol === c
+                        );
+                        const hasDownClue = puzzleWords.some(w => 
+                            w.direction === 'down' && w.startRow === r && w.startCol === c
+                        );
+
+                        if (hasAcrossClue || hasDownClue) {
+                            const clueNum = puzzleWords.find(w => 
+                                (w.direction === 'across' && w.startRow === r && w.startCol === c) ||
+                                (w.direction === 'down' && w.startRow === r && w.startCol === c)
+                            ).clueNumber;
+                            const numSpan = document.createElement('span');
+                            numSpan.classList.add('clue-number');
+                            numSpan.textContent = clueNum;
+                            cell.appendChild(numSpan);
+                        }
+
+                        cell.addEventListener('click', () => selectClueByCell(r, c));
+                    }
+                    crosswordGridElem.appendChild(cell);
+                }
+            }
+        }
+
+        function renderClues() {
+            cluesListElem.innerHTML = '<h2><i class="fas fa-arrows-alt-h"></i> أسئلة أفقية</h2><ul id="acrossClues" class="clues-list"></ul>';
+            cluesListElem.innerHTML += '<h2><i class="fas fa-arrows-alt-v"></i> أسئلة عمودية</h2><ul id="downClues" class="clues-list"></ul>';
+            
+            const acrossCluesList = document.getElementById('acrossClues');
+            const downCluesList = document.getElementById('downClues');
+
+            puzzleWords.forEach(word => {
+                const li = document.createElement('li');
+                li.id = `clue-${word.clueNumber}-${word.direction}`;
+                li.dataset.clueNumber = word.clueNumber;
+                li.dataset.direction = word.direction;
+                li.textContent = `${word.clueNumber}. ${word.clue}`;
+                li.addEventListener('click', () => selectClue(word.clueNumber, word.direction));
+
+                if (word.direction === 'across') {
+                    acrossCluesList.appendChild(li);
+                } else {
+                    downCluesList.appendChild(li);
+                }
+            });
+        }
+
+        function highlightWordCells(clueNumber, direction) {
+            // Remove previous highlights
+            activeCells.forEach(cell => cell.classList.remove('active', 'highlighted'));
+            document.querySelectorAll('.clues-list li').forEach(li => li.classList.remove('active-clue'));
+            answerInput.value = '';
+            feedbackArea.innerHTML = '';
+
+            const word = puzzleWords.find(w => w.clueNumber === clueNumber && w.direction === direction);
+            if (!word) return;
+
+            activeClueId = { clueNumber, direction };
+            activeCells = [];
+
+            for (let i = 0; i < word.answer.length; i++) {
+                const r = word.direction === 'across' ? word.startRow : word.startRow + i;
+                const c = word.direction === 'across' ? word.startCol + i : word.startCol;
+                const cell = cells[`${r}-${c}`];
+                if (cell) {
+                    cell.classList.add('active', 'highlighted');
+                    activeCells.push(cell);
+                }
+            }
+            // Highlight the clue text
+            const clueLi = document.getElementById(`clue-${clueNumber}-${direction}`);
+            if (clueLi) clueLi.classList.add('active-clue');
+            
+            answerInput.focus();
+            selectAudio.play().catch(e => console.log("Select audio failed:", e));
+        }
+
+        function selectClue(clueNumber, direction) {
+            highlightWordCells(clueNumber, direction);
+            const word = puzzleWords.find(w => w.clueNumber === clueNumber && w.direction === direction);
+            if (word && solvedWords.has(word.clueNumber)) {
+                // If word is already solved, populate input with answer
+                answerInput.value = word.answer;
+                answerInput.readOnly = true;
+            } else {
+                answerInput.readOnly = false;
+            }
+        }
+
+        function selectClueByCell(row, col) {
+            // Find if this cell is part of an across word
+            const acrossWord = puzzleWords.find(w => 
+                w.direction === 'across' && 
+                row === w.startRow && 
+                col >= w.startCol && col < w.startCol + w.answer.length
+            );
+
+            // Find if this cell is part of a down word
+            const downWord = puzzleWords.find(w => 
+                w.direction === 'down' && 
+                col === w.startCol && 
+                row >= w.startRow && row < w.startRow + w.answer.length
+            );
+
+            if (acrossWord && (!downWord || (activeClueId && activeClueId.clueNumber === acrossWord.clueNumber && activeClueId.direction === 'down'))) {
+                // Prioritize across if available, or if currently selecting its intersection down
+                selectClue(acrossWord.clueNumber, 'across');
+            } else if (downWord) {
+                selectClue(downWord.clueNumber, 'down');
+            }
+        }
+
+        function submitAnswer() {
+            if (!activeClueId) {
+                feedbackArea.innerHTML = `<p class="feedback-message incorrect">الرجاء اختيار كلمة أولاً. <i class="fas fa-exclamation-circle"></i></p>`;
+                incorrectAudio.play().catch(e => console.log("Incorrect audio failed:", e));
+                return;
+            }
+
+            const currentWord = puzzleWords.find(w => 
+                w.clueNumber === activeClueId.clueNumber && 
+                w.direction === activeClueId.direction
+            );
+
+            if (!currentWord || solvedWords.has(currentWord.clueNumber)) {
+                feedbackArea.innerHTML = `<p class="feedback-message">هذه الكلمة مكتملة بالفعل! <i class="fas fa-check-double"></i></p>`;
+                correctAudio.play().catch(e => console.log("Correct audio failed:", e));
+                return;
+            }
+
+            const userAnswer = answerInput.value.trim().toUpperCase().replace(/أ|إ|آ/g, 'ا'); // Normalize Arabic letters
+            const correctAnswer = currentWord.answer.toUpperCase().replace(/أ|إ|آ/g, 'ا');
+
+            if (userAnswer === correctAnswer) {
+                feedbackArea.innerHTML = `<p class="feedback-message correct">أحسنت! إجابة صحيحة! <i class="fas fa-check-circle"></i></p>`;
+                correctAudio.play().catch(e => console.log("Correct audio failed:", e));
+                solvedWords.add(currentWord.clueNumber);
+                
+                // Fill cells and mark as correct
+                activeCells.forEach((cell, index) => {
+                    cell.textContent = currentWord.answer[index];
+                    cell.classList.remove('active', 'highlighted');
+                    cell.classList.add('correct');
+                    // Remove event listener to prevent re-editing solved cells
+                    cell.removeEventListener('click', () => selectClueByCell(parseInt(cell.dataset.row), parseInt(cell.dataset.col)));
+                });
+                
+                // Mark clue as solved (optional: grey out or strike-through)
+                document.getElementById(`clue-${currentWord.clueNumber}-${currentWord.direction}`).classList.add('solved-clue');
+
+                answerInput.value = '';
+                answerInput.readOnly = true; // Make input read-only for solved word
+                activeClueId = null; // Clear active clue
+
+                checkCompletion();
+            } else {
+                feedbackArea.innerHTML = `<p class="feedback-message incorrect">إجابة خاطئة، حاول مرة أخرى. <i class="fas fa-times-circle"></i></p>`;
+                incorrectAudio.play().catch(e => console.log("Incorrect audio failed:", e));
+            }
+        }
+
+        function giveHint() {
+            if (!activeClueId) {
+                feedbackArea.innerHTML = `<p class="feedback-message incorrect">اختر كلمة أولاً للحصول على تلميح. <i class="fas fa-lightbulb"></i></p>`;
+                hintAudio.play().catch(e => console.log("Hint audio failed:", e));
+                return;
+            }
+
+            const currentWord = puzzleWords.find(w => 
+                w.clueNumber === activeClueId.clueNumber && 
+                w.direction === activeClueId.direction
+            );
+
+            if (!currentWord || solvedWords.has(currentWord.clueNumber)) {
+                feedbackArea.innerHTML = `<p class="feedback-message">هذه الكلمة محلولة بالفعل. <i class="fas fa-check-double"></i></p>`;
+                hintAudio.play().catch(e => console.log("Hint audio failed:", e));
+                return;
+            }
+
+            // Find an unsolved letter in the current word
+            let hinted = false;
+            for (let i = 0; i < currentWord.answer.length; i++) {
+                const r = currentWord.direction === 'across' ? currentWord.startRow : currentWord.startRow + i;
+                const c = currentWord.direction === 'across' ? currentWord.startCol + i : currentWord.startCol;
+                const cell = cells[`${r}-${c}`];
+                if (cell && cell.textContent === '') {
+                    cell.textContent = currentWord.answer[i];
+                    cell.classList.add('hinted'); // Optional: Add a class for hinted cells
+                    feedbackArea.innerHTML = `<p class="feedback-message correct">تم كشف حرف! <i class="fas fa-magic"></i></p>`;
+                    hintAudio.play().catch(e => console.log("Hint audio failed:", e));
+                    hinted = true;
+                    break;
+                }
+            }
+
+            if (!hinted) {
+                feedbackArea.innerHTML = `<p class="feedback-message incorrect">لا توجد حروف فارغة في هذه الكلمة حاليًا. <i class="fas fa-exclamation-circle"></i></p>`;
+                hintAudio.play().catch(e => console.log("Hint audio failed:", e));
+            }
+        }
+
+        function checkAllWords() {
+            feedbackArea.innerHTML = '';
+            let allCorrect = true;
+
+            puzzleWords.forEach(word => {
+                const userAnswerChars = [];
+                for (let i = 0; i < word.answer.length; i++) {
+                    const r = word.direction === 'across' ? word.startRow : word.startRow + i;
+                    const c = word.direction === 'across' ? word.startCol + i : word.startCol;
+                    const cell = cells[`${r}-${c}`];
+                    if (cell && cell.textContent) {
+                        userAnswerChars.push(cell.textContent.trim().toUpperCase());
+                    } else {
+                        userAnswerChars.push(''); // Mark as empty
+                    }
+                }
+                const userAnswer = userAnswerChars.join('').replace(/أ|إ|آ/g, 'ا');
+                const correctAnswer = word.answer.toUpperCase().replace(/أ|إ|آ/g, 'ا');
+
+                if (userAnswer === correctAnswer) {
+                    if (!solvedWords.has(word.clueNumber)) {
+                        solvedWords.add(word.clueNumber);
+                        // Mark cells as correct
+                        for (let i = 0; i < word.answer.length; i++) {
+                            const r = word.direction === 'across' ? word.startRow : word.startRow + i;
+                            const c = word.direction === 'across' ? word.startCol + i : word.startCol;
+                            const cell = cells[`${r}-${c}`];
+                            if (cell) {
+                                cell.textContent = word.answer[i]; // Ensure filled with correct char
+                                cell.classList.remove('active', 'highlighted', 'incorrect', 'hinted');
+                                cell.classList.add('correct');
+                            }
+                        }
+                        document.getElementById(`clue-${word.clueNumber}-${word.direction}`).classList.add('solved-clue');
+                    }
+                } else {
+                    allCorrect = false;
+                    // Highlight incorrect cells briefly if desired
+                    for (let i = 0; i < word.answer.length; i++) {
+                        const r = word.direction === 'across' ? word.startRow : word.startRow + i;
+                        const c = word.direction === 'across' ? word.startCol + i : word.startCol;
+                        const cell = cells[`${r}-${c}`];
+                        if (cell && cell.textContent.trim().toUpperCase().replace(/أ|إ|آ/g, 'ا') !== correctAnswer[i]) {
+                             cell.classList.add('incorrect');
+                             setTimeout(() => cell.classList.remove('incorrect'), 500);
+                        }
+                    }
+                }
+            });
+
+            if (allCorrect) {
+                feedbackArea.innerHTML = `<p class="feedback-message correct">أحسنت! جميع الكلمات صحيحة! <i class="fas fa-trophy"></i></p>`;
+                setTimeout(checkCompletion, 1000); // Check for puzzle completion after brief display
+            } else {
+                feedbackArea.innerHTML = `<p class="feedback-message incorrect">بعض الكلمات لا تزال خاطئة، حاول مرة أخرى. <i class="fas fa-exclamation-triangle"></i></p>`;
+                incorrectAudio.play().catch(e => console.log("Incorrect audio failed:", e));
+            }
+        }
+
+
+        function checkCompletion() {
+            if (solvedWords.size === puzzleWords.length) {
+                gameContainer.classList.add('hidden');
+                endScreen.classList.remove('hidden');
+                puzzleCompleteAudio.play().catch(e => console.log("Puzzle complete audio failed:", e));
+            }
+        }
+
+        function startGame() {
+            gameContainer.classList.remove('hidden');
+            endScreen.classList.add('hidden');
+            initializeGrid();
+            renderClues();
+            answerInput.value = '';
+            answerInput.readOnly = false;
+            activeClueId = null;
+            feedbackArea.innerHTML = '';
+        }
+
+        // Event Listeners
+        submitAnswerButton.addEventListener('click', submitAnswer);
+        answerInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                submitAnswer();
+            }
+        });
+        hintButton.addEventListener('click', giveHint);
+        checkAllButton.addEventListener('click', checkAllWords);
+        restartButton.addEventListener('click', startGame);
+
+        // Initial Game Load
+        startGame();
+    </script>
+</body>
+</html>

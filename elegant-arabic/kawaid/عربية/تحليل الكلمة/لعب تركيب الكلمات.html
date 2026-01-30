@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>لعبة تركيب الكلمات</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      padding: 0;
+      margin: 0;
+      font-family: 'Tajawal', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(to right, #74ebd5, #ACB6E5);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #333;
+    }
+
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 600px;
+      text-align: center;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    h1 {
+      margin-bottom: 1rem;
+      color: #4a4a4a;
+    }
+
+    .word-area, .letters-area {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin: 1rem 0;
+    }
+
+    .card {
+      background-color: #f0f0f0;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      background-color: #e0e0e0;
+      transform: scale(1.05);
+    }
+
+    .card.selected {
+      background-color: #74ebd5;
+      border-color: #00c9a7;
+    }
+
+    #check-btn, #next-btn {
+      background: #74ebd5;
+      border: none;
+      padding: 10px 20px;
+      margin: 5px;
+      font-size: 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    #check-btn:hover {
+      background: #00c9a7;
+    }
+
+    #next-btn:hover {
+      background: #ff9a9e;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>لعبة تركيب الكلمات</h1>
+  <p id="question">اختر الحروف لتشكيل الكلمة:</p>
+
+  <div id="word-container" class="word-area"></div>
+  <div id="letters-container" class="letters-area"></div>
+
+  <button id="check-btn">تحقق</button>
+  <button id="next-btn">كلمة جديدة</button>
+
+  <p id="result" class="hidden">إجابة صحيحة!</p>
+</div>
+
+<script>
+  const words = [
+    { question: "اكمل الكلمة: _ب_", correct: "باب" },
+    { question: "اكمل الكلمة: م_ط", correct: "مرط" },
+    { question: "اختر المقاطع المناسبة:", correct: "كتاب", letters: ["كتا", "تاب", "ك", "ت", "ب"] },
+    { question: "اكمل الكلمة: _لم_", correct: "علم", letters: ["ع", "ل", "م", "د", "ر"] },
+  ];
+
+  let currentWord = {};
+  let selectedLetters = [];
+
+  const wordContainer = document.getElementById('word-container');
+  const lettersContainer = document.getElementById('letters-container');
+  const question = document.getElementById('question');
+  const checkBtn = document.getElementById('check-btn');
+  const nextBtn = document.getElementById('next-btn');
+  const result = document.getElementById('result');
+
+  function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+  }
+
+  function getLettersArray(wordObj) {
+    if (wordObj.letters) return shuffle([...wordObj.letters]);
+    else {
+      const letters = [];
+      for (let i = 0; i < wordObj.correct.length; i++) {
+        if (wordObj.correct[i] !== "_") continue;
+        const otherLetters = "بتثجحخدذرزسشصضطظعغفقكلمنهوي";
+        let randLetter;
+        do {
+          randLetter = otherLetters[Math.floor(Math.random() * otherLetters.length)];
+        } while (randLetter === wordObj.correct[i + 0]);
+        letters.push(randLetter);
+      }
+      return shuffle(letters);
+    }
+  }
+
+  function displayWord() {
+    wordContainer.innerHTML = "";
+    lettersContainer.innerHTML = "";
+
+    currentWord = words[Math.floor(Math.random() * words.length)];
+    question.textContent = currentWord.question;
+
+    const letters = getLettersArray(currentWord);
+
+    // Display blanks or parts
+    const wordParts = currentWord.correct.split("");
+    wordParts.forEach(char => {
+      const div = document.createElement("div");
+      div.classList.add("card");
+      div.dataset.char = char !== "_" ? char : "";
+      div.textContent = char === "_" ? "__" : char;
+      wordContainer.appendChild(div);
+    });
+
+    // Display letter buttons
+    letters.forEach(letter => {
+      const btn = document.createElement("button");
+      btn.classList.add("card");
+      btn.textContent = letter;
+      btn.addEventListener("click", () => selectLetter(btn));
+      lettersContainer.appendChild(btn);
+    });
+
+    selectedLetters = [];
+    result.classList.add("hidden");
+  }
+
+  function selectLetter(button) {
+    if (button.classList.contains("selected")) {
+      button.classList.remove("selected");
+      selectedLetters = selectedLetters.filter(l => l !== button.textContent);
+    } else {
+      button.classList.add("selected");
+      selectedLetters.push(button.textContent);
+    }
+  }
+
+  checkBtn.addEventListener("click", () => {
+    const correct = currentWord.correct;
+    const userAnswer = Array.from(document.querySelectorAll(".word-area .card"))
+      .map(c => c.dataset.char || selectedLetters.shift() || "")
+      .join("");
+
+    if (userAnswer === correct) {
+      result.textContent = "✅ إجابة صحيحة!";
+      result.style.color = "green";
+    } else {
+      result.textContent = `❌ الإجابة الصحيحة هي: ${correct}`;
+      result.style.color = "red";
+    }
+
+    result.classList.remove("hidden");
+  });
+
+  nextBtn.addEventListener("click", displayWord);
+
+  // Start game
+  displayWord();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>درس: الطلاقة في القراءة — نشاط تفاعلي</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Noto Sans Arabic', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
+    .line { transition: background-color .15s ease; }
+    .highlight { background: rgba(250,215,125,0.45); }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen p-6">
+  <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-md p-6">
+    <header class="mb-6">
+      <h1 class="text-2xl font-bold text-right">درس: الطلاقة في القراءة</h1>
+      <p class="text-sm text-right text-slate-600">صفحة تمرين تفاعلية جاهزة للاستخدام داخل القسم. تحتوي على شرح، نشاطات، وأدوات عملية.
+      </p>
+    </header>
+
+    <section class="mb-6">
+      <h2 class="text-lg font-semibold text-right">محتوى الدرس</h2>
+      <ul class="list-decimal list-inside space-y-1 text-right">
+        <li>مفهوم الطلاقة.</li>
+        <li>تهيئة صوتية ومقاطع سريعة.</li>
+        <li>القراءة النموذجية والموجهة.</li>
+        <li>إعادة القراءة والتقييم.</li>
+      </ul>
+    </section>
+
+    <section class="mb-6">
+      <h2 class="text-lg font-semibold text-right">النص التدريبي</h2>
+      <div class="mb-2 text-right text-slate-700">يمكنك تعديل النص، أو طباعة البطاقات، أو تشغيل القراءة الآلية.</div>
+
+      <div class="mt-3 border rounded-lg p-4 bg-slate-50">
+        <textarea id="practiceText" class="w-full h-36 p-3 text-right text-lg rounded-md" >في صباح هادئ خرج الطفل إلى الحديقة يلاحق الفراشات ويمتدح جمال الطبيعة. قرأ لافتة صغيرة وتعجب من كلماتها البسيطة.</textarea>
+      </div>
+
+      <div class="mt-3 flex gap-2 justify-end">
+        <button id="readBtn" class="px-4 py-2 rounded-xl shadow-sm hover:shadow-md">تشغيل القراءة</button>
+        <button id="pauseBtn" class="px-4 py-2 rounded-xl shadow-sm hover:shadow-md">إيقاف مؤقت</button>
+        <button id="stopBtn" class="px-4 py-2 rounded-xl shadow-sm hover:shadow-md">إيقاف</button>
+        <label class="flex items-center gap-2">
+          <span class="text-sm">سرعة</span>
+          <input id="rate" type="range" min="0.6" max="1.6" step="0.1" value="1" />
+        </label>
+      </div>
+
+      <div class="mt-3 text-sm text-right text-slate-600">ملاحظة: القراءة الآلية تستخدم متصفح التلميذ (SpeechSynthesis). إذا لم تعمل، افتح الصفحة في Chrome أو Edge.</div>
+    </section>
+
+    <section class="mb-6">
+      <h2 class="text-lg font-semibold text-right">نشاطات تدرجية</h2>
+      <ol class="list-decimal list-inside space-y-2 text-right">
+        <li>استمعي للنموذج (المعلّمة تقرأ)، ثم أعدوا القراءة جماعيًا.</li>
+        <li>قسمي النص إلى أسطر، واطلبي من كل تلميذ قراءة سطر واحد بالتناوب.</li>
+        <li>اختر فقرة قصيرة واطلب إعادة قراءتها 3 مرات — سجلي الوقت أو عدد الأخطاء.</li>
+        <li>سجل/سجّلي قراءة طالب ثم استمعوا معًا لتحليل التحسن.</li>
+      </ol>
+    </section>
+
+    <section class="mb-6">
+      <h2 class="text-lg font-semibold text-right">أدوات صفية مساعدة</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div class="p-3 border rounded-lg text-right">
+          <h3 class="font-medium">مولد كلمات عشوائية</h3>
+          <p class="text-sm text-slate-600">استخدميه لتحضير بطاقات فلاش سريعة.</p>
+          <div class="mt-2 flex gap-2 justify-end">
+            <input id="wordCount" type="number" min="1" max="12" value="6" class="w-20 p-1 rounded text-right" />
+            <button id="genWords" class="px-3 py-1 rounded">توليد</button>
+          </div>
+          <div id="wordsBox" class="mt-2 flex flex-wrap gap-2 justify-end"></div>
+        </div>
+
+        <div class="p-3 border rounded-lg text-right">
+          <h3 class="font-medium">بطاقات للطباعة</h3>
+          <p class="text-sm text-slate-600">انقري لإنشاء ورقة بطاقات قابلة للطباعة.</p>
+          <div class="mt-2 flex gap-2 justify-end">
+            <button id="printCards" class="px-3 py-1 rounded">طباعة البطاقات</button>
+          </div>
+          <div id="cardsPreview" class="mt-2"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-4 text-right">
+      <h2 class="text-lg font-semibold">سجل التمرين</h2>
+      <div class="mt-2 flex gap-2 justify-end items-center">
+        <label class="text-sm">عدد مرات إعادة القراءة:</label>
+        <input id="repeats" type="number" min="1" value="3" class="w-20 p-1 rounded text-right" />
+        <button id="startPractice" class="px-3 py-1 rounded">ابدأ التمرين</button>
+      </div>
+      <div id="log" class="mt-2 text-sm text-slate-600"></div>
+    </section>
+
+    <footer class="pt-4 border-t text-right text-sm text-slate-500">صممت للمعلّمة: يمكن تعديل النصوص والأنشطة حسب مستوى التلاميذ. حفظ الصفحة كملف HTML وفتحها في المتصفح.</footer>
+  </div>
+
+  <template id="cardTemplate">
+    <div class="inline-block border p-3 rounded-md w-40 h-20 flex items-center justify-center text-center text-lg">{{word}}</div>
+  </template>
+
+  <script>
+    // RTL helper & simple UI
+    const speakBtn = document.getElementById('readBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const rateInput = document.getElementById('rate');
+    const textArea = document.getElementById('practiceText');
+    const log = document.getElementById('log');
+
+    let utter;
+    function speakText() {
+      const text = textArea.value.trim();
+      if (!text) return;
+      window.speechSynthesis.cancel();
+      utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'ar-SA';
+      utter.rate = parseFloat(rateInput.value);
+      // highlight while speaking: split into sentences
+      const parts = text.split(/(?<=[.؟!\n])/);
+      let idx = 0;
+      utter.onboundary = function(e) {
+        // not always supported for Arabic; reserved for future
+      }
+      utter.onend = function() { log.innerText = 'انتهت القراءة.'; }
+      log.innerText = 'جاري التشغيل...';
+      window.speechSynthesis.speak(utter);
+    }
+
+    speakBtn.addEventListener('click', speakText);
+    pauseBtn.addEventListener('click', ()=>{
+      if (window.speechSynthesis.paused) window.speechSynthesis.resume(); else window.speechSynthesis.pause();
+    });
+    stopBtn.addEventListener('click', ()=>{ window.speechSynthesis.cancel(); log.innerText='توقفت القراءة.'; });
+
+    // Word generator & cards
+    const genWords = document.getElementById('genWords');
+    const wordsBox = document.getElementById('wordsBox');
+    const wordCount = document.getElementById('wordCount');
+    const printCards = document.getElementById('printCards');
+    const cardsPreview = document.getElementById('cardsPreview');
+
+    const sampleWords = [
+      'حديقة','فراشة','كتاب','قلم','شجرة','مدرسة','نافذة','قمر','نجم','قصة','طفل','لعبة'
+    ];
+
+    genWords.addEventListener('click', ()=>{
+      const n = Math.max(1, Math.min(12, parseInt(wordCount.value || 6)));
+      const out = [];
+      for (let i=0;i<n;i++) out.push(sampleWords[Math.floor(Math.random()*sampleWords.length)]);
+      wordsBox.innerHTML = '';
+      out.forEach(w=>{
+        const el = document.createElement('div'); el.className='px-3 py-1 bg-white rounded shadow-sm text-right'; el.innerText = w;
+        wordsBox.appendChild(el);
+      });
+      // prepare preview cards
+      cardsPreview.innerHTML = '';
+      out.forEach(w=>{ const d = document.createElement('div'); d.className='inline-block border p-3 mr-2 mb-2 rounded-md w-40 h-20 flex items-center justify-center text-center text-lg'; d.innerText = w; cardsPreview.appendChild(d); });
+    });
+
+    printCards.addEventListener('click', ()=>{
+      const content = cardsPreview.innerHTML || '<p>لا توجد بطاقات — توليد أولًا</p>';
+      const w = window.open('', '_blank');
+      w.document.write('<html dir="rtl"><head><meta charset="utf-8"><title>بطاقات طباعة</title><style>body{font-family: Noto Sans Arabic; direction: rtl; padding:20px } .card{display:inline-block;border:1px solid #ccc;padding:12px;margin:6px;width:180px;height:90px;text-align:center;vertical-align:middle;font-size:20px;border-radius:8px}</style></head><body>'+content+'</body></html>');
+      w.document.close();
+      w.focus();
+      w.print();
+    });
+
+    // Repeat practice
+    const startPractice = document.getElementById('startPractice');
+    const repeatsInput = document.getElementById('repeats');
+    startPractice.addEventListener('click', ()=>{
+      const reps = Math.max(1, parseInt(repeatsInput.value||3));
+      const text = textArea.value.trim(); if (!text) return;
+      log.innerText = `ستُقرأ الفقرة ${reps} مرات.`;
+      let i=0;
+      const interval = setInterval(()=>{
+        if (i>=reps) { clearInterval(interval); log.innerText += '\nانتهى التمرين.'; return; }
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang='ar-SA'; u.rate = parseFloat(rateInput.value);
+        u.onend = ()=>{
+          // small pause handled by setInterval
+        }
+        window.speechSynthesis.speak(u);
+        log.innerText = `القراءة رقم ${i+1} من ${reps}`;
+        i++;
+      }, 4000 + (1000*(1/parseFloat(rateInput.value))));
+    });
+
+    // Accessibility: allow Ctrl+Enter to read
+    textArea.addEventListener('keydown', (e)=>{ if (e.ctrlKey && e.key === 'Enter') speakText(); });
+  </script>
+</body>
+</html>

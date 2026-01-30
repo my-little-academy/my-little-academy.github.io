@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مطاردة الكنز السحري</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            color: white;
+        }
+        
+        .game-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        
+        .map {
+            background-image: url('https://example.com/map.png');
+            background-size: cover;
+            width: 800px;
+            height: 600px;
+            margin: 20px auto;
+            position: relative;
+            border: 8px solid #5d3a1a;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+        
+        .location {
+            width: 80px;
+            height: 80px;
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.3s;
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        
+        .location:hover {
+            transform: scale(1.1);
+        }
+        
+        .forest { top: 100px; left: 150px; background-image: url('forest-icon.png'); }
+        .cave { top: 300px; left: 400px; background-image: url('cave-icon.png'); }
+        .beach { top: 450px; left: 200px; background-image: url('beach-icon.png'); }
+        .castle { top: 200px; left: 600px; background-image: url('castle-icon.png'); }
+        
+        .character {
+            width: 60px;
+            height: 60px;
+            position: absolute;
+            background-image: url('character.png');
+            background-size: contain;
+            transition: all 1s;
+            z-index: 10;
+        }
+        
+        .challenge-window {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8);
+            padding: 20px;
+            border-radius: 15px;
+            border: 3px solid gold;
+            z-index: 100;
+            width: 80%;
+            max-width: 500px;
+        }
+        
+        .toolbox {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .tool {
+            width: 50px;
+            height: 50px;
+            background-size: contain;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 style="text-align: center; text-shadow: 0 0 10px black;">مطاردة الكنز السحري</h1>
+        
+        <div class="map">
+            <div class="character" id="character"></div>
+            <div class="location forest" onclick="enterLocation('forest')"></div>
+            <div class="location cave" onclick="enterLocation('cave')"></div>
+            <div class="location beach" onclick="enterLocation('beach')"></div>
+            <div class="location castle" onclick="enterLocation('castle')"></div>
+        </div>
+        
+        <div class="toolbox">
+            <div class="tool" style="background-image: url('lamp.png');" title="مصباح سحري"></div>
+            <div class="tool" style="background-image: url('map-tool.png');" title="خريطة الكنز"></div>
+            <div class="tool" style="background-image: url('key.png');" title="مفتاح سحري"></div>
+        </div>
+        
+        <div class="challenge-window" id="challenge-window">
+            <h2 id="challenge-title">تحدي الغابة</h2>
+            <div id="challenge-content"></div>
+            <button onclick="submitAnswer()">إرسال الإجابة</button>
+        </div>
+    </div>
+
+    <script>
+        // متغيرات اللعبة
+        let currentLocation = null;
+        let score = 0;
+        let tools = {
+            lamp: false,
+            map: false,
+            key: false
+        };
+        
+        // الدخول إلى موقع معين
+        function enterLocation(location) {
+            currentLocation = location;
+            document.getElementById('character').style.top = document.querySelector(`.${location}`).style.top;
+            document.getElementById('character').style.left = document.querySelector(`.${location}`).style.left;
+            
+            // عرض التحدي المناسب
+            showChallenge(location);
+        }
+        
+        // عرض التحدي
+        function showChallenge(location) {
+            const challengeWindow = document.getElementById('challenge-window');
+            const title = document.getElementById('challenge-title');
+            const content = document.getElementById('challenge-content');
+            
+            challengeWindow.style.display = 'block';
+            
+            // تحديد التحدي حسب الموقع
+            switch(location) {
+                case 'forest':
+                    title.textContent = 'تحدي الغابة السحرية';
+                    content.innerHTML = `
+                        <p>كم عدد التفاحات على هذه الشجرة؟</p>
+                        <img src="apple-tree.png" style="width: 100px;">
+                        <input type="number" id="answer-input" placeholder="أدخل الإجابة">
+                    `;
+                    break;
+                    
+                case 'cave':
+                    title.textContent = 'لغز الكهف المظلم';
+                    content.innerHTML = `
+                        <p>رتب هذه الحيوانات من الأصغر إلى الأكبر:</p>
+                        <div id="animal-sequence"></div>
+                    `;
+                    break;
+                    
+                // يمكن إضافة تحديات أخرى للمواقع الأخرى
+            }
+        }
+        
+        // إرسال الإجابة
+        function submitAnswer() {
+            // هنا يتم التحقق من الإجابة
+            // إذا كانت صحيحة:
+            awardPoints(10);
+            // إذا كانت خاطئة:
+            // giveHint();
+            
+            document.getElementById('challenge-window').style.display = 'none';
+        }
+        
+        // منح النقاط
+        function awardPoints(points) {
+            score += points;
+            // عرض تأثيرات النجاح
+            showCelebration();
+            
+            // فحص إذا كانت النقاط كافية لفك أداة جديدة
+            checkToolUnlock();
+        }
+        
+        // عرض احتفالية النجاح
+        function showCelebration() {
+            // يمكن إضافة تأثيرات بصرية هنا
+        }
+        
+        // فحص إمكانية فتح أدوات جديدة
+        function checkToolUnlock() {
+            if (score >= 30 && !tools.lamp) {
+                tools.lamp = true;
+                alert('لقد حصلت على مصباح سحري!');
+            }
+            // يمكن إضافة شروط أخرى للأدوات الأخرى
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اللوحة القرائية لحرف الميم</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2196F3;
+            --secondary-color: #64B5F6;
+            --accent-color: #BBDEFB;
+            --light-color: #E3F2FD;
+            --dark-color: #1565C0;
+            --text-color: #333;
+            --shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #f9f9f9;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+            color: white;
+            text-align: center;
+            padding: 2rem 1rem;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="white" opacity="0.1"><text x="50%" y="50%" font-size="30" text-anchor="middle" dominant-baseline="middle">م</text></svg>');
+            background-size: 100px;
+            z-index: 0;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        /* نظام الشبكة للبطاقات */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        /* تصميم البطاقات */
+        .card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .letter-display {
+            font-size: 5rem;
+            color: var(--dark-color);
+            margin: 1rem 0;
+            text-align: center;
+            line-height: 1;
+        }
+
+        .examples {
+            margin: 1rem 0;
+            width: 100%;
+        }
+
+        .example-word {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem;
+            border-bottom: 1px dashed #eee;
+        }
+
+        .pronunciation {
+            background-color: var(--light-color);
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin-top: auto;
+            width: 100%;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .pronunciation i {
+            color: var(--primary-color);
+            margin-left: 0.5rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .pronunciation i:hover {
+            transform: scale(1.2);
+        }
+
+        .card-image {
+            width: 100%;
+            height: 150px;
+            object-fit: contain;
+            margin: 1rem 0;
+        }
+
+        /* أقسام تفاعلية */
+        .interactive-section {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: var(--shadow);
+        }
+
+        .section-title {
+            color: var(--dark-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        /* قسم بناء الكلمات */
+        .word-builder {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .letters-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .letter-btn {
+            width: 60px;
+            height: 60px;
+            font-size: 1.8rem;
+            border: none;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .letter-btn:hover {
+            background-color: var(--accent-color);
+            transform: scale(1.1);
+        }
+
+        .letter-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .word-display {
+            min-height: 80px;
+            border: 2px dashed var(--secondary-color);
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            margin: 1rem 0;
+            padding: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--dark-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: var(--light-color);
+            color: var(--text-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+        }
+
+        /* قسم تحليل الكلمات */
+        .word-analysis {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .word-input-container {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .word-input {
+            flex-grow: 1;
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            min-width: 200px;
+        }
+
+        .syllables-display {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin: 1rem 0;
+            min-height: 60px;
+        }
+
+        .syllable {
+            background-color: var(--light-color);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .syllable i {
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .feedback {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            text-align: center;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .feedback.show {
+            opacity: 1;
+        }
+
+        .feedback.success {
+            background-color: #E8F5E9;
+            color: var(--dark-color);
+        }
+
+        .feedback.error {
+            background-color: #FFEBEE;
+            color: #C62828;
+        }
+
+        footer {
+            background: linear-gradient(to right, var(--dark-color), var(--primary-color));
+            color: white;
+            text-align: center;
+            padding: 2rem 1rem;
+            margin-top: 2rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        .footer-links a:hover {
+            opacity: 0.8;
+        }
+
+        /* تصميم متجاوب */
+        @media (max-width: 768px) {
+            .cards-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+
+            .letter-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+
+            header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .interactive-section {
+                padding: 1rem;
+            }
+
+            .letter-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+        }
+
+        /* تأثيرات حركية */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .bounce {
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>اللوحة القرائية لحرف الميم</h1>
+        <p>تعلم حرف الميم بطريقة تفاعلية ممتعة وشاملة</p>
+    </header>
+
+    <div class="container">
+        <!-- بطاقات أشكال حرف الميم -->
+        <div class="cards-grid">
+            <!-- بطاقة الميم المفتوحة -->
+            <div class="card">
+                <div class="card-header">ميم مفتوحة</div>
+                <div class="card-body">
+                    <div class="letter-display">مَ</div>
+                    <img src="https://via.placeholder.com/300x150?text=مَ+مفتوحة" alt="ميم مفتوحة" class="card-image">
+                    <div class="examples">
+                        <div class="example-word">
+                            <span>مَاء</span>
+                            <span class="pronunciation">maa' <i class="fas fa-volume-up" onclick="speak('ماء')"></i></span>
+                        </div>
+                        <div class="example-word">
+                            <span>مَطَر</span>
+                            <span class="pronunciation">ma-tar <i class="fas fa-volume-up" onclick="speak('مطر')"></i></span>
+                        </div>
+                        <div class="example-word">
+                            <span>مَدرَسة</span>
+                            <span class="pronunciation">mad-ra-sa <i class="fas fa-volume-up" onclick="speak('مدرسة')"></i></span>
+                        </div>
+                    </div>
+                    <div class="pronunciation">
+                        النطق: مَ + حركة الفتح (أَ) <i class="fas fa-volume-up" onclick="speak('مَ')"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- بطاقة الميم المضمومة -->
+            <div class="card">
+                <div class="card-header">ميم مضمومة</div>
+                <div class="card-body">
+                    <div class="letter-display">مُ</div>
+                    <img src="https://via.placeholder.com/300x150?text=مُ+مضمومة" alt="ميم مضمومة" class="card-image">
+                    <div class="examples">
+                        <div class="example-word">
+                            <span>مُحَمَّد</span>
+                            <span class="pronunciation">mu-ham-mad <i class="fas fa-volume-up" onclick="speak('محمد')"></i></span>
+                        </div>
+                        <div class="example-word">
+                            <span>مُعَلِّم</span>
+                            <span class="pronunciation">mu-'al-lim <i class="fas fa-volume-up" onclick="speak('معلم')"></i></span>
+                        </div>
+                        <div class="example-word">
+                            <span>مُوسِيقَى</span>
+                            <span class="pronunciation">muu-si-qa <i class="fas fa-volume-up" onclick="speak('موسيقى')"></i></span>
+                        </div>
+                    </div>
+                    <div class="pronunciation">
+                        النطق: مُ + حركة الضم (أُ) <i class="fas fa-volume-up" onclick="speak('مُ')"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- بطاقة الميم المكسورة -->
+            <div class="card">
+                <div class="card-header">ميم مكسورة</div>
+                <div class="card-body">
+                    <div class="letter-display">مِ</div>
+                    <img src="https://via.placeholder.com/300x150?text=مِ+مكسورة" alt="ميم مكسورة" class="card-image">
+                    <div class="examples">
+                        <div class="example-word">
+                            <span>مِفْتَاح</span>
+                            <span class="pronunciation">mif-taah <i class="fas fa-volume-up" onclick="speak('مفتاح')"></i></span>
+                        </div>
+                        <div class="example-word">
+                            <span>مِصْبَاح</span>
+                            <span class="pronunciation">mis-baah <i class="fas fa-volume-up" onclick="speak('مصباح')"></i></span>
+                        </div>
+                        <div class="example-word">
+                            <span>مِيزَان</span>
+                            <span class="pronunciation">mee-zaan <i class="fas fa-volume-up" onclick="speak('ميزان')"></i></span>
+                        </div>
+                    </div>
+                    <div class="pronunciation">
+                        النطق: مِ + حركة الكسر (إِ) <i class="fas fa-volume-up" onclick="speak('مِ')"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- بطاقة الميم الساكنة -->
+            <div class="card">
+                <div class="card-header">ميم ساكنة</div>
+                <div class="card-body">
+                    <div class="letter-display">مْ</div>
+                    <img src="https://via.placeholder.com/300x150?text=مْ+ساكنة" alt="ميم ساكنة" class="card-image">
+                    <div class="examples">
+                        <div class="example-word">
+                            <span>أَمْ</span>
+                            <span class="pronunciation">am <i class="fas fa-volume-up" onclick="speak('أم')"></i></span>
+                        </div>
+                        <div class="example-word">
+                            <span>كُمْ</span>
+                            <span class="pronunciation">kum <i class="fas fa-volume-up" onclick="speak('كم')"></i></span>
+                        </div>
+                        <div class="example-word">
+                            <span>لُمْ</span>
+                            <span class="pronunciation">lum <i class="fas fa-volume-up" onclick="speak('لم')"></i></span>
+                        </div>
+                    </div>
+                    <div class="pronunciation">
+                        النطق: مْ بدون حركة (سكون) <i class="fas fa-volume-up" onclick="speak('مْ')"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- بطاقة الميم مع المدود -->
+            <div class="card">
+                <div class="card-header">ميم مع المدود</div>
+                <div class="card-body">
+                    <div class="letter-display">مَا - مُو - مِي</div>
+                    <img src="https://via.placeholder.com/300x150?text=ميم+مع+المدود" alt="ميم مع المدود" class="card-image">
+                    <div class="examples">
+                        <div class="example-word">
+                            <span>مَاء</span>
+                            <span class="pronunciation">maa' <i class="fas fa-volume-up" onclick="speak('ماء')"></i></span>
+                        </div>
+                        <div class="example-word">
+                            <span>مُوسِيقَى</span>
+                            <span class="pronunciation">muu-si-qa <i class="fas fa-volume-up" onclick="speak('موسيقى')"></i></span>
+                        </div>
+                        <div class="example-word">
+                            <span>مِيزَان</span>
+                            <span class="pronunciation">mee-zaan <i class="fas fa-volume-up" onclick="speak('ميزان')"></i></span>
+                        </div>
+                    </div>
+                    <div class="pronunciation">
+                        النطق: م + مد بالألف أو الواو أو الياء <i class="fas fa-volume-up" onclick="speak('مَا مُو مِي')"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- بطاقة الميم المشددة -->
+            <div class="card">
+                <div class="card-header">ميم مشددة</div>
+                <div class="card-body">
+                    <div class="letter-display">مّ</div>
+                    <img src="https://via.placeholder.com/300x150?text=مّ+مشددة" alt="ميم مشددة" class="card-image">
+                    <div class="examples">
+                        <div class="example-word">
+                            <span>أُمَّ</span>
+                            <span class="pronunciation">um-ma <i class="fas fa-volume-up" onclick="speak('أم')"></i></span>
+                        </div>
+                        <div class="example-word">
+                            <span>حَمَّام</span>
+                            <span class="pronunciation">ham-maam <i class="fas fa-volume-up" onclick="speak('حمام')"></i></span>
+                        </div>
+                        <div class="example-word">
+                            <span>رَمَّان</span>
+                            <span class="pronunciation">ram-maan <i class="fas fa-volume-up" onclick="speak('رمان')"></i></span>
+                        </div>
+                    </div>
+                    <div class="pronunciation">
+                        النطق: مّ مع التشديد (م مضاعفة) <i class="fas fa-volume-up" onclick="speak('مّ')"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- قسم بناء الكلمات -->
+        <div class="interactive-section">
+            <h2 class="section-title">بناء الكلمات بحرف الميم</h2>
+            <div class="word-builder">
+                <p>اختر الحروف لتركيب كلمة تحتوي على حرف الميم:</p>
+                
+                <div class="letters-container">
+                    <button class="letter-btn" onclick="addLetter('ا')">ا</button>
+                    <button class="letter-btn" onclick="addLetter('ب')">ب</button>
+                    <button class="letter-btn" onclick="addLetter('ت')">ت</button>
+                    <button class="letter-btn" onclick="addLetter('ح')">ح</button>
+                    <button class="letter-btn" onclick="addLetter('د')">د</button>
+                    <button class="letter-btn" onclick="addLetter('ر')">ر</button>
+                    <button class="letter-btn" onclick="addLetter('س')">س</button>
+                    <button class="letter-btn" onclick="addLetter('ع')">ع</button>
+                    <button class="letter-btn" onclick="addLetter('ف')">ف</button>
+                    <button class="letter-btn" onclick="addLetter('ك')">ك</button>
+                    <button class="letter-btn" onclick="addLetter('ل')">ل</button>
+                    <button class="letter-btn" onclick="addLetter('م')">م</button>
+                    <button class="letter-btn" onclick="addLetter('ن')">ن</button>
+                    <button class="letter-btn" onclick="addLetter('ه')">ه</button>
+                    <button class="letter-btn" onclick="addLetter('و')">و</button>
+                    <button class="letter-btn" onclick="addLetter('ي')">ي</button>
+                </div>
+                
+                <div class="word-display" id="wordDisplay"></div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="speakWord()">
+                        <i class="fas fa-volume-up"></i> استمع للكلمة
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearWord()">
+                        <i class="fas fa-trash-alt"></i> مسح
+                    </button>
+                    <button class="btn btn-primary" onclick="checkWord()">
+                        <i class="fas fa-check"></i> تحقق
+                    </button>
+                </div>
+                
+                <div class="feedback" id="wordFeedback"></div>
+            </div>
+        </div>
+
+        <!-- قسم تحليل الكلمات -->
+        <div class="interactive-section">
+            <h2 class="section-title">تحليل الكلمات إلى مقاطع صوتية</h2>
+            <div class="word-analysis">
+                <p>اكتب كلمة تحتوي على حرف الميم وسنقوم بتحليلها:</p>
+                
+                <div class="word-input-container">
+                    <input type="text" class="word-input" id="wordInput" placeholder="أدخل كلمة هنا...">
+                    <button class="btn btn-primary" onclick="analyzeWord()">
+                        <i class="fas fa-search"></i> حلل الكلمة
+                    </button>
+                </div>
+                
+                <div class="syllables-display" id="syllablesDisplay"></div>
+                
+                <div class="feedback" id="analysisFeedback"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-links">
+            <a href="#">الصفحة الرئيسية</a>
+            <a href="#">حروف أخرى</a>
+            <a href="#">تمارين إضافية</a>
+            <a href="#">تواصل معنا</a>
+        </div>
+        <p>© 2023 اللوحة القرائية - جميع الحقوق محفوظة</p>
+    </footer>
+
+    <script>
+        // دالة النطق باستخدام Web Speech API
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'ar-SA'; // اللغة العربية - السعودية
+                utterance.rate = 0.8; // سرعة النطق
+                speechSynthesis.speak(utterance);
+            } else {
+                alert('عذرًا، هذه الميزة غير مدعومة في متصفحك. يرجى استخدام متصفح حديث.');
+            }
+        }
+
+        // متغيرات قسم بناء الكلمات
+        let currentWord = [];
+
+        // إضافة حرف إلى الكلمة
+        function addLetter(letter) {
+            currentWord.push(letter);
+            updateWordDisplay();
+        }
+
+        // تحديث عرض الكلمة
+        function updateWordDisplay() {
+            const wordDisplay = document.getElementById('wordDisplay');
+            wordDisplay.innerHTML = currentWord.join('');
+        }
+
+        // مسح الكلمة
+        function clearWord() {
+            currentWord = [];
+            updateWordDisplay();
+            hideFeedback('wordFeedback');
+        }
+
+        // نطق الكلمة
+        function speakWord() {
+            if (currentWord.length > 0) {
+                speak(currentWord.join(''));
+            } else {
+                showFeedback('wordFeedback', 'الرجاء إدخال كلمة أولاً', 'error');
+            }
+        }
+
+        // التحقق من الكلمة
+        function checkWord() {
+            const word = currentWord.join('');
+            if (word.length === 0) {
+                showFeedback('wordFeedback', 'الرجاء إدخال كلمة أولاً', 'error');
+                return;
+            }
+
+            if (word.includes('م')) {
+                showFeedback('wordFeedback', 'أحسنت! الكلمة تحتوي على حرف الميم', 'success');
+            } else {
+                showFeedback('wordFeedback', 'الكلمة لا تحتوي على حرف الميم، حاول مرة أخرى', 'error');
+            }
+        }
+
+        // تحليل الكلمة إلى مقاطع
+        function analyzeWord() {
+            const wordInput = document.getElementById('wordInput').value.trim();
+            const syllablesDisplay = document.getElementById('syllablesDisplay');
+            
+            if (!wordInput) {
+                showFeedback('analysisFeedback', 'الرجاء إدخال كلمة أولاً', 'error');
+                return;
+            }
+
+            if (!wordInput.includes('م')) {
+                showFeedback('analysisFeedback', 'الكلمة يجب أن تحتوي على حرف الميم', 'error');
+                return;
+            }
+
+            // تحليل بسيط للمقاطع (يمكن تطويره)
+            const syllables = [];
+            let currentSyllable = '';
+            
+            for (let i = 0; i < wordInput.length; i++) {
+                currentSyllable += wordInput[i];
+                
+                // قاعدة بسيطة لتقسيم المقاطع
+                if (i < wordInput.length - 1 && 
+                    (isVowel(wordInput[i]) || wordInput[i] === 'ا' || wordInput[i] === 'و' || wordInput[i] === 'ي') &&
+                    !isVowel(wordInput[i+1])) {
+                    syllables.push(currentSyllable);
+                    currentSyllable = '';
+                }
+            }
+            
+            if (currentSyllable) {
+                syllables.push(currentSyllable);
+            }
+
+            // عرض المقاطع
+            syllablesDisplay.innerHTML = '';
+            syllables.forEach(syllable => {
+                const syllableElement = document.createElement('div');
+                syllableElement.className = 'syllable';
+                syllableElement.innerHTML = `${syllable} <i class="fas fa-volume-up" onclick="speak('${syllable}')"></i>`;
+                syllablesDisplay.appendChild(syllableElement);
+            });
+
+            showFeedback('analysisFeedback', `تم تحليل الكلمة إلى ${syllables.length} مقطع`, 'success');
+        }
+
+        // التحقق إذا كان الحرف حركة
+        function isVowel(char) {
+            return ['َ', 'ُ', 'ِ', 'ً', 'ٌ', 'ٍ'].includes(char);
+        }
+
+        // عرض رسائل التغذية الراجعة
+        function showFeedback(elementId, message, type) {
+            const feedbackElement = document.getElementById(elementId);
+            feedbackElement.textContent = message;
+            feedbackElement.className = `feedback show ${type}`;
+            
+            // إخفاء الرسالة بعد 3 ثواني
+            setTimeout(() => {
+                hideFeedback(elementId);
+            }, 3000);
+        }
+
+        // إخفاء رسائل التغذية الراجعة
+        function hideFeedback(elementId) {
+            const feedbackElement = document.getElementById(elementId);
+            feedbackElement.className = 'feedback';
+        }
+
+        // جعل بعض العناصر تنبض لجذب الانتباه
+        document.addEventListener('DOMContentLoaded', () => {
+            const letters = document.querySelectorAll('.letter-btn');
+            letters.forEach((letter, index) => {
+                if (letter.textContent === 'م') {
+                    letter.classList.add('pulse');
+                }
+                
+                // تأثير عند التحميل
+                setTimeout(() => {
+                    letter.classList.add('bounce');
+                    setTimeout(() => {
+                        letter.classList.remove('bounce');
+                    }, 1000);
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>

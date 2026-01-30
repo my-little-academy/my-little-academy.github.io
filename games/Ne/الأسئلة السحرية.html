@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أسئلة سحرية متتالية ✨</title>
+    <style>
+        /* تصميم عام للصفحة - سحري طفولي */
+        body {
+            font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            text-align: center;
+            overflow: hidden;
+        }
+        
+        /* تصميم الحاوية الرئيسية */
+        .game-container {
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        /* بطاقة السؤال السحرية */
+        .question-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.7),
+                        0 0 60px rgba(255, 255, 255, 0.5);
+            border: 3px solid gold;
+            color: #333;
+            transform-style: preserve-3d;
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .question-card::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                transparent, 
+                rgba(255, 255, 255, 0.3) 45%,
+                transparent 55%
+            );
+            transform: rotate(30deg);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(30deg); }
+            100% { transform: translateX(100%) rotate(30deg); }
+        }
+        
+        /* مؤقت العد التنازلي */
+        .timer {
+            width: 100%;
+            height: 15px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .timer-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            width: 100%;
+            transition: width 1s linear;
+            border-radius: 10px;
+        }
+        
+        /* خيارات الإجابة */
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .option {
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            border: none;
+            border-radius: 50px;
+            padding: 15px;
+            font-size: 18px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .option:active {
+            transform: translateY(1px);
+        }
+        
+        /* تأثيرات الإجابة */
+        .correct {
+            animation: correctAnswer 1s;
+            background: linear-gradient(135deg, #4CAF50 0%, #81C784 100%) !important;
+        }
+        
+        .wrong {
+            animation: wrongAnswer 0.5s;
+            background: linear-gradient(135deg, #F44336 0%, #E57373 100%) !important;
+        }
+        
+        @keyframes correctAnswer {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes wrongAnswer {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+        
+        /* شاشة النتائج */
+        .result-screen {
+            display: none;
+            animation: fadeIn 1s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* تأثيرات الكونفيتي والنجوم */
+        .confetti, .star {
+            position: absolute;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .smoke {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(100,100,100,0.8) 0%, rgba(100,100,100,0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 5;
+            opacity: 0;
+            transform: scale(0);
+        }
+        
+        /* أزرار التحكم */
+        .control-btn {
+            background: linear-gradient(135deg, #FF416C 0%, #FF4B2B 100%);
+            border: none;
+            border-radius: 50px;
+            padding: 12px 30px;
+            font-size: 18px;
+            color: white;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+        }
+        
+        .control-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* التقييم النهائي */
+        .final-title {
+            font-size: 32px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+            animation: glow 2s infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.8); }
+            to { text-shadow: 0 0 20px gold, 0 0 30px gold; }
+        }
+        
+        /* شاشة البداية */
+        .start-screen {
+            animation: fadeIn 1s;
+        }
+        
+        .title {
+            font-size: 42px;
+            margin-bottom: 20px;
+            color: gold;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+            animation: glow 2s infinite alternate;
+        }
+        
+        .subtitle {
+            font-size: 20px;
+            margin-bottom: 30px;
+        }
+        
+        /* إخفاء العناصر */
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- شاشة البداية -->
+        <div class="start-screen" id="start-screen">
+            <h1 class="title">✨ الأسئلة السحرية ✨</h1>
+            <p class="subtitle">اختبار معرفتك في 15 ثانية لكل سؤال!</p>
+            <button class="control-btn" id="start-btn">ابدأ المغامرة!</button>
+        </div>
+        
+        <!-- شاشة اللعبة -->
+        <div id="game-screen" class="hidden">
+            <div class="question-card">
+                <h2 id="question">السؤال يظهر هنا</h2>
+                <div class="timer">
+                    <div class="timer-bar" id="timer-bar"></div>
+                </div>
+                <div class="options" id="options">
+                    <!-- الخيارات تظهر هنا -->
+                </div>
+            </div>
+            <div id="question-counter" style="margin-top: 20px; font-size: 18px;">السؤال 1/3</div>
+        </div>
+        
+        <!-- شاشة النتائج -->
+        <div class="result-screen hidden" id="result-screen">
+            <h2 class="final-title" id="final-title">أنت فارس المعرفة!</h2>
+            <div id="final-score" style="font-size: 24px; margin-bottom: 30px;">لقد حصلت على 3/3</div>
+            <button class="control-btn" id="restart-btn">العب مرة أخرى</button>
+        </div>
+    </div>
+
+    <script>
+        // بيانات الأسئلة
+        const questions = [
+            {
+                question: "ما هو الكوكب الأقرب إلى الشمس؟",
+                options: ["الزهرة", "المريخ", "عطارد", "الأرض"],
+                answer: 2
+            },
+            {
+                question: "كم عدد أيام الأسبوع؟",
+                options: ["5", "6", "7", "8"],
+                answer: 2
+            },
+            {
+                question: "ما هو لون العشب؟",
+                options: ["أزرق", "أحمر", "أخضر", "أصفر"],
+                answer: 2
+            }
+        ];
+
+        // متغيرات اللعبة
+        let currentQuestion = 0;
+        let score = 0;
+        let timer;
+        let timeLeft = 15;
+        let gameStarted = false;
+
+        // عناصر DOM
+        const startScreen = document.getElementById('start-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const questionElement = document.getElementById('question');
+        const optionsElement = document.getElementById('options');
+        const timerBar = document.getElementById('timer-bar');
+        const questionCounter = document.getElementById('question-counter');
+        const finalTitle = document.getElementById('final-title');
+        const finalScore = document.getElementById('final-score');
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+
+        // بدء اللعبة
+        startBtn.addEventListener('click', startGame);
+        restartBtn.addEventListener('click', restartGame);
+
+        function startGame() {
+            startScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            gameStarted = true;
+            currentQuestion = 0;
+            score = 0;
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            // إعادة تعيين المؤقت
+            timeLeft = 15;
+            timerBar.style.width = '100%';
+            
+            // عرض السؤال الحالي
+            const q = questions[currentQuestion];
+            questionElement.textContent = q.question;
+            questionCounter.textContent = `السؤال ${currentQuestion + 1}/${questions.length}`;
+            
+            // مسح الخيارات السابقة
+            optionsElement.innerHTML = '';
+            
+            // إنشاء خيارات جديدة
+            q.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option';
+                button.textContent = option;
+                button.addEventListener('click', () => checkAnswer(index));
+                optionsElement.appendChild(button);
+            });
+            
+            // بدء المؤقت
+            clearInterval(timer);
+            timer = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            timeLeft--;
+            timerBar.style.width = `${(timeLeft / 15) * 100}%`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                showSmokeEffect();
+                setTimeout(nextQuestion, 1500);
+            }
+        }
+
+        function checkAnswer(selectedIndex) {
+            clearInterval(timer);
+            
+            const correctIndex = questions[currentQuestion].answer;
+            const options = document.querySelectorAll('.option');
+            
+            if (selectedIndex === correctIndex) {
+                // إجابة صحيحة
+                options[selectedIndex].classList.add('correct');
+                score++;
+                createConfetti();
+            } else {
+                // إجابة خاطئة
+                options[selectedIndex].classList.add('wrong');
+                options[correctIndex].classList.add('correct');
+                showSmokeEffect();
+            }
+            
+            setTimeout(nextQuestion, 1500);
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            gameScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+            
+            finalScore.textContent = `لقد حصلت على ${score}/${questions.length}`;
+            
+            if (score === questions.length) {
+                finalTitle.textContent = "أنت فارس المعرفة! 👑";
+                createConfetti(true); // الكثير من الكونفيتي
+            } else if (score >= questions.length / 2) {
+                finalTitle.textContent = "أحسنت! يمكنك أن تتحسن أكثر! ✨";
+                createConfetti();
+            } else {
+                finalTitle.textContent = "تابع التدريب أيها المتعلّم! 📚";
+            }
+        }
+
+        function restartGame() {
+            resultScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+        }
+
+        // تأثيرات بصرية
+        function createConfetti(fullScreen = false) {
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffffff'];
+            const count = fullScreen ? 200 : 50;
+            
+            for (let i = 0; i < count; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = fullScreen ? 'confetti' : 'star';
+                
+                // تحديد موقع عشوائي
+                const x = Math.random() * window.innerWidth;
+                const y = -20;
+                
+                // تحديد لون عشوائي
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                
+                // تحديد حجم عشوائي
+                const size = Math.random() * 15 + 5;
+                
+                // تحديد شكل عشوائي (نجمة أو دائرة)
+                if (Math.random() > 0.7) {
+                    confetti.innerHTML = '⭐';
+                    confetti.style.fontSize = `${size}px`;
+                    confetti.style.color = 'gold';
+                } else {
+                    confetti.style.width = `${size}px`;
+                    confetti.style.height = `${size}px`;
+                    confetti.style.backgroundColor = color;
+                    confetti.style.borderRadius = '50%';
+                }
+                
+                // تحديد مدة وتأخير عشوائي
+                const duration = Math.random() * 3 + 2;
+                const delay = Math.random() * 1;
+                
+                confetti.style.left = `${x}px`;
+                confetti.style.top = `${y}px`;
+                confetti.style.animation = `fall ${duration}s linear ${delay}s forwards`;
+                
+                document.body.appendChild(confetti);
+                
+                // إزالة الكونفيتي بعد انتهاء التأثير
+                setTimeout(() => {
+                    confetti.remove();
+                }, (duration + delay) * 1000);
+            }
+            
+            // أضف انيميشن السقوط
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @keyframes fall {
+                    to { transform: translateY(${window.innerHeight + 100}px) rotate(360deg); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        function showSmokeEffect() {
+            const smoke = document.createElement('div');
+            smoke.className = 'smoke';
+            smoke.style.left = `${Math.random() * (window.innerWidth - 100)}px`;
+            smoke.style.top = `${Math.random() * (window.innerHeight - 100)}px`;
+            
+            document.body.appendChild(smoke);
+            
+            // تأثير ظهور الدخان
+            setTimeout(() => {
+                smoke.style.transition = 'all 2s';
+                smoke.style.opacity = '0.8';
+                smoke.style.transform = 'scale(2)';
+            }, 10);
+            
+            // إزالة الدخان بعد التأثير
+            setTimeout(() => {
+                smoke.remove();
+            }, 2000);
+        }
+
+        // أضف أنيميشن السقوط للكونفيتي
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes fall {
+                to { transform: translateY(${window.innerHeight + 100}px) rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

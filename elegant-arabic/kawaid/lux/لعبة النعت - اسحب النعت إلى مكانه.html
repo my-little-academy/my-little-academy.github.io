@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>لعبة النعت - سحب وإفلات</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive;
+      background: linear-gradient(to bottom right, #fff0f5, #ffe6e6);
+      margin: 0;
+      padding: 30px;
+      text-align: center;
+    }
+    h1 {
+      color: #d81b60;
+      margin-bottom: 30px;
+    }
+    .container {
+      background-color: #fff;
+      max-width: 700px;
+      margin: auto;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    .sentence {
+      font-size: 24px;
+      margin-bottom: 20px;
+      min-height: 60px;
+    }
+    .drop-zone {
+      display: inline-block;
+      min-width: 100px;
+      min-height: 30px;
+      border-bottom: 3px dashed #888;
+      vertical-align: middle;
+      margin: 0 5px;
+    }
+    .options {
+      margin-top: 20px;
+    }
+    .option {
+      display: inline-block;
+      padding: 10px 20px;
+      margin: 10px;
+      background-color: #f8bbd0;
+      border-radius: 15px;
+      cursor: grab;
+      font-weight: bold;
+      user-select: none;
+      transition: transform 0.3s;
+    }
+    .option:hover {
+      background-color: #f06292;
+      transform: scale(1.1);
+    }
+    #feedback {
+      margin-top: 20px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+    .correct {
+      color: green;
+    }
+    .wrong {
+      color: red;
+    }
+    button {
+      margin-top: 25px;
+      padding: 10px 25px;
+      font-size: 18px;
+      background-color: #d81b60;
+      color: white;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #b01250;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>🎯 لعبة النعت - اسحب النعت إلى مكانه</h1>
+    <div class="sentence" id="sentence">
+      الطالب <span class="drop-zone" id="drop-zone"></span> مجتهد.
+    </div>
+
+    <div class="options">
+      <div class="option" draggable="true">المجتهد</div>
+      <div class="option" draggable="true">الذكي</div>
+      <div class="option" draggable="true">المدرسة</div>
+    </div>
+
+    <div id="feedback"></div>
+
+    <button id="nextBtn">التالي</button>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        sentence: "الطالب <span class='drop-zone' id='drop-zone'></span> مجتهد.",
+        correct: "الذكي",
+        options: ["الذكي", "المدرسة", "الكتاب"]
+      },
+      {
+        sentence: "رأيتُ فتاةً <span class='drop-zone' id='drop-zone'></span> في الحديقة.",
+        correct: "جميلةً",
+        options: ["جميلةً", "قلم", "مدرس"]
+      },
+      {
+        sentence: "اشتريتُ كتابًا <span class='drop-zone' id='drop-zone'></span>.",
+        correct: "مفيدًا",
+        options: ["مفيدًا", "كرسي", "وردة"]
+      }
+    ];
+
+    let current = 0;
+    const sentenceDiv = document.getElementById('sentence');
+    const optionsDiv = document.querySelector('.options');
+    const feedback = document.getElementById('feedback');
+    const nextBtn = document.getElementById('nextBtn');
+
+    function loadQuestion() {
+      const q = questions[current];
+      sentenceDiv.innerHTML = q.sentence;
+      optionsDiv.innerHTML = '';
+      q.options.forEach(opt => {
+        const optDiv = document.createElement('div');
+        optDiv.className = 'option';
+        optDiv.textContent = opt;
+        optDiv.setAttribute('draggable', true);
+        optionsDiv.appendChild(optDiv);
+      });
+      feedback.textContent = '';
+    }
+
+    // Drag and drop logic
+    document.addEventListener('dragstart', function (e) {
+      if (e.target.classList.contains('option')) {
+        e.dataTransfer.setData('text/plain', e.target.textContent);
+      }
+    });
+
+    document.addEventListener('dragover', function (e) {
+      if (e.target.classList.contains('drop-zone')) {
+        e.preventDefault();
+      }
+    });
+
+    document.addEventListener('drop', function (e) {
+      if (e.target.classList.contains('drop-zone')) {
+        e.preventDefault();
+        const droppedText = e.dataTransfer.getData('text/plain');
+        const correctAnswer = questions[current].correct;
+
+        e.target.textContent = droppedText;
+
+        if (droppedText === correctAnswer) {
+          feedback.textContent = "✔️ أحسنت! إجابة صحيحة";
+          feedback.className = "correct";
+        } else {
+          feedback.textContent = `❌ خطأ! النعت الصحيح هو: ${correctAnswer}`;
+          feedback.className = "wrong";
+        }
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      current = (current + 1) % questions.length;
+      loadQuestion();
+    });
+
+    loadQuestion();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة: أكمل الفراغ بما يناسب</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400;700&family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --paper-bg: #fdfaf2;
+            --line-color: #e0dcd1;
+            --blue: #a2d2ff;
+            --green: #caffbf;
+            --yellow: #fdffb6;
+            --pink: #ffc6c7;
+            --text-color: #3d3a30;
+            --correct-color: #57cc99;
+            --incorrect-color: #e63946;
+            --font-body: 'Cairo', sans-serif;
+            --font-handwriting: 'Reem Kufi', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: #d4eaf7;
+            background-image: linear-gradient(var(--paper-bg) 50%, #d4eaf7 50%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: var(--text-color);
+        }
+
+        /* حاوية اللعبة الرئيسية بتصميم الدفتر */
+        .game-container {
+            background-color: var(--paper-bg);
+            background-image: repeating-linear-gradient(
+                to bottom,
+                transparent,
+                transparent 49px,
+                var(--line-color) 50px
+            );
+            width: 100%;
+            max-width: 800px;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border: 10px solid #fff;
+            position: relative;
+        }
+
+        /* شريط التقدم */
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            border: 2px dashed var(--blue);
+            padding: 4px;
+        }
+
+        #progress-bar {
+            height: 20px;
+            width: 0%;
+            background: linear-gradient(90deg, var(--pink), var(--green));
+            border-radius: 15px;
+            transition: width 0.5s ease-in-out;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        #progress-text {
+            position: absolute;
+            width: 95%;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-color);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+        }
+
+        /* منطقة السؤال والفراغ */
+        .question-box {
+            background-color: var(--blue);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            font-family: var(--font-handwriting);
+            font-size: 30px;
+            text-align: center;
+            border: 3px dotted #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            min-height: 70px;
+        }
+
+        #drop-zone {
+            display: inline-block;
+            width: 120px;
+            height: 60px;
+            border: 3px dashed var(--text-color);
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+            vertical-align: middle;
+            padding: 5px;
+        }
+
+        #drop-zone.hover {
+            background-color: rgba(255, 255, 255, 0.9);
+            transform: scale(1.05);
+        }
+
+        /* بطاقات الكلمات القابلة للسحب */
+        .words-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .word-card {
+            padding: 15px 25px;
+            font-size: 24px;
+            font-weight: 700;
+            border-radius: 10px;
+            cursor: grab;
+            transition: all 0.3s ease;
+            user-select: none;
+            border: 3px dotted transparent;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .word-card:hover {
+            transform: translateY(-5px) rotate(2deg);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+        }
+        
+        .word-card.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+        
+        /* ألوان البطاقات */
+        .word-card[data-color="pink"] { background-color: var(--pink); border-color: #ff9aa2; }
+        .word-card[data-color="yellow"] { background-color: var(--yellow); border-color: #fcf683; }
+        .word-card[data-color="green"] { background-color: var(--green); border-color: #a8e6cf; }
+        .word-card[data-color="blue"] { background-color: var(--blue); border-color: #89c2d9; }
+
+        /* منطقة التحكم */
+        .controls {
+            text-align: center;
+            height: 80px; /* لتثبيت المساحة */
+        }
+
+        .btn {
+            font-family: var(--font-body);
+            font-size: 20px;
+            font-weight: 700;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-color);
+            margin: 5px;
+            box-shadow: 0 4px 0 #b3b3b3;
+        }
+        
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #b3b3b3;
+        }
+
+        .btn.check-btn { background-color: var(--yellow); }
+        .btn.next-btn { background-color: var(--green); }
+        .btn.restart-btn { background-color: var(--blue); }
+
+        .btn:disabled {
+            background-color: #e0e0e0;
+            cursor: not-allowed;
+            opacity: 0.6;
+            box-shadow: 0 4px 0 #9e9e9e;
+        }
+
+        /* رسائل التعزيز */
+        #feedback-message {
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            font-family: var(--font-handwriting);
+            height: 40px;
+            opacity: 0;
+            transition: opacity 0.5s, transform 0.5s;
+            transform: scale(0.5);
+        }
+        
+        #feedback-message.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        #feedback-message.correct { color: var(--correct-color); }
+        #feedback-message.incorrect { color: var(--incorrect-color); }
+
+        /* تأثيرات الإجابة */
+        #drop-zone.correct .word-card {
+            background-color: var(--correct-color) !important;
+            color: white;
+            animation: pop-in 0.5s ease;
+        }
+        #drop-zone.incorrect .word-card {
+            background-color: var(--incorrect-color) !important;
+            color: white;
+            animation: shake 0.5s ease;
+        }
+        
+        /* شاشة النهاية */
+        #end-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        #end-screen h2 {
+            font-size: 40px;
+            font-family: var(--font-handwriting);
+            color: var(--correct-color);
+        }
+        
+        #final-score {
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+
+        #star-icon {
+            font-size: 100px;
+            color: #ffd700;
+            animation: star-pulse 2s infinite;
+        }
+
+
+        /* Keyframe Animations */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+            20%, 40%, 60%, 80% { transform: translateX(8px); }
+        }
+        
+        @keyframes pop-in {
+            0% { transform: scale(0.5); }
+            80% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes star-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2) rotate(15deg); }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 20px;
+                background-image: repeating-linear-gradient(to bottom, transparent, transparent 39px, var(--line-color) 40px);
+            }
+            .question-box {
+                font-size: 22px;
+                flex-direction: column;
+            }
+            #drop-zone { width: 100px; height: 50px; }
+            .word-card { font-size: 20px; padding: 10px 20px; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <!-- شاشة اللعب -->
+        <div id="game-screen">
+            <div class="progress-bar-container">
+                <div id="progress-bar"><span id="progress-text"></span></div>
+            </div>
+
+            <div class="question-box">
+                <span id="question-part1"></span>
+                <div id="drop-zone"></div>
+                <span id="question-part2"></span>
+            </div>
+            
+            <div id="words-container" class="words-container">
+                <!-- بطاقات الكلمات ستضاف هنا -->
+            </div>
+
+            <div id="feedback-message"></div>
+
+            <div class="controls">
+                <button id="check-btn" class="btn check-btn" disabled>تحقق</button>
+                <button id="next-btn" class="btn next-btn" style="display: none;">التالي</button>
+            </div>
+        </div>
+
+        <!-- شاشة النهاية -->
+        <div id="end-screen">
+            <div id="star-icon">⭐</div>
+            <h2>رائع! لقد أكملت الدرس!</h2>
+            <p id="final-score"></p>
+            <button id="restart-btn" class="btn restart-btn">العب مرة أخرى</button>
+        </div>
+    </div>
+
+    <script>
+        // -- عناصر DOM --
+        const gameScreen = document.getElementById('game-screen');
+        const endScreen = document.getElementById('end-screen');
+        const questionPart1 = document.getElementById('question-part1');
+        const questionPart2 = document.getElementById('question-part2');
+        const dropZone = document.getElementById('drop-zone');
+        const wordsContainer = document.getElementById('words-container');
+        const checkBtn = document.getElementById('check-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const finalScoreText = document.getElementById('final-score');
+        
+        // -- بنك الأسئلة (أدوات الاستفهام) --
+        const questions = [
+            { text: "___ حالك اليوم؟", answer: "كيف", options: ["كيف", "متى", "أين"] },
+            { text: "___ تسكن؟", answer: "أين", options: ["كم", "أين", "من"] },
+            { text: "___ ستعود من السفر؟", answer: "متى", options: ["لماذا", "ماذا", "متى"] },
+            { text: "___ فتح الباب؟", answer: "من", options: ["هل", "من", "كيف"] },
+            { text: "___ ثمن الكتاب؟", answer: "كم", options: ["كم", "أين", "ماذا"] },
+            { text: "___ تبكي؟", answer: "لماذا", options: ["متى", "لماذا", "من"] },
+            { text: "___ تأكل؟", answer: "ماذا", options: ["أين", "ماذا", "هل"] },
+            { text: "___ تحب الرياضة؟", answer: "هل", options: ["كيف", "متى", "هل"] }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        const cardColors = ['pink', 'yellow', 'green', 'blue'];
+
+        // -- وظائف اللعبة --
+
+        function startGame() {
+            currentQuestionIndex = 0;
+            score = 0;
+            endScreen.style.display = 'none';
+            gameScreen.style.display = 'block';
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            resetState();
+            
+            if (currentQuestionIndex >= questions.length) {
+                showEndScreen();
+                return;
+            }
+            
+            const currentQuestion = questions[currentQuestionIndex];
+            const [part1, part2] = currentQuestion.text.split('___');
+
+            questionPart1.textContent = part1;
+            questionPart2.textContent = part2;
+
+            const shuffledOptions = shuffleArray([...currentQuestion.options]);
+            
+            shuffledOptions.forEach((option, index) => {
+                const card = document.createElement('div');
+                card.className = 'word-card';
+                card.textContent = option;
+                card.draggable = true;
+                card.id = `card-${option}`;
+                card.dataset.color = cardColors[index % cardColors.length];
+                wordsContainer.appendChild(card);
+                
+                // إضافة أحداث السحب
+                card.addEventListener('dragstart', dragStart);
+            });
+            
+            updateProgress();
+        }
+
+        function resetState() {
+            dropZone.innerHTML = '';
+            dropZone.className = 'drop-zone';
+            wordsContainer.innerHTML = '';
+            feedbackMessage.textContent = '';
+            feedbackMessage.className = '';
+            checkBtn.disabled = true;
+            checkBtn.style.display = 'inline-block';
+            nextBtn.style.display = 'none';
+        }
+
+        function updateProgress() {
+            const progressPercentage = (currentQuestionIndex / questions.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+            progressText.textContent = `السؤال ${currentQuestionIndex + 1} من ${questions.length}`;
+        }
+
+        // -- وظائف السحب والإفلات --
+
+        function dragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.id);
+            setTimeout(() => e.target.classList.add('dragging'), 0);
+        }
+
+        dropZone.addEventListener('dragover', e => {
+            e.preventDefault();
+            dropZone.classList.add('hover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('hover');
+        });
+
+        dropZone.addEventListener('drop', e => {
+            e.preventDefault();
+            dropZone.classList.remove('hover');
+            const cardId = e.dataTransfer.getData('text/plain');
+            const draggedCard = document.getElementById(cardId);
+            
+            if (draggedCard && !dropZone.hasChildNodes()) {
+                dropZone.appendChild(draggedCard);
+                draggedCard.classList.remove('dragging');
+                checkBtn.disabled = false;
+            }
+        });
+
+        // -- التحقق من الإجابة --
+
+        checkBtn.addEventListener('click', () => {
+            const droppedCard = dropZone.querySelector('.word-card');
+            if (!droppedCard) return;
+
+            const userAnswer = droppedCard.textContent;
+            const correctAnswer = questions[currentQuestionIndex].answer;
+
+            if (userAnswer === correctAnswer) {
+                score++;
+                dropZone.classList.add('correct');
+                showFeedback("رائع!", "correct");
+            } else {
+                dropZone.classList.add('incorrect');
+                showFeedback("حاول مرة أخرى!", "incorrect");
+            }
+            
+            checkBtn.style.display = 'none';
+            nextBtn.style.display = 'inline-block';
+        });
+
+        function showFeedback(message, type) {
+            feedbackMessage.textContent = message;
+            feedbackMessage.className = `show ${type}`;
+        }
+        
+        // -- التنقل --
+        
+        nextBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            loadQuestion();
+        });
+
+        restartBtn.addEventListener('click', startGame);
+
+        function showEndScreen() {
+            gameScreen.style.display = 'none';
+            endScreen.style.display = 'flex';
+            finalScoreText.textContent = `لقد أجبت بشكل صحيح على ${score} من ${questions.length} أسئلة.`;
+             // تحديث شريط التقدم للمرة الأخيرة
+            progressBar.style.width = '100%';
+        }
+        
+        // -- وظيفة مساعدة لخلط المصفوفة --
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // بدء اللعبة
+        startGame();
+
+    </script>
+</body>
+</html>

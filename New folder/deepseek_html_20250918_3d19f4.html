@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎮 لعبة جدول الجمع التفاعلية</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Cairo', 'Arial', sans-serif;
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      text-align: center;
+      color: #fff;
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      margin-bottom: 30px;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      width: 100%;
+    }
+    
+    h1 {
+      font-size: 3rem;
+      margin-top: 15px;
+      color: white;
+      text-shadow: 3px 3px 0 #ff9d00, 6px 6px 0 rgba(0,0,0,0.15);
+      animation: bounce 2s infinite alternate;
+    }
+    
+    .subtitle {
+      font-size: 1.5rem;
+      margin-top: 10px;
+      color: #ffeb3b;
+      font-weight: bold;
+    }
+    
+    .instructions {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 15px;
+      border-radius: 15px;
+      margin: 20px 0;
+      font-size: 1.2rem;
+      max-width: 800px;
+    }
+    
+    .game-container {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      margin: 20px 0;
+      width: 100%;
+      max-width: 900px;
+      overflow-x: auto;
+    }
+    
+    .addition-table {
+      border-collapse: collapse;
+      margin: 0 auto;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    
+    .addition-table td {
+      width: 55px;
+      height: 55px;
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: bold;
+      border: 2px solid #3a0ca3;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: #333;
+    }
+    
+    .addition-table td:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+      z-index: 10;
+      position: relative;
+    }
+    
+    .header-cell {
+      background: linear-gradient(to bottom, #4cc9f0, #4361ee);
+      color: white !important;
+      font-size: 1.5rem !important;
+      font-weight: bold;
+    }
+    
+    .corner-cell {
+      background: linear-gradient(to bottom right, #ff9d00, #ff5400);
+      color: white !important;
+      font-size: 1.6rem !important;
+    }
+    
+    .selected {
+      background: linear-gradient(to bottom, #ff9d00, #ffcc00) !important;
+      color: white !important;
+      transform: scale(1.1);
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.9);
+      z-index: 10;
+      position: relative;
+    }
+    
+    .result-cell {
+      background: linear-gradient(to bottom, #f72585, #b5179e);
+      color: white !important;
+    }
+    
+    .animation-area {
+      min-height: 100px;
+      margin: 20px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: bold;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      padding: 15px;
+    }
+    
+    .controls {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+    
+    .btn {
+      padding: 12px 25px;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 50px;
+      background: linear-gradient(to right, #ff9d00, #ffcc00);
+      color: #333;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: bold;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .btn:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .btn-reset {
+      background: linear-gradient(to right, #f72585, #b5179e);
+      color: white;
+    }
+    
+    .btn-help {
+      background: linear-gradient(to right, #4cc9f0, #4361ee);
+      color: white;
+    }
+    
+    .examples {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    
+    .example-card {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 15px;
+      border-radius: 15px;
+      width: 200px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .example-card h3 {
+      color: #ffeb3b;
+      margin-bottom: 10px;
+    }
+    
+    footer {
+      margin-top: 30px;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1rem;
+      padding: 15px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 15px;
+      width: 100%;
+      max-width: 800px;
+    }
+    
+    /* Animations */
+    @keyframes bounce {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-10px); }
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    @keyframes highlight {
+      0% { background-color: #ff9d00; }
+      50% { background-color: #ffcc00; }
+      100% { background-color: #ff9d00; }
+    }
+    
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2.2rem;
+      }
+      
+      .subtitle {
+        font-size: 1.2rem;
+      }
+      
+      .addition-table td {
+        width: 40px;
+        height: 40px;
+        font-size: 1.1rem;
+      }
+      
+      .header-cell, .corner-cell {
+        font-size: 1.2rem !important;
+      }
+      
+      .btn {
+        padding: 10px 20px;
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎮 لعبة جدول الجمع التفاعلية</h1>
+      <p class="subtitle">تعلم عملية الجمع بطريقة ممتعة ومرحة!</p>
+    </header>
+    
+    <div class="instructions">
+      <p>انقر على أي خلية في الجدول لترى كيف يتم جمع الرقمين معًا!</p>
+    </div>
+    
+    <div class="game-container">
+      <table class="addition-table" id="additionTable">
+        <!-- سيتم إنشاء الجدول بواسطة JavaScript -->
+      </table>
+    </div>
+    
+    <div class="animation-area" id="animationArea">
+      <p>مرحبًا! انقر على أي خلية في الجدول لبدء اللعبة</p>
+    </div>
+    
+    <div class="controls">
+      <button class="btn btn-reset" id="resetBtn">🔄 إعادة البدء</button>
+      <button class="btn btn-help" id="helpBtn">❓ مساعدة</button>
+    </div>
+    
+    <div class="examples">
+      <div class="example-card">
+        <h3>مثال 1</h3>
+        <p>2 + 3 = 5</p>
+        <p>انقر على الخلية عند تقاطع صف 2 وعمود 3</p>
+      </div>
+      <div class="example-card">
+        <h3>مثال 2</hh3>
+        <p>7 + 4 = 11</p>
+        <p>انقر على الخلية عند تقاطع صف 7 وعمود 4</p>
+      </div>
+      <div class="example-card">
+        <h3>مثال 3</h3>
+        <p>9 + 8 = 17</p>
+        <p>انقر على الخلية عند تقاطع صف 9 وعمود 8</p>
+      </div>
+    </div>
+    
+    <footer>
+      <p>صممت بخدمة تعليمية ممتعة للأطفال © 2023 | لعبة جدول الجمع التفاعلية</p>
+    </footer>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const table = document.getElementById('additionTable');
+      const animationArea = document.getElementById('animationArea');
+      const resetBtn = document.getElementById('resetBtn');
+      const helpBtn = document.getElementById('helpBtn');
+      
+      let selectedRow = -1;
+      let selectedCol = -1;
+      
+      // إنشاء جدول الجمع
+      function createAdditionTable() {
+        // إنشاء الصف الأول (الرأس)
+        let headerRow = document.createElement('tr');
+        let cornerCell = document.createElement('td');
+        cornerCell.textContent = '+';
+        cornerCell.classList.add('corner-cell');
+        headerRow.appendChild(cornerCell);
+        
+        for (let i = 0; i <= 9; i++) {
+          let headerCell = document.createElement('td');
+          headerCell.textContent = i;
+          headerCell.classList.add('header-cell');
+          headerRow.appendChild(headerCell);
+        }
+        table.appendChild(headerRow);
+        
+        // إنشاء صفوف الجدول
+        for (let i = 0; i <= 9; i++) {
+          let row = document.createElement('tr');
+          
+          // الخلية الأولى في الصف (رقم الصف)
+          let rowHeader = document.createElement('td');
+          rowHeader.textContent = i;
+          rowHeader.classList.add('header-cell');
+          row.appendChild(rowHeader);
+          
+          // خلايا الجمع
+          for (let j = 0; j <= 9; j++) {
+            let cell = document.createElement('td');
+            cell.textContent = i + j;
+            cell.dataset.row = i;
+            cell.dataset.col = j;
+            
+            cell.addEventListener('click', function() {
+              highlightCells(i, j);
+              showAnimation(i, j);
+            });
+            
+            row.appendChild(cell);
+          }
+          
+          table.appendChild(row);
+        }
+      }
+      
+      // تمييز الخلايا عند النقر
+      function highlightCells(row, col) {
+        // إزالة التمييز السابق
+        const previouslySelected = document.querySelectorAll('.selected');
+        previouslySelected.forEach(cell => {
+          cell.classList.remove('selected');
+        });
+        
+        // تمييز صف الرقم الأول
+        const rowCells = document.querySelectorAll(`tr:nth-child(${row + 2}) td`);
+        rowCells[0].classList.add('selected');
+        
+        // تمييز عمود الرقم الثاني
+        const colCells = document.querySelectorAll(`tr td:nth-child(${col + 2})`);
+        colCells[0].classList.add('selected');
+        
+        // تمييز خلية النتيجة
+        const resultCell = document.querySelectorAll(`tr:nth-child(${row + 2}) td:nth-child(${col + 2})`)[0];
+        resultCell.classList.add('selected');
+        
+        selectedRow = row;
+        selectedCol = col;
+      }
+      
+      // عرض الرسوم المتحركة والنتيجة
+      function showAnimation(row, col) {
+        const result = row + col;
+        animationArea.innerHTML = `
+          <div style="animation: pulse 1s;">
+            <span style="font-size: 2.5em; color: #ff9d00;">${row}</span>
+            <span style="font-size: 2em;"> + </span>
+            <span style="font-size: 2.5em; color: #4cc9f0;">${col}</span>
+            <span style="font-size: 2em;"> = </span>
+            <span style="font-size: 3em; color: #f72585;">${result}</span>
+          </div>
+        `;
+      }
+      
+      // إعادة تعيين اللعبة
+      resetBtn.addEventListener('click', function() {
+        const selectedCells = document.querySelectorAll('.selected');
+        selectedCells.forEach(cell => {
+          cell.classList.remove('selected');
+        });
+        
+        animationArea.innerHTML = '<p>اختر خلية أخرى من الجدول!</p>';
+        selectedRow = -1;
+        selectedCol = -1;
+      });
+      
+      // عرض المساعدة
+      helpBtn.addEventListener('click', function() {
+        animationArea.innerHTML = `
+          <div style="text-align: right;">
+            <h3>كيفية اللعب:</h3>
+            <p>1. انقر على أي خلية في الجدول</p>
+            <p>2. سوف يضيء الرقمان اللذان تم جمعهما</p>
+            <p>3. شاهد نتيجة الجمع في المنطقة العلوية</p>
+            <p>4. جرب خلايا مختلفة لترى جميع نتائج الجمع!</p>
+          </div>
+        `;
+      });
+      
+      // تهيئة الجدول عند تحميل الصفحة
+      createAdditionTable();
+    });
+  </script>
+</body>
+</html>

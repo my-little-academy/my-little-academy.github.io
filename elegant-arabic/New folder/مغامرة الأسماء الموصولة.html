@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>درس الأسماء الموصولة - مغامرة تعليمية ممتعة</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        /* إعادة تعيين الأنماط الأساسية */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            color: #333;
+            direction: rtl;
+        }
+
+        /* خلفية متحركة بأشكال طفولية */
+        .floating-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .shape {
+            position: absolute;
+            opacity: 0.7;
+            animation: float 10s ease-in-out infinite;
+        }
+
+        .star {
+            width: 40px;
+            height: 40px;
+            background: #ffeb3b;
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+        }
+
+        .heart {
+            width: 40px;
+            height: 40px;
+            background: #ff4081;
+            transform: rotate(45deg);
+            position: relative;
+        }
+        .heart:before, .heart:after {
+            content: "";
+            width: 40px;
+            height: 40px;
+            background: #ff4081;
+            border-radius: 50%;
+            position: absolute;
+        }
+        .heart:before {
+            top: -20px;
+            left: 0;
+        }
+        .heart:after {
+            top: 0;
+            left: -20px;
+        }
+
+        .smile {
+            width: 40px;
+            height: 40px;
+            background: #ffeb3b;
+            border-radius: 50%;
+            position: relative;
+        }
+        .smile:before, .smile:after {
+            content: "";
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #333;
+            border-radius: 50%;
+            top: 12px;
+        }
+        .smile:before { right: 10px; }
+        .smile:after { left: 10px; }
+        .smile::after { /* Corrected selector for the smile's mouth */
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 10px;
+            border-bottom: 3px solid #333;
+            border-radius: 0 0 50% 50%;
+            top: 22px;
+            left: 10px;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-20px) rotate(5deg); }
+            50% { transform: translateY(0) rotate(-5deg); }
+            75% { transform: translateY(20px) rotate(5deg); }
+        }
+
+        /* المحتوى الرئيسي */
+        .container {
+            position: relative;
+            z-index: 2;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 30px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 3px dashed #ff9800;
+            animation: pulse 2s infinite;
+        }
+
+        .header h1 {
+            color: #e91e63;
+            font-size: 3.5em;
+            margin-bottom: 15px;
+            text-shadow: 3px 3px 0 #ffeb3b;
+            font-weight: 800;
+            background: linear-gradient(to right, #e91e63, #9c27b0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: #673ab7;
+            font-size: 1.5em;
+            line-height: 1.6;
+            font-weight: bold;
+        }
+
+        /* مراحل الدرس */
+        .lesson-stage {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 3px solid #ff9800;
+            /* Removed initial transform and opacity from here to fix the issue */
+            /* The 'active' class below will handle the initial appearance */
+        }
+
+        .lesson-stage.active {
+            transform: translateY(0);
+            opacity: 1;
+            animation: fadeIn 0.7s ease-out forwards; /* Added fadeIn animation for initial appearance */
+        }
+
+        .stage-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            padding: 15px;
+            border-radius: 15px;
+            background: linear-gradient(to right, #ff9800, #ff5722);
+            transition: all 0.3s ease;
+        }
+        .stage-header:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .stage-number {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(45deg, #ff5722, #ff9800);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-left: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border: 3px solid white;
+        }
+
+        .stage-title {
+            font-size: 2em;
+            color: white;
+            font-weight: bold;
+            flex-grow: 1;
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .stage-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.8s ease-out;
+            padding-top: 10px;
+        }
+
+        .stage-content.expanded {
+            max-height: 3000px; /* A large enough value to accommodate content */
+        }
+        .stage-content p {
+            font-size: 1.3em;
+            line-height: 1.8;
+            margin-bottom: 15px;
+            color: #555;
+        }
+        .stage-content ul {
+            list-style: none;
+            padding-right: 20px;
+            margin-bottom: 20px;
+        }
+        .stage-content ul li {
+            position: relative;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            color: #444;
+            padding-right: 30px;
+        }
+        .stage-content ul li::before {
+            content: '🟊';
+            position: absolute;
+            right: 0;
+            top: 0;
+            color: #ff9800;
+        }
+        .stage-content h3 {
+            color: #e91e63;
+            font-size: 2em;
+            margin-bottom: 20px;
+            border-bottom: 3px dotted #ff9800;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+
+        /* المرحلة الأولى - أمثلة الاكتشاف */
+        .discovery-examples {
+            background: linear-gradient(45deg, #a1eafb, #b5ead7);
+            padding: 25px;
+            border-radius: 20px;
+            margin: 25px 0;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.05);
+            border: 3px dashed #00bcd4;
+        }
+
+        .example-sentence {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border-left: 8px solid #e91e63;
+            font-size: 1.4em;
+            line-height: 1.7;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .example-sentence:hover {
+            transform: translateX(-10px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        .example-sentence strong {
+            color: #ff5722;
+            font-weight: bold;
+            padding: 0 5px;
+            animation: bounceIn 0.8s ease-out forwards;
+            display: inline-block;
+            font-size: 1.2em;
+        }
+        .example-icon {
+            margin-left: 15px;
+            font-size: 2em;
+            color: #e91e63;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        /* المرحلة الثانية - القاعدة */
+        .rule-section {
+            background: linear-gradient(45deg, #ffcc80, #ffab91);
+            padding: 25px;
+            border-radius: 20px;
+            margin: 25px 0;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            border: 3px dashed #ff5722;
+        }
+        .rule-section h3 {
+            color: #d32f2f;
+            font-size: 2.2em;
+            margin-bottom: 20px;
+        }
+        .rule-text {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            line-height: 2;
+            margin: 20px auto;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .rule-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .rule-item {
+            background: #ffffff;
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2196f3;
+            border: 3px solid #bbdefb;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .rule-item:hover {
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            background: #e3f2fd;
+        }
+
+        /* المرحلة الثالثة - التطبيق */
+        .interactive-section {
+            background: linear-gradient(45deg, #c8e6c9, #b2ebf2);
+            padding: 25px;
+            border-radius: 20px;
+            margin: 25px 0;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.05);
+            border: 3px dashed #4caf50;
+        }
+        .interactive-section h3 {
+            color: #2e7d32;
+            font-size: 2em;
+            text-align: center;
+        }
+        .drag-drop-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin: 25px 0;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 20px;
+            border-radius: 15px;
+            min-height: 100px;
+            border: 3px dashed #2196f3;
+        }
+
+        .draggable {
+            background: linear-gradient(45deg, #2196f3, #00bcd4);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            cursor: grab;
+            transition: all 0.3s ease;
+            user-select: none;
+            font-size: 1.3em;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 2px solid white;
+        }
+
+        .draggable:hover {
+            background: linear-gradient(45deg, #1976d2, #0097a7);
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        .draggable.dragged {
+            opacity: 0.5;
+            transform: scale(0.9);
+        }
+
+        .drop-sentences-container {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 3px dashed #9c27b0;
+        }
+
+        .drop-sentence {
+            font-size: 1.5em;
+            line-height: 2.2;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .drop-zone {
+            border: 3px dashed #9c27b0;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 15px;
+            min-height: 60px;
+            min-width: 120px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            color: #555;
+            background: rgba(255, 255, 255, 0.7);
+            font-size: 1.2em;
+        }
+
+        .drop-zone.dragover {
+            border-color: #2196f3;
+            background: #e3f2fd;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(33, 150, 243, 0.5);
+        }
+        .drop-zone.correct-drop {
+            background: #4caf50;
+            color: white;
+            border-color: #2e7d32;
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
+        }
+        .drop-zone.wrong-drop {
+            background: #f44336;
+            color: white;
+            border-color: #c62828;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        /* المرحلة الرابعة - التقييم */
+        .quiz-section {
+            background: linear-gradient(45deg, #f48fb1, #ce93d8);
+            padding: 25px;
+            border-radius: 20px;
+            margin: 25px 0;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.05);
+            border: 3px dashed #9c27b0;
+        }
+
+        .quiz-section h3 {
+            color: #7b1fa2;
+            font-size: 2em;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .question {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-top: 8px solid #ab47bc;
+            transition: all 0.3s ease;
+        }
+        .question:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        .question p {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .option {
+            background: #f3e5f5;
+            padding: 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            border: 2px solid transparent;
+        }
+
+        .option:hover {
+            background: #e1bee7;
+            color: #333;
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            border-color: #9c27b0;
+        }
+
+        .option.correct {
+            background: #4caf50;
+            color: white;
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.5);
+            animation: pulse 0.5s ease-out;
+            border-color: #2e7d32;
+        }
+
+        .option.wrong {
+            background: #f44336;
+            color: white;
+            box-shadow: 0 5px 15px rgba(244, 67, 54, 0.5);
+            animation: shake 0.5s ease-out;
+            border-color: #c62828;
+        }
+
+        /* أزرار التحكم */
+        .controls {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff5722, #ff9800);
+            color: white;
+            padding: 18px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.3em;
+            cursor: pointer;
+            margin: 0 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid white;
+        }
+
+        .btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(45deg, #ff9800, #ff5722);
+        }
+        .btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+        .btn i {
+            margin-left: 10px;
+        }
+        .btn:after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                45deg,
+                transparent 30%,
+                rgba(255,255,255,0.3) 50%,
+                transparent 70%
+            );
+            background-size: 200% 100%;
+            animation: shine 2s infinite;
+        }
+
+        /* تأثير الاحتفال */
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* صندوق النتائج */
+        #results {
+            display: none;
+            text-align: center;
+            margin: 30px 0;
+            padding: 40px;
+            background: linear-gradient(45deg, #b2ebf2, #b2dfdb);
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 3px dashed #00bcd4;
+            animation: pulse 2s infinite;
+        }
+        #results h3 {
+            color: #00796b;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+        }
+        #score {
+            font-size: 2em;
+            margin: 20px 0;
+            color: #00838f;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 15px;
+            border-radius: 15px;
+            display: inline-block;
+            min-width: 300px;
+        }
+        #feedback {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #2e7d32;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 2px dashed #4caf50;
+        }
+
+        /* منطقة الكتابة الإبداعية */
+        #creativeWriting {
+            width: 100%;
+            height: 150px;
+            padding: 20px;
+            border-radius: 15px;
+            border: 3px dashed #ff9800;
+            font-size: 1.3em;
+            resize: vertical;
+            background: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+        }
+        #creativeWriting:focus {
+            outline: none;
+            border-color: #e91e63;
+            box-shadow: 0 0 15px rgba(233, 30, 99, 0.3);
+        }
+
+        #writingFeedback {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.5em;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 2px dashed #4caf50;
+        }
+
+        /* رسوم متحركة إضافية */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes bounceIn {
+            0%, 20%, 40%, 60%, 80%, 100% {
+                transition-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+            }
+            0% {
+                opacity: 0;
+                transform: scale3d(0.3, 0.3, 0.3);
+            }
+            20% {
+                transform: scale3d(1.1, 1.1, 1.1);
+            }
+            40% {
+                transform: scale3d(0.9, 0.9, 0.9);
+            }
+            60% {
+                opacity: 1;
+                transform: scale3d(1.03, 1.03, 1.03);
+            }
+            80% {
+                transform: scale3d(0.97, 0.97, 0.97);
+            }
+            100% {
+                opacity: 1;
+                transform: scale3d(1, 1, 1);
+            }
+        }
+        
+        @keyframes shine {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* استجابة للشاشات الصغيرة */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5em;
+            }
+            
+            .stage-title {
+                font-size: 1.6em;
+            }
+            
+            .stage-number {
+                width: 50px;
+                height: 50px;
+                font-size: 2em;
+                margin-left: 10px;
+            }
+            
+            .btn {
+                padding: 15px 25px;
+                font-size: 1.1em;
+                margin: 10px 5px;
+                display: block;
+                width: 90%;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            
+            .drop-zone {
+                min-width: 80px;
+                padding: 8px 15px;
+                font-size: 1em;
+                min-height: 50px;
+            }
+            
+            .draggable {
+                padding: 12px 20px;
+                font-size: 1.1em;
+            }
+            
+            .question p {
+                font-size: 1.2em;
+            }
+            
+            .option {
+                padding: 15px;
+                font-size: 1em;
+            }
+            
+            .example-sentence {
+                font-size: 1.2em;
+                padding: 15px;
+            }
+            
+            .rule-text {
+                font-size: 1.2em;
+                padding: 15px;
+            }
+            
+            #creativeWriting {
+                font-size: 1.1em;
+                height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-shapes" id="floatingShapes"></div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🎈 مغامرة الأسماء الموصولة 🎈</h1>
+            <p>تعلم واستمتع في رحلة اكتشاف الأسماء الموصولة!</p>
+        </div>
+
+        <div class="lesson-stage" id="stage0">
+            <div class="stage-header" onclick="toggleStage(this.parentNode)">
+                <div class="stage-number">1</div>
+                <div class="stage-title"><i class="fas fa-search"></i> اكتشف الأسماء الموصولة!</div>
+            </div>
+            <div class="stage-content">
+                <div class="discovery-examples">
+                    <h3>🔍 هيا نكتشف معًا!</h3>
+                    <p style="text-align: center; font-size: 1.3em; margin-bottom: 25px; color: #e91e63; font-weight: bold;">
+                        اضغط على الجملة لترى الكلمة السحرية التي تربطها!
+                    </p>
+
+                    <div class="example-sentence" onclick="revealLinkedWord(this)">
+                        <span class="example-icon"><i class="fas fa-magic"></i></span>
+                        <p>هذا هو الطالب <strong class="linked-word" style="display:none;">الذي</strong> نجح في الامتحان.</p>
+                    </div>
+                    <div class="example-sentence" onclick="revealLinkedWord(this)">
+                        <span class="example-icon"><i class="fas fa-magic"></i></span>
+                        <p>شاهدت الفتاة <strong class="linked-word" style="display:none;">التي</strong> فازت بالجائزة.</p>
+                    </div>
+                    <div class="example-sentence" onclick="revealLinkedWord(this)">
+                        <span class="example-icon"><i class="fas fa-magic"></i></span>
+                        <p>الكتب <strong class="linked-word" style="display:none;">التي</strong> قرأتها مفيدة جدًا.</p>
+                    </div>
+                    <div class="example-sentence" onclick="revealLinkedWord(this)">
+                        <span class="example-icon"><i class="fas fa-magic"></i></span>
+                        <p>أحب أبي <strong class="linked-word" style="display:none;">الذي</strong> يعلمني.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lesson-stage" id="stage1">
+            <div class="stage-header" onclick="toggleStage(this.parentNode)">
+                <div class="stage-number">2</div>
+                <div class="stage-title"><i class="fas fa-book"></i> تعلم القاعدة!</div>
+            </div>
+            <div class="stage-content">
+                <div class="rule-section">
+                    <h3>📚 ما هي الأسماء الموصولة؟</h3>
+                    <p class="rule-text">
+                        الأسماء الموصولة هي كلمات سحرية تربط بين الجمل وتجعل المعنى واضحًا،
+                        مثل الجسر الذي يربط بين جزأين من الطريق!
+                    </p>
+                    <h4 style="color: #d32f2f; font-size: 1.8em; margin: 20px 0;">🎯 أنواع الأسماء الموصولة:</h4>
+                    <div class="rule-list">
+                        <div class="rule-item">الذي (للمفرد المذكر)</div>
+                        <div class="rule-item">التي (للمفرد المؤنث)</div>
+                        <div class="rule-item">اللذان / اللذين (للمثنى المذكر)</div>
+                        <div class="rule-item">اللتان / اللتين (للمثنى المؤنث)</div>
+                        <div class="rule-item">الذين (لجمع الذكور)</div>
+                        <div class="rule-item">اللاتي / اللواتي (لجمع الإناث)</div>
+                        <div class="rule-item">من (للعاقل)</div>
+                        <div class="rule-item">ما (لغير العاقل)</div>
+                    </div>
+                    <p class="rule-text" style="margin-top: 25px; font-size: 1.4em; color: #d32f2f;">
+                        تذكر: الاسم الموصول يحتاج دائمًا إلى جملة بعده تسمى "صلة الموصول" لتكتمل المعجزة!
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="lesson-stage" id="stage2">
+            <div class="stage-header" onclick="toggleStage(this.parentNode)">
+                <div class="stage-number">3</div>
+                <div class="stage-title"><i class="fas fa-gamepad"></i> هيا نلعب ونتعلم!</div>
+            </div>
+            <div class="stage-content">
+                <div class="interactive-section">
+                    <h3>🎮 لعبة السحب والإفلات الممتعة!</h3>
+                    <p style="text-align: center; font-size: 1.3em; margin-bottom: 20px; color: #2196f3; font-weight: bold;">
+                        اسحب الاسم الموصول الصحيح إلى مكانه في الجملة!
+                    </p>
+                    <div class="drag-drop-area" id="dragItems">
+                        <div class="draggable" draggable="true">الذي</div>
+                        <div class="draggable" draggable="true">التي</div>
+
+                        <div class="draggable" draggable="true">الذين</div>
+                        <div class="draggable" draggable="true">اللتان</div>
+                        <div class="draggable" draggable="true">من</div>
+                    </div>
+                    
+                    <div class="drop-sentences-container">
+                        <p class="drop-sentence">هؤلاء هم الطلاب <span class="drop-zone" data-answer="الذين"></span> اجتهدوا.</p>
+                        <p class="drop-sentence">حضرت المعلمة <span class="drop-zone" data-answer="التي"></span> شرحت الدرس.</p>
+                        <p class="drop-sentence">هذا هو الكتاب <span class="drop-zone" data-answer="الذي"></span> قرأته.</p>
+                        <p class="drop-sentence">أقدر <span class="drop-zone" data-answer="من"></span> يساعد الناس.</p>
+                        <p class="drop-sentence">الطالبتان <span class="drop-zone" data-answer="اللتان"></span> فازتا مبتكرتان.</p>
+                    </div>
+                    <div class="controls">
+                        <button class="btn" onclick="resetDragDrop()"><i class="fas fa-redo"></i> حاول مرة أخرى!</button>
+                    </div>
+                </div>
+
+                <div class="interactive-section" style="background: linear-gradient(45deg, #d4fc79, #96e6a1); border-color: #8bc34a;">
+                    <h3>✏️ وقت الإبداع!</h3>
+                    <p style="text-align: center; font-size: 1.3em; margin-bottom: 20px; color: #2e7d32; font-weight: bold;">
+                        اكتب جملة ممتعة تستخدم فيها أحد الأسماء الموصولة!
+                    </p>
+                    <textarea id="creativeWriting" placeholder="مثال: القطة التي في حديقتنا لطيفة جدًا..."></textarea>
+                    <div class="controls">
+                        <button class="btn" id="checkWritingButton"><i class="fas fa-check-circle"></i> تحقق من إجابتك!</button>
+                    </div>
+                    <div id="writingFeedback"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lesson-stage" id="stage3">
+            <div class="stage-header" onclick="toggleStage(this.parentNode)">
+                <div class="stage-number">4</div>
+                <div class="stage-title"><i class="fas fa-trophy"></i> اختبر معلوماتك!</div>
+            </div>
+            <div class="stage-content">
+                <div class="quiz-section">
+                    <h3>🧠 اختبر ما تعلمته!</h3>
+                    <p style="text-align: center; font-size: 1.3em; margin-bottom: 20px; color: #9c27b0; font-weight: bold;">
+                        اختر الإجابة الصحيحة في كل سؤال!
+                    </p>
+                    
+                    <div class="question">
+                        <p><strong>السؤال 1:</strong> اختر الاسم الموصول المناسب: "هذا هو الولد ____ يحب القراءة."</p>
+                        <div class="options" data-question-number="1">
+                            <div class="option" data-correct="true">الذي</div>
+                            <div class="option" data-correct="false">التي</div>
+                            <div class="option" data-correct="false">الذين</div>
+                        </div>
+                    </div>
+                    
+                    <div class="question">
+                        <p><strong>السؤال 2:</strong> أي الجمل الآتية تحتوي على اسم موصول للمثنى المؤنث؟</p>
+                        <div class="options" data-question-number="2">
+                            <div class="option" data-correct="false">المهندسون الذين صمموا المشروع مبدعون.</div>
+                            <div class="option" data-correct="true">البنتان اللتان لعبتا في الحديقة سعيدتان.</div>
+                            <div class="option" data-correct="false">الأزهار التي في المزهرية جميلة.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="question">
+                        <p><strong>السؤال 3:</strong> "أحب <span style="color: #e91e63; font-weight: bold;">من</span> يحترمني." الاسم الموصول في الجملة يدل على:</p>
+                        <div class="options" data-question-number="3">
+                            <div class="option" data-correct="false">غير العاقل</div>
+                            <div class="option" data-correct="true">العاقل</div>
+                            <div class="option" data-correct="false">المكان</div>
+                        </div>
+                    </div>
+
+                    <div class="controls">
+                        <button class="btn" onclick="submitQuiz()"><i class="fas fa-paper-plane"></i> تحقق من إجاباتك!</button>
+                    </div>
+                    <div id="results">
+                        <h3>نتائج الاختبار! 🎉</h3>
+                        <p id="score">النقاط: 0 / 3</p>
+                        <p id="feedback"></p>
+                        <button class="btn" onclick="retakeQuiz()"><i class="fas fa-redo"></i> أعد الاختبار</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Floating Shapes
+        const floatingShapesContainer = document.getElementById('floatingShapes');
+        const shapes = ['star', 'heart', 'smile'];
+        function createShape() {
+            const shapeType = shapes[Math.floor(Math.random() * shapes.length)];
+            const shape = document.createElement('div');
+            shape.classList.add('shape', shapeType);
+            shape.style.left = Math.random() * 100 + 'vw';
+            shape.style.top = Math.random() * 100 + 'vh';
+            shape.style.animationDuration = (Math.random() * 5 + 7) + 's'; // 7-12 seconds
+            shape.style.animationDelay = (Math.random() * 5) + 's';
+            shape.style.transform = `scale(${0.5 + Math.random() * 1})`; // 0.5 to 1.5 size
+            floatingShapesContainer.appendChild(shape);
+
+            // Remove shape after some time to prevent too many elements
+            setTimeout(() => {
+                shape.remove();
+            }, parseFloat(shape.style.animationDuration) * 1000 + 5000); // Duration + 5s buffer
+        }
+        setInterval(createShape, 1500); // Create a new shape every 1.5 seconds
+
+        // --- Stage Toggle Function (FIXED) ---
+        function toggleStage(stageElement) {
+            const content = stageElement.querySelector('.stage-content');
+            const allContentElements = document.querySelectorAll('.stage-content');
+
+            // Close all other expanded content sections
+            allContentElements.forEach(otherContent => {
+                if (otherContent !== content && otherContent.classList.contains('expanded')) {
+                    otherContent.classList.remove('expanded');
+                }
+            });
+
+            // Toggle the clicked stage's content
+            content.classList.toggle('expanded');
+        }
+
+        // Initialize first stage as active (expanded) on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const firstStageContent = document.getElementById('stage0').querySelector('.stage-content');
+            firstStageContent.classList.add('expanded');
+            document.getElementById('stage0').classList.add('active'); // Add active class for initial animation
+            // Add active class to other stages as well to apply initial fade-in, but without expanding
+            document.querySelectorAll('.lesson-stage').forEach(stage => {
+                if (stage.id !== 'stage0') {
+                    stage.classList.add('active');
+                }
+            });
+        });
+
+        // --- Discovery Section ---
+        function revealLinkedWord(element) {
+            const linkedWord = element.querySelector('.linked-word');
+            if (linkedWord.style.display === 'none') {
+                linkedWord.style.display = 'inline-block';
+                // Trigger confetti on reveal
+                confetti({
+                    particleCount: 50,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            } else {
+                linkedWord.style.display = 'none';
+            }
+        }
+
+        // --- Drag and Drop Section ---
+        let draggedItem = null;
+
+        document.querySelectorAll('.draggable').forEach(item => {
+            item.addEventListener('dragstart', (e) => {
+                draggedItem = e.target;
+                setTimeout(() => {
+                    e.target.classList.add('dragged');
+                }, 0);
+            });
+
+            item.addEventListener('dragend', (e) => {
+                e.target.classList.remove('dragged');
+                draggedItem = null;
+            });
+        });
+
+        document.querySelectorAll('.drop-zone').forEach(zone => {
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault(); // Allow drop
+                zone.classList.add('dragover');
+            });
+
+            zone.addEventListener('dragleave', (e) => {
+                zone.classList.remove('dragover');
+            });
+
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('dragover');
+
+                if (draggedItem) {
+                    const droppedText = draggedItem.textContent.trim();
+                    const correctAnswer = zone.dataset.answer;
+
+                    if (droppedText === correctAnswer) {
+                        zone.textContent = droppedText;
+                        zone.classList.add('correct-drop');
+                        draggedItem.style.display = 'none'; // Hide the dragged item
+                        confetti({
+                            particleCount: 30,
+                            spread: 50,
+                            origin: { y: 0.8 }
+                        });
+                    } else {
+                        zone.classList.add('wrong-drop');
+                        setTimeout(() => {
+                            zone.classList.remove('wrong-drop');
+                        }, 500); // Remove wrong-drop class after animation
+                    }
+                }
+            });
+        });
+
+        function resetDragDrop() {
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                zone.textContent = ''; // Clear text
+                zone.classList.remove('correct-drop', 'wrong-drop'); // Remove classes
+            });
+            document.querySelectorAll('.draggable').forEach(item => {
+                item.style.display = 'inline-block'; // Show all draggable items
+            });
+        }
+
+        // --- Creative Writing Section ---
+        const checkWritingButton = document.getElementById('checkWritingButton');
+        const creativeWritingTextarea = document.getElementById('creativeWriting');
+        const writingFeedbackDiv = document.getElementById('writingFeedback');
+
+        const pronouns = ['الذي', 'التي', 'اللذان', 'اللذين', 'اللتان', 'اللتين', 'الذين', 'اللاتي', 'اللواتي', 'من', 'ما'];
+
+        checkWritingButton.addEventListener('click', () => {
+            const text = creativeWritingTextarea.value;
+            let foundPronoun = false;
+            let feedbackMessage = '';
+
+            if (text.trim() === '') {
+                feedbackMessage = "اكتب شيئًا أولاً! دع إبداعك يتألق! ✨";
+                writingFeedbackDiv.style.borderColor = '#ff9800';
+                writingFeedbackDiv.style.color = '#ff9800';
+            } else {
+                for (const pronoun of pronouns) {
+                    if (text.includes(pronoun)) {
+                        foundPronoun = true;
+                        break;
+                    }
+                }
+
+                if (foundPronoun) {
+                    feedbackMessage = "رائع! لقد استخدمت اسمًا موصولًا بشكل صحيح. عمل ممتاز! 🌟";
+                    writingFeedbackDiv.style.borderColor = '#4caf50';
+                    writingFeedbackDiv.style.color = '#2e7d32';
+                    confetti({
+                        particleCount: 70,
+                        spread: 90,
+                        origin: { y: 0.7 }
+                    });
+                } else {
+                    feedbackMessage = "أوه! لم أجد اسمًا موصولًا. حاول مرة أخرى! تذكر الأسماء الموصولة مثل 'الذي' و 'التي'. 🤔";
+                    writingFeedbackDiv.style.borderColor = '#f44336';
+                    writingFeedbackDiv.style.color = '#c62828';
+                }
+            }
+            writingFeedbackDiv.textContent = feedbackMessage;
+        });
+
+        // --- Quiz Section ---
+        const quizQuestions = document.querySelectorAll('.question');
+        const resultsDiv = document.getElementById('results');
+        const scoreSpan = document.getElementById('score');
+        const feedbackP = document.getElementById('feedback');
+        let quizScore = 0;
+        let answeredQuestions = {}; // To keep track of answered questions
+
+        quizQuestions.forEach(question => {
+            const options = question.querySelectorAll('.option');
+            const questionNumber = question.querySelector('.options').dataset.questionNumber;
+
+            options.forEach(option => {
+                option.addEventListener('click', () => {
+                    // Prevent multiple answers for the same question
+                    if (answeredQuestions[questionNumber]) {
+                        return;
+                    }
+
+                    // Remove previous selection highlights
+                    options.forEach(opt => {
+                        opt.classList.remove('correct', 'wrong');
+                    });
+
+                    // Check answer
+                    if (option.dataset.correct === 'true') {
+                        option.classList.add('correct');
+                        quizScore++;
+                        confetti({
+                            particleCount: 30,
+                            spread: 50,
+                            origin: { y: 0.9 }
+                        });
+                    } else {
+                        option.classList.add('wrong');
+                        // Highlight the correct answer
+                        options.forEach(opt => {
+                            if (opt.dataset.correct === 'true') {
+                                opt.classList.add('correct');
+                            }
+                        });
+                    }
+                    answeredQuestions[questionNumber] = true; // Mark as answered
+                });
+            });
+        });
+
+        function submitQuiz() {
+            let totalQuestions = quizQuestions.length;
+            let correctAnswersCount = 0;
+
+            // Recalculate score from answered questions (useful if user re-selects without reset)
+            quizScore = 0;
+            quizQuestions.forEach(question => {
+                const options = question.querySelectorAll('.option');
+                options.forEach(option => {
+                    if (option.classList.contains('correct') && option.dataset.correct === 'true') {
+                        // Ensure it's the actively selected correct option
+                        quizScore++;
+                    }
+                });
+            });
+
+
+            scoreSpan.textContent = `النقاط: ${quizScore} / ${totalQuestions}`;
+
+            if (quizScore === totalQuestions) {
+                feedbackP.textContent = "أنت نجم لامع! كل إجاباتك صحيحة! 🏆";
+                feedbackP.style.color = '#2e7d32';
+                feedbackP.style.borderColor = '#4caf50';
+                confetti({
+                    particleCount: 150,
+                    spread: 180,
+                    origin: { y: 0.5 },
+                    scalar: 1.2
+                });
+            } else if (quizScore > totalQuestions / 2) {
+                feedbackP.textContent = "أحسنت! لديك فهم جيد للدرس. استمر في التدريب! 💪";
+                feedbackP.style.color = '#ff9800';
+                feedbackP.style.borderColor = '#ffc107';
+            } else {
+                feedbackP.textContent = "لا بأس! حاول مرة أخرى. التعلم يحتاج إلى المثابرة! 💡";
+                feedbackP.style.color = '#f44336';
+                feedbackP.style.borderColor = '#f44336';
+            }
+            resultsDiv.style.display = 'block';
+            resultsDiv.scrollIntoView({ behavior: 'smooth' }); // Scroll to results
+        }
+
+        function retakeQuiz() {
+            quizScore = 0;
+            answeredQuestions = {};
+            resultsDiv.style.display = 'none';
+            feedbackP.textContent = "";
+            quizQuestions.forEach(question => {
+                question.querySelectorAll('.option').forEach(option => {
+                    option.classList.remove('correct', 'wrong');
+                });
+            });
+        }
+    </script>
+</body>
+</html>

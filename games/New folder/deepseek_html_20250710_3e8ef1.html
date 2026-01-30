@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سباق الخيل - خالد بن الوليد</title>
+    <style>
+        :root {
+            --race-primary: #2E7D32;
+            --race-secondary: #FFC107;
+            --race-accent: #D32F2F;
+            --race-light: #F1F8E9;
+            --race-dark: #1B5E20;
+        }
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--race-light);
+            margin: 0;
+            padding: 0;
+            background-image: url('https://i.imgur.com/YbJqW3a.png');
+            background-size: 40%;
+            background-blend-mode: overlay;
+        }
+        
+        .race-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .game-header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .game-title {
+            font-size: 2.8em;
+            color: var(--race-dark);
+            margin: 0;
+            position: relative;
+            display: inline-block;
+            text-shadow: 3px 3px 0 rgba(0,0,0,0.1);
+        }
+        
+        .game-title:after {
+            content: "🏇";
+            position: absolute;
+            left: -50px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5em;
+        }
+        
+        .game-subtitle {
+            color: var(--race-dark);
+            font-size: 1.2em;
+            margin-top: 10px;
+            line-height: 1.6;
+        }
+        
+        .race-track {
+            background-color: #8BC34A;
+            background-image: linear-gradient(to bottom, #7CB342, #9CCC65);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            border: 5px solid var(--race-dark);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .track-lane {
+            height: 80px;
+            background-color: rgba(255, 255, 255, 0.3);
+            margin-bottom: 15px;
+            border-radius: 10px;
+            position: relative;
+            border: 2px dashed white;
+        }
+        
+        .track-lane:last-child {
+            margin-bottom: 0;
+        }
+        
+        .horse {
+            width: 70px;
+            height: 70px;
+            position: absolute;
+            left: 20px;
+            top: 5px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            transition: left 0.3s;
+            z-index: 2;
+        }
+        
+        .rider {
+            width: 30px;
+            height: 30px;
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            z-index: 3;
+        }
+        
+        .finish-line {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 30px;
+            height: 100%;
+            background: repeating-linear-gradient(
+                45deg,
+                white,
+                white 10px,
+                var(--race-accent) 10px,
+                var(--race-accent) 20px
+            );
+            z-index: 1;
+        }
+        
+        .race-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            background: linear-gradient(45deg, var(--race-dark), var(--race-primary));
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .control-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        
+        .control-btn:disabled {
+            background: #BDBDBD;
+            transform: none;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+        
+        .race-stats {
+            display: flex;
+            justify-content: space-around;
+            background-color: white;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border: 2px solid var(--race-secondary);
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            color: var(--race-dark);
+        }
+        
+        .stat-value {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .message-box {
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-right: 5px solid var(--race-secondary);
+            display: none;
+        }
+        
+        .message-title {
+            font-weight: bold;
+            color: var(--race-dark);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .message-title:before {
+            content: "💬";
+            margin-left: 10px;
+        }
+        
+        .message-text {
+            line-height: 1.7;
+        }
+        
+        .result-screen {
+            text-align: center;
+            padding: 30px;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-top: 30px;
+            display: none;
+            border: 3px solid var(--race-secondary);
+        }
+        
+        .result-title {
+            font-size: 2em;
+            color: var(--race-dark);
+            margin-bottom: 20px;
+        }
+        
+        .result-image {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+            background-image: url('https://i.imgur.com/JR8lQ7W.jpg');
+            background-size: cover;
+            background-position: center;
+            border-radius: 50%;
+            border: 5px solid var(--race-secondary);
+        }
+        
+        .result-message {
+            font-size: 1.2em;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+        
+        .restart-btn {
+            background: linear-gradient(45deg, var(--race-primary), var(--race-dark));
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .restart-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        
+        @media (max-width: 600px) {
+            .game-title {
+                font-size: 2em;
+            }
+            
+            .game-title:after {
+                left: -40px;
+                font-size: 1.2em;
+            }
+            
+            .race-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .control-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="race-container">
+        <div class="game-header">
+            <h1 class="game-title">سباق الخيل</h1>
+            <p class="game-subtitle">تحدى خالد بن الوليد في سباق الخيل وتعلم فنون الفروسية!</p>
+        </div>
+        
+        <div class="race-stats">
+            <div class="stat-item">
+                <div class="stat-label">الجولة</div>
+                <div class="stat-value" id="round">1</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">النقاط</div>
+                <div class="stat-value" id="score">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">الرقم القياسي</div>
+                <div class="stat-value" id="highscore">0</div>
+            </div>
+        </div>
+        
+        <div class="race-track" id="race-track">
+            <div class="track-lane" id="player-lane">
+                <div class="horse" id="player-horse" style="background-image: url('https://i.imgur.com/vJ5ZgQk.jpg')"></div>
+                <div class="rider" id="player-rider" style="background-image: url('https://i.imgur.com/JR8lQ7W.jpg')"></div>
+                <div class="finish-line"></div>
+            </div>
+            <div class="track-lane" id="khalid-lane">
+                <div class="horse" id="khalid-horse" style="background-image: url('https://i.imgur.com/YbJqW3a.png')"></div>
+                <div class="rider" id="khalid-rider" style="background-image: url('https://i.imgur.com/JR8lQ7W.jpg')"></div>
+                <div class="finish-line"></div>
+            </div>
+        </div>
+        
+        <div class="race-controls">
+            <button class="control-btn" id="start-btn" onclick="startRace()">
+                <span>بدء السباق</span> 🚩
+            </button>
+            <button class="control-btn" id="speed-btn" onclick="increaseSpeed()" disabled>
+                <span>زيادة السرعة</span> ⚡
+            </button>
+            <button class="control-btn" id="jump-btn" onclick="jumpObstacle()" disabled>
+                <span>قفز العقبة</span> 🏇
+            </button>
+        </div>
+        
+        <div class="message-box" id="message-box">
+            <div class="message-title">رسالة من خالد</div>
+            <div class="message-text" id="message-text"></div>
+        </div>
+        
+        <div class="result-screen" id="result-screen">
+            <div class="result-title" id="result-title"></div>
+            <div class="result-image"></div>
+            <div class="result-message" id="result-message"></div>
+            <button class="restart-btn" onclick="restartGame()">العب مرة أخرى</button>
+        </div>
+    </div>
+
+    <script>
+        // حالة اللعبة
+        const gameState = {
+            raceStarted: false,
+            playerPosition: 0,
+            khalidPosition: 0,
+            playerSpeed: 1,
+            khalidSpeed: 1,
+            round: 1,
+            score: 0,
+            highscore: 0,
+            obstacles: [],
+            lastObstacleTime: 0,
+            raceInterval: null
+        };
+        
+        // عناصر DOM
+        const playerHorse = document.getElementById('player-horse');
+        const khalidHorse = document.getElementById('khalid-horse');
+        const startBtn = document.getElementById('start-btn');
+        const speedBtn = document.getElementById('speed-btn');
+        const jumpBtn = document.getElementById('jump-btn');
+        
+        // بدء السباق
+        function startRace() {
+            if (gameState.raceStarted) return;
+            
+            gameState.raceStarted = true;
+            gameState.playerPosition = 0;
+            gameState.khalidPosition = 0;
+            gameState.playerSpeed = 1;
+            gameState.khalidSpeed = 1;
+            gameState.obstacles = [];
+            gameState.lastObstacleTime = Date.now();
+            
+            startBtn.disabled = true;
+            speedBtn.disabled = false;
+            jumpBtn.disabled = false;
+            
+            showMessage("بدأ السباق! استخدم زيادة السرعة والقفز بحكمة لتتفوق على خالد بن الوليد.", "انطلق!");
+            
+            gameState.raceInterval = setInterval(updateRace, 50);
+        }
+        
+        // تحديث حالة السباق
+        function updateRace() {
+            // تحريك الخيول
+            gameState.playerPosition += gameState.playerSpeed;
+            gameState.khalidPosition += gameState.khalidSpeed;
+            
+            // تحديث مواقع الخيول
+            const trackWidth = document.getElementById('player-lane').offsetWidth - 100;
+            const playerPercentage = Math.min(100, (gameState.playerPosition / trackWidth) * 100);
+            const khalidPercentage = Math.min(100, (gameState.khalidPosition / trackWidth) * 100);
+            
+            playerHorse.style.left = `${playerPercentage}%`;
+            khalidHorse.style.left = `${khalidPercentage}%`;
+            
+            // التحقق من الفوز
+            if (playerPercentage >= 100 || khalidPercentage >= 100) {
+                endRace(playerPercentage >= 100);
+                return;
+            }
+            
+            // توليد عقبات عشوائية
+            if (Date.now() - gameState.lastObstacleTime > 3000 && Math.random() < 0.1) {
+                createObstacle();
+                gameState.lastObstacleTime = Date.now();
+            }
+            
+            // تحريك العقبات
+            moveObstacles();
+            
+            // تغيير سرعة خالد عشوائياً
+            if (Math.random() < 0.05) {
+                gameState.khalidSpeed = 0.5 + Math.random() * 1.5;
+            }
+        }
+        
+        // إنشاء عقبة
+        function createObstacle() {
+            const lane = Math.random() < 0.5 ? 'player-lane' : 'khalid-lane';
+            const obstacle = {
+                type: Math.random() < 0.7 ? 'rock' : 'hurdle',
+                lane: lane,
+                position: 0,
+                element: document.createElement('div')
+            };
+            
+            obstacle.element.className = 'obstacle';
+            obstacle.element.style.position = 'absolute';
+            obstacle.element.style.right = '0';
+            obstacle.element.style.top = '50%';
+            obstacle.element.style.transform = 'translateY(-50%)';
+            obstacle.element.style.width = '30px';
+            obstacle.element.style.height = '30px';
+            obstacle.element.style.zIndex = '4';
+            
+            if (obstacle.type === 'rock') {
+                obstacle.element.textContent = '🪨';
+                obstacle.element.style.fontSize = '1.5em';
+            } else {
+                obstacle.element.textContent = '🧱';
+                obstacle.element.style.fontSize = '1.5em';
+            }
+            
+            document.getElementById(lane).appendChild(obstacle.element);
+            gameState.obstacles.push(obstacle);
+            
+            showMessage("ظهرت عقبة في الطريق! استخدم زر القفز لتجاوزها.", "انتبه!");
+        }
+        
+        // تحريك العقبات
+        function moveObstacles() {
+            gameState.obstacles.forEach((obstacle, index) => {
+                obstacle.position += 5;
+                obstacle.element.style.right = `${obstacle.position}px`;
+                
+                // التحقق من الاصطدام
+                if (obstacle.lane === 'player-lane' && obstacle.position > 100 && obstacle.position < 150) {
+                    if (!obstacle.jumped) {
+                        gameState.playerSpeed = 0;
+                        showMessage("اصطدمت بالعقبة! اضغط زر القفز في المرة القادمة.", "اصطدام!");
+                        setTimeout(() => {
+                            gameState.playerSpeed = 1;
+                        }, 1000);
+                    }
+                }
+                
+                // إزالة العقبة إذا خرجت عن المسار
+                if (obstacle.position > 300) {
+                    obstacle.element.remove();
+                    gameState.obstacles.splice(index, 1);
+                }
+            });
+        }
+        
+        // زيادة السرعة
+        function increaseSpeed() {
+            if (!gameState.raceStarted) return;
+            
+            gameState.playerSpeed += 0.5;
+            showMessage("زادت سرعتك! لكن تذكر أن خالد بن الوليد كان يقول: 'التأني من الله والعجلة من الشيطان'.", "سرعة!");
+            
+            // تقليل السرعة بعد فترة
+            setTimeout(() => {
+                gameState.playerSpeed = Math.max(1, gameState.playerSpeed - 0.3);
+            }, 2000);
+        }
+        
+        // القفز فوق العقبة
+        function jumpObstacle() {
+            if (!gameState.raceStarted) return;
+            
+            // التحقق من وجود عقبة قريبة
+            const nearObstacle = gameState.obstacles.find(obstacle => 
+                obstacle.lane === 'player-lane' && 
+                obstacle.position > 80 && 
+                obstacle.position < 120
+            );
+            
+            if (nearObstacle) {
+                nearObstacle.jumped = true;
+                showMessage("قفزة رائعة! لقد تجاوزت العقبة بنجاح.", "أحسنت!");
+                gameState.score += 10;
+                updateStats();
+            } else {
+                showMessage("لا توجد عقبة للقفز فوقها! استخدم هذا الزر فقط عندما ترى عقبة.", "خطأ!");
+                gameState.playerSpeed = Math.max(0.5, gameState.playerSpeed - 0.3);
+            }
+        }
+        
+        // إنهاء السباق
+        function endRace(playerWon) {
+            clearInterval(gameState.raceInterval);
+            gameState.raceStarted = false;
+            
+            // إزالة جميع العقبات
+            gameState.obstacles.forEach(obstacle => {
+                if (obstacle.element.parentNode) {
+                    obstacle.element.remove();
+                }
+            });
+            gameState.obstacles = [];
+            
+            startBtn.disabled = false;
+            speedBtn.disabled = true;
+            jumpBtn.disabled = true;
+            
+            // تحديث النتائج
+            if (playerWon) {
+                gameState.score += 50;
+                showResult(true);
+                showMessage("لقد فزت بالسباق! خالد بن الوليد يهنئك على مهاراتك في الفروسية.", "فوز!");
+            } else {
+                showResult(false);
+                showMessage("خالد بن الوليد فاز هذه المرة! تدرب أكثر لتتفوق عليه في الجولة القادمة.", "هزيمة!");
+            }
+            
+            gameState.highscore = Math.max(gameState.highscore, gameState.score);
+            gameState.round++;
+            updateStats();
+        }
+        
+        // عرض النتائج
+        function showResult(playerWon) {
+            const resultScreen = document.getElementById('result-screen');
+            const resultTitle = document.getElementById('result-title');
+            const resultMessage = document.getElementById('result-message');
+            
+            if (playerWon) {
+                resultTitle.textContent = "فوز مثير!";
+                resultMessage.textContent = `تهانينا! لقد فزت على خالد بن الوليد في الجولة ${gameState.round}. مهاراتك في الفروسية ممتازة!`;
+            } else {
+                resultTitle.textContent = "حاول مرة أخرى!";
+                resultMessage.textContent = `خالد بن الوليد فاز هذه المرة. لا تيأس، فكما قال: "المهارة تكتسب بالتدريب". جرب مرة أخرى!`;
+            }
+            
+            resultScreen.style.display = 'block';
+        }
+        
+        // إعادة تشغيل اللعبة
+        function restartGame() {
+            gameState.playerPosition = 0;
+            gameState.khalidPosition = 0;
+            playerHorse.style.left = "20px";
+            khalidHorse.style.left = "20px";
+            
+            document.getElementById('result-screen').style.display = 'none';
+        }
+        
+        // تحديث الإحصائيات
+        function updateStats() {
+            document.getElementById('round').textContent = gameState.round;
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('highscore').textContent = gameState.highscore;
+        }
+        
+        // عرض رسالة
+        function showMessage(text, title = 'رسالة من خالد') {
+            const messageBox = document.getElementById('message-box');
+            const messageTitle = document.querySelector('.message-title');
+            const messageText = document.getElementById('message-text');
+            
+            messageTitle.textContent = title;
+            messageText.textContent = text;
+            messageBox.style.display = 'block';
+            
+            // إخفاء الرسالة بعد 3 ثواني
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

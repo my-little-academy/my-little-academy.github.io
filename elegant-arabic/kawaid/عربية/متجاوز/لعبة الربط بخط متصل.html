@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الربط بخط متصل</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        
+        .game-container {
+            display: flex;
+            justify-content: space-between;
+            height: 70vh;
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .cards-column {
+            width: 45%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+        }
+        
+        .card {
+            background-color: #ecf0f1;
+            border: 3px solid #3498db;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .card:hover {
+            background-color: #d6eaf8;
+            transform: translateY(-3px);
+        }
+        
+        .card.selected {
+            background-color: #3498db;
+            color: white;
+            border-color: #2980b9;
+        }
+        
+        .card.matched {
+            background-color: #2ecc71;
+            color: white;
+            border-color: #27ae60;
+            cursor: default;
+        }
+        
+        .line {
+            position: absolute;
+            height: 4px;
+            background-color: #e74c3c;
+            transform-origin: left center;
+            z-index: 1;
+            border-radius: 2px;
+        }
+        
+        .message {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #2ecc71;
+            min-height: 30px;
+        }
+        
+        .reset-btn {
+            margin-top: 20px;
+            padding: 12px 25px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .reset-btn:hover {
+            background-color: #c0392b;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <h1>لعبة الربط بخط متصل</h1>
+    <div class="game-container" id="game-container">
+        <div class="cards-column" id="left-column">
+            <div class="card" data-id="1">تفاحة</div>
+            <div class="card" data-id="2">سيارة</div>
+            <div class="card" data-id="3">شمس</div>
+            <div class="card" data-id="4">منزل</div>
+            <div class="card" data-id="5">زهرة</div>
+            <div class="card" data-id="6">كتاب</div>
+        </div>
+        
+        <div class="cards-column" id="right-column">
+            <!-- سيتم ملؤها بالرموز بشكل عشوائي -->
+        </div>
+    </div>
+    
+    <div class="message" id="message"></div>
+    <button class="reset-btn" id="reset-btn">إعادة اللعبة</button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // العناصر الأساسية
+            const leftColumn = document.getElementById('left-column');
+            const rightColumn = document.getElementById('right-column');
+            const gameContainer = document.getElementById('game-container');
+            const messageEl = document.getElementById('message');
+            const resetBtn = document.getElementById('reset-btn');
+            
+            // بيانات اللعبة
+            const cardPairs = [
+                { id: '1', text: 'تفاحة', emoji: '🍎' },
+                { id: '2', text: 'سيارة', emoji: '🚗' },
+                { id: '3', text: 'شمس', emoji: '☀️' },
+                { id: '4', text: 'منزل', emoji: '🏠' },
+                { id: '5', text: 'زهرة', emoji: '🌸' },
+                { id: '6', text: 'كتاب', emoji: '📖' }
+            ];
+            
+            let selectedCard = null;
+            let lines = [];
+            let matchedPairs = 0;
+            
+            // تهيئة اللعبة
+            initGame();
+            
+            // تعريف دالة تهيئة اللعبة
+            function initGame() {
+                // مسح المحتوى السابق
+                rightColumn.innerHTML = '';
+                messageEl.textContent = '';
+                matchedPairs = 0;
+                lines.forEach(line => line.remove());
+                lines = [];
+                
+                // إزالة حالة التطابق من البطاقات اليسرى
+                document.querySelectorAll('#left-column .card').forEach(card => {
+                    card.classList.remove('matched', 'selected');
+                });
+                
+                // خلط أزواج البطاقات
+                const shuffledPairs = [...cardPairs].sort(() => Math.random() - 0.5);
+                
+                // إنشاء البطاقات في العمود الأيمن
+                shuffledPairs.forEach(pair => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.setAttribute('data-id', pair.id);
+                    card.textContent = pair.emoji;
+                    rightColumn.appendChild(card);
+                });
+                
+                // إضافة مستمعي الأحداث
+                setupEventListeners();
+            }
+            
+            // إعداد مستمعي الأحداث
+            function setupEventListeners() {
+                // البطاقات اليسرى
+                document.querySelectorAll('#left-column .card').forEach(card => {
+                    card.addEventListener('click', handleLeftCardClick);
+                });
+                
+                // البطاقات اليمنى
+                document.querySelectorAll('#right-column .card').forEach(card => {
+                    card.addEventListener('click', handleRightCardClick);
+                });
+                
+                // زر الإعادة
+                resetBtn.addEventListener('click', initGame);
+            }
+            
+            // معالجة النقر على البطاقة اليسرى
+            function handleLeftCardClick(e) {
+                const clickedCard = e.target;
+                
+                // إذا كانت البطاقة مطابقة بالفعل، لا نفعل شيئاً
+                if (clickedCard.classList.contains('matched')) return;
+                
+                // إلغاء تحديد البطاقة المحددة سابقاً إن وجدت
+                if (selectedCard) {
+                    selectedCard.classList.remove('selected');
+                }
+                
+                // تحديد البطاقة الجديدة
+                selectedCard = clickedCard;
+                selectedCard.classList.add('selected');
+                messageEl.textContent = 'اختر الرمز المناسب من العمود الآخر';
+            }
+            
+            // معالجة النقر على البطاقة اليمنى
+            function handleRightCardClick(e) {
+                const clickedCard = e.target;
+                
+                // إذا لم تكن هناك بطاقة محددة من اليسار أو البطاقة مطابقة بالفعل
+                if (!selectedCard || clickedCard.classList.contains('matched')) return;
+                
+                const leftId = selectedCard.getAttribute('data-id');
+                const rightId = clickedCard.getAttribute('data-id');
+                
+                // التحقق من التطابق
+                if (leftId === rightId) {
+                    // التطابق صحيح
+                    selectedCard.classList.remove('selected');
+                    selectedCard.classList.add('matched');
+                    clickedCard.classList.add('matched');
+                    
+                    // رسم الخط بين البطاقتين
+                    drawConnectionLine(selectedCard, clickedCard);
+                    
+                    selectedCard = null;
+                    matchedPairs++;
+                    
+                    // التحقق من اكتمال اللعبة
+                    if (matchedPairs === cardPairs.length) {
+                        messageEl.textContent = 'مبروك! لقد أكملت جميع التوصيلات بنجاح! 🎉';
+                    } else {
+                        messageEl.textContent = 'إجابة صحيحة! استمر في اللعب.';
+                    }
+                } else {
+                    // التطابق خاطئ
+                    messageEl.textContent = 'محاولة خاطئة، حاول مرة أخرى!';
+                    selectedCard.classList.remove('selected');
+                    selectedCard = null;
+                }
+            }
+            
+            // دالة رسم الخط بين عنصرين
+            function drawConnectionLine(startElement, endElement) {
+                // الحصول على مواضع العناصر
+                const startRect = startElement.getBoundingClientRect();
+                const endRect = endElement.getBoundingClientRect();
+                const containerRect = gameContainer.getBoundingClientRect();
+                
+                // حساب نقاط البداية والنهاية (نصف الحافة اليمنى للعنصر الأول ونصف الحافة اليسرى للعنصر الثاني)
+                const startX = startRect.right - containerRect.left;
+                const startY = startRect.top + startRect.height / 2 - containerRect.top;
+                const endX = endRect.left - containerRect.left;
+                const endY = endRect.top + endRect.height / 2 - containerRect.top;
+                
+                // حساب طول الخط وزاويته
+                const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+                const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
+                
+                // إنشاء عنصر الخط
+                const line = document.createElement('div');
+                line.className = 'line';
+                line.style.width = `${length}px`;
+                line.style.left = `${startX}px`;
+                line.style.top = `${startY}px`;
+                line.style.transform = `rotate(${angle}deg)`;
+                
+                // إضافة الخط إلى الحاوية
+                gameContainer.appendChild(line);
+                lines.push(line);
+                
+                // إضافة تأثير للخط
+                setTimeout(() => {
+                    line.style.boxShadow = '0 0 8px rgba(231, 76, 60, 0.6)';
+                }, 10);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عربوبولي - لعبة قواعد اللغة العربية</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .game-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(11, 1fr);
+            grid-template-rows: repeat(11, 1fr);
+            gap: 2px;
+            aspect-ratio: 1/1;
+            background-color: #8B4513;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        
+        .corner {
+            background-color: #f8f8f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            text-align: center;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        
+        .side {
+            background-color: #f8f8f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 5px;
+            border-radius: 3px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .side:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .center {
+            grid-column: 4 / 9;
+            grid-row: 4 / 9;
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #8B4513;
+            margin-bottom: 10px;
+        }
+        
+        .player {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            position: absolute;
+            transition: all 0.5s ease-in-out;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+        
+        .player1 {
+            background-color: #ff5252;
+            left: 20px;
+            top: 20px;
+        }
+        
+        .player2 {
+            background-color: #2196f3;
+            left: 60px;
+            top: 20px;
+        }
+        
+        .controls {
+            margin-top: 20px;
+            text-align: center;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        button {
+            background-color: #8B4513;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background-color: #a0522d;
+        }
+        
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .active-player {
+            animation: pulse 1s infinite;
+        }
+        
+        .dice-result {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+            min-height: 36px;
+        }
+        
+        .player-info {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 15px;
+        }
+        
+        .player-score {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        /* مواضيع القواعد */
+        .noun { background-color: #FFCDD2; }
+        .verb { background-color: #C8E6C9; }
+        .particle { background-color: #BBDEFB; }
+        .sentence { background-color: #FFF9C4; }
+        .grammar { background-color: #E1BEE7; }
+        .exception { background-color: #D7CCC8; }
+        
+        @keyframes diceRoll {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .dice-animation {
+            animation: diceRoll 0.5s ease-in-out;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+        }
+        
+        .question-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .question-options button {
+            width: 100%;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center; color: #8B4513;">عربوبولي - لعبة قواعد اللغة العربية</h1>
+    
+    <div class="player-info">
+        <div class="player-score player1">اللاعب الأول: <span id="score1">0</span> نقطة</div>
+        <div class="player-score player2">اللاعب الثاني: <span id="score2">0</span> نقطة</div>
+    </div>
+    
+    <div class="game-container">
+        <!-- الزوايا -->
+        <div class="corner" style="grid-column: 1 / 3; grid-row: 1 / 3;">ابدأ هنا<br>+50 نقطة عند المرور</div>
+        <div class="corner" style="grid-column: 10 / 12; grid-row: 1 / 3;">سجن القواعد<br>تخطي دور</div>
+        <div class="corner" style="grid-column: 10 / 12; grid-row: 10 / 12;">اختبار المفاجأة<br>اجب عن سؤال</div>
+        <div class="corner" style="grid-column: 1 / 3; grid-row: 10 / 12;">الركن الذهبي<br>+100 نقطة</div>
+        
+        <!-- الجوانب العلوية -->
+        <div class="side noun" style="grid-column: 3 / 4; grid-row: 1 / 2;">المرفوعات<br>20 نقطة</div>
+        <div class="side noun" style="grid-column: 4 / 5; grid-row: 1 / 2;">المنصوبات<br>30 نقطة</div>
+        <div class="side noun" style="grid-column: 5 / 6; grid-row: 1 / 2;">المجرورات<br>40 نقطة</div>
+        <div class="side grammar" style="grid-column: 6 / 7; grid-row: 1 / 2;">الإعراب<br>50 نقطة</div>
+        <div class="side grammar" style="grid-column: 7 / 8; grid-row: 1 / 2;">البناء<br>60 نقطة</div>
+        <div class="side sentence" style="grid-column: 8 / 9; grid-row: 1 / 2;">الجملة الاسمية<br>70 نقطة</div>
+        <div class="side sentence" style="grid-column: 9 / 10; grid-row: 1 / 2;">الجملة الفعلية<br>80 نقطة</div>
+        
+        <!-- الجوانب اليمنى -->
+        <div class="side verb" style="grid-column: 10 / 11; grid-row: 3 / 4;">الماضي<br>25 نقطة</div>
+        <div class="side verb" style="grid-column: 10 / 11; grid-row: 4 / 5;">المضارع<br>35 نقطة</div>
+        <div class="side verb" style="grid-column: 10 / 11; grid-row: 5 / 6;">الأمر<br>45 نقطة</div>
+        <div class="side grammar" style="grid-column: 10 / 11; grid-row: 6 / 7;">النواسخ<br>55 نقطة</div>
+        <div class="side grammar" style="grid-column: 10 / 11; grid-row: 7 / 8;">الحروف<br>65 نقطة</div>
+        <div class="side exception" style="grid-column: 10 / 11; grid-row: 8 / 9;">الشواذ<br>75 نقطة</div>
+        <div class="side exception" style="grid-column: 10 / 11; grid-row: 9 / 10;">الممنوع من الصرف<br>85 نقطة</div>
+        
+        <!-- الجوانب السفلية -->
+        <div class="side particle" style="grid-column: 9 / 10; grid-row: 10 / 11;">حروف الجر<br>30 نقطة</div>
+        <div class="side particle" style="grid-column: 8 / 9; grid-row: 10 / 11;">حروف النصب<br>40 نقطة</div>
+        <div class="side particle" style="grid-column: 7 / 8; grid-row: 10 / 11;">حروف الجزم<br>50 نقطة</div>
+        <div class="side grammar" style="grid-column: 6 / 7; grid-row: 10 / 11;">حروف العطف<br>60 نقطة</div>
+        <div class="side grammar" style="grid-column: 5 / 6; grid-row: 10 / 11;">أدوات الشرط<br>70 نقطة</div>
+        <div class="side sentence" style="grid-column: 4 / 5; grid-row: 10 / 11;">التوكيد<br>80 نقطة</div>
+        <div class="side sentence" style="grid-column: 3 / 4; grid-row: 10 / 11;">البدل<br>90 نقطة</div>
+        
+        <!-- الجوانب اليسرى -->
+        <div class="side noun" style="grid-column: 1 / 2; grid-row: 9 / 10;">المثنى<br>35 نقطة</div>
+        <div class="side noun" style="grid-column: 1 / 2; grid-row: 8 / 9;">جمع المذكر<br>45 نقطة</div>
+        <div class="side noun" style="grid-column: 1 / 2; grid-row: 7 / 8;">جمع المؤنث<br>55 نقطة</div>
+        <div class="side grammar" style="grid-column: 1 / 2; grid-row: 6 / 7;">المشتقات<br>65 نقطة</div>
+        <div class="side grammar" style="grid-column: 1 / 2; grid-row: 5 / 7;">المفعول المطلق<br>75 نقطة</div>
+        <div class="side exception" style="grid-column: 1 / 2; grid-row: 4 / 5;">المفعول لأجله<br>85 نقطة</div>
+        <div class="side exception" style="grid-column: 1 / 2; grid-row: 3 / 4;">الحال<br>95 نقطة</div>
+        
+        <!-- المركز -->
+        <div class="center">
+            <div class="logo">عربوبولي</div>
+            <p>لعبة قواعد اللغة العربية</p>
+        </div>
+        
+        <!-- اللاعبون -->
+        <div class="player player1" id="player1">1</div>
+        <div class="player player2" id="player2">2</div>
+    </div>
+    
+    <div class="controls">
+        <div class="dice-result" id="diceResult"></div>
+        <button onclick="rollDice()" id="rollButton">اطر النرد</button>
+    </div>
+    
+    <div class="modal" id="questionModal">
+        <div class="modal-content">
+            <h3 id="questionText"></h3>
+            <div class="question-options" id="questionOptions">
+                <!-- سيتم ملؤها بالخيارات -->
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="alertModal">
+        <div class="modal-content">
+            <p id="alertMessage"></p>
+            <button onclick="closeAlert()" style="margin-top: 15px;">حسناً</button>
+        </div>
+    </div>
+    
+    <script>
+        let currentPlayer = 1;
+        let playerPositions = [0, 0];
+        let playerScores = [0, 0];
+        let isMoving = false;
+        let currentDiceValue = 0;
+        const totalCells = 40;
+        
+        const allQuestions = [
+            {
+                question: "ما إعراب كلمة 'الطالب' في الجملة التالية: 'جاء الطالبُ'؟",
+                options: ["فاعل مرفوع", "مفعول به منصوب", "اسم مجرور"],
+                correctAnswer: 0,
+                points: 20
+            },
+            {
+                question: "ما نوع 'إنَّ' في الجملة: 'إنَّ العلمَ نافعٌ'؟",
+                options: ["حرف ناسخ", "حرف جر", "حرف عطف"],
+                correctAnswer: 0,
+                points: 30
+            },
+            {
+                question: "ما إعراب 'كتابًا' في الجملة: 'اشتريت كتابًا'؟",
+                options: ["فاعل", "مفعول به", "مبتدأ"],
+                correctAnswer: 1,
+                points: 25
+            },
+            {
+                question: "ما نوع الجملة: 'السماءُ صافيةٌ'؟",
+                options: ["جملة اسمية", "جملة فعلية", "جملة شرطية"],
+                correctAnswer: 0,
+                points: 20
+            },
+            {
+                question: "ما إعراب 'المدرسةِ' في الجملة: 'ذهبتُ إلى المدرسةِ'؟",
+                options: ["فاعل", "مفعول به", "اسم مجرور"],
+                correctAnswer: 2,
+                points: 25
+            },
+            {
+                question: "ما نوع 'كان' في الجملة: 'كان الطالبُ مجتهدًا'؟",
+                options: ["فعل ناسخ", "فعل لازم", "فعل متعد"],
+                correctAnswer: 0,
+                points: 30
+            }
+        ];
+
+        let availableQuestions = [...allQuestions];
+        let usedQuestions = [];
+        
+        const cellValues = {
+            0: 50,    // بداية اللعبة
+            1: 20,    // المرفوعات
+            2: 30,    // المنصوبات
+            3: 40,    // المجرورات
+            4: 50,    // الإعراب
+            5: 60,    // البناء
+            6: 70,    // الجملة الاسمية
+            7: 80,    // الجملة الفعلية
+            10: 0,    // سجن القواعد (تخطي دور)
+            20: 0,    // اختبار المفاجأة
+            30: 100,  // الركن الذهبي
+            // الجوانب اليمنى
+            11: 25, 12: 35, 13: 45, 14: 55, 15: 65, 16: 75, 17: 85,
+            // الجوانب السفلية
+            21: 30, 22: 40, 23: 50, 24: 60, 25: 70, 26: 80, 27: 90,
+            // الجوانب اليسرى
+            31: 35, 32: 45, 33: 55, 34: 65, 35: 75, 36: 85, 37: 95
+        };
+        
+        function resetQuestionsForNewRound() {
+            if (availableQuestions.length === 0) {
+                availableQuestions = [...usedQuestions];
+                usedQuestions = [];
+                showAlert("تم إعادة استخدام الأسئلة من جديد!");
+            }
+        }
+
+        function getRandomQuestion() {
+            resetQuestionsForNewRound();
+            
+            const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+            const selectedQuestion = availableQuestions[randomIndex];
+            
+            availableQuestions.splice(randomIndex, 1);
+            usedQuestions.push(selectedQuestion);
+            
+            return selectedQuestion;
+        }
+
+        function rollDice() {
+            if (isMoving) return;
+            
+            const rollButton = document.getElementById('rollButton');
+            rollButton.disabled = true;
+            
+            const diceResult = document.getElementById('diceResult');
+            diceResult.textContent = '...';
+            diceResult.classList.add('dice-animation');
+            
+            document.getElementById(`player${currentPlayer}`).classList.add('active-player');
+            
+            setTimeout(() => {
+                currentDiceValue = Math.floor(Math.random() * 6) + 1;
+                diceResult.textContent = `اللاعب ${currentPlayer} أحرز ${currentDiceValue} نقاط!`;
+                diceResult.classList.remove('dice-animation');
+                
+                showRandomQuestion();
+                
+                rollButton.disabled = false;
+            }, 1000);
+        }
+
+        function showRandomQuestion() {
+            const randomQuestion = getRandomQuestion();
+            const questionText = document.getElementById('questionText');
+            const questionOptions = document.getElementById('questionOptions');
+            
+            questionText.textContent = randomQuestion.question;
+            questionOptions.innerHTML = '';
+            
+            randomQuestion.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.onclick = () => checkAnswer(index, randomQuestion.correctAnswer, randomQuestion.points);
+                questionOptions.appendChild(button);
+            });
+            
+            document.getElementById('questionModal').style.display = 'flex';
+        }
+
+        function checkAnswer(selectedAnswer, correctAnswer, points) {
+            document.getElementById('questionModal').style.display = 'none';
+            
+            if (selectedAnswer === correctAnswer) {
+                playerScores[currentPlayer-1] += points;
+                updateScores();
+                showAlert(`إجابة صحيحة! لقد حصلت على ${points} نقطة إضافية.`);
+                
+                setTimeout(() => {
+                    movePlayerStepByStep(currentPlayer, currentDiceValue);
+                }, 1000);
+            } else {
+                showAlert('إجابة خاطئة! لن تتحرك هذه الدورة.');
+                setTimeout(() => {
+                    switchPlayer();
+                }, 1000);
+            }
+        }
+        
+        function movePlayerStepByStep(player, steps) {
+            if (steps <= 0) {
+                const currentPosition = playerPositions[player-1];
+                const cellValue = cellValues[currentPosition] || 0;
+                
+                if (cellValue > 0) {
+                    playerScores[player-1] += cellValue;
+                    updateScores();
+                    showAlert(`اللاعب ${player} حصل على ${cellValue} نقطة!`);
+                } else if (currentPosition === 10) {
+                    showAlert(`اللاعب ${player} في سجن القواعد ويتخطى دوره!`);
+                    setTimeout(() => {
+                        switchPlayer();
+                    }, 1000);
+                    return;
+                } else if (currentPosition === 20) {
+                    setTimeout(() => {
+                        showRandomQuestion();
+                    }, 1000);
+                    return;
+                }
+                
+                setTimeout(() => {
+                    switchPlayer();
+                }, 1000);
+                return;
+            }
+            
+            isMoving = true;
+            playerPositions[player-1] = (playerPositions[player-1] + 1) % totalCells;
+            
+            updatePlayerPosition(player, playerPositions[player-1]);
+            
+            if (playerPositions[player-1] === 0 && steps > 0) {
+                playerScores[player-1] += 50;
+                updateScores();
+                showAlert(`اللاعب ${player} مر بنقطة البداية وحصل على 50 نقطة إضافية!`);
+            }
+            
+            setTimeout(() => {
+                movePlayerStepByStep(player, steps - 1);
+            }, 500);
+        }
+        
+        function switchPlayer() {
+            document.getElementById(`player${currentPlayer}`).classList.remove('active-player');
+            currentPlayer = currentPlayer === 1 ? 2 : 1;
+            isMoving = false;
+            showAlert(`دور اللاعب ${currentPlayer}`);
+            document.getElementById(`player${currentPlayer}`).classList.add('active-player');
+        }
+        
+        function updatePlayerPosition(player, position) {
+            const playerElement = document.getElementById(`player${player}`);
+            const container = document.querySelector('.game-container');
+            const cellSize = container.clientWidth / 11;
+            
+            let left, top;
+            
+            if (position === 0) {
+                left = cellSize * 0.5;
+                top = cellSize * 0.5;
+            } 
+            else if (position < 10) {
+                left = cellSize * (10.5 - position);
+                top = cellSize * 0.5;
+            } 
+            else if (position === 10) {
+                left = cellSize * 10.5;
+                top = cellSize * 0.5;
+            } 
+            else if (position < 20) {
+                left = cellSize * 10.5;
+                top = cellSize * (position - 8.5);
+            } 
+            else if (position === 20) {
+                left = cellSize * 10.5;
+                top = cellSize * 10.5;
+            } 
+            else if (position < 30) {
+                left = cellSize * (30.5 - position);
+                top = cellSize * 10.5;
+            } 
+            else if (position === 30) {
+                left = cellSize * 0.5;
+                top = cellSize * 10.5;
+            } 
+            else {
+                left = cellSize * 0.5;
+                top = cellSize * (40.5 - position);
+            }
+            
+            if (player === 1) {
+                left -= 15;
+            } else {
+                left += 15;
+            }
+            
+            playerElement.style.left = `${left}px`;
+            playerElement.style.top = `${top}px`;
+        }
+        
+        function updateScores() {
+            document.getElementById('score1').textContent = playerScores[0];
+            document.getElementById('score2').textContent = playerScores[1];
+        }
+        
+        function showAlert(message) {
+            document.getElementById('alertMessage').textContent = message;
+            document.getElementById('alertModal').style.display = 'flex';
+        }
+        
+        function closeAlert() {
+            document.getElementById('alertModal').style.display = 'none';
+        }
+        
+        window.onload = function() {
+            updatePlayerPosition(1, 0);
+            updatePlayerPosition(2, 0);
+            document.getElementById('player1').classList.add('active-player');
+        };
+    </script>
+</body>
+</html>

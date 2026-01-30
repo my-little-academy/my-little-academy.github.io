@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>اصطياد الفواكه</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #87CEEB;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        #gameCanvas {
+            background-color: #87CEEB;
+            display: block;
+            margin: 0 auto;
+        }
+        #score {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+            color: white;
+            background-color: rgba(0,0,0,0.5);
+            padding: 10px;
+            border-radius: 5px;
+        }
+        #startScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+        #startBtn {
+            padding: 15px 30px;
+            font-size: 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="score">النقاط: 0</div>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    
+    <div id="startScreen">
+        <h1>لعبة اصطياد الفواكه</h1>
+        <p>استخدم الفأرة لتحريك السلة واصطاد الفواكه الساقطة!</p>
+        <button id="startBtn">ابدأ اللعب</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        const startScreen = document.getElementById('startScreen');
+        
+        let score = 0;
+        let gameRunning = false;
+        let basket = {
+            x: canvas.width / 2 - 50,
+            y: canvas.height - 50,
+            width: 100,
+            height: 30
+        };
+        
+        const fruits = [
+            { emoji: '🍎', color: '#FF0000', points: 1 },
+            { emoji: '🍌', color: '#FFD700', points: 2 },
+            { emoji: '🍇', color: '#800080', points: 3 },
+            { emoji: '🍓', color: '#FF1493', points: 2 }
+        ];
+        
+        let fallingItems = [];
+        
+        function drawBasket() {
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(basket.x, basket.y, basket.width, basket.height);
+            ctx.fillStyle = '#A0522D';
+            ctx.fillRect(basket.x + 10, basket.y - 10, basket.width - 20, 10);
+        }
+        
+        function createFruit() {
+            if (!gameRunning) return;
+            
+            const randomFruit = fruits[Math.floor(Math.random() * fruits.length)];
+            const randomX = Math.random() * (canvas.width - 30);
+            
+            fallingItems.push({
+                x: randomX,
+                y: 0,
+                emoji: randomFruit.emoji,
+                color: randomFruit.color,
+                points: randomFruit.points,
+                width: 30,
+                height: 30,
+                speed: 2 + Math.random() * 3
+            });
+            
+            setTimeout(createFruit, 1000);
+        }
+        
+        function drawFallingItems() {
+            fallingItems.forEach(item => {
+                ctx.font = '30px Arial';
+                ctx.fillText(item.emoji, item.x, item.y);
+            });
+        }
+        
+        function update() {
+            if (!gameRunning) return;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // تحريك السلة مع المؤشر
+            canvas.addEventListener('mousemove', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                basket.x = e.clientX - rect.left - basket.width / 2;
+                
+                // التأكد من أن السلة لا تخرج عن الحدود
+                if (basket.x < 0) basket.x = 0;
+                if (basket.x > canvas.width - basket.width) {
+                    basket.x = canvas.width - basket.width;
+                }
+            });
+            
+            // تحريك الفواكه الساقطة
+            fallingItems.forEach((item, index) => {
+                item.y += item.speed;
+                
+                // اكتشاف الاصطدام مع السلة
+                if (
+                    item.y + item.height >= basket.y &&
+                    item.x + item.width >= basket.x &&
+                    item.x <= basket.x + basket.width
+                ) {
+                    score += item.points;
+                    scoreElement.textContent = `النقاط: ${score}`;
+                    fallingItems.splice(index, 1);
+                }
+                
+                // إزالة الفواكه التي سقطت خارج الشاشة
+                if (item.y > canvas.height) {
+                    fallingItems.splice(index, 1);
+                }
+            });
+            
+            drawBasket();
+            drawFallingItems();
+            
+            requestAnimationFrame(update);
+        }
+        
+        document.getElementById('startBtn').addEventListener('click', () => {
+            startScreen.style.display = 'none';
+            gameRunning = true;
+            score = 0;
+            scoreElement.textContent = `النقاط: ${score}`;
+            fallingItems = [];
+            update();
+            createFruit();
+        });
+    </script>
+</body>
+</html>

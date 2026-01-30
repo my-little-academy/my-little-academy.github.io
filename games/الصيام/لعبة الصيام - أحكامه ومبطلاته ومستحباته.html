@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الصيام - المسلم الصغير</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2ecc71;
+            --secondary: #f39c12;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --highlight: #9b59b6;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--highlight) 100%);
+            color: white;
+            padding: 25px 0;
+            text-align: center;
+            border-radius: 0 0 30px 30px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 30px;
+        }
+        
+        .game-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background: white;
+            border-radius: 50px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .game-tab {
+            padding: 12px 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .game-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .game-content {
+            background: white;
+            width: 100%;
+            max-width: 800px;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .game-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .game-section.active {
+            display: block;
+        }
+        
+        .question-card {
+            background: var(--light);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 5px solid var(--primary);
+        }
+        
+        .question {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+        
+        .option {
+            background: white;
+            padding: 12px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #ddd;
+        }
+        
+        .option:hover {
+            border-color: var(--primary);
+        }
+        
+        .option.correct {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+        
+        .option.incorrect {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+        
+        .result {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .result.correct {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        
+        .result.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        
+        .score-container {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.2rem;
+        }
+        
+        .score {
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .progress-container {
+            width: 100%;
+            background: #e9ecef;
+            border-radius: 10px;
+            margin: 20px 0;
+            height: 10px;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            background: var(--primary);
+            transition: width 0.5s ease;
+        }
+        
+        .next-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            display: block;
+            margin: 20px auto 0;
+            transition: all 0.3s ease;
+        }
+        
+        .next-btn:hover {
+            background: #27ae60;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .info-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+            border-right: 5px solid var(--highlight);
+        }
+        
+        .info-title {
+            color: var(--highlight);
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+        
+        .info-content {
+            line-height: 1.8;
+        }
+        
+        .info-list {
+            margin: 15px 0;
+            padding-right: 20px;
+        }
+        
+        .info-list li {
+            margin-bottom: 10px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .game-tab {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+            
+            .game-content {
+                padding: 20px;
+            }
+            
+            .question {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="animate__animated animate__fadeInDown">
+        <div class="container">
+            <h1>لعبة الصيام - أحكامه ومبطلاته ومستحباته</h1>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="game-container">
+            <div class="game-tabs">
+                <div class="game-tab active" data-tab="rules">أحكام الصيام</div>
+                <div class="game-tab" data-tab="invalidators">مبطلات الصيام</div>
+                <div class="game-tab" data-tab="recommendations">مستحبات الصيام</div>
+            </div>
+            
+            <div class="game-content animate__animated animate__fadeIn">
+                <!-- قسم أحكام الصيام -->
+                <div class="game-section active" id="rules-section">
+                    <div class="question-card">
+                        <div class="question">ما هو حكم الصيام في رمضان على المسلم البالغ العاقل القادر؟</div>
+                        <div class="options">
+                            <div class="option" data-correct="true">فرض عين</div>
+                            <div class="option" data-correct="false">سنة مؤكدة</div>
+                            <div class="option" data-correct="false">مباح</div>
+                            <div class="option" data-correct="false">واجب على الكفاية</div>
+                        </div>
+                        <div class="result correct">
+                            الإجابة الصحيحة: فرض عين - الصيام في رمضان ركن من أركان الإسلام الخمسة
+                        </div>
+                    </div>
+                    
+                    <div class="question-card">
+                        <div class="question">من الأعذار المبيحة للإفطار في رمضان:</div>
+                        <div class="options">
+                            <div class="option" data-correct="false">التعب والإرهاق</div>
+                            <div class="option" data-correct="true">السفر الطويل</div>
+                            <div class="option" data-correct="false">الجوع الشديد</div>
+                            <div class="option" data-correct="true">المرض الذي يخشى معه الضرر</div>
+                        </div>
+                        <div class="result correct">
+                            الإجابة الصحيحة: السفر الطويل والمرض الذي يخشى معه الضرر - من رخص الله تعالى
+                        </div>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 33%;"></div>
+                    </div>
+                    
+                    <button class="next-btn">السؤال التالي</button>
+                </div>
+                
+                <!-- قسم مبطلات الصيام -->
+                <div class="game-section" id="invalidators-section">
+                    <div class="question-card">
+                        <div class="question">أي من هذه الأمور يبطل الصيام؟</div>
+                        <div class="options">
+                            <div class="option" data-correct="false">شم رائحة الطعام</div>
+                            <div class="option" data-correct="true">تعمد الأكل أو الشرب</div>
+                            <div class="option" data-correct="false">الاحتلام أثناء النوم</div>
+                            <div class="option" data-correct="false">تذوق الطعام دون بلعه</div>
+                        </div>
+                        <div class="result correct">
+                            الإجابة الصحيحة: تعمد الأكل أو الشرب - من مبطلات الصيام المتعمدة
+                        </div>
+                    </div>
+                    
+                    <div class="question-card">
+                        <div class="question">إذا أكل شخص ناسياً في نهار رمضان:</div>
+                        <div class="options">
+                            <div class="option" data-correct="true">صيامه صحيح ويتم صومه</div>
+                            <div class="option" data-correct="false">يبطل صومه ويقضيه</div>
+                            <div class="option" data-correct="false">يبطل صومه وعليه كفارة</div>
+                            <div class="option" data-correct="false">يستحب له الإفطار ذلك اليوم</div>
+                        </div>
+                        <div class="result correct">
+                            الإجابة الصحيحة: صيامه صحيح ويتم صومه - لحديث "من نسي وهو صائم فأكل أو شرب فليتم صومه فإنما أطعمه الله وسقاه"
+                        </div>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 33%;"></div>
+                    </div>
+                    
+                    <button class="next-btn">السؤال التالي</button>
+                </div>
+                
+                <!-- قسم مستحبات الصيام -->
+                <div class="game-section" id="recommendations-section">
+                    <div class="question-card">
+                        <div class="question">من مستحبات الصيام:</div>
+                        <div class="options">
+                            <div class="option" data-correct="true">تعجيل الفطور</div>
+                            <div class="option" data-correct="true">تأخير السحور</div>
+                            <div class="option" data-correct="false">كثرة النوم نهاراً</div>
+                            <div class="option" data-correct="true">الدعاء عند الإفطار</div>
+                        </div>
+                        <div class="result correct">
+                            الإجابة الصحيحة: تعجيل الفطور وتأخير السحور والدعاء عند الإفطار - من هدي النبي صلى الله عليه وسلم
+                        </div>
+                    </div>
+                    
+                    <div class="question-card">
+                        <div class="question">ماذا يسن للصائم قوله عند إفطاره؟</div>
+                        <div class="options">
+                            <div class="option" data-correct="false">الحمد لله</div>
+                            <div class="option" data-correct="true">اللهم لك صمت وعلى رزقك أفطرت</div>
+                            <div class="option" data-correct="false">سبحان الله</div>
+                            <div class="option" data-correct="false">لا إله إلا الله</div>
+                        </div>
+                        <div class="result correct">
+                            الإجابة الصحيحة: "اللهم لك صمت وعلى رزقك أفطرت" - من أذكار الإفطار المستحبة
+                        </div>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 33%;"></div>
+                    </div>
+                    
+                    <button class="next-btn">إعادة اللعبة</button>
+                </div>
+                
+                <div class="score-container">
+                    <span>درجاتك: </span>
+                    <span class="score">0</span>
+                </div>
+            </div>
+            
+            <div class="info-section animate__animated animate__fadeInUp">
+                <h3 class="info-title">معلومات عن الصيام</h3>
+                <div class="info-content">
+                    <p>الصيام هو الإمساك عن المفطرات من طلوع الفجر إلى غروب الشمس بنية التقرب إلى الله تعالى.</p>
+                    
+                    <h4>أركان الصيام:</h4>
+                    <ul class="info-list">
+                        <li>النية (محلها القلب)</li>
+                        <li>الإمساك عن المفطرات (الطعام، الشراب، الجماع)</li>
+                    </ul>
+                    
+                    <h4>من يجب عليهم الصيام:</h4>
+                    <ul class="info-list">
+                        <li>المسلم</li>
+                        <li>البالغ</li>
+                        <li>العاقل</li>
+                        <li>القادر على الصوم</li>
+                        <li>المقيم (غير المسافر)</li>
+                        <li>الخالي من الموانع (المرض، الحيض، النفاس)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.game-tab');
+            const sections = document.querySelectorAll('.game-section');
+            const options = document.querySelectorAll('.option');
+            const nextBtns = document.querySelectorAll('.next-btn');
+            const scoreElement = document.querySelector('.score');
+            const progressBars = document.querySelectorAll('.progress-bar');
+            
+            let currentTab = 0;
+            let currentQuestion = 0;
+            let score = 0;
+            let answered = false;
+            
+            // تبديل الأقسام
+            tabs.forEach((tab, index) => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    sections.forEach(s => s.classList.remove('active'));
+                    
+                    tab.classList.add('active');
+                    sections[index].classList.add('active');
+                    currentTab = index;
+                    currentQuestion = 0;
+                    updateProgress();
+                });
+            });
+            
+            // اختيار الإجابات
+            options.forEach(option => {
+                option.addEventListener('click', function() {
+                    if (answered) return;
+                    
+                    const isCorrect = this.getAttribute('data-correct') === 'true';
+                    const questionCard = this.closest('.question-card');
+                    const resultDiv = questionCard.querySelector('.result');
+                    
+                    if (isCorrect) {
+                        this.classList.add('correct');
+                        resultDiv.classList.add('correct');
+                        score += 10;
+                        scoreElement.textContent = score;
+                    } else {
+                        this.classList.add('incorrect');
+                        // إظهار الإجابة الصحيحة
+                        const correctOption = questionCard.querySelector('.option[data-correct="true"]');
+                        correctOption.classList.add('correct');
+                        resultDiv.classList.add('correct');
+                    }
+                    
+                    answered = true;
+                });
+            });
+            
+            // الزر التالي
+            nextBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const section = this.closest('.game-section');
+                    const questions = section.querySelectorAll('.question-card');
+                    
+                    // إخفاء السؤال الحالي
+                    questions[currentQuestion].style.display = 'none';
+                    
+                    // الانتقال للسؤال التالي أو القسم التالي
+                    currentQuestion++;
+                    
+                    if (currentQuestion < questions.length) {
+                        questions[currentQuestion].style.display = 'block';
+                        resetQuestion(questions[currentQuestion]);
+                    } else {
+                        // إذا انتهت الأسئلة، انتقل للقسم التالي
+                        currentQuestion = 0;
+                        const nextTab = (currentTab + 1) % sections.length;
+                        
+                        tabs.forEach(t => t.classList.remove('active'));
+                        sections.forEach(s => s.classList.remove('active'));
+                        
+                        tabs[nextTab].classList.add('active');
+                        sections[nextTab].classList.add('active');
+                        currentTab = nextTab;
+                        
+                        // إعادة عرض جميع الأسئلة في القسم الجديد
+                        const newQuestions = sections[nextTab].querySelectorAll('.question-card');
+                        newQuestions.forEach((q, i) => {
+                            q.style.display = i === 0 ? 'block' : 'none';
+                            resetQuestion(q);
+                        });
+                        
+                        // إذا كان القسم الأخير، عرض زر إعادة اللعبة
+                        if (nextTab === sections.length - 1) {
+                            this.textContent = 'إعادة اللعبة';
+                        } else {
+                            this.textContent = 'السؤال التالي';
+                        }
+                    }
+                    
+                    updateProgress();
+                });
+            });
+            
+            // إعادة تعيين السؤال
+            function resetQuestion(question) {
+                const options = question.querySelectorAll('.option');
+                const result = question.querySelector('.result');
+                
+                options.forEach(opt => {
+                    opt.classList.remove('correct', 'incorrect');
+                });
+                
+                result.classList.remove('correct', 'incorrect');
+                answered = false;
+            }
+            
+            // تحديث شريط التقدم
+            function updateProgress() {
+                const section = sections[currentTab];
+                const questions = section.querySelectorAll('.question-card');
+                const progress = ((currentQuestion + 1) / questions.length) * 100;
+                
+                progressBars.forEach(bar => {
+                    bar.style.width = `${progress}%`;
+                });
+            }
+            
+            // إخفاء جميع الأسئلة ما عدا الأول في كل قسم
+            sections.forEach(section => {
+                const questions = section.querySelectorAll('.question-card');
+                questions.forEach((q, i) => {
+                    if (i !== 0) q.style.display = 'none';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>العيادة اللغوية - لعبة تفاعلية لتعلم العربية</title>
+    <style>
+        :root {
+            --primary-color: #1a735e;
+            --secondary-color: #f8f1e5;
+            --accent-color: #d4af37;
+            --dark-color: #2c3e50;
+            --light-color: #ffffff;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: var(--secondary-color);
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: var(--light-color);
+            padding: 20px 0;
+            text-align: center;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        
+        .logo i {
+            font-size: 2.5rem;
+            margin-left: 15px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .main-menu {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 40px;
+            gap: 20px;
+        }
+        
+        .btn {
+            background-color: var(--primary-color);
+            color: var(--light-color);
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 250px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:hover {
+            background-color: #145c4a;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .game-container {
+            background-color: var(--light-color);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 30px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+        
+        .patient-card {
+            background-color: #e8f5f1;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .patient-avatar {
+            width: 100px;
+            height: 100px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 20px;
+            font-size: 2.5rem;
+            color: var(--light-color);
+        }
+        
+        .patient-info {
+            flex: 1;
+        }
+        
+        .problem {
+            background-color: #ffeaea;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 1.1rem;
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .option {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+        
+        .option:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .correct {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .incorrect {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            background-color: var(--dark-color);
+            color: var(--light-color);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background-color: #ddd;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: var(--accent-color);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .results {
+            text-align: center;
+            display: none;
+        }
+        
+        .results h2 {
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+        
+        .results-score {
+            font-size: 2rem;
+            margin: 20px 0;
+            color: var(--accent-color);
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: var(--dark-color);
+            opacity: 0.7;
+        }
+        
+        @media (max-width: 768px) {
+            .options {
+                grid-template-columns: 1fr;
+            }
+            
+            .patient-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .patient-avatar {
+                margin-left: 0;
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-hospital-symbol"></i>
+                <h1>العيادة اللغوية</h1>
+            </div>
+            <p class="subtitle">عالج الأخطاء اللغوية واصقل مهاراتك في اللغة العربية</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="main-menu" id="mainMenu">
+            <button class="btn" onclick="startGame()">بدء اللعبة</button>
+            <button class="btn" onclick="showInstructions()">كيفية اللعب</button>
+            <button class="btn" onclick="showLeaderboard()">لوحة الصدارة</button>
+        </div>
+        
+        <div class="game-container" id="gameContainer">
+            <div class="patient-card">
+                <div class="patient-avatar">
+                    <i class="fas fa-user-injured"></i>
+                </div>
+                <div class="patient-info">
+                    <h3>المريض: <span id="patientName">أحمد محمد</span></h3>
+                    <p>العمر: <span id="patientAge">32 سنة</span></p>
+                    <p>الشكوى: <span id="patientComplaint">يعاني من أخطاء إملائية متكررة</span></p>
+                </div>
+            </div>
+            
+            <div class="problem">
+                <p id="problemText">يوجد في الجملة التالية خطأ إملائي، ما هو؟</p>
+                <p id="problemContent" style="font-weight: bold; margin-top: 10px; font-size: 1.2rem;">"ذهبت إلى المدرسه صباح اليوم."</p>
+            </div>
+            
+            <div class="options">
+                <div class="option" onclick="checkAnswer(0)">كلمة "ذهبت" يجب أن تكتب "ذهبتِ"</div>
+                <div class="option" onclick="checkAnswer(1)">كلمة "المدرسه" يجب أن تكتب "المدرسة"</div>
+                <div class="option" onclick="checkAnswer(2)">كلمة "صباح" يجب أن تكتب "صَباح"</div>
+                <div class="option" onclick="checkAnswer(3)">لا يوجد خطأ في الجملة</div>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress" id="progressBar"></div>
+            </div>
+            
+            <div class="score-board">
+                <div>السؤال: <span id="currentQuestion">1</span>/<span id="totalQuestions">10</span></div>
+                <div>النقاط: <span id="score">0</span></div>
+            </div>
+        </div>
+        
+        <div class="results" id="resultsContainer">
+            <h2>أحسنت! لقد أكملت التحدي</h2>
+            <div class="results-score">نقاطك: <span id="finalScore">0</span></div>
+            <p id="resultsFeedback">لقد عالجت 8 مرضى من أصل 10 بنجاح!</p>
+            <button class="btn" onclick="playAgain()">اللعب مرة أخرى</button>
+            <button class="btn" onclick="backToMenu()">العودة إلى القائمة</button>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>العيادة اللغوية - لعبة تفاعلية لتعلم اللغة العربية © 2023</p>
+        </div>
+    </footer>
+
+    <script>
+        // بيانات اللعبة
+        const gameData = {
+            currentQuestion: 0,
+            score: 0,
+            totalQuestions: 10,
+            questions: [
+                {
+                    patient: {
+                        name: "أحمد محمد",
+                        age: "32 سنة",
+                        complaint: "يعاني من أخطاء إملائية متكررة"
+                    },
+                    problem: "يوجد في الجملة التالية خطأ إملائي، ما هو؟",
+                    content: '"ذهبت إلى المدرسه صباح اليوم."',
+                    options: [
+                        "كلمة \"ذهبت\" يجب أن تكتب \"ذهبتِ\"",
+                        "كلمة \"المدرسه\" يجب أن تكتب \"المدرسة\"",
+                        "كلمة \"صباح\" يجب أن تكتب \"صَباح\"",
+                        "لا يوجد خطأ في الجملة"
+                    ],
+                    correct: 1
+                },
+                {
+                    patient: {
+                        name: "فاطمة الزهراء",
+                        age: "28 سنة",
+                        complaint: "صعوبة في التمييز بين التاء المربوطة والتاء المفتوحة"
+                    },
+                    problem: "أي من الكلمات التالية تحتوي على تاء مفتوحة؟",
+                    content: '',
+                    options: [
+                        "مدرسة",
+                        "معلمة",
+                        "بيت",
+                        "فتاة"
+                    ],
+                    correct: 2
+                },
+                {
+                    patient: {
+                        name: "خالد السعدي",
+                        age: "45 سنة",
+                        complaint: "خلط بين همزة القطع وهمزة الوصل"
+                    },
+                    problem: "أي من الكلمات التالية تبدأ بهمزة قطع؟",
+                    content: '',
+                    options: [
+                        "استخدام",
+                        "ابن",
+                        "امرأة",
+                        "اثنان"
+                    ],
+                    correct: 3
+                },
+                // يمكن إضافة المزيد من الأسئلة هنا
+            ]
+        };
+
+        // تهيئة اللعبة
+        function initializeGame() {
+            gameData.currentQuestion = 0;
+            gameData.score = 0;
+            gameData.totalQuestions = gameData.questions.length;
+            
+            document.getElementById('totalQuestions').textContent = gameData.totalQuestions;
+            document.getElementById('currentQuestion').textContent = 1;
+            document.getElementById('score').textContent = 0;
+            document.getElementById('progressBar').style.width = '0%';
+        }
+
+        // بدء اللعبة
+        function startGame() {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('gameContainer').style.display = 'block';
+            document.getElementById('resultsContainer').style.display = 'none';
+            
+            initializeGame();
+            loadQuestion();
+        }
+
+        // تحميل السؤال الحالي
+        function loadQuestion() {
+            const currentQ = gameData.questions[gameData.currentQuestion];
+            
+            document.getElementById('patientName').textContent = currentQ.patient.name;
+            document.getElementById('patientAge').textContent = currentQ.patient.age;
+            document.getElementById('patientComplaint').textContent = currentQ.patient.complaint;
+            document.getElementById('problemText').textContent = currentQ.problem;
+            document.getElementById('problemContent').textContent = currentQ.content;
+            
+            const options = document.querySelectorAll('.option');
+            options.forEach((option, index) => {
+                option.textContent = currentQ.options[index];
+                option.className = 'option'; // إعادة تعيين التنسيق
+            });
+            
+            document.getElementById('currentQuestion').textContent = gameData.currentQuestion + 1;
+            document.getElementById('progressBar').style.width = `${((gameData.currentQuestion) / gameData.totalQuestions) * 100}%`;
+        }
+
+        // التحقق من الإجابة
+        function checkAnswer(selectedOption) {
+            const currentQ = gameData.questions[gameData.currentQuestion];
+            const options = document.querySelectorAll('.option');
+            
+            if (selectedOption === currentQ.correct) {
+                options[selectedOption].classList.add('correct');
+                gameData.score += 10;
+                document.getElementById('score').textContent = gameData.score;
+            } else {
+                options[selectedOption].classList.add('incorrect');
+                options[currentQ.correct].classList.add('correct');
+            }
+            
+            // الانتقال إلى السؤال التالي بعد تأخير
+            setTimeout(() => {
+                gameData.currentQuestion++;
+                
+                if (gameData.currentQuestion < gameData.questions.length) {
+                    loadQuestion();
+                } else {
+                    showResults();
+                }
+            }, 1500);
+        }
+
+        // عرض النتائج
+        function showResults() {
+            document.getElementById('gameContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            
+            document.getElementById('finalScore').textContent = gameData.score;
+            
+            let feedback = "";
+            const percentage = (gameData.score / (gameData.totalQuestions * 10)) * 100;
+            
+            if (percentage >= 80) {
+                feedback = "ممتاز! أنت طبيب لغوي متميز.";
+            } else if (percentage >= 60) {
+                feedback = "جيد جداً! لكنك تحتاج إلى مزيد من الممارسة.";
+            } else {
+                feedback = "حاول مرة أخرى، تحتاج إلى تحسين مهاراتك اللغوية.";
+            }
+            
+            feedback += ` لقد عالجت ${Math.round(percentage/10)} مرضى من أصل ${gameData.totalQuestions} بنجاح!`;
+            
+            document.getElementById('resultsFeedback').textContent = feedback;
+        }
+
+        // اللعب مرة أخرى
+        function playAgain() {
+            startGame();
+        }
+
+        // العودة إلى القائمة الرئيسية
+        function backToMenu() {
+            document.getElementById('mainMenu').style.display = 'flex';
+            document.getElementById('gameContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+        }
+
+        // عرض التعليمات (وظيفة قيد التطوير)
+        function showInstructions() {
+            alert("كيفية اللعب:\n\n1. استمع إلى شكوى المريض اللغوية\n2. اقرأ الجملة أو النص المعروض\n3. اختر التشخيص الصحيح للخطأ اللغوي\n4. تقدم عبر المستويات واجمع النقاط");
+        }
+
+        // عرض لوحة الصدارة (وظيفة قيد التطوير)
+        function showLeaderboard() {
+            alert("لوحة الصدارة قيد التطوير... سيتم إضافتها في نسخة لاحقة من اللعبة");
+        }
+    </script>
+</body>
+</html>

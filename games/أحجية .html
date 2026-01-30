@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أحجية عمر بن الخطاب للصغار</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@700&display=swap');
+        
+        :root {
+            --main-color: #FF9F1C; /* برتقالي مشرق */
+            --secondary-color: #2EC4B6; /* تركواز */
+            --dark-color: #011627; /* أزرق داكن */
+            --light-color: #FDFFFC; /* أبيض كريمي */
+            --accent-color: #E71D36; /* أحمر وردي */
+        }
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #FF9F1C, #FFBF69);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+        
+        .game-box {
+            background: var(--light-color);
+            width: 90%;
+            max-width: 500px;
+            border-radius: 25px;
+            padding: 25px;
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.2),
+                0 0 0 10px var(--secondary-color),
+                0 0 0 15px var(--main-color);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .game-box::before {
+            content: "";
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 50px;
+            height: 50px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            z-index: 0;
+        }
+        
+        .game-box::after {
+            content: "✨";
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            font-size: 2rem;
+            animation: sparkle 2s infinite;
+        }
+        
+        h1 {
+            color: var(--dark-color);
+            font-size: 2rem;
+            margin: 0 0 15px;
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+            position: relative;
+            display: inline-block;
+        }
+        
+        h1::after {
+            content: "";
+            position: absolute;
+            bottom: -5px;
+            right: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--main-color), var(--accent-color));
+            border-radius: 2px;
+        }
+        
+        .score {
+            background: var(--dark-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-weight: bold;
+            box-shadow: 0 5px 0 rgba(0, 0, 0, 0.1);
+            transform: rotate(-2deg);
+        }
+        
+        .puzzle-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin: 20px auto;
+            width: 300px;
+            height: 300px;
+            perspective: 1000px;
+        }
+        
+        .puzzle-piece {
+            background-size: 300px 300px;
+            border-radius: 15px;
+            cursor: grab;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 
+                0 3px 10px rgba(0, 0, 0, 0.1),
+                inset 0 0 0 2px white;
+            transform-style: preserve-3d;
+        }
+        
+        .puzzle-piece:hover {
+            transform: scale(1.05) rotateZ(2deg);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            z-index: 10;
+        }
+        
+        .puzzle-piece.empty {
+            background: repeating-linear-gradient(
+                45deg,
+                #f8f8f8,
+                #f8f8f8 10px,
+                #e0e0e0 10px,
+                #e0e0e0 20px
+            );
+            box-shadow: inset 0 0 0 2px var(--secondary-color);
+        }
+        
+        .controls {
+            margin-top: 25px;
+        }
+        
+        button {
+            background: var(--main-color);
+            color: var(--dark-color);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            margin: 0 10px;
+            transition: all 0.3s;
+            box-shadow: 0 5px 0 rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        button::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(30deg);
+            transition: all 0.3s;
+        }
+        
+        button:hover::after {
+            right: 100%;
+        }
+        
+        .congrats {
+            display: none;
+            background: var(--secondary-color);
+            color: white;
+            padding: 15px;
+            border-radius: 15px;
+            margin-top: 20px;
+            font-size: 1.4rem;
+            animation: 
+                bounce 0.5s ease infinite alternate,
+                rainbow 3s linear infinite;
+        }
+        
+        .points-popup {
+            position: absolute;
+            background: var(--accent-color);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            animation: 
+                floatUp 1s forwards,
+                pulse 0.5s ease-in-out 2;
+            z-index: 100;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
+        }
+        
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-80px) scale(0.5); opacity: 0; }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes rainbow {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+        
+        @keyframes sparkle {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: var(--accent-color);
+            opacity: 0;
+            z-index: 90;
+            animation: confettiFall 3s ease-in-out forwards;
+        }
+        
+        @keyframes confettiFall {
+            0% { 
+                transform: translateY(-100px) rotateZ(0deg); 
+                opacity: 1; 
+            }
+            100% { 
+                transform: translateY(500px) rotateZ(360deg); 
+                opacity: 0; 
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-box">
+        <h1>أحجية الصحابي عمر بن الخطاب</h1>
+        <div class="score">النقاط: <span id="score">0</span></div>
+        
+        <div class="puzzle-board" id="board"></div>
+        
+        <div class="controls">
+            <button onclick="shufflePieces()">🔀 إعادة ترتيب</button>
+            <button onclick="resetGame()">🔄 بدء جديد</button>
+        </div>
+        
+        <div class="congrats" id="congrats">
+            🎉 مبروك! لقد فزت 🎉
+        </div>
+    </div>
+
+    <script>
+        // الصورة الافتراضية (يمكن تغييرها برابطك)
+        const imageUrl = 'https://i.imgur.com/6VY5RfF.jpg'; // صورة عمر بن الخطاب
+        
+        // المتغيرات
+        const board = document.getElementById('board');
+        const scoreElement = document.getElementById('score');
+        const congrats = document.getElementById('congrats');
+        let pieces = [];
+        let emptyIndex = 8;
+        let score = 0;
+        let correctPieces = 0;
+        
+        // تهيئة اللعبة
+        function initPuzzle() {
+            board.innerHTML = '';
+            congrats.style.display = 'none';
+            score = 0;
+            correctPieces = 0;
+            updateScore();
+            
+            // إنشاء القطع
+            for (let i = 0; i < 9; i++) {
+                const piece = document.createElement('div');
+                piece.className = i === emptyIndex ? 'puzzle-piece empty' : 'puzzle-piece';
+                
+                if (i !== emptyIndex) {
+                    const row = Math.floor(i / 3);
+                    const col = i % 3;
+                    
+                    piece.style.backgroundImage = `url(${imageUrl})`;
+                    piece.style.backgroundPosition = `-${col * 100}px -${row * 100}px`;
+                    piece.dataset.index = i;
+                    piece.dataset.correctPosition = i;
+                    
+                    piece.draggable = true;
+                    piece.addEventListener('dragstart', dragStart);
+                }
+                
+                board.appendChild(piece);
+                pieces.push(piece);
+            }
+            
+            // أحداث السحب والإفلات
+            board.addEventListener('dragover', dragOver);
+            board.addEventListener('drop', drop);
+        }
+        
+        // دالة السحب
+        function dragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.dataset.index);
+        }
+        
+        // دالة السماح بالإسقاط
+        function dragOver(e) {
+            e.preventDefault();
+        }
+        
+        // دالة إسقاط القطعة
+        function drop(e) {
+            e.preventDefault();
+            const draggedIndex = e.dataTransfer.getData('text/plain');
+            const draggedPiece = pieces[draggedIndex];
+            const targetPiece = e.target;
+            
+            if (targetPiece.classList.contains('empty')) {
+                // نقل الخصائص
+                targetPiece.style.backgroundImage = draggedPiece.style.backgroundImage;
+                targetPiece.style.backgroundPosition = draggedPiece.style.backgroundPosition;
+                targetPiece.classList.remove('empty');
+                targetPiece.draggable = true;
+                targetPiece.addEventListener('dragstart', dragStart);
+                targetPiece.dataset.index = draggedIndex;
+                
+                // جعل القطعة المسحوبة فارغة
+                draggedPiece.style.backgroundImage = '';
+                draggedPiece.classList.add('empty');
+                draggedPiece.draggable = false;
+                draggedPiece.removeEventListener('dragstart', dragStart);
+                
+                // التحقق من صحة الموضع وإضافة النقاط
+                checkPiecePosition(targetPiece);
+            }
+        }
+        
+        // التحقق من صحة القطعة
+        function checkPiecePosition(piece) {
+            const currentPosition = parseInt(piece.dataset.index);
+            const correctPosition = parseInt(piece.dataset.correctPosition);
+            
+            if (currentPosition === correctPosition) {
+                addPoints(10, piece);
+                correctPieces++;
+                
+                if (correctPieces === 8) {
+                    setTimeout(() => {
+                        addPoints(50);
+                        congrats.style.display = 'block';
+                        createConfetti();
+                        setTimeout(() => {
+                            alert(`✨ إنجاز رائع! ✨\nالنتيجة النهائية: ${score} نقطة`);
+                        }, 800);
+                    }, 300);
+                }
+            }
+        }
+        
+        // إضافة النقاط مع تأثيرات
+        function addPoints(points, element = null) {
+            score += points;
+            updateScore();
+            
+            if (element) {
+                const popup = document.createElement('div');
+                popup.className = 'points-popup';
+                popup.textContent = `+${points}`;
+                
+                const rect = element.getBoundingClientRect();
+                popup.style.left = `${rect.left + rect.width / 2 - 30}px`;
+                popup.style.top = `${rect.top - 20}px`;
+                
+                document.body.appendChild(popup);
+                
+                setTimeout(() => {
+                    popup.remove();
+                }, 1000);
+            }
+        }
+        
+        // تحديث النقاط
+        function updateScore() {
+            scoreElement.textContent = score;
+            scoreElement.style.animation = 'none';
+            void scoreElement.offsetWidth; // إعادة تشغيل الأنيميشن
+            scoreElement.style.animation = 'pulse 0.5s ease';
+        }
+        
+        // إنشاء كونفيتي
+        function createConfetti() {
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.backgroundColor = getRandomColor();
+                confetti.style.animationDelay = `${Math.random() * 2}s`;
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => {
+                    confetti.remove();
+                }, 3000);
+            }
+        }
+        
+        // ألوان عشوائية للكونفيتي
+        function getRandomColor() {
+            const colors = [
+                '#FF9F1C', '#2EC4B6', '#E71D36', 
+                '#540D6E', '#3A86FF', '#FF006E'
+            ];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+        
+        // خلط القطع
+        function shufflePieces() {
+            const indices = [...Array(8).keys()];
+            
+            for (let i = indices.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [indices[i], indices[j]] = [indices[j], indices[i]];
+            }
+            
+            pieces.forEach((piece, index) => {
+                if (index !== emptyIndex) {
+                    const newIndex = indices.pop();
+                    const row = Math.floor(newIndex / 3);
+                    const col = newIndex % 3;
+                    
+                    piece.style.backgroundPosition = `-${col * 100}px -${row * 100}px`;
+                    piece.dataset.index = newIndex;
+                }
+            });
+            
+            congrats.style.display = 'none';
+        }
+        
+        // إعادة تعيين اللعبة
+        function resetGame() {
+            pieces = [];
+            initPuzzle();
+        }
+        
+        // بدء اللعبة
+        initPuzzle();
+    </script>
+</body>
+</html>

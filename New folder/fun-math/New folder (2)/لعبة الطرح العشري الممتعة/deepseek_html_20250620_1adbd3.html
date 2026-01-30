@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الطرح العشري مع الاستلاف</title>
+    <style>
+        :root {
+            --primary: #6a11cb;
+            --secondary: #2575fc;
+            --success: #00b09b;
+            --danger: #ff416c;
+            --warning: #ff8a00;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(to right, #f5f7fa, #c3cfe2);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: var(--dark);
+        }
+
+        .game-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            margin: 0 0 25px;
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .example-container {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-left: 5px solid var(--primary);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .example-container::before {
+            content: 'مثال توضيحي';
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: var(--primary);
+            color: white;
+            padding: 5px 15px;
+            font-size: 14px;
+            border-bottom-right-radius: 10px;
+        }
+
+        .math-container {
+            background: rgba(240, 240, 240, 0.7);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .math-row {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .math-label {
+            min-width: 120px;
+            text-align: center;
+            background: var(--primary);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-left: 15px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .digit {
+            width: 60px;
+            height: 80px;
+            margin: 0 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            font-weight: bold;
+            border-radius: 10px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .place-value .digit {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--dark);
+            border: 2px solid var(--primary);
+        }
+
+        .minuend .digit {
+            background: linear-gradient(135deg, #00b09b, #96c93d);
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 180, 155, 0.3);
+        }
+
+        .subtrahend .digit {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 65, 108, 0.3);
+        }
+
+        .result .digit {
+            background: linear-gradient(135deg, #ff8a00, #ffc800);
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 138, 0, 0.3);
+        }
+
+        .decimal-point {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin: 0 5px;
+            width: 30px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .empty-digit {
+            background: rgba(255, 255, 255, 0.7) !important;
+            border: 2px dashed var(--dark);
+            color: var(--dark);
+            cursor: pointer;
+        }
+
+        .selected-digit {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 20px rgba(0, 0, 0, 0.2) !important;
+            border: 3px solid var(--white);
+        }
+
+        .borrow-btn {
+            position: absolute;
+            top: -15px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        .borrow-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(to right, var(--danger), #ff4b2b);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .number-pad {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .number-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--dark);
+            font-size: 1.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .number-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .message {
+            text-align: center;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .success {
+            background: rgba(0, 180, 155, 0.2);
+            color: #006b5f;
+            border-left: 5px solid #00b09b;
+        }
+
+        .error {
+            background: rgba(255, 65, 108, 0.2);
+            color: #cc0f35;
+            border-left: 5px solid #ff416c;
+        }
+
+        hr {
+            border: none;
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--primary), transparent);
+            margin: 25px 0;
+        }
+
+        @media (max-width: 768px) {
+            .digit {
+                width: 45px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+            
+            .math-label {
+                min-width: 90px;
+                font-size: 0.9rem;
+            }
+            
+            .number-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="game-container">
+        <h1>لعبة الطرح العشري مع الاستلاف</h1>
+        
+        <div class="example-container">
+            <div>عندما نطرح ٥ من ٢ في خانة الآحاد (2 - 5):</div>
+            <div>1. نستلف ١ من خانة العشرات (تصبح 1 بدل 2)</div>
+            <div>2. نضيف ١٠ إلى خانة الآحاد (تصبح 12 بدل 2)</div>
+            <div>3. الآن نستطيع الطرح: 12 - 5 = 7</div>
+        </div>
+        
+        <div class="math-container">
+            <!-- صف المنازل -->
+            <div class="math-row place-value">
+                <div class="math-label">المنازل</div>
+                <!-- سيتم إضافة المنازل بالجافاسكريبت -->
+            </div>
+            
+            <!-- صف المطروح منه -->
+            <div class="math-row minuend">
+                <div class="math-label">المطروح منه</div>
+                <!-- سيتم إضافة الأرقام بالجافاسكريبت -->
+            </div>
+            
+            <!-- صف المطروح -->
+            <div class="math-row subtrahend">
+                <div class="math-label">المطروح</div>
+                <!-- سيتم إضافة الأرقام بالجافاسكريبت -->
+            </div>
+            
+            <!-- خط فاصل -->
+            <hr>
+            
+            <!-- صف النتيجة -->
+            <div class="math-row result">
+                <div class="math-label">النتيجة</div>
+                <!-- سيتم إضافة الأرقام بالجافاسكريبت -->
+            </div>
+        </div>
+        
+        <!-- لوحة الأرقام -->
+        <div class="number-pad">
+            <button class="number-btn" data-number="0">0</button>
+            <button class="number-btn" data-number="1">1</button>
+            <button class="number-btn" data-number="2">2</button>
+            <button class="number-btn" data-number="3">3</button>
+            <button class="number-btn" data-number="4">4</button>
+            <button class="number-btn" data-number="5">5</button>
+            <button class="number-btn" data-number="6">6</button>
+            <button class="number-btn" data-number="7">7</button>
+            <button class="number-btn" data-number="8">8</button>
+            <button class="number-btn" data-number="9">9</button>
+        </div>
+        
+        <!-- أزرار التحكم -->
+        <div class="controls">
+            <button class="btn btn-primary" id="check-btn">تحقق من الإجابة</button>
+            <button class="btn btn-danger" id="change-btn">مسألة جديدة</button>
+        </div>
+        
+        <div class="message" id="message">اختر أرقام النتيجة من لوحة الأرقام</div>
+    </div>
+
+    <script>
+        // تعريف المتغيرات
+        const places = ["عشرات", "آحاد", "أعشار", "أجزاء المئة", "أجزاء الألف"];
+        let minuends = [0, 0, 0, 0, 0];
+        let subtrahends = [0, 0, 0, 0, 0];
+        let results = ['', '', '', '', ''];
+        let selectedDigit = null;
+        const decimalPosition = 2; // بعد خانة الآحاد
+        
+        // إنشاء الأرقام
+        function createDigits() {
+            createDigitsRow('place-value', places, false);
+            createDigitsRow('minuend', minuends, true);
+            createDigitsRow('subtrahend', subtrahends, false);
+            createDigitsRow('result', results, true, true);
+        }
+        
+        function createDigitsRow(rowClass, values, isClickable, isResult = false) {
+            const row = document.querySelector(`.${rowClass}`);
+            // مسح الأرقام القديمة (مع الحفاظ على التسمية)
+            const label = row.querySelector('.math-label');
+            row.innerHTML = '';
+            row.appendChild(label);
+            
+            // إنشاء خانة العشرات والآحاد
+            for (let i = 0; i < 2; i++) {
+                createDigitElement(row, values[i], i, rowClass, isClickable, isResult);
+            }
+            
+            // إضافة الفاصلة العشرية
+            const decimalElement = document.createElement('div');
+            decimalElement.className = 'decimal-point';
+            decimalElement.textContent = '.';
+            row.appendChild(decimalElement);
+            
+            // إنشاء الخانات العشرية
+            for (let i = 2; i < values.length; i++) {
+                createDigitElement(row, values[i], i, rowClass, isClickable, isResult);
+            }
+        }
+        
+        function createDigitElement(row, value, index, rowClass, isClickable, isResult) {
+            const digitElement = document.createElement('div');
+            digitElement.className = 'digit';
+            
+            if (rowClass === 'place-value') {
+                digitElement.textContent = value;
+            } else {
+                digitElement.textContent = value === '' ? '' : value;
+            }
+            
+            digitElement.dataset.index = index;
+            
+            if (isResult && value === '') {
+                digitElement.classList.add('empty-digit');
+                digitElement.addEventListener('click', () => selectDigit(digitElement));
+            }
+            
+            if (rowClass === 'minuend' && index > 0) {
+                addBorrowButton(digitElement, index);
+            }
+            
+            row.appendChild(digitElement);
+        }
+        
+        function addBorrowButton(element, index) {
+            const borrowBtn = document.createElement('button');
+            borrowBtn.className = 'borrow-btn';
+            borrowBtn.textContent = '↓';
+            borrowBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                handleBorrow(index);
+            });
+            element.appendChild(borrowBtn);
+        }
+        
+        function selectDigit(digitElement) {
+            if (selectedDigit) {
+                selectedDigit.classList.remove('selected-digit');
+            }
+            selectedDigit = digitElement;
+            digitElement.classList.add('selected-digit');
+        }
+        
+        function handleBorrow(index) {
+            const borrowFrom = index - 1;
+            
+            if (parseInt(minuends[index]) >= parseInt(subtrahends[index])) {
+                showMessage('لا حاجة للاستلاف هنا', 'error');
+                return;
+            }
+            
+            if (borrowFrom < 0 || parseInt(minuends[borrowFrom]) < 1) {
+                showMessage('لا يمكن الاستلاف من الخانة السابقة', 'error');
+                return;
+            }
+            
+            minuends[borrowFrom] = parseInt(minuends[borrowFrom]) - 1;
+            minuends[index] = parseInt(minuends[index]) + 10;
+            updateMinuendDisplay();
+            showMessage('تم الاستلاف بنجاح!', 'success');
+        }
+        
+        function updateMinuendDisplay() {
+            createDigitsRow('minuend', minuends, true);
+        }
+        
+        function generateRandomNumbers() {
+            // توليد المطروح منه
+            minuends = minuends.map((val, index) => Math.floor(Math.random() * 10));
+            
+            // نختار خانة عشوائية لإجبار الاستلاف
+            let borrowIndex;
+            do {
+                borrowIndex = Math.floor(Math.random() * (minuends.length - 1)) + 1;
+            } while (borrowIndex === decimalPosition);
+            
+            // توليد المطروح مع إجبار الاستلاف في الخانة المختارة
+            subtrahends = subtrahends.map((val, index) => {
+                if (index === borrowIndex) {
+                    return Math.min(9, parseInt(minuends[index]) + 1 + Math.floor(Math.random() * 2));
+                } else {
+                    return Math.floor(Math.random() * (parseInt(minuends[index]) + 1));
+                }
+            });
+            
+            // نتائج فارغة
+            results = ['', '', '', '', ''];
+            
+            // نضمن أن الخانة السابقة للاستلاف تحتوي على رقم لا يقل عن 1
+            const borrowFrom = borrowIndex - 1;
+            if (borrowFrom >= 0) {
+                minuends[borrowFrom] = Math.max(1, parseInt(minuends[borrowFrom]));
+            }
+        }
+        
+        function checkAnswer() {
+            // بناء الأرقام بشكل صحيح
+            const minuendValue = parseFloat(`${minuends[0]}${minuends[1]}.${minuends[2]}${minuends[3]}${minuends[4]}`);
+            const subtrahendValue = parseFloat(`${subtrahends[0]}${subtrahends[1]}.${subtrahends[2]}${subtrahends[3]}${subtrahends[4]}`);
+            const playerResult = parseFloat(`${results[0] || '0'}${results[1] || '0'}.${results[2] || '0'}${results[3] || '0'}${results[4] || '0'}`);
+            const correctResult = minuendValue - subtrahendValue;
+            
+            // مقارنة النتائج مع مراعاة الفاصلة العائمة
+            if (Math.abs(playerResult - correctResult) < 0.0001) {
+                showMessage('إجابة صحيحة! أحسنت!', 'success');
+            } else {
+                showMessage(`إجابة خاطئة! الجواب الصحيح: ${correctResult.toFixed(3)}`, 'error');
+            }
+        }
+        
+        function showMessage(msg, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = msg;
+            messageEl.className = `message ${type}`;
+        }
+        
+        function resetGame() {
+            generateRandomNumbers();
+            createDigits();
+            showMessage('اختر أرقام النتيجة من لوحة الأرقام', '');
+            selectedDigit = null;
+        }
+        
+        function initEvents() {
+            document.querySelectorAll('.number-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (selectedDigit) {
+                        const num = this.dataset.number;
+                        const index = parseInt(selectedDigit.dataset.index);
+                        
+                        selectedDigit.textContent = num;
+                        results[index] = num;
+                        selectedDigit.classList.remove('selected-digit', 'empty-digit');
+                        
+                        // البحث عن الخانة التالية الفارغة
+                        let nextIndex = -1;
+                        for (let i = index + 1; i < results.length; i++) {
+                            if (results[i] === '') {
+                                nextIndex = i;
+                                break;
+                            }
+                        }
+                        
+                        if (nextIndex !== -1) {
+                            const nextDigit = document.querySelector(`.result .digit[data-index="${nextIndex}"]`);
+                            selectDigit(nextDigit);
+                        } else {
+                            selectedDigit = null;
+                        }
+                    }
+                });
+            });
+            
+            document.getElementById('check-btn').addEventListener('click', checkAnswer);
+            document.getElementById('change-btn').addEventListener('click', resetGame);
+        }
+        
+        // بدء اللعبة
+        document.addEventListener('DOMContentLoaded', function() {
+            generateRandomNumbers();
+            createDigits();
+            initEvents();
+        });
+    </script>
+</body>
+</html>

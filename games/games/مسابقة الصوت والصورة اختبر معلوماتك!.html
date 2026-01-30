@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مسابقة الصوت والصورة: اختبر معلوماتك!</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-quiz: #4CAF50; /* أخضر زاهي */
+            --secondary-quiz: #8BC34A; /* أخضر فاتح */
+            --background-quiz: #E8F5E9; /* أخضر فاتح جداً */
+            --button-hover: #388E3C; /* أخضر أغمق للهوفر */
+            --text-color: #37474F; /* رمادي أزرق غامق */
+            --wrong-color: #F44336; /* أحمر */
+            --correct-color: #4CAF50; /* أخضر */
+            --shadow-quiz: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, var(--background-quiz) 0%, #DCEDC8 100%); /* تدرج أخضر مريح */
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 900px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: var(--shadow-quiz);
+            text-align: center;
+            animation: fadeInScale 1s ease-out;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Header */
+        h1 {
+            font-size: 3.5rem;
+            color: var(--primary-quiz);
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
+            animation: bounceInDown 1s ease-out;
+        }
+
+        .game-description-text {
+            font-size: 1.5rem;
+            color: #546E7A;
+            margin-bottom: 30px;
+            line-height: 1.7;
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        /* Quiz Area */
+        .quiz-area {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+            padding: 20px;
+            background-color: #F9FBE7; /* لون فاتح جداً لمنطقة السؤال */
+            border-radius: 20px;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.05);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .question-content {
+            margin-bottom: 20px;
+            min-height: 200px; /* To prevent layout shift */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .audio-player-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            background-color: #E0F2F7;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            width: 80%;
+            max-width: 400px;
+        }
+
+        .audio-player-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .play-pause-btn {
+            background-color: var(--primary-quiz);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .play-pause-btn:hover {
+            background-color: var(--button-hover);
+            transform: scale(1.05);
+        }
+
+        .audio-progress {
+            width: 200px;
+            height: 8px;
+            background-color: #BDBDBD;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--primary-quiz);
+            transition: width 0.1s linear;
+        }
+
+        .image-display {
+            max-width: 90%;
+            max-height: 300px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            object-fit: contain; /* Ensure image fits well */
+            background-color: #FFF;
+            padding: 10px;
+        }
+
+        .question-text {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--text-color);
+            margin-top: 15px;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 90%;
+            max-width: 600px;
+            margin-top: 20px;
+        }
+
+        .option-button {
+            background-color: #E0F7FA; /* أزرق فاتح جداً */
+            color: var(--text-color);
+            padding: 18px 25px;
+            border: 2px solid var(--secondary-quiz);
+            border-radius: 15px;
+            font-size: 1.6rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, border-color 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+            font-weight: 600;
+        }
+
+        .option-button:hover {
+            background-color: #B2EBF2; /* أزرق أغمق قليلاً */
+            transform: translateY(-3px);
+            border-color: var(--primary-quiz);
+        }
+
+        .option-button.selected {
+            background-color: #FFFDE7; /* أصفر فاتح للاختيار */
+            border-color: #FFC107;
+            transform: scale(1.02);
+        }
+
+        .option-button.correct {
+            background-color: var(--correct-color);
+            color: white;
+            border-color: var(--correct-color);
+            transform: scale(1.05);
+            animation: pulse 0.5s 2;
+        }
+
+        .option-button.wrong {
+            background-color: var(--wrong-color);
+            color: white;
+            border-color: var(--wrong-color);
+            transform: translateX(-5px);
+            animation: shake 0.5s;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1.05); }
+            50% { transform: scale(1.08); }
+            100% { transform: scale(1.05); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+
+        .feedback-area {
+            min-height: 50px;
+            margin-top: 25px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .feedback-message {
+            animation: fadeIn 0.5s ease-out;
+        }
+        .feedback-message.correct { color: var(--correct-color); }
+        .feedback-message.wrong { color: var(--wrong-color); }
+
+        .navigation-buttons-quiz {
+            margin-top: 30px;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .quiz-button {
+            background-color: var(--primary-quiz);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.6rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .quiz-button:hover {
+            background-color: var(--button-hover);
+            transform: translateY(-3px);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* End Screen */
+        .end-screen {
+            text-align: center;
+            animation: zoomIn 1s ease-out;
+        }
+
+        .end-screen h2 {
+            font-size: 3.5rem;
+            color: var(--primary-quiz);
+            margin-bottom: 25px;
+            text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
+            animation: tada 1s ease-out;
+        }
+
+        .end-screen p {
+            font-size: 1.8rem;
+            color: var(--text-color);
+            margin-bottom: 30px;
+        }
+
+        .score-display {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: var(--primary-quiz);
+            margin-bottom: 20px;
+        }
+
+        /* Animated Background Elements */
+        .animated-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-shape {
+            position: absolute;
+            background: rgba(76, 175, 80, 0.1); /* Transparent primary color */
+            border-radius: 50%;
+            animation: floatAndFade 20s infinite linear;
+            filter: blur(8px);
+        }
+
+        .bg-shape:nth-child(1) { width: 100px; height: 100px; top: 10%; left: -5%; animation-duration: 22s; }
+        .bg-shape:nth-child(2) { width: 80px; height: 80px; top: 70%; left: 10%; animation-duration: 18s; transform: rotate(30deg); }
+        .bg-shape:nth-child(3) { width: 120px; height: 120px; top: 20%; right: -5%; animation-duration: 25s; transform: rotate(-45deg); }
+        .bg-shape:nth-child(4) { width: 90px; height: 90px; top: 85%; right: 15%; animation-duration: 20s; }
+        .bg-shape:nth-child(5) { width: 70px; height: 70px; top: 5%; left: 40%; animation-duration: 23s; }
+
+        @keyframes floatAndFade {
+            0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0.3; }
+            50% { transform: translateY(-50px) translateX(20px) rotate(180deg); opacity: 0.5; }
+            100% { transform: translateY(0) translateX(0) rotate(360deg); opacity: 0.3; }
+        }
+
+        /* Top Home Button */
+        .top-home-button {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            background-color: var(--secondary-quiz);
+            color: var(--text-color);
+            padding: 10px 18px;
+            border-radius: 15px;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .top-home-button:hover {
+            background-color: #7CB342; /* لون أغمق قليلاً من الثانوي */
+            transform: translateY(-3px);
+        }
+
+        .top-home-button i {
+            font-size: 1.5rem;
+            color: var(--text-color);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.8rem; }
+            .game-description-text { font-size: 1.2rem; margin-bottom: 20px; }
+            .container { padding: 25px; border-radius: 20px; }
+            .question-text { font-size: 1.6rem; }
+            .audio-player-container { width: 95%; }
+            .play-pause-btn { width: 50px; height: 50px; font-size: 1.8rem; }
+            .audio-progress { width: 150px; }
+            .image-display { max-height: 250px; }
+            .options-container { width: 100%; }
+            .option-button { padding: 15px 20px; font-size: 1.4rem; }
+            .feedback-area { font-size: 1.2rem; margin-top: 20px; }
+            .quiz-button { padding: 12px 25px; font-size: 1.4rem; }
+            .end-screen h2 { font-size: 2.8rem; }
+            .end-screen p { font-size: 1.6rem; }
+            .score-display { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="animated-bg">
+        <div class="bg-shape"></div>
+        <div class="bg-shape"></div>
+        <div class="bg-shape"></div>
+        <div class="bg-shape"></div>
+        <div class="bg-shape"></div>
+    </div>
+
+    <a href="games_page.html" class="top-home-button animate__animated animate__bounceInRight">
+        <i class="fas fa-home"></i>
+        <span>العودة للألعاب</span>
+    </a>
+
+    <div class="container">
+        <h1 class="animate__animated animate__flipInX">مسابقة الصوت والصورة: اختبر معلوماتك!</h1>
+        <p class="game-description-text">
+            استمع إلى المقطع الصوتي أو شاهد الصورة، ثم اختر الإجابة الصحيحة من الخيارات المعطاة.
+        </p>
+
+        <div class="quiz-area" id="quizArea">
+            <div class="question-content">
+                <div class="audio-player-container hidden" id="audioPlayerContainer">
+                    <div class="audio-player-controls">
+                        <button id="playPauseButton" class="play-pause-btn">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <div class="audio-progress">
+                            <div class="progress-bar" id="progressBar"></div>
+                        </div>
+                    </div>
+                    <audio id="questionAudio" preload="auto"></audio>
+                </div>
+
+                <img src="" alt="صورة السؤال" class="image-display hidden" id="questionImage">
+                
+                <p class="question-text" id="questionText"></p>
+            </div>
+
+            <div class="options-container" id="optionsContainer">
+                </div>
+
+            <div class="feedback-area" id="feedbackArea">
+                </div>
+
+            <div class="navigation-buttons-quiz">
+                <button class="quiz-button hidden" id="nextButton">السؤال التالي <i class="fas fa-arrow-left"></i></button>
+            </div>
+        </div>
+
+        <div id="end-screen" class="end-screen hidden">
+            <h2 class="animate__animated animate__tada">تهانينا! لقد أكملت المسابقة!</h2>
+            <p class="animate__animated animate__fadeIn">لقد أبليت بلاءً حسناً!</p>
+            <p class="score-display">نقاطك: <span id="finalScore">0</span> / <span id="totalQuestions">0</span></p>
+            <div class="navigation-buttons-quiz">
+                <button class="quiz-button" id="restartQuizButton"><i class="fas fa-redo"></i> ابدأ من جديد</button>
+                <a href="games_page.html" class="quiz-button"><i class="fas fa-gamepad"></i> العودة لقائمة الألعاب</a>
+            </div>
+        </div>
+    </div>
+
+    <audio id="clickAudio" src="click.mp3" preload="auto"></audio>
+    <audio id="correctAnswerAudio" src="correct_answer.mp3" preload="auto"></audio>
+    <audio id="wrongAnswerAudio" src="wrong_answer.mp3" preload="auto"></audio>
+    <audio id="quizCompleteAudio" src="quiz_complete.mp3" preload="auto"></audio>
+    <audio id="playAudioSound" src="play_sound.mp3" preload="auto"></audio>
+    <audio id="pauseAudioSound" src="pause_sound.mp3" preload="auto"></audio>
+
+    <script>
+        const quizData = [
+            {
+                type: "audio", // "audio" or "image"
+                src: "sura_ikhlas.mp3", // Path to audio file
+                question: "ما اسم هذه السورة الكريمة؟",
+                options: ["سورة الإخلاص", "سورة الفلق", "سورة الناس"],
+                correctAnswer: "سورة الإخلاص"
+            },
+            {
+                type: "image",
+                src: "kaaba.jpg", // Path to image file
+                question: "ما اسم هذا المكان المقدس؟",
+                options: ["المسجد الأقصى", "الكعبة المشرفة", "المسجد النبوي"],
+                correctAnswer: "الكعبة المشرفة"
+            },
+            {
+                type: "audio",
+                src: "shahada_clip.mp3", // Path to audio file (e.g., first part of Shahada)
+                question: "ماذا يسمى هذا الركن من أركان الإسلام؟",
+                options: ["الصلاة", "الزكاة", "الشهادتين"],
+                correctAnswer: "الشهادتين"
+            },
+            {
+                type: "image",
+                src: "fasting.jpg", // Path to image of someone fasting/iftar
+                question: "هذه الصورة تعبر عن أي ركن من أركان الإسلام؟",
+                options: ["الحج", "الصوم", "الشهادتين"],
+                correctAnswer: "الصوم"
+            }
+            // Add more questions here...
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answeredCurrentQuestion = false;
+
+        const quizArea = document.getElementById('quizArea');
+        const endScreen = document.getElementById('end-screen');
+        const questionTextElem = document.getElementById('questionText');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const feedbackArea = document.getElementById('feedbackArea');
+        const nextButton = document.getElementById('nextButton');
+        const restartQuizButton = document.getElementById('restartQuizButton');
+        const finalScoreElem = document.getElementById('finalScore');
+        const totalQuestionsElem = document.getElementById('totalQuestions');
+
+        // Audio elements
+        const audioPlayerContainer = document.getElementById('audioPlayerContainer');
+        const playPauseButton = document.getElementById('playPauseButton');
+        const questionAudio = document.getElementById('questionAudio');
+        const progressBar = document.getElementById('progressBar');
+
+        // Image element
+        const questionImage = document.getElementById('questionImage');
+
+        // Sound effects
+        const clickAudio = document.getElementById('clickAudio');
+        const correctAnswerAudio = document.getElementById('correctAnswerAudio');
+        const wrongAnswerAudio = document.getElementById('wrongAnswerAudio');
+        const quizCompleteAudio = document.getElementById('quizCompleteAudio');
+        const playAudioSound = document.getElementById('playAudioSound');
+        const pauseAudioSound = document.getElementById('pauseAudioSound');
+
+        function loadQuestion() {
+            answeredCurrentQuestion = false;
+            feedbackArea.innerHTML = '';
+            nextButton.classList.add('hidden');
+            optionsContainer.innerHTML = ''; // Clear previous options
+
+            // Reset audio/image displays
+            audioPlayerContainer.classList.add('hidden');
+            questionImage.classList.add('hidden');
+            questionAudio.pause();
+            questionAudio.currentTime = 0;
+            progressBar.style.width = '0%';
+            playPauseButton.innerHTML = '<i class="fas fa-play"></i>';
+
+
+            if (currentQuestionIndex < quizData.length) {
+                const question = quizData[currentQuestionIndex];
+                questionTextElem.textContent = question.question;
+
+                if (question.type === "audio") {
+                    audioPlayerContainer.classList.remove('hidden');
+                    questionAudio.src = question.src;
+                    questionAudio.load(); // Load the new audio source
+                } else if (question.type === "image") {
+                    questionImage.classList.remove('hidden');
+                    questionImage.src = question.src;
+                }
+
+                // Shuffle options for each question
+                const shuffledOptions = [...question.options].sort(() => Math.random() - 0.5);
+
+                shuffledOptions.forEach(option => {
+                    const button = document.createElement('button');
+                    button.classList.add('option-button');
+                    button.textContent = option;
+                    button.addEventListener('click', () => selectOption(button, option, question.correctAnswer));
+                    optionsContainer.appendChild(button);
+                });
+
+                // Enable all option buttons at the start of a new question
+                enableOptions();
+            } else {
+                showEndScreen();
+            }
+        }
+
+        function selectOption(selectedButton, selectedAnswer, correctAnswer) {
+            if (answeredCurrentQuestion) return; // Prevent multiple answers
+
+            answeredCurrentQuestion = true;
+            clickAudio.play().catch(e => console.log("Click audio failed:", e));
+            disableOptions(); // Disable all options after selection
+
+            selectedButton.classList.add('selected'); // Highlight selected option
+
+            if (selectedAnswer === correctAnswer) {
+                score++;
+                selectedButton.classList.add('correct');
+                feedbackArea.innerHTML = `<p class="feedback-message correct">أحسنت! إجابة صحيحة! <i class="fas fa-check-circle"></i></p>`;
+                correctAnswerAudio.play().catch(e => console.log("Correct audio failed:", e));
+            } else {
+                selectedButton.classList.add('wrong');
+                feedbackArea.innerHTML = `<p class="feedback-message wrong">خطأ، الإجابة الصحيحة هي: ${correctAnswer} <i class="fas fa-times-circle"></i></p>`;
+                wrongAnswerAudio.play().catch(e => console.log("Wrong audio failed:", e));
+                // Highlight the correct answer if the user was wrong
+                Array.from(optionsContainer.children).forEach(button => {
+                    if (button.textContent === correctAnswer) {
+                        button.classList.add('correct');
+                    }
+                });
+            }
+
+            nextButton.classList.remove('hidden');
+            questionAudio.pause(); // Stop audio if playing
+        }
+
+        function disableOptions() {
+            Array.from(optionsContainer.children).forEach(button => {
+                button.disabled = true;
+            });
+        }
+
+        function enableOptions() {
+            Array.from(optionsContainer.children).forEach(button => {
+                button.disabled = false;
+                button.classList.remove('selected', 'correct', 'wrong');
+            });
+        }
+
+        function showEndScreen() {
+            quizArea.classList.add('hidden');
+            endScreen.classList.remove('hidden');
+            finalScoreElem.textContent = score;
+            totalQuestionsElem.textContent = quizData.length;
+            quizCompleteAudio.play().catch(e => console.log("Quiz complete audio failed:", e));
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            endScreen.classList.add('hidden');
+            quizArea.classList.remove('hidden');
+            loadQuestion();
+        }
+
+        // Event Listeners for Audio Player
+        playPauseButton.addEventListener('click', () => {
+            if (questionAudio.paused) {
+                questionAudio.play().catch(e => console.log("Audio play failed:", e));
+                playPauseButton.innerHTML = '<i class="fas fa-pause"></i>';
+                playAudioSound.play().catch(e => console.log("Play sound failed:", e));
+            } else {
+                questionAudio.pause();
+                playPauseButton.innerHTML = '<i class="fas fa-play"></i>';
+                pauseAudioSound.play().catch(e => console.log("Pause sound failed:", e));
+            }
+        });
+
+        questionAudio.addEventListener('timeupdate', () => {
+            const progress = (questionAudio.currentTime / questionAudio.duration) * 100;
+            progressBar.style.width = `${progress}%`;
+        });
+
+        questionAudio.addEventListener('ended', () => {
+            playPauseButton.innerHTML = '<i class="fas fa-play"></i>';
+            progressBar.style.width = '0%'; // Reset progress bar
+        });
+
+        // Navigation
+        nextButton.addEventListener('click', () => {
+            currentQuestionIndex++;
+            loadQuestion();
+        });
+
+        restartQuizButton.addEventListener('click', restartQuiz);
+
+        // Initial load
+        loadQuestion();
+    </script>
+</body>
+</html>

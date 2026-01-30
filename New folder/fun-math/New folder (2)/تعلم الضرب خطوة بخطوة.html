@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مغامرة الضرب العمودي - تعلم بالخطوات</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background-color: #4b6cb7;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+            margin-bottom: 20px;
+        }
+        h1 {
+            margin: 0;
+            font-size: 2em;
+        }
+        .game-area {
+            background-color: white;
+            padding: 20px;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .stage {
+            display: none;
+            margin-bottom: 20px;
+        }
+        .stage.active {
+            display: block;
+        }
+        .problem-container {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #ddd;
+        }
+        .problem-title {
+            font-size: 1.3em;
+            color: #4b6cb7;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .vertical-multiplication {
+            display: inline-block;
+            margin: 10px auto;
+            text-align: left;
+            font-family: 'Courier New', monospace;
+            font-size: 1.3em;
+            padding: 15px;
+            background-color: white;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            direction: ltr;
+        }
+        .step {
+            margin: 15px 0;
+            padding: 15px;
+            border-right: 3px solid #4b6cb7;
+            background-color: #f0f7ff;
+            border-radius: 5px;
+        }
+        .step-title {
+            font-weight: bold;
+            color: #4b6cb7;
+            margin-bottom: 10px;
+        }
+        .carry {
+            color: #e91e63;
+            font-weight: bold;
+        }
+        .zero-placeholder {
+            color: #4caf50;
+            font-weight: bold;
+        }
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 25px 0;
+        }
+        button {
+            background-color: #4b6cb7;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            min-width: 100px;
+        }
+        button:hover {
+            background-color: #3a56a0;
+            transform: translateY(-2px);
+        }
+        .feedback {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+            text-align: center;
+            font-size: 1.1em;
+        }
+        .correct {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .incorrect {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .progress-container {
+            margin: 30px 0;
+        }
+        .progress-bar {
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+        .progress {
+            height: 100%;
+            background: linear-gradient(to right, #4b6cb7, #3a56a0);
+            width: 0%;
+            transition: width 0.5s;
+        }
+        .progress-text {
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        .hidden {
+            display: none;
+        }
+        .underline {
+            border-bottom: 1px solid #333;
+            margin: 5px 0;
+            width: 100%;
+        }
+        .final-message {
+            text-align: center;
+            padding: 20px;
+            background-color: #f0f7ff;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .final-score {
+            font-size: 1.5em;
+            color: #4b6cb7;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>مغامرة الضرب العمودي</h1>
+            <p>تعلم الضرب خطوة بخطوة كما في ويكي هاو</p>
+        </header>
+
+        <div class="game-area">
+            <!-- المرحلة 1: ضرب عدد من رقمين في عدد من رقم واحد -->
+            <div id="stage1" class="stage active">
+                <div class="problem-container">
+                    <div class="problem-title">المرحلة 1: ضرب عدد من رقمين في عدد من رقم واحد</div>
+                    <p>لنبدأ بمسألة بسيطة. سنضرب 23 × 4 باستخدام الطريقة العمودية.</p>
+                    
+                    <div class="vertical-multiplication">
+                        <div>  23</div>
+                        <div>×  4</div>
+                        <div class="underline">_____</div>
+                        <div id="answer1">  ?</div>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-title">الخطوة 1: ضرب الآحاد</div>
+                    <p>نضرب 4 (من العدد السفلي) في 3 (آحاد العدد العلوي):</p>
+                    <p>4 × 3 = 12</p>
+                    <p>نكتب <strong>2</strong> في خانة الآحاد ونحمل <span class="carry">1</span> إلى خانة العشرات</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-title">الخطوة 2: ضرب العشرات مع الحمل</div>
+                    <p>نضرب 4 في 2 (عشرات العدد العلوي):</p>
+                    <p>4 × 2 = 8</p>
+                    <p>نضيف الحمل <span class="carry">1</span>: 8 + 1 = 9</p>
+                    <p>نكتب 9 في خانة العشرات</p>
+                </div>
+                
+                <div class="options">
+                    <button onclick="checkAnswer(1, 92)">92</button>
+                    <button onclick="checkAnswer(1, 86)">86</button>
+                    <button onclick="checkAnswer(1, 72)">72</button>
+                    <button onclick="checkAnswer(1, 96)">96</button>
+                </div>
+                
+                <div id="feedback1" class="feedback"></div>
+            </div>
+
+            <!-- المرحلة 2: ضرب عدد من رقمين في عدد من رقمين -->
+            <div id="stage2" class="stage">
+                <div class="problem-container">
+                    <div class="problem-title">المرحلة 2: ضرب عدد من رقمين في عدد من رقمين</div>
+                    <p>الآن سنحل مسألة أكثر تعقيدًا: 34 × 12</p>
+                    
+                    <div class="vertical-multiplication">
+                        <div>    34</div>
+                        <div>  ×12</div>
+                        <div class="underline">______</div>
+                        <div>    68 ← 34 × 2</div>
+                        <div>  34  ← 34 × 1 (نضيف <span class="zero-placeholder">0</span> لأنه في خانة العشرات)</div>
+                        <div class="underline">______</div>
+                        <div id="answer2">   ?</div>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-title">الخطوة 1: ضرب الآحاد</div>
+                    <p>نضرب 2 (من العدد السفلي) في 34 (العدد العلوي):</p>
+                    <div class="vertical-multiplication" style="font-size: 1em;">
+                        <div>  34</div>
+                        <div>× 2</div>
+                        <div class="underline">_____</div>
+                        <div>  68</div>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-title">الخطوة 2: ضرب العشرات</div>
+                    <p>نضرب 1 (عشرات العدد السفلي) في 34:</p>
+                    <p>1 × 34 = 34</p>
+                    <p>لكن لأننا نضرب في خانة العشرات، نضيف <span class="zero-placeholder">0</span> أولاً:</p>
+                    <p>34 تصبح 340</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-title">الخطوة 3: جمع النتائج الجزئية</div>
+                    <p>نجمع ناتج الخطوتين السابقتين:</p>
+                    <div class="vertical-multiplication" style="font-size: 1em;">
+                        <div>    68</div>
+                        <div>  +340</div>
+                        <div class="underline">______</div>
+                        <div>   408</div>
+                    </div>
+                </div>
+                
+                <div class="options">
+                    <button onclick="checkAnswer(2, 408)">408</button>
+                    <button onclick="checkAnswer(2, 308)">308</button>
+                    <button onclick="checkAnswer(2, 508)">508</button>
+                    <button onclick="checkAnswer(2, 428)">428</button>
+                </div>
+                
+                <div id="feedback2" class="feedback"></div>
+            </div>
+
+            <!-- المرحلة 3: ضرب عدد من ثلاثة أرقام -->
+            <div id="stage3" class="stage">
+                <div class="problem-container">
+                    <div class="problem-title">المرحلة 3: ضرب عدد من ثلاثة أرقام</div>
+                    <p>لنحل مسألة أكثر تقدمًا: 123 × 45</p>
+                    
+                    <div class="vertical-multiplication">
+                        <div>     123</div>
+                        <div>    × 45</div>
+                        <div class="underline">________</div>
+                        <div>     615 ← 123 × 5</div>
+                        <div>    492  ← 123 × 4 (نضيف <span class="zero-placeholder">0</span>)</div>
+                        <div class="underline">________</div>
+                        <div id="answer3">     ?</div>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-title">الخطوة 1: ضرب الآحاد</div>
+                    <p>نضرب 5 (من العدد السفلي) في 123:</p>
+                    <div class="vertical-multiplication" style="font-size: 1em;">
+                        <div>   123</div>
+                        <div>  ×  5</div>
+                        <div class="underline">______</div>
+                        <div>   615</div>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-title">الخطوة 2: ضرب العشرات</div>
+                    <p>نضرب 4 (عشرات العدد السفلي) في 123:</p>
+                    <p>4 × 123 = 492</p>
+                    <p>ولكن لأننا نضرب في خانة العشرات، نضيف <span class="zero-placeholder">0</span> أولاً:</p>
+                    <p>492 تصبح 4,920</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-title">الخطوة 3: جمع النتائج</div>
+                    <p>نجمع النتائج الجزئية:</p>
+                    <div class="vertical-multiplication" style="font-size: 1em;">
+                        <div>     615</div>
+                        <div>   +4920</div>
+                        <div class="underline">________</div>
+                        <div>    5535</div>
+                    </div>
+                </div>
+                
+                <div class="options">
+                    <button onclick="checkAnswer(3, 5535)">5,535</button>
+                    <button onclick="checkAnswer(3, 4535)">4,535</button>
+                    <button onclick="checkAnswer(3, 5635)">5,635</button>
+                    <button onclick="checkAnswer(3, 5435)">5,435</button>
+                </div>
+                
+                <div id="feedback3" class="feedback"></div>
+            </div>
+
+            <!-- المرحلة 4: ضرب أعداد كبيرة -->
+            <div id="stage4" class="stage">
+                <div class="problem-container">
+                    <div class="problem-title">المرحلة 4: ضرب أعداد كبيرة</div>
+                    <p>لنجرب مسألة أكبر: 234 × 156</p>
+                    
+                    <div class="vertical-multiplication">
+                        <div>       234</div>
+                        <div>      ×156</div>
+                        <div class="underline">__________</div>
+                        <div>      1404 ← 234 × 6</div>
+                        <div>     1170  ← 234 × 5 (نضيف <span class="zero-placeholder">0</span>)</div>
+                        <div>    234    ← 234 × 1 (نضيف <span class="zero-placeholder">00</span>)</div>
+                        <div class="underline">__________</div>
+                        <div id="answer4">       ?</div>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-title">الخطوة 1: ضرب الآحاد</div>
+                    <p>نضرب 6 في 234:</p>
+                    <div class="vertical-multiplication" style="font-size: 1em;">
+                        <div>    234</div>
+                        <div>   ×  6</div>
+                        <div class="underline">______</div>
+                        <div>   1404</div>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-title">الخطوة 2: ضرب العشرات</div>
+                    <p>نضرب 5 في 234 ونضيف <span class="zero-placeholder">0</span>:</p>
+                    <div class="vertical-multiplication" style="font-size: 1em;">
+                        <div>     234</div>
+                        <div>    × 50</div>
+                        <div class="underline">______</div>
+                        <div>   11700</div>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-title">الخطوة 3: ضرب المئات</div>
+                    <p>نضرب 1 في 234 ونضيف <span class="zero-placeholder">00</span>:</p>
+                    <div class="vertical-multiplication" style="font-size: 1em;">
+                        <div>      234</div>
+                        <div>     ×100</div>
+                        <div class="underline">______</div>
+                        <div>   23400</div>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-title">الخطوة 4: الجمع النهائي</div>
+                    <p>نجمع كل النتائج الجزئية:</p>
+                    <div class="vertical-multiplication" style="font-size: 1em;">
+                        <div>     1404</div>
+                        <div>    +11700</div>
+                        <div>    23400</div>
+                        <div class="underline">__________</div>
+                        <div>    36504</div>
+                    </div>
+                </div>
+                
+                <div class="options">
+                    <button onclick="checkAnswer(4, 36504)">36,504</button>
+                    <button onclick="checkAnswer(4, 35504)">35,504</button>
+                    <button onclick="checkAnswer(4, 36404)">36,404</button>
+                    <button onclick="checkAnswer(4, 37504)">37,504</button>
+                </div>
+                
+                <div id="feedback4" class="feedback"></div>
+            </div>
+
+            <!-- المرحلة 5: التطبيق العملي -->
+            <div id="stage5" class="stage">
+                <div class="problem-container">
+                    <div class="problem-title">المرحلة 5: التطبيق العملي</div>
+                    <p>حان وقت التطبيق! لنحل هذه المسألة العملية:</p>
+                    <p><strong>إذا كان هناك 365 يومًا في السنة، وكل يوم فيه 24 ساعة، فكم ساعة في السنة؟</strong></p>
+                    
+                    <div class="vertical-multiplication">
+                        <div>     365</div>
+                        <div>    × 24</div>
+                        <div class="underline">________</div>
+                        <div id="answer5">       ?</div>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-title">حاول حل المسألة بنفسك أولاً</div>
+                    <p>استخدم ما تعلمته في المراحل السابقة لحل هذه المسألة.</p>
+                    <p>تذكر خطوات الضرب العمودي:</p>
+                    <ol>
+                        <li>اضرب العدد العلوي بآحاد العدد السفلي</li>
+                        <li>اضرب العدد العلوي بعشرات العدد السفلي وأضف <span class="zero-placeholder">0</span></li>
+                        <li>اجمع النتائج الجزئية</li>
+                    </ol>
+                </div>
+                
+                <div class="options">
+                    <button onclick="checkAnswer(5, 8760)">8,760</button>
+                    <button onclick="checkAnswer(5, 9760)">9,760</button>
+                    <button onclick="checkAnswer(5, 7750)">7,750</button>
+                    <button onclick="checkAnswer(5, 8860)">8,860</button>
+                </div>
+                
+                <div id="feedback5" class="feedback"></div>
+                <div id="explanation5" class="hidden">
+                    <div class="step">
+                        <div class="step-title">الحل الكامل:</div>
+                        <div class="vertical-multiplication">
+                            <div>       365</div>
+                            <div>      × 24</div>
+                            <div class="underline">________</div>
+                            <div>      1460 ← 365 × 4</div>
+                            <div>     730   ← 365 × 2 (نضيف <span class="zero-placeholder">0</span>)</div>
+                            <div class="underline">________</div>
+                            <div>      8760</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- المرحلة النهائية -->
+            <div id="final-stage" class="stage">
+                <div class="final-message">
+                    <h2>تهانينا! لقد أكملت المغامرة!</h2>
+                    <p>لقد أتممت جميع مراحل تعلم الضرب العمودي بنجاح.</p>
+                    <div class="final-score">درجتك النهائية: <span id="final-score">0</span>/100</div>
+                    <p>أنت الآن خبير في الضرب العمودي للأعداد الكبيرة!</p>
+                    <button onclick="restartGame()">العب مرة أخرى</button>
+                </div>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div id="progress" class="progress"></div>
+                </div>
+                <div class="progress-text">التقدم: <span id="progress-percent">0</span>%</div>
+            </div>
+
+            <div class="navigation">
+                <button id="prevBtn" onclick="prevStage()" disabled>السابق</button>
+                <button id="nextBtn" onclick="nextStage()" disabled>التالي</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStage = 1;
+        const totalStages = 5;
+        let score = 0;
+
+        function updateProgress() {
+            const progress = (currentStage - 1) / totalStages * 100;
+            document.getElementById('progress').style.width = progress + '%';
+            document.getElementById('progress-percent').textContent = Math.round(progress);
+        }
+
+        function updateNavigation() {
+            document.getElementById('prevBtn').disabled = currentStage === 1;
+            const currentFeedback = document.getElementById(`feedback${currentStage}`);
+            document.getElementById('nextBtn').disabled = currentStage === totalStages + 1 || 
+                (currentStage <= totalStages && (!currentFeedback || !currentFeedback.textContent));
+        }
+
+        function showStage(stageNum) {
+            document.querySelectorAll('.stage').forEach(stage => {
+                stage.classList.remove('active');
+            });
+            document.getElementById(`stage${stageNum}`).classList.add('active');
+            currentStage = stageNum;
+            updateProgress();
+            updateNavigation();
+            
+            // Scroll to top when changing stages
+            window.scrollTo(0, 0);
+        }
+
+        function checkAnswer(stageNum, correctAnswer) {
+            const selectedAnswer = event.target.textContent;
+            const feedback = document.getElementById(`feedback${stageNum}`);
+            const answerNum = parseInt(selectedAnswer.replace(/,/g, ''));
+            
+            if (answerNum === correctAnswer) {
+                feedback.textContent = "إجابة صحيحة! أحسنت!";
+                feedback.className = "feedback correct";
+                score += 20;
+                
+                // Update the answer in the problem display
+                if (stageNum <= 5) {
+                    document.getElementById(`answer${stageNum}`).textContent = selectedAnswer.padStart(8, ' ');
+                }
+                
+                // Show explanation for stage 5
+                if (stageNum === 5) {
+                    document.getElementById('explanation5').classList.remove('hidden');
+                }
+            } else {
+                feedback.textContent = "إجابة خاطئة. حاول مرة أخرى!";
+                feedback.className = "feedback incorrect";
+            }
+            
+            feedback.style.display = "block";
+            updateNavigation();
+        }
+
+        function nextStage() {
+            if (currentStage < totalStages) {
+                showStage(currentStage + 1);
+            } else if (currentStage === totalStages) {
+                document.getElementById('final-score').textContent = score;
+                showStage('final');
+            }
+        }
+
+        function prevStage() {
+            if (currentStage > 1) {
+                showStage(currentStage - 1);
+            }
+        }
+
+        function restartGame() {
+            currentStage = 1;
+            score = 0;
+            document.querySelectorAll('.feedback').forEach(fb => {
+                fb.textContent = '';
+                fb.style.display = 'none';
+            });
+            document.querySelectorAll('.hidden').forEach(el => {
+                el.classList.add('hidden');
+            });
+            for (let i = 1; i <= 5; i++) {
+                document.getElementById(`answer${i}`).textContent = '?';
+            }
+            showStage(1);
+        }
+
+        // Initialize
+        updateProgress();
+        updateNavigation();
+    </script>
+</body>
+</html>

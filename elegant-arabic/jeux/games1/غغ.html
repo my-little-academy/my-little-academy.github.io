@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة مطابقة الأشكال</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            user-select: none;
+        }
+        
+        h1 {
+            color: #2e8b57;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .game-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+            max-width: 800px;
+        }
+        
+        .shape {
+            width: 120px;
+            height: 120px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .shape:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        
+        .shape::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255,255,255,0.3);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .shape:hover::after {
+            opacity: 1;
+        }
+        
+        .color-palette {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .color {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        
+        .color:hover {
+            transform: scale(1.1);
+        }
+        
+        .feedback {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .correct {
+            color: #2e8b57;
+            animation: bounce 0.5s;
+        }
+        
+        .incorrect {
+            color: #ff4500;
+            animation: shake 0.5s;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        .score-container {
+            margin-top: 20px;
+            font-size: 18px;
+            display: flex;
+            gap: 20px;
+        }
+        
+        .timer {
+            margin-top: 15px;
+            font-size: 20px;
+            color: #4169e1;
+        }
+        
+        .shape-icon {
+            font-size: 40px;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <h1>لعبة مطابقة الأشكال والألوان</h1>
+    <div class="timer">الوقت: <span id="time">60</span> ثانية</div>
+    <div class="score-container">
+        <div>الإجابات الصحيحة: <span id="correct">0</span></div>
+        <div>الإجابات الخاطئة: <span id="wrong">0</span></div>
+    </div>
+    
+    <div class="game-container" id="shapes-container">
+        <!-- الأشكال ستضاف هنا ديناميكياً -->
+    </div>
+    
+    <div class="color-palette" id="color-palette">
+        <!-- الألوان ستضاف هنا ديناميكياً -->
+    </div>
+    
+    <div class="feedback" id="feedback"></div>
+    
+    <button id="start-btn" style="margin-top: 20px; padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">بدء اللعبة</button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const shapesContainer = document.getElementById('shapes-container');
+            const colorPalette = document.getElementById('color-palette');
+            const feedback = document.getElementById('feedback');
+            const correctDisplay = document.getElementById('correct');
+            const wrongDisplay = document.getElementById('wrong');
+            const timeDisplay = document.getElementById('time');
+            const startBtn = document.getElementById('start-btn');
+            
+            let correctAnswers = 0;
+            let wrongAnswers = 0;
+            let timeLeft = 60;
+            let timer;
+            let currentColor = '';
+            let currentShape = null;
+            let gameActive = false;
+            
+            // الأشكال والألوان المتاحة
+            const shapes = [
+                { name: 'مربع', icon: '⬛', correctColor: '#ff0000' },
+                { name: 'دائرة', icon: '⚫', correctColor: '#0000ff' },
+                { name: 'نجمة', icon: '⭐', correctColor: '#ffff00' },
+                { name: 'قلب', icon: '❤️', correctColor: '#ff69b4' },
+                { name: 'مثلث', icon: '🔺', correctColor: '#32cd32' },
+                { name: 'شمس', icon: '☀️', correctColor: '#ffa500' }
+            ];
+            
+            const colors = [
+                '#ff0000', '#0000ff', '#ffff00', 
+                '#ff69b4', '#32cd32', '#ffa500',
+                '#800080', '#00ffff', '#a52a2a'
+            ];
+            
+            // تهيئة اللعبة
+            startBtn.addEventListener('click', startGame);
+            
+            function startGame() {
+                if (gameActive) return;
+                
+                gameActive = true;
+                correctAnswers = 0;
+                wrongAnswers = 0;
+                timeLeft = 60;
+                
+                correctDisplay.textContent = '0';
+                wrongDisplay.textContent = '0';
+                timeDisplay.textContent = '60';
+                
+                startBtn.textContent = 'جاري اللعب...';
+                startBtn.style.backgroundColor = '#f39c12';
+                
+                // بدء المؤقت
+                timer = setInterval(updateTimer, 1000);
+                
+                // إنشاء الأشكال والألوان
+                createShapes();
+                createColorPalette();
+            }
+            
+            function updateTimer() {
+                timeLeft--;
+                timeDisplay.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }
+            
+            function createShapes() {
+                shapesContainer.innerHTML = '';
+                
+                // اختيار شكل عشوائي ليكون الهدف
+                const randomIndex = Math.floor(Math.random() * shapes.length);
+                const targetShape = shapes[randomIndex];
+                currentColor = targetShape.correctColor;
+                
+                // عرض الشكل الهدف
+                const targetElement = document.createElement('div');
+                targetElement.className = 'shape';
+                targetElement.style.backgroundColor = '#2c3e50';
+                targetElement.innerHTML = `<div class="shape-icon">${targetShape.icon}</div>`;
+                targetElement.dataset.name = targetShape.name;
+                shapesContainer.appendChild(targetElement);
+                
+                // عرض الشكل الحالي الذي يجب تلوينه
+                currentShape = document.createElement('div');
+                currentShape.className = 'shape';
+                currentShape.style.backgroundColor = '#ecf0f1';
+                currentShape.innerHTML = `<div class="shape-icon">${targetShape.icon}</div>`;
+                currentShape.dataset.name = targetShape.name;
+                shapesContainer.appendChild(currentShape);
+                
+                // إضافة تعليمات
+                const instruction = document.createElement('div');
+                instruction.style.flexBasis = '100%';
+                instruction.style.textAlign = 'center';
+                instruction.style.margin = '10px 0';
+                instruction.style.fontWeight = 'bold';
+                instruction.style.color = '#2c3e50';
+                instruction.textContent = `اختر اللون المناسب للشكل: ${targetShape.name}`;
+                shapesContainer.appendChild(instruction);
+            }
+            
+            function createColorPalette() {
+                colorPalette.innerHTML = '';
+                
+                // خلط الألوان عشوائياً
+                const shuffledColors = [...colors].sort(() => Math.random() - 0.5);
+                
+                // التأكد من وجود اللون الصحيح في الخيارات
+                if (!shuffledColors.includes(currentColor)) {
+                    shuffledColors[Math.floor(Math.random() * shuffledColors.length)] = currentColor;
+                }
+                
+                // إنشاء أزرار الألوان
+                shuffledColors.forEach(color => {
+                    const colorElement = document.createElement('div');
+                    colorElement.className = 'color';
+                    colorElement.style.backgroundColor = color;
+                    colorElement.dataset.color = color;
+                    
+                    colorElement.addEventListener('click', function() {
+                        if (!gameActive) return;
+                        
+                        const selectedColor = this.dataset.color;
+                        
+                        if (selectedColor === currentColor) {
+                            // الإجابة صحيحة
+                            correctAnswers++;
+                            correctDisplay.textContent = correctAnswers;
+                            feedback.textContent = 'أحسنت!';
+                            feedback.className = 'feedback correct';
+                            
+                            // تغيير لون الشكل
+                            currentShape.style.backgroundColor = selectedColor;
+                            
+                            // تأثير النجاح
+                            setTimeout(() => {
+                                createShapes();
+                            }, 1000);
+                        } else {
+                            // الإجابة خاطئة
+                            wrongAnswers++;
+                            wrongDisplay.textContent = wrongAnswers;
+                            feedback.textContent = 'حاول مرة أخرى!';
+                            feedback.className = 'feedback incorrect';
+                        }
+                        
+                        // إخفاء الرسالة بعد ثانية
+                        setTimeout(() => {
+                            feedback.textContent = '';
+                            feedback.className = 'feedback';
+                        }, 1000);
+                    });
+                    
+                    colorPalette.appendChild(colorElement);
+                });
+            }
+            
+            function endGame() {
+                gameActive = false;
+                clearInterval(timer);
+                
+                startBtn.textContent = 'العب مرة أخرى';
+                startBtn.style.backgroundColor = '#4CAF50';
+                
+                feedback.textContent = `انتهى الوقت! النتيجة النهائية: ${correctAnswers} إجابة صحيحة`;
+                feedback.className = 'feedback';
+                
+                shapesContainer.innerHTML = '';
+                colorPalette.innerHTML = '';
+            }
+        });
+    </script>
+</body>
+</html>

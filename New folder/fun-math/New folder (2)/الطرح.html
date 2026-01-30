@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الطرح العمودي التفاعلي</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f9ff;
+            text-align: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #4a6baf;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        
+        .place-values {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .place-value {
+            font-size: 16px;
+            color: #555;
+            padding: 8px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .math-problem {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin: 25px auto;
+            width: fit-content;
+            position: relative;
+        }
+        
+        .card {
+            width: 80px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .top-card {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 2px solid #4a6baf;
+            color: #2c3e6b;
+        }
+        
+        .bottom-card {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border: 2px solid #e74c3c;
+            color: #a2352a;
+        }
+        
+        .result-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #adb5bd;
+            cursor: pointer;
+        }
+        
+        .result-card.selected {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 2px solid #4a6baf;
+            transform: translateY(-5px);
+        }
+        
+        .minus-container {
+            grid-column: 5;
+            grid-row: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100px;
+            position: relative;
+            top: 10px;
+        }
+        
+        .minus-sign {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #6c757d;
+            border-radius: 12px;
+            color: #495057;
+            margin-bottom: 15px;
+        }
+        
+        .borrow-hint {
+            position: absolute;
+            top: -20px;
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #FFD54F 0%, #FFB300 100%);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 2;
+            border: 2px solid #FFA000;
+        }
+        
+        .active-borrow {
+            animation: pulse 0.8s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+        
+        .line {
+            grid-column: 1 / span 5;
+            height: 3px;
+            background: linear-gradient(to right, transparent 0%, #333 50%, transparent 100%);
+            margin: 20px 0;
+        }
+        
+        .buttons {
+            margin-top: 35px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        button {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .check-btn {
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            color: white;
+        }
+        
+        .new-btn {
+            background: linear-gradient(135deg, #17a2b8 0%, #117a8b 100%);
+            color: white;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+        }
+        
+        .message {
+            margin-top: 25px;
+            padding: 18px;
+            border-radius: 10px;
+            font-size: 18px;
+            display: none;
+        }
+        
+        .success {
+            background: linear-gradient(135deg, #d4edda 0%, #a7d7b8 100%);
+            color: #155724;
+            display: block;
+        }
+        
+        .error {
+            background: linear-gradient(135deg, #f8d7da 0%, #e9b7bf 100%);
+            color: #721c24;
+            display: block;
+        }
+        
+        .result-controls {
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 28px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .result-card:hover .result-controls {
+            opacity: 1;
+        }
+        
+        .result-btn {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+            border: none;
+            border-radius: 0 8px 0 0;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .result-btn:last-child {
+            border-radius: 0 0 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 لعبة الطرح العمودي التفاعلي 🎮</h1>
+        
+        <div class="place-values">
+            <div class="place-value">الآحاد</div>
+            <div class="place-value">العشرات</div>
+            <div class="place-value">المئات</div>
+            <div class="place-value">الآلاف</div>
+        </div>
+        
+        <div class="math-problem" id="mathProblem"></div>
+        
+        <div class="message" id="message"></div>
+        
+        <div class="buttons">
+            <button class="check-btn" id="checkBtn">✅ تحقق من الإجابة</button>
+            <button class="new-btn" id="newBtn">🔄 مسألة جديدة</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mathProblem = document.getElementById('mathProblem');
+            const checkBtn = document.getElementById('checkBtn');
+            const newBtn = document.getElementById('newBtn');
+            const message = document.getElementById('message');
+            
+            let topNumber = 0;
+            let bottomNumber = 0;
+            let correctAnswer = 0;
+            let currentTopDigits = [];
+            let selectedResultPosition = null;
+            let resultValues = [0, 0, 0, 0];
+            
+            function createNewProblem() {
+                do {
+                    topNumber = Math.floor(1000 + Math.random() * 9000);
+                    bottomNumber = Math.floor(1000 + Math.random() * 9000);
+                } while (topNumber <= bottomNumber);
+                
+                correctAnswer = topNumber - bottomNumber;
+                currentTopDigits = String(topNumber).padStart(4, '0').split('').reverse().map(Number);
+                resultValues = [0, 0, 0, 0];
+                selectedResultPosition = null;
+                displayProblem();
+                message.style.display = 'none';
+            }
+            
+            function displayProblem() {
+                mathProblem.innerHTML = '';
+                
+                const bottomDigits = String(bottomNumber).padStart(4, '0').split('').reverse();
+                
+                // إضافة علامة الطرح
+                const minusContainer = document.createElement('div');
+                minusContainer.className = 'minus-container';
+                
+                const minusSign = document.createElement('div');
+                minusSign.className = 'minus-sign';
+                minusSign.textContent = '-';
+                minusContainer.appendChild(minusSign);
+                
+                mathProblem.appendChild(minusContainer);
+                
+                // عرض الرقم العلوي
+                currentTopDigits.forEach((digit, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'card top-card';
+                    card.textContent = digit;
+                    
+                    const borrowCircle = document.createElement('div');
+                    borrowCircle.className = 'borrow-hint';
+                    borrowCircle.textContent = digit;
+                    borrowCircle.dataset.position = index;
+                    
+                    const bottomDigit = parseInt(bottomDigits[index]);
+                    if (digit < bottomDigit && index < 3 && currentTopDigits[index+1] > 0) {
+                        borrowCircle.onclick = function() {
+                            initiateBorrow(index);
+                        };
+                    } else {
+                        borrowCircle.style.cursor = 'default';
+                        borrowCircle.style.opacity = '0.7';
+                    }
+                    
+                    card.appendChild(borrowCircle);
+                    mathProblem.appendChild(card);
+                });
+                
+                // مساحة فارغة
+                mathProblem.appendChild(document.createElement('div'));
+                
+                // عرض الرقم السفلي
+                bottomDigits.forEach(digit => {
+                    const card = document.createElement('div');
+                    card.className = 'card bottom-card';
+                    card.textContent = digit;
+                    mathProblem.appendChild(card);
+                });
+                
+                // الخط الفاصل
+                const line = document.createElement('div');
+                line.className = 'line';
+                mathProblem.appendChild(line);
+                
+                // حقول النتيجة
+                for (let i = 0; i < 4; i++) {
+                    const card = document.createElement('div');
+                    card.className = 'card result-card';
+                    if (i === selectedResultPosition) {
+                        card.classList.add('selected');
+                    }
+                    
+                    const valueDisplay = document.createElement('div');
+                    valueDisplay.className = 'result-value';
+                    valueDisplay.textContent = resultValues[i];
+                    
+                    const controls = document.createElement('div');
+                    controls.className = 'result-controls';
+                    
+                    const increaseBtn = document.createElement('button');
+                    increaseBtn.className = 'result-btn';
+                    increaseBtn.textContent = '+';
+                    increaseBtn.onclick = function(e) {
+                        e.stopPropagation();
+                        changeResultValue(i, 1);
+                    };
+                    
+                    const decreaseBtn = document.createElement('button');
+                    decreaseBtn.className = 'result-btn';
+                    decreaseBtn.textContent = '-';
+                    decreaseBtn.onclick = function(e) {
+                        e.stopPropagation();
+                        changeResultValue(i, -1);
+                    };
+                    
+                    controls.appendChild(increaseBtn);
+                    controls.appendChild(decreaseBtn);
+                    
+                    card.appendChild(valueDisplay);
+                    card.appendChild(controls);
+                    card.onclick = function() {
+                        selectResultPosition(i);
+                    };
+                    
+                    mathProblem.appendChild(card);
+                }
+            }
+            
+            function initiateBorrow(position) {
+                const borrowCircles = document.querySelectorAll('.borrow-hint');
+                borrowCircles[position].classList.add('active-borrow');
+                
+                if (position < 3) {
+                    const nextPosition = position + 1;
+                    if (currentTopDigits[nextPosition] > 0) {
+                        borrowCircles[nextPosition].classList.add('active-borrow');
+                        borrowCircles[nextPosition].onclick = function() {
+                            completeBorrow(position, nextPosition);
+                        };
+                    }
+                }
+            }
+            
+            function completeBorrow(fromPos, toPos) {
+                currentTopDigits[toPos] -= 1;
+                currentTopDigits[fromPos] += 10;
+                displayProblem();
+                
+                const placeNames = ['الآحاد', 'العشرات', 'المئات', 'الآلاف'];
+                message.textContent = `تم الاستلاف: ناقص 1 من ${placeNames[toPos]}، زائد 10 إلى ${placeNames[fromPos]}`;
+                message.style.display = 'block';
+                message.style.backgroundColor = '#fff3cd';
+            }
+            
+            function selectResultPosition(position) {
+                if (selectedResultPosition !== null) {
+                    const prevCard = document.querySelectorAll('.result-card')[selectedResultPosition];
+                    prevCard.classList.remove('selected');
+                }
+                
+                selectedResultPosition = position;
+                const card = document.querySelectorAll('.result-card')[position];
+                card.classList.add('selected');
+            }
+            
+            function changeResultValue(position, change) {
+                resultValues[position] += change;
+                
+                if (resultValues[position] < 0) resultValues[position] = 0;
+                if (resultValues[position] > 9) resultValues[position] = 9;
+                
+                const cards = document.querySelectorAll('.result-card');
+                const valueDisplay = cards[position].querySelector('.result-value');
+                valueDisplay.textContent = resultValues[position];
+            }
+            
+            function checkAnswer() {
+                const userAnswer = parseInt(resultValues.reverse().join(''));
+                resultValues.reverse();
+                
+                if (userAnswer === correctAnswer) {
+                    message.textContent = '🎉 إجابة صحيحة! أحسنت!';
+                    message.className = 'message success';
+                } else {
+                    message.textContent = '❌ إجابة خاطئة! حاول مرة أخرى.';
+                    message.className = 'message error';
+                }
+                message.style.display = 'block';
+            }
+            
+            document.addEventListener('keydown', function(e) {
+                if (selectedResultPosition !== null) {
+                    if (e.key === 'ArrowUp' || e.key === 'ArrowRight') {
+                        changeResultValue(selectedResultPosition, 1);
+                    } else if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') {
+                        changeResultValue(selectedResultPosition, -1);
+                    }
+                }
+            });
+            
+            newBtn.addEventListener('click', createNewProblem);
+            checkBtn.addEventListener('click', checkAnswer);
+            
+            createNewProblem();
+        });
+    </script>
+</body>
+</html>

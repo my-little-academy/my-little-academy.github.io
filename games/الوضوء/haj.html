@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الحج: رحلة العمر ووحدة الأمة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&family=IBM+Plex+Sans+Arabic:wght[400,500]&display=swap" rel="stylesheet">
+    <style>
+        /* الأنماط العامة للجسم والصفحة */
+        body {
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
+            background-color: #fcf8e3; /* لون كريمي فاتح جداً يرمز للسكينة والقداسة */
+            margin: 0;
+            padding: 0;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* خلفية متحركة: دوائر متمركزة خفيفة تحاكي الطواف حول الكعبة */
+        .animated-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            background: radial-gradient(circle at center, rgba(255, 235, 59, 0.05) 0%, transparent 20%),
+                        radial-gradient(circle at center, rgba(255, 213, 79, 0.04) 20%, transparent 40%),
+                        radial-gradient(circle at center, rgba(255, 193, 7, 0.03) 40%, transparent 60%);
+            animation: concentricCircles 40s infinite linear;
+            background-size: 200% 200%;
+            background-repeat: no-repeat;
+            background-position: center center;
+        }
+
+        @keyframes concentricCircles {
+            0% { transform: scale(1) rotate(0deg); opacity: 1; }
+            100% { transform: scale(1.5) rotate(360deg); opacity: 0.5; }
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* رأس الصفحة (Header) */
+        header {
+            background: linear-gradient(135deg, #FFD700, #FFC107); /* تدرج ذهبي يرمز للكعبة وعظمتها */
+            color: #333;
+            padding: 35px;
+            text-align: center;
+            border-radius: 30px;
+            margin-bottom: 60px;
+            box-shadow: 0 12px 25px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+            border: 3px solid #FFAB00; /* حد ذهبي أعمق */
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top right, rgba(255,255,255,0.4) 0%, transparent 70%);
+            animation: headerSparkle 8s infinite ease-in-out alternate; /* لمعان خفيف */
+        }
+
+        @keyframes headerSparkle {
+            0% { opacity: 0.7; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.03); }
+            100% { opacity: 0.7; transform: scale(1); }
+        }
+
+        h1, h2 {
+            font-family: 'Tajawal', sans-serif;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 3.8em;
+            position: relative;
+            z-index: 1;
+            animation: scaleIn 1s ease-out; /* تكبير تدريجي */
+        }
+
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        header p {
+            font-size: 1.4em;
+            position: relative;
+            z-index: 1;
+            animation: fadeInUp 1s ease-out 0.3s forwards;
+            opacity: 0;
+            color: #555;
+        }
+
+        /* مؤشر الكعبة الذي يتبع المؤشر */
+        .kaaba-cursor {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            pointer-events: none;
+            transition: transform 0.1s, opacity 0.1s;
+            z-index: 1000;
+            opacity: 0.9;
+        }
+
+        /* الأقسام الرئيسية للمحتوى */
+        .section {
+            background-color: #ffffff;
+            border-radius: 35px;
+            padding: 45px;
+            margin-bottom: 55px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+            border: 3px solid #FFECB3; /* حدود بلون ذهبي فاتح جداً */
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(40px);
+            animation: fadeInSlideUp 0.8s forwards;
+        }
+        /* تطبيق تأخير مختلف لكل قسم ليظهر تدريجياً */
+        .section:nth-child(2) { animation-delay: 0.5s; } /* تعريف الحج */
+        .section:nth-child(3) { animation-delay: 0.7s; } /* مناسك الحج */
+        .section:nth-child(4) { animation-delay: 0.9s; } /* فضل الحج */
+        .section:nth-child(5) { animation-delay: 1.1s; } /* لعبة ترتيب المناسك */
+
+
+        @keyframes fadeInSlideUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: #FFEE58; /* لون أصفر فاتح */
+            border-radius: 50%;
+            opacity: 0.7;
+            transform: scale(0);
+            animation: sectionPop 0.8s forwards ease-out;
+            animation-delay: inherit;
+        }
+        .section:nth-child(odd)::before {
+            background-color: #FFD54F; /* لون أغمق قليلاً */
+        }
+
+        @keyframes sectionPop {
+            to {
+                transform: scale(1);
+                opacity: 0.9;
+            }
+        }
+
+        /* تأثير التحويم على الأقسام */
+        .section:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 18px 35px rgba(0,0,0,0.2);
+            border-color: #FFD700; /* تغيير لون الحد عند التحويم */
+        }
+
+        /* العناوين الفرعية */
+        h2 {
+            color: #FF8F00; /* لون برتقالي ذهبي عميق */
+            border-bottom: 4px solid #FFEB3B;
+            padding-bottom: 20px;
+            margin-bottom: 35px;
+            display: flex;
+            align-items: center;
+            font-size: 2.2em;
+        }
+
+        h2 img {
+            width: 45px;
+            height: 45px;
+            margin-left: 18px;
+            filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.1));
+        }
+
+        p {
+            font-size: 1.2em;
+            line-height: 1.9;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding-right: 0;
+        }
+
+        ul li {
+            position: relative;
+            padding-right: 35px;
+            margin-bottom: 18px;
+            font-size: 1.15em;
+            line-height: 1.7;
+        }
+
+        ul li::before {
+            content: '🕋'; /* رمز الكعبة يرمز للحج */
+            position: absolute;
+            right: 0;
+            color: #FFD700; /* لون ذهبي */
+            font-size: 1.4em;
+            top: 0;
+            animation: kaabaPulse 2s infinite alternate;
+        }
+
+        @keyframes kaabaPulse {
+            0% { transform: scale(1) rotate(0deg); opacity: 0.8; }
+            100% { transform: scale(1.05) rotate(3deg); opacity: 1; }
+        }
+
+        /* قسم اللعبة - جديد: ترتيب مناسك الحج (Timeline Drag & Drop) */
+        .game-container {
+            background-color: #fffaf0; /* لون كريمي فاتح جداً للعبة */
+            padding: 45px;
+            border-radius: 35px;
+            text-align: center;
+            box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+            border: 3px solid #FFECB3;
+        }
+
+        .game-question {
+            font-weight: bold;
+            font-size: 1.6em;
+            color: #E65100; /* لون برتقالي داكن */
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.08);
+        }
+
+        .timeline-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            max-width: 600px;
+            background-color: #FFF8E1; /* لون أصفر فاتح للبطاقات */
+            border-radius: 15px;
+            padding: 15px 25px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+            border: 1px solid #FFECB3;
+        }
+
+        .timeline-number {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #FFB300;
+            background-color: #FFFDE7;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border: 2px solid #FFD700;
+        }
+
+        .draggable-task {
+            flex-grow: 1;
+            background-color: #FFECB3;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: grab;
+            font-size: 1.2em;
+            font-weight: 500;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            transition: all 0.2s ease-in-out;
+            border: 1px solid #FFD54F;
+        }
+
+        .draggable-task:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+            background-color: #FFE082;
+        }
+
+        .draggable-task.dragging {
+            opacity: 0.6;
+            border: 2px dashed #FFA000;
+        }
+
+        .check-order-btn {
+            background-color: #FFC107; /* أصفر متوسط */
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 1.3em;
+            margin-top: 30px;
+            transition: background-color 0.3s ease, transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        .check-order-btn:hover {
+            background-color: #FFA000; /* أصفر أغمق عند التحويم */
+            transform: translateY(-6px) scale(1.03);
+            box-shadow: 0 9px 15px rgba(0,0,0,0.3);
+        }
+
+        .feedback-game {
+            font-weight: bold;
+            margin-top: 35px;
+            min-height: 40px;
+            font-size: 1.5em;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .next-challenge-btn {
+            background-color: #FBC02D; /* لون ذهبي أصفر */
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 1.3em;
+            margin-top: 40px;
+            transition: background-color 0.3s ease, transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+            display: none; /* مخفي في البداية */
+        }
+
+        .next-challenge-btn:hover {
+            background-color: #F9A825; /* لون ذهبي أغمق عند التحويم */
+            transform: translateY(-6px) scale(1.03);
+            box-shadow: 0 9px 15px rgba(0,0,0,0.3);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* تذييل الصفحة (Footer) */
+        footer {
+            text-align: center;
+            margin-top: 80px;
+            padding: 40px;
+            color: #777;
+            font-size: 1.1em;
+            background-color: #fffaf0; /* لون كريمي فاتح جداً للتذييل */
+            border-top: 3px solid #FFECB3;
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 -7px 20px rgba(0,0,0,0.1);
+        }
+
+        /* التجاوبية (Responsive Design) */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 3.2em;
+            }
+            header p {
+                font-size: 1.2em;
+            }
+            .container {
+                padding: 15px;
+            }
+            .section {
+                padding: 30px;
+                margin-bottom: 40px;
+                border-radius: 28px;
+            }
+            h2 {
+                font-size: 2em;
+                margin-bottom: 25px;
+            }
+            p, ul li {
+                font-size: 1.1em;
+                line-height: 1.8;
+            }
+            ul li {
+                padding-right: 30px;
+            }
+            h2 img {
+                width: 40px;
+                height: 40px;
+                margin-left: 15px;
+            }
+            .game-container {
+                padding: 35px;
+                border-radius: 28px;
+            }
+            .game-question {
+                font-size: 1.4em;
+            }
+            .timeline-item {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 10px 15px;
+            }
+            .timeline-number {
+                width: 40px;
+                height: 40px;
+                font-size: 1.5em;
+                margin-bottom: 10px;
+            }
+            .draggable-task {
+                width: 100%;
+                font-size: 1.1em;
+                padding: 10px 15px;
+            }
+            .check-order-btn, .next-challenge-btn {
+                padding: 15px 30px;
+                font-size: 1.2em;
+            }
+            .kaaba-cursor {
+                width: 40px;
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="animated-background"></div>
+
+    <img id="kaabaCursor" class="kaaba-cursor hidden" src="https://cdn-icons-png.flaticon.com/512/3233/3233515.png" alt="الكعبة">
+
+    <div class="container">
+        <header>
+            <h1>الحج: رحلة العمر ووحدة الأمة</h1>
+            <p>لبيك اللهم لبيك، لبيك لا شريك لك لبيك.</p>
+        </header>
+
+        <div class="section">
+            <h2>
+                <img src="https://cdn-icons-png.flaticon.com/512/3233/3233508.png" alt="تعريف الحج">
+                ما هو الحج؟
+            </h2>
+            <p>**الحج** هو الركن الخامس والأخير من أركان الإسلام، وهو فريضة على كل مسلم ومسلمة **مستطيع** (ماليًا وجسديًا) مرة واحدة في العمر. يتضمن الحج مجموعة من الشعائر والأعمال التعبدية التي تُؤدى في أوقات وأماكن محددة بمكة المكرمة والمشاعر المقدسة.</p>
+            <p>يُعد الحج مؤتمرًا إسلاميًا سنويًا عظيمًا، يُجمع المسلمين من مختلف بقاع الأرض، ويُعزز الوحدة والأخوة بينهم.</p>
+        </div>
+
+        <div class="section">
+            <h2>
+                <img src="https://cdn-icons-png.flaticon.com/512/3233/3233532.png" alt="مناسك الحج">
+                أهم مناسك الحج (بإيجاز)
+            </h2>
+            <p>للحج مناسك وشعائر متعددة، من أهمها:</p>
+            <ul>
+                <li>**الإحرام:** نية الدخول في النسك (حج أو عمرة) مع ارتداء ملابس الإحرام الخاصة.</li>
+                <li>**الطواف حول الكعبة:** سبعة أشواط حول الكعبة المشرفة.</li>
+                <li>**السعي بين الصفا والمروة:** سبعة أشواط بين جبلي الصفا والمروة.</li>
+                <li>**الوقوف بعرفة:** الركن الأعظم للحج، ويتم في يوم التاسع من ذي الحجة.</li>
+                <li>**المبيت بمزدلفة:** بعد النزول من عرفة.</li>
+                <li>**رمي الجمرات:** رمي الجمرات (الصغرى، الوسطى، الكبرى) في أيام التشريق.</li>
+                <li>**الحلق أو التقصير:** للرجال والنساء بعد رمي جمرة العقبة الكبرى يوم العيد.</li>
+                <li>**طواف الإفاضة:** ركن أساسي بعد رمي جمرة العقبة والحلق أو التقصير.</li>
+                <li>**المبيت بمنى:** في أيام التشريق.</li>
+                <li>**طواف الوداع:** يكون آخر عمل يقوم به الحاج قبل مغادرة مكة.</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>
+                <img src="https://cdn-icons-png.flaticon.com/512/2610/2610547.png" alt="فضل الحج">
+                فضل الحج في الإسلام
+            </h2>
+            <ul>
+                <li>**غفران الذنوب:** "من حج فلم يرفث ولم يفسق رجع كيوم ولدته أمه".</li>
+                <li>**ثواب عظيم:** "الحج المبرور ليس له جزاء إلا الجنة".</li>
+                <li>**وحدة المسلمين:** يُعزز التآلف والتقارب بين المسلمين من شتى بقاع الأرض.</li>
+                <li>**تجديد الإيمان:** يُقوي الصلة بالله ويُزيد من اليقين.</li>
+                <li>**تطهير للنفس:** يُعلم الصبر، التحمل، والتجرد من زينة الدنيا.</li>
+            </ul>
+        </div>
+
+        <div class="section game-container">
+            <h2>
+                <img src="https://cdn-icons-png.flaticon.com/512/9373/9373003.png" alt="لعبة ترتيب المناسك">
+                لعبة: رتب مناسك الحج!
+            </h2>
+            <p class="game-question" id="gameQuestion">اسحب المناسك ورتبها بالترتيب الصحيح:</p>
+            <div class="timeline-container" id="timelineContainer">
+                </div>
+            <button class="check-order-btn" id="checkOrderBtn">تحقق من الترتيب</button>
+            <div class="feedback-game" id="feedbackGame"></div>
+            <button class="next-challenge-btn" id="nextChallengeBtn">التحدي التالي ✨</button>
+        </div>
+
+        <footer>
+            <p>© 2024 رحلة الإسلام | الحج</p>
+        </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+    <script>
+        // تأثير مؤشر الكعبة الذي يتبع المؤشر
+        document.addEventListener('DOMContentLoaded', function() {
+            const kaaba = document.getElementById('kaabaCursor');
+            let mouseX = 0, mouseY = 0;
+            let kaabaX = 0, kaabaY = 0;
+            let visible = false;
+
+            const kaabaImages = [
+                'https://cdn-icons-png.flaticon.com/512/3233/3233515.png', // الكعبة
+                'https://cdn-icons-png.flaticon.com/512/3233/3233529.png', // خيمة عرفة
+                'https://cdn-icons-png.flaticon.com/512/3233/3233536.png'  // حجاج يطوفون
+            ];
+            let currentKaaba = 0;
+
+            document.addEventListener('mousemove', function(e) {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+
+                if (!visible) {
+                    kaaba.classList.remove('hidden');
+                    visible = true;
+                }
+            });
+
+            function animateKaaba() {
+                kaabaX += (mouseX - kaabaX - (kaaba.offsetWidth / 2)) / 10;
+                kaabaY += (mouseY - kaabaY - (kaaba.offsetHeight / 2)) / 10;
+
+                kaaba.style.left = kaabaX + 'px';
+                kaaba.style.top = kaabaY + 'px';
+
+                requestAnimationFrame(animateKaaba);
+            }
+
+            animateKaaba();
+
+            kaaba.addEventListener('click', function() {
+                // عند النقر، تتغير شكل الأيقونة
+                currentKaaba = (currentKaaba + 1) % kaabaImages.length;
+                kaaba.src = kaabaImages[currentKaaba];
+            });
+
+            // منطق اللعبة (ترتيب مناسك الحج)
+            const challenges = [
+                {
+                    question: "رتب هذه المناسك حسب ترتيبها الزمني في الحج:",
+                    items: [
+                        "الوقوف بعرفة",
+                        "الطواف حول الكعبة (طواف القدوم)",
+                        "الإحرام",
+                        "السعي بين الصفا والمروة",
+                        "رمي جمرة العقبة الكبرى"
+                    ],
+                    correctOrder: [
+                        "الإحرام",
+                        "الطواف حول الكعبة (طواف القدوم)",
+                        "السعي بين الصفا والمروة",
+                        "الوقوف بعرفة",
+                        "رمي جمرة العقبة الكبرى"
+                    ]
+                },
+                {
+                    question: "رتب هذه المناسك المتأخرة في الحج:",
+                    items: [
+                        "الحلق أو التقصير",
+                        "المبيت بمنى",
+                        "طواف الإفاضة",
+                        "طواف الوداع",
+                        "رمي الجمرات (أيام التشريق)"
+                    ],
+                    correctOrder: [
+                        "طواف الإفاضة",
+                        "الحلق أو التقصير",
+                        "رمي الجمرات (أيام التشريق)",
+                        "المبيت بمنى",
+                        "طواف الوداع"
+                    ]
+                }
+            ];
+
+            let currentChallengeIndex = 0;
+            const gameQuestionElem = document.getElementById('gameQuestion');
+            const timelineContainer = document.getElementById('timelineContainer');
+            const checkOrderBtn = document.getElementById('checkOrderBtn');
+            const feedbackGameElem = document.getElementById('feedbackGame');
+            const nextChallengeBtn = document.getElementById('nextChallengeBtn');
+            let sortableInstance;
+
+            function loadChallenge() {
+                if (currentChallengeIndex < challenges.length) {
+                    const challenge = challenges[currentChallengeIndex];
+                    gameQuestionElem.textContent = challenge.question;
+                    timelineContainer.innerHTML = ''; // تفريغ القائمة
+                    feedbackGameElem.textContent = ''; // مسح رسالة التغذية الراجعة
+                    nextChallengeBtn.style.display = 'none'; // إخفاء زر التحدي التالي
+                    checkOrderBtn.style.display = 'block'; // إظهار زر التحقق
+
+                    // خلط العناصر وعرضها
+                    const shuffledItems = [...challenge.items].sort(() => Math.random() - 0.5);
+                    shuffledItems.forEach((item, index) => {
+                        const timelineItem = document.createElement('div');
+                        timelineItem.classList.add('timeline-item');
+                        timelineItem.innerHTML = `
+                            <div class="timeline-number">${index + 1}</div>
+                            <div class="draggable-task" data-task="${item}" draggable="true">${item}</div>
+                        `;
+                        timelineContainer.appendChild(timelineItem);
+                    });
+
+                    // تهيئة Sortable.js
+                    if (sortableInstance) {
+                        sortableInstance.destroy();
+                    }
+                    sortableInstance = Sortable.create(timelineContainer, {
+                        animation: 150,
+                        ghostClass: 'dragging',
+                        handle: '.draggable-task', // يمكن سحب العنصر بالكامل وليس فقط الرقم
+                        onUpdate: function (evt) {
+                            // تحديث الأرقام التسلسلية بعد كل سحب
+                            Array.from(timelineContainer.children).forEach((item, idx) => {
+                                item.querySelector('.timeline-number').textContent = idx + 1;
+                            });
+                        }
+                    });
+
+                } else {
+                    gameQuestionElem.textContent = "لقد أكملت رحلة الأركان الخمسة بنجاح! حج مبرور وسعي مشكور! 🎉";
+                    timelineContainer.innerHTML = '';
+                    checkOrderBtn.style.display = 'none';
+                    feedbackGameElem.textContent = 'نتمنى لك عمرة مقبولة وحج مبرور في أقرب فرصة!';
+                    feedbackGameElem.style.color = '#FF8F00';
+                    nextChallengeBtn.style.display = 'none';
+                }
+            }
+
+            function checkOrder() {
+                const currentOrder = Array.from(timelineContainer.children).map(item =>
+                    item.querySelector('.draggable-task').dataset.task
+                );
+                const correctOrder = challenges[currentChallengeIndex].correctOrder;
+
+                if (JSON.stringify(currentOrder) === JSON.stringify(correctOrder)) {
+                    feedbackGameElem.textContent = 'ترتيب صحيح! أحسنت! ✨';
+                    feedbackGameElem.style.color = '#2e7d32';
+                    nextChallengeBtn.style.display = 'block';
+                    checkOrderBtn.style.display = 'none';
+                    sortableInstance.option("disabled", true); // تعطيل السحب بعد الإجابة الصحيحة
+                    // تلوين العناصر باللون الأخضر
+                    Array.from(timelineContainer.children).forEach(item => {
+                        item.style.backgroundColor = '#E8F5E9'; /* لون أخضر فاتح */
+                        item.querySelector('.draggable-task').style.backgroundColor = '#A5D6A7';
+                        item.querySelector('.timeline-number').style.backgroundColor = '#66BB6A';
+                        item.querySelector('.timeline-number').style.color = 'white';
+                    });
+                } else {
+                    feedbackGameElem.textContent = 'هذا الترتيب خاطئ. حاول مرة أخرى.';
+                    feedbackGameElem.style.color = '#d32f2f';
+                    // لا نعطل الأزرار أو السحب حتى يتمكن من المحاولة مرة أخرى
+                    // يمكن إضافة تلوين مؤقت للعناصر الخاطئة هنا إذا أردت
+                }
+            }
+
+            checkOrderBtn.addEventListener('click', checkOrder);
+
+            nextChallengeBtn.addEventListener('click', () => {
+                currentChallengeIndex++;
+                loadChallenge();
+            });
+
+            loadChallenge(); // تحميل أول تحدي عند بدء الصفحة
+        });
+    </script>
+</body>
+</html>

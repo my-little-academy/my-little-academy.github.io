@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الكلمات المقلوبة الإسلامية</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5e9;
+            text-align: center;
+            padding: 20px;
+            color: #2c3e50;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c5e1a;
+            margin-bottom: 30px;
+        }
+        .game-area {
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            border: 2px dashed #2c5e1a;
+        }
+        .scrambled-word {
+            font-size: 32px;
+            letter-spacing: 5px;
+            margin: 20px 0;
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .user-input {
+            padding: 12px 20px;
+            font-size: 18px;
+            width: 80%;
+            border: 2px solid #2c5e1a;
+            border-radius: 8px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        .btn {
+            background-color: #2c5e1a;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #1e4212;
+        }
+        .result {
+            font-size: 20px;
+            margin: 20px 0;
+            min-height: 30px;
+            font-weight: bold;
+        }
+        .correct {
+            color: #2c5e1a;
+        }
+        .incorrect {
+            color: #e74c3c;
+        }
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            font-size: 18px;
+        }
+        .hint {
+            color: #7f8c8d;
+            font-style: italic;
+            margin: 10px 0;
+        }
+        .meaning {
+            background-color: #eaf7ea;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>لعبة الكلمات المقلوبة الإسلامية</h1>
+        <p>أعد ترتيب الحروف لتكوين الكلمة الصحيحة</p>
+        
+        <div class="score-board">
+            <div>النقاط: <span id="score">0</span></div>
+            <div>المستوى: <span id="level">1</span></div>
+        </div>
+        
+        <div class="game-area">
+            <div class="scrambled-word" id="scrambledWord"></div>
+            <div class="hint" id="hint"></div>
+            <div class="meaning" id="meaning"></div>
+            
+            <input type="text" class="user-input" id="userInput" placeholder="اكتب الكلمة الصحيحة هنا...">
+            
+            <button class="btn" onclick="checkAnswer()">تحقق</button>
+            <button class="btn" onclick="showHint()">مساعدة</button>
+            <button class="btn" onclick="showMeaning()">معنى الكلمة</button>
+            
+            <div class="result" id="result"></div>
+        </div>
+    </div>
+
+    <script>
+        // قائمة الكلمات الإسلامية مع معانيها وتلميحاتها
+        const words = [
+            { word: "الصلاة", hint: "ركن الإسلام الثاني", meaning: "عبادة ذات أقوال وأفعال مخصوصة تبدأ بالتكبير وتختتم بالتسليم" },
+            { word: "الزكاة", hint: "ركن الإسلام الثالث", meaning: "إخراج جزء مخصوص من المال لمستحقيه من الفقراء وغيرهم" },
+            { word: "الصيام", hint: "ركن الإسلام الرابع", meaning: "الإمساك عن المفطرات من طلوع الفجر إلى غروب الشمس" },
+            { word: "الحج", hint: "ركن الإسلام الخامس", meaning: "قصد بيت الله الحرام لأداء مناسك مخصوصة" },
+            { word: "القرآن", hint: "كتاب المسلمين المقدس", meaning: "كلام الله المنزل على النبي محمد ﷺ المتعبد بتلاوته" },
+            { word: "الحديث", hint: "ما ورد عن النبي ﷺ", meaning: "أقوال النبي محمد ﷺ وأفعاله وتقريراته" },
+            { word: "السنة", hint: "طريقة النبي ﷺ", meaning: "كل ما صدر عن النبي ﷺ من قول أو فعل أو تقرير" },
+            { word: "الفقه", hint: "العلم بالأحكام", meaning: "العلم بالأحكام الشرعية العملية المكتسبة من أدلتها التفصيلية" },
+            { word: "التوحيد", hint: "أساس الدين", meaning: "إفراد الله تعالى بالربوبية والألوهية والأسماء والصفات" },
+            { word: "الإيمان", hint: "أركان ستة", meaning: "التصديق بالقلب والإقرار باللسان والعمل بالجوارح" }
+        ];
+
+        let currentWord;
+        let scrambledWord;
+        let score = 0;
+        let level = 1;
+        let wordsPerLevel = 3;
+        let correctAnswers = 0;
+
+        // بدء اللعبة
+        function startGame() {
+            if (level > (words.length / wordsPerLevel)) {
+                document.getElementById('result').innerHTML = "مبروك! لقد أكملت جميع المستويات!";
+                return;
+            }
+            
+            const startIdx = (level - 1) * wordsPerLevel;
+            const endIdx = startIdx + wordsPerLevel;
+            const levelWords = words.slice(startIdx, endIdx);
+            
+            currentWord = levelWords[Math.floor(Math.random() * levelWords.length)];
+            scrambledWord = scrambleWord(currentWord.word);
+            
+            document.getElementById('scrambledWord').textContent = scrambledWord;
+            document.getElementById('userInput').value = "";
+            document.getElementById('result').textContent = "";
+            document.getElementById('hint').textContent = "";
+            document.getElementById('meaning').style.display = "none";
+            document.getElementById('userInput').focus();
+        }
+
+        // خلط الكلمة
+        function scrambleWord(word) {
+            let letters = word.split('');
+            for (let i = letters.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [letters[i], letters[j]] = [letters[j], letters[i]];
+            }
+            return letters.join('');
+        }
+
+        // التحقق من الإجابة
+        function checkAnswer() {
+            const userAnswer = document.getElementById('userInput').value.trim();
+            const resultElement = document.getElementById('result');
+            
+            if (userAnswer.toLowerCase() === currentWord.word.toLowerCase()) {
+                resultElement.textContent = "إجابة صحيحة! أحسنت!";
+                resultElement.className = "result correct";
+                score += 10;
+                correctAnswers++;
+                
+                document.getElementById('score').textContent = score;
+                
+                if (correctAnswers >= wordsPerLevel) {
+                    level++;
+                    correctAnswers = 0;
+                    document.getElementById('level').textContent = level;
+                    setTimeout(() => {
+                        alert(`تهانينا! لقد تقدمت للمستوى ${level}`);
+                    }, 500);
+                }
+                
+                setTimeout(startGame, 1500);
+            } else {
+                resultElement.textContent = "إجابة خاطئة، حاول مرة أخرى!";
+                resultElement.className = "result incorrect";
+                score = Math.max(0, score - 2);
+                document.getElementById('score').textContent = score;
+            }
+        }
+
+        // عرض تلميح
+        function showHint() {
+            document.getElementById('hint').textContent = "تلميح: " + currentWord.hint;
+            score = Math.max(0, score - 3);
+            document.getElementById('score').textContent = score;
+        }
+
+        // عرض معنى الكلمة
+        function showMeaning() {
+            document.getElementById('meaning').innerHTML = "<strong>معنى الكلمة:</strong> " + currentWord.meaning;
+            document.getElementById('meaning').style.display = "block";
+            score = Math.max(0, score - 5);
+            document.getElementById('score').textContent = score;
+        }
+
+        // بدء اللعبة عند تحميل الصفحة
+        window.onload = startGame;
+
+        // السماح بالضغط على Enter للتحقق من الإجابة
+        document.getElementById('userInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+    </script>
+</body>
+</html>

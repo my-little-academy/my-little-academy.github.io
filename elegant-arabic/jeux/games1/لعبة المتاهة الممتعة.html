@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة المتاهة الممتعة للأطفال</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+        }
+        h1 {
+            color: #ff6b6b;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .game-container {
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        #maze {
+            width: 400px;
+            height: 400px;
+            margin: 20px auto;
+            position: relative;
+            background-color: #f9f9f9;
+            border: 3px solid #4d96ff;
+            overflow: hidden;
+        }
+        .wall {
+            position: absolute;
+            background-color: #6b5b95;
+        }
+        #player {
+            width: 30px;
+            height: 30px;
+            position: absolute;
+            background-color: #ff6b6b;
+            border-radius: 50%;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+        #goal {
+            width: 30px;
+            height: 30px;
+            position: absolute;
+            background-color: #2ecc71;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            background-color: #4d96ff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 5px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #3a7bd5;
+        }
+        #message {
+            font-size: 1.2em;
+            font-weight: bold;
+            min-height: 30px;
+            margin: 15px 0;
+        }
+        .congrats {
+            font-size: 1.5em;
+            color: #ff6b6b;
+            margin-top: 20px;
+            animation: bounce 0.5s infinite alternate;
+            display: none;
+        }
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-5px); }
+        }
+        .key-instructions {
+            margin: 15px 0;
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>لعبة المتاهة الممتعة! 🎮</h1>
+        <p>ساعد الشخصية الحمراء للوصول إلى الهدف الأخضر!</p>
+        
+        <div class="key-instructions">
+            استخدم مفاتيح الأسهم على لوحة المفاتيح للتحريك ← ↑ → ↓
+        </div>
+        
+        <div id="maze">
+            <div id="player"></div>
+            <div id="goal">🏁</div>
+            <!-- الجدران سيتم إضافتها بواسطة الجافاسكريبت -->
+        </div>
+        
+        <div id="message">ابدأ اللعب باستخدام مفاتيح الأسهم!</div>
+        
+        <div class="controls">
+            <button onclick="resetGame()">إعادة اللعبة</button>
+        </div>
+        
+        <div id="congrats" class="congrats">
+            �🎉 أحسنت! لقد وصلت إلى الهدف! أنت بطل! 🎉🎈
+        </div>
+    </div>
+
+    <script>
+        // تعريف المتغيرات
+        const maze = document.getElementById('maze');
+        const player = document.getElementById('player');
+        const goal = document.getElementById('goal');
+        const message = document.getElementById('message');
+        const congrats = document.getElementById('congrats');
+        
+        // أبعاد المتاهة
+        const mazeWidth = 400;
+        const mazeHeight = 400;
+        
+        // حجم كل خلية
+        const cellSize = 40;
+        
+        // موضع اللاعب والهدف
+        let playerX = 1;
+        let playerY = 1;
+        let goalX = 8;
+        let goalY = 8;
+        
+        // خريطة المتاهة (1 = جدار، 0 = طريق)
+        const mazeMap = [
+            [1,1,1,1,1,1,1,1,1,1],
+            [1,0,0,1,0,0,0,1,0,1],
+            [1,0,1,1,0,1,0,1,0,1],
+            [1,0,0,0,0,1,0,0,0,1],
+            [1,1,1,1,0,1,1,1,0,1],
+            [1,0,0,0,0,0,0,1,0,1],
+            [1,0,1,1,1,1,0,1,0,1],
+            [1,0,0,0,0,1,0,0,0,1],
+            [1,0,1,1,0,1,0,1,0,1],
+            [1,1,1,1,1,1,1,1,1,1]
+        ];
+        
+        // إنشاء الجدران
+        function createWalls() {
+            for (let y = 0; y < mazeMap.length; y++) {
+                for (let x = 0; x < mazeMap[y].length; x++) {
+                    if (mazeMap[y][x] === 1) {
+                        const wall = document.createElement('div');
+                        wall.className = 'wall';
+                        wall.style.width = cellSize + 'px';
+                        wall.style.height = cellSize + 'px';
+                        wall.style.left = (x * cellSize) + 'px';
+                        wall.style.top = (y * cellSize) + 'px';
+                        maze.appendChild(wall);
+                    }
+                }
+            }
+        }
+        
+        // تحديث موقع اللاعب
+        function updatePlayerPosition() {
+            player.style.left = (playerX * cellSize + 5) + 'px';
+            player.style.top = (playerY * cellSize + 5) + 'px';
+            
+            // التحقق إذا وصل إلى الهدف
+            if (playerX === goalX && playerY === goalY) {
+                message.innerHTML = '🎉 لقد نجحت!';
+                congrats.style.display = 'block';
+            }
+        }
+        
+        // تحديد موقع الهدف
+        function setGoalPosition() {
+            goal.style.left = (goalX * cellSize + 5) + 'px';
+            goal.style.top = (goalY * cellSize + 5) + 'px';
+        }
+        
+        // التحقق من الحركة المسموحة
+        function canMove(x, y) {
+            return mazeMap[y][x] === 0;
+        }
+        
+        // إعادة تعيين اللعبة
+        function resetGame() {
+            playerX = 1;
+            playerY = 1;
+            updatePlayerPosition();
+            message.innerHTML = 'حاول مرة أخرى! استخدم مفاتيح الأسهم للتحرك.';
+            congrats.style.display = 'none';
+        }
+        
+        // التحكم باستخدام مفاتيح الأسهم
+        document.addEventListener('keydown', function(event) {
+            if (congrats.style.display === 'block') return;
+            
+            let newX = playerX;
+            let newY = playerY;
+            
+            switch(event.key) {
+                case 'ArrowUp':
+                    newY--;
+                    break;
+                case 'ArrowDown':
+                    newY++;
+                    break;
+                case 'ArrowLeft':
+                    newX--;
+                    break;
+                case 'ArrowRight':
+                    newX++;
+                    break;
+                default:
+                    return;
+            }
+            
+            if (newX >= 0 && newX < mazeMap[0].length && 
+                newY >= 0 && newY < mazeMap.length && 
+                canMove(newX, newY)) {
+                playerX = newX;
+                playerY = newY;
+                updatePlayerPosition();
+            } else {
+                message.innerHTML = 'لا يمكنك الذهاب إلى هناك! حاول اتجاهًا آخر.';
+            }
+        });
+        
+        // تهيئة اللعبة
+        function initGame() {
+            createWalls();
+            setGoalPosition();
+            updatePlayerPosition();
+        }
+        
+        // بدء اللعبة
+        initGame();
+    </script>
+</body>
+</html>

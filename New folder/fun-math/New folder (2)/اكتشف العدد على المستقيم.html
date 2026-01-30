@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اكتشف العدد على المستقيم!</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        
+        .number-line-container {
+            position: relative;
+            height: 150px;
+            margin: 40px 0;
+        }
+        
+        .number-line {
+            position: absolute;
+            width: 90%;
+            height: 3px;
+            background-color: #7f8c8d;
+            top: 50%;
+            left: 5%;
+        }
+        
+        .tick {
+            position: absolute;
+            width: 2px;
+            background-color: #3498db;
+            bottom: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .tick.big {
+            height: 30px;
+            background-color: #e74c3c;
+        }
+        
+        .tick.small {
+            height: 15px;
+        }
+        
+        .tick-label {
+            position: absolute;
+            top: 35px;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: #2c3e50;
+        }
+        
+        .arrow {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            top: 50%;
+            transform: translate(-50%, -100%);
+            transition: left 0.5s ease-in-out;
+        }
+        
+        .input-container {
+            margin: 30px 0;
+        }
+        
+        input {
+            padding: 12px 15px;
+            font-size: 18px;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            width: 150px;
+            text-align: center;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .message {
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .success {
+            background-color: #2ecc71;
+            color: white;
+            opacity: 1;
+        }
+        
+        .error {
+            background-color: #e74c3c;
+            color: white;
+            opacity: 1;
+        }
+        
+        .info-btn {
+            background-color: #9b59b6;
+        }
+        
+        .info-btn:hover {
+            background-color: #8e44ad;
+        }
+        
+        .level-selector {
+            margin: 20px 0;
+        }
+        
+        .score-container {
+            font-size: 18px;
+            margin: 20px 0;
+        }
+        
+        .timer {
+            font-size: 18px;
+            color: #e74c3c;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>اكتشف العدد على المستقيم!</h1>
+        
+        <div class="level-selector">
+            <label for="level">اختر مستوى الصعوبة:</label>
+            <select id="level">
+                <option value="easy">سهل (0 - 100)</option>
+                <option value="medium">متوسط (1000 - 2000)</option>
+                <option value="hard">صعب (5000 - 10000)</option>
+                <option value="custom">مخصص</option>
+            </select>
+        </div>
+        
+        <div class="number-line-container">
+            <div class="number-line"></div>
+            <div id="ticks-container"></div>
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iI2U3NGMzYyIgZD0iTTEyLDJMMiw3TDEyLDEyTDIyLDdMMTIsM00yLDE3TDEyLDIyTDIyLDE3TDEyLDEyTDIsMTciIC8+PC9zdmc+" class="arrow" id="arrow">
+        </div>
+        
+        <div class="input-container">
+            <p>ما هو العدد الذي يشير إليه السهم؟</p>
+            <input type="number" id="user-answer">
+            <div id="message" class="message"></div>
+        </div>
+        
+        <div>
+            <button id="check-btn">تحقق</button>
+            <button id="hint-btn" class="info-btn">معلومة مساعدة</button>
+        </div>
+        
+        <div class="score-container">
+            النقاط: <span id="score">0</span>
+        </div>
+        
+        <div class="timer">
+            الوقت المتبقي: <span id="time">60</span> ثانية
+        </div>
+    </div>
+
+    <script>
+        // العناصر الأساسية
+        const ticksContainer = document.getElementById('ticks-container');
+        const arrow = document.getElementById('arrow');
+        const userAnswer = document.getElementById('user-answer');
+        const checkBtn = document.getElementById('check-btn');
+        const hintBtn = document.getElementById('hint-btn');
+        const message = document.getElementById('message');
+        const scoreElement = document.getElementById('score');
+        const timeElement = document.getElementById('time');
+        const levelSelector = document.getElementById('level');
+        
+        // المتغيرات العامة
+        let minValue = 0;
+        let maxValue = 100;
+        let currentPosition = 0;
+        let currentValue = 0;
+        let score = 0;
+        let timeLeft = 60;
+        let timer;
+        
+        // تهيئة اللعبة
+        function initGame() {
+            // تحديد النطاق حسب المستوى المختار
+            const level = levelSelector.value;
+            switch(level) {
+                case 'easy':
+                    minValue = 0;
+                    maxValue = 100;
+                    break;
+                case 'medium':
+                    minValue = 1000;
+                    maxValue = 2000;
+                    break;
+                case 'hard':
+                    minValue = 5000;
+                    maxValue = 10000;
+                    break;
+                case 'custom':
+                    minValue = Math.floor(Math.random() * 9000) + 1000;
+                    maxValue = minValue + Math.floor(Math.random() * 1000) + 500;
+                    break;
+            }
+            
+            // إعادة تعيين النقاط والوقت
+            score = 0;
+            timeLeft = 60;
+            scoreElement.textContent = score;
+            timeElement.textContent = timeLeft;
+            
+            // رسم المستقيم العددي
+            drawNumberLine();
+            
+            // تعيين موضع عشوائي للسهم
+            setRandomPosition();
+            
+            // بدء المؤقت
+            clearInterval(timer);
+            timer = setInterval(updateTimer, 1000);
+        }
+        
+        // رسم المستقيم العددي
+        function drawNumberLine() {
+            ticksContainer.innerHTML = '';
+            
+            const containerWidth = document.querySelector('.number-line').offsetWidth;
+            const range = maxValue - minValue;
+            
+            // إضافة التدريجات الكبيرة (كل 100)
+            for (let i = minValue; i <= maxValue; i += 100) {
+                const position = ((i - minValue) / range) * 100;
+                addTick(position, i, 'big');
+            }
+            
+            // إضافة التدريجات الصغيرة (كل 10)
+            for (let i = minValue; i <= maxValue; i += 10) {
+                if (i % 100 !== 0) { // تجنب تكرار التدريجات الكبيرة
+                    const position = ((i - minValue) / range) * 100;
+                    addTick(position, i, 'small');
+                }
+            }
+        }
+        
+        // إضافة تدريجة إلى المستقيم
+        function addTick(position, value, size) {
+            const tick = document.createElement('div');
+            tick.className = `tick ${size}`;
+            tick.style.left = `${position}%`;
+            
+            ticksContainer.appendChild(tick);
+            
+            if (size === 'big') {
+                const label = document.createElement('div');
+                label.className = 'tick-label';
+                label.textContent = value;
+                label.style.left = `${position}%`;
+                ticksContainer.appendChild(label);
+            }
+        }
+        
+        // تعيين موضع عشوائي للسهم
+        function setRandomPosition() {
+            const range = maxValue - minValue;
+            const step = 10; // أصغر خطوة هي 10
+            
+            // اختيار قيمة عشوائية مضاعفة للـ 10 ضمن النطاق
+            const randomValue = minValue + Math.round(Math.random() * (range / step)) * step;
+            
+            // حساب الموضع بالنسبة المئوية
+            const position = ((randomValue - minValue) / range) * 100;
+            
+            // تحديث الموضع والقيمة الحالية
+            currentPosition = position;
+            currentValue = randomValue;
+            
+            // تحريك السهم مع تأثير
+            arrow.style.transition = 'left 0.5s ease-in-out';
+            arrow.style.left = `${position}%`;
+            
+            // إزالة أي رسائل سابقة
+            message.textContent = '';
+            message.className = 'message';
+            
+            // تفريغ حقل الإدخال
+            userAnswer.value = '';
+            userAnswer.focus();
+        }
+        
+        // التحقق من الإجابة
+        function checkAnswer() {
+            const userValue = parseInt(userAnswer.value);
+            
+            if (isNaN(userValue)) {
+                showMessage('الرجاء إدخال عدد صحيح', 'error');
+                return;
+            }
+            
+            if (userValue === currentValue) {
+                // الإجابة صحيحة
+                score += 10;
+                scoreElement.textContent = score;
+                showMessage('إجابة صحيحة! أحسنت!', 'success');
+                
+                // الانتقال إلى السؤال التالي بعد تأخير
+                setTimeout(setRandomPosition, 2000);
+            } else {
+                // الإجابة خاطئة
+                showMessage(`إجابة خاطئة! العدد الصحيح هو ${currentValue}. حاول مرة أخرى.`, 'error');
+            }
+        }
+        
+        // عرض رسالة للمستخدم
+        function showMessage(text, type) {
+            message.textContent = text;
+            message.className = `message ${type}`;
+            
+            // إخفاء الرسالة بعد 3 ثواني (في حالة الخطأ)
+            if (type === 'error') {
+                setTimeout(() => {
+                    message.className = 'message';
+                }, 3000);
+            }
+        }
+        
+        // عرض تلميح
+        function showHint() {
+            const range = maxValue - minValue;
+            const step = (currentValue - minValue) / range;
+            
+            let hint = '';
+            if (step < 0.25) {
+                hint = `العدد بين ${minValue} و ${minValue + Math.floor(range/4)}`;
+            } else if (step < 0.5) {
+                hint = `العدد بين ${minValue + Math.floor(range/4)} و ${minValue + Math.floor(range/2)}`;
+            } else if (step < 0.75) {
+                hint = `العدد بين ${minValue + Math.floor(range/2)} و ${minValue + Math.floor(range*3/4)}`;
+            } else {
+                hint = `العدد بين ${minValue + Math.floor(range*3/4)} و ${maxValue}`;
+            }
+            
+            showMessage(hint, 'error');
+        }
+        
+        // تحديث المؤقت
+        function updateTimer() {
+            timeLeft--;
+            timeElement.textContent = timeLeft;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                showMessage(`انتهى الوقت! نتيجتك النهائية: ${score} نقطة`, 'error');
+                checkBtn.disabled = true;
+                hintBtn.disabled = true;
+            }
+        }
+        
+        // استماع للأحداث
+        checkBtn.addEventListener('click', checkAnswer);
+        hintBtn.addEventListener('click', showHint);
+        userAnswer.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+        levelSelector.addEventListener('change', initGame);
+        
+        // بدء اللعبة
+        initGame();
+    </script>
+</body>
+</html>

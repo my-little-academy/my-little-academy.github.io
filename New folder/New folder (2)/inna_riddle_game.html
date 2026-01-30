@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حزورة إن وأخواتها</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #f5576c);
+            background-size: 400% 400%;
+            animation: gradientShift 6s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: headerBounce 3s infinite;
+        }
+
+        @keyframes headerBounce {
+            0%, 100% { transform: translateY(0) rotate(-1deg); }
+            25% { transform: translateY(-5px) rotate(1deg); }
+            50% { transform: translateY(0) rotate(-0.5deg); }
+            75% { transform: translateY(-3px) rotate(0.5deg); }
+        }
+
+        .title {
+            font-size: 3.5em;
+            color: #fff;
+            text-shadow:
+                3px 3px 0px #ff6b6b,
+                6px 6px 0px #4ecdc4,
+                9px 9px 15px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .title::before {
+            content: '🧩';
+            position: absolute;
+            left: -60px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8em;
+            animation: spin 3s linear infinite;
+        }
+
+        .title::after {
+            content: '🔍';
+            position: absolute;
+            right: -60px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8em;
+            animation: spin 3s linear infinite reverse;
+        }
+
+        @keyframes spin {
+            from { transform: translateY(-50%) rotate(0deg); }
+            to { transform: translateY(-50%) rotate(360deg); }
+        }
+
+        .subtitle {
+            font-size: 1.4em;
+            color: #fff;
+            background: rgba(255,255,255,0.2);
+            padding: 10px 25px;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.3);
+            display: inline-block;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            max-width: 900px;
+            width: 100%;
+            animation: containerPulse 4s ease-in-out infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shimmer 3s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%); }
+            100% { transform: translateX(100%) translateY(100%); }
+        }
+
+        @keyframes containerPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+            50% { transform: scale(1.02); box-shadow: 0 25px 60px rgba(0,0,0,0.4); }
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            gap: 20px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 20px;
+            text-align: center;
+            flex: 1;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: statShine 2s infinite;
+        }
+
+        @keyframes statShine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .riddle-area {
+            background: linear-gradient(135deg, #ff9a9e, #fecfef);
+            padding: 30px;
+            border-radius: 25px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: inset 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .riddle-title {
+            font-size: 1.8em;
+            color: #d63384;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .riddle-text {
+            font-size: 1.4em;
+            color: #495057;
+            line-height: 1.6;
+            background: rgba(255,255,255,0.8);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            border-left: 5px solid #ff6b6b;
+        }
+
+        .hint-section {
+            background: rgba(255,255,255,0.6);
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 15px;
+        }
+
+        .hint-text {
+            font-size: 1.1em;
+            color: #6f42c1;
+            font-style: italic;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 20px;
+            font-size: 1.3em;
+            border: 3px solid #dee2e6;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #fff, #f8f9fa);
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+            transform: scale(1.02);
+        }
+
+        .buttons-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .game-btn {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .check-btn {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
+        }
+
+        .hint-btn {
+            background: linear-gradient(45deg, #ffc107, #fd7e14);
+            color: white;
+            box-shadow: 0 6px 20px rgba(255, 193, 7, 0.3);
+        }
+
+        .next-btn {
+            background: linear-gradient(45deg, #6f42c1, #e83e8c);
+            color: white;
+            box-shadow: 0 6px 20px rgba(111, 66, 193, 0.3);
+            display: none;
+        }
+
+        .game-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .game-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .feedback {
+            margin: 25px 0;
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .feedback.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .feedback.correct {
+            background: linear-gradient(135deg, #d4edda, #28a745);
+            color: white;
+            animation: successPulse 1s ease-in-out;
+        }
+
+        .feedback.incorrect {
+            background: linear-gradient(135deg, #f8d7da, #dc3545);
+            color: white;
+            animation: errorShake 0.6s ease-in-out;
+        }
+
+        @keyframes successPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes errorShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 15px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 25px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 10px;
+            transition: width 0.8s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: progressShine 1.5s infinite;
+        }
+
+        @keyframes progressShine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .floating-letter {
+            position: absolute;
+            font-size: 2em;
+            color: rgba(255,255,255,0.1);
+            animation: floatLetter 20s linear infinite;
+        }
+
+        @keyframes floatLetter {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-20vh) rotate(360deg); opacity: 0; }
+        }
+
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .firework {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            animation: firework 2s ease-out infinite;
+        }
+
+        @keyframes firework {
+            0% {
+                transform: translateY(100vh) scale(1);
+                opacity: 1;
+            }
+            15% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(20vh) scale(0);
+                opacity: 0;
+            }
+        }
+
+        .game-over {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .final-message {
+            font-size: 2.5em;
+            margin: 25px 0;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .restart-btn {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            border: none;
+            padding: 18px 35px;
+            font-size: 1.3em;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            margin-top: 20px;
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.1) rotate(2deg);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.3);
+        }
+
+        .letter-animation {
+            display: inline-block;
+            animation: letterBounce 0.6s ease-in-out;
+        }
+
+        @keyframes letterBounce {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-20px); color: #667eea; }
+            100% { transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .title { font-size: 2.5em; }
+            .riddle-text { font-size: 1.2em; }
+            .game-container { padding: 20px; }
+            .buttons-container { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-elements" id="floatingElements"></div>
+    <div class="header">
+        <h1 class="title">حزورة إن وأخواتها</h1>
+        <p class="subtitle">🧩 فك الألغاز وتعلم الحروف الناسخة! 🔍</p>
+    </div>
+    <div class="game-container" id="gameContainer">
+        </div>
+    <div class="celebration" id="celebration"></div>
+    <script>
+        const riddles = [
+            {
+                text: "أنا حرف أدخل على الجملة الاسمية، أنصب المبتدأ وأرفع الخبر، أبدأ بـ 'إ' وأعبر عن التأكيد. من أكون؟",
+                answer: "إن",
+                hint: "أشهر الأحرف الناسخة وأكثرها استخداماً في التأكيد"
+            },
+            {
+                text: "أخت 'إن' أنا، لكنني أخف منها، أدخل على الجملة وأؤكدها بلطف، أبدأ بـ 'أ' وأنتهي بـ 'ن'. فمن أكون؟",
+                answer: "أن",
+                hint: "مثل 'إن' لكنني أخف وأكثر استخداماً في الكلام"
+            },
+            {
+                text: "أنا للتشبيه، أدخل على الجملة فأجعل المبتدأ مشبهاً بالخبر، أبدأ بـ 'ك' وأنتهي بـ 'ن'. فما اسمي؟",
+                answer: "كأن",
+                hint: "أستخدم عندما نريد تشبيه شيء بآخر"
+            },
+            {
+                text: "أعبر عن الاستدراك والتصحيح، أدخل لأصحح معلومة خاطئة، أبدأ بـ 'ل' وأتكون من أربعة أحرف. من أنا؟",
+                answer: "لكن",
+                hint: "أستخدم عندما نريد تصحيح فكرة أو إضافة معلومة مخالفة"
+            },
+            {
+                text: "للتمني وطلب المستحيل، أدخل على الجملة فأعبر عن الأحلام البعيدة، أتكون من ثلاثة أحرف. فمن أكون؟",
+                answer: "ليت",
+                hint: "أستخدم عندما نتمنى شيئاً صعب التحقق"
+            },
+            {
+                text: "أنا حرف ترجي وأمل، أعبر عن الأشياء الممكنة الحدوث، أبدأ بـ 'ل' وأنتهي بـ 'ل'. ما اسمي؟",
+                answer: "لعل",
+                hint: "أستخدم للتعبير عن الأمل في حدوث شيء ممكن"
+            },
+            {
+                text: "أعبر عن النفي، أدخل على الجملة الاسمية فأنفي خبرها. من أكون؟",
+                answer: "لا",
+                hint: "أنا من أخوات 'إن' التي تنفي الجنس"
+            },
+            {
+                text: "أنا لـ'إن' التوأم، أستخدم لتأكيد الخبر في الجملة. من أكون؟",
+                answer: "إن",
+                hint: "أنا أخت 'إن' الكبرى في التوكيد"
+            }
+        ];
+
+        let currentRiddleIndex = 0;
+        let score = 0;
+        let hintsUsed = 0;
+        let answered = false;
+
+        const gameContainer = document.getElementById('gameContainer');
+
+        function loadGame() {
+            gameContainer.innerHTML = `
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+                <div class="stats">
+                    <div class="stat-box">
+                        <div style="font-size: 1.1em;">🏆 النقاط</div>
+                        <div style="font-size: 1.5em;" id="score">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div style="font-size: 1.1em;">🧩 الحزورة</div>
+                        <div style="font-size: 1.5em;"><span id="currentRiddle">1</span> / ${riddles.length}</div>
+                    </div>
+                    <div class="stat-box">
+                        <div style="font-size: 1.1em;">💡 التلميحات</div>
+                        <div style="font-size: 1.5em;" id="hintsUsed">0</div>
+                    </div>
+                </div>
+                <div class="riddle-area">
+                    <h3 class="riddle-title">🔍 حل الحزورة</h3>
+                    <div class="riddle-text" id="riddleText"></div>
+                    <div class="hint-section" id="hintSection" style="display: none;">
+                        <div class="hint-text" id="hintText">💡 تلميح: </div>
+                    </div>
+                </div>
+                <input type="text" class="answer-input" id="answerInput" placeholder="اكتب إجابتك هنا..." autocomplete="off">
+                <div class="buttons-container">
+                    <button class="game-btn check-btn" onclick="checkAnswer()">✅ تحقق من الإجابة</button>
+                    <button class="game-btn hint-btn" onclick="showHint()">💡 تلميح</button>
+                    <button class="game-btn next-btn" id="nextBtn" onclick="nextRiddle()">➡️ الحزورة التالية</button>
+                </div>
+                <div class="feedback" id="feedback"></div>
+            `;
+            displayRiddle();
+        }
+
+        function displayRiddle() {
+            const riddle = riddles[currentRiddleIndex];
+            document.getElementById('riddleText').textContent = riddle.text;
+            document.getElementById('currentRiddle').textContent = currentRiddleIndex + 1;
+            document.getElementById('answerInput').value = '';
+            document.getElementById('hintSection').style.display = 'none';
+            document.getElementById('feedback').classList.remove('show');
+            document.getElementById('nextBtn').style.display = 'none';
+            document.querySelector('.check-btn').disabled = false;
+            document.querySelector('.hint-btn').disabled = false;
+            answered = false;
+
+            const progress = ((currentRiddleIndex) / riddles.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function checkAnswer() {
+            if (answered) return;
+            const userAnswer = document.getElementById('answerInput').value.trim();
+            const correctAnswer = riddles[currentRiddleIndex].answer;
+            const feedback = document.getElementById('feedback');
+            
+            answered = true;
+            document.querySelector('.check-btn').disabled = true;
+            document.querySelector('.hint-btn').disabled = true;
+            
+            if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
+                score += hintsUsed > 0 ? 5 : 10;
+                feedback.textContent = '🎉 ممتاز! إجابة صحيحة! 🎉';
+                feedback.className = 'feedback correct show';
+                document.getElementById('score').textContent = score;
+                createFireworks();
+                
+            } else {
+                feedback.textContent = `❌ إجابة خاطئة! الإجابة الصحيحة هي: ${correctAnswer}`;
+                feedback.className = 'feedback incorrect show';
+            }
+
+            setTimeout(() => {
+                document.getElementById('nextBtn').style.display = 'inline-block';
+            }, 1000);
+            
+            hintsUsed = 0;
+            document.getElementById('hintsUsed').textContent = hintsUsed;
+        }
+
+        function showHint() {
+            if (answered) return;
+            hintsUsed++;
+            const riddle = riddles[currentRiddleIndex];
+            document.getElementById('hintText').textContent = '💡 تلميح: ' + riddle.hint;
+            document.getElementById('hintSection').style.display = 'block';
+            document.getElementById('hintsUsed').textContent = hintsUsed;
+
+            const hintSection = document.getElementById('hintSection');
+            hintSection.style.animation = 'none';
+            setTimeout(() => {
+                hintSection.style.animation = 'successPulse 0.6s ease-in-out';
+            }, 10);
+        }
+
+        function nextRiddle() {
+            currentRiddleIndex++;
+            if (currentRiddleIndex >= riddles.length) {
+                showGameOver();
+            } else {
+                displayRiddle();
+            }
+        }
+
+        function showGameOver() {
+            const percentage = (score / (riddles.length * 10)) * 100;
+            let message = '';
+            let emoji = '';
+
+            if (percentage >= 90) {
+                message = 'عبقري الحروف الناسخة!';
+                emoji = '🏆';
+            } else if (percentage >= 70) {
+                message = 'ممتاز! أتقنت الحزورات!';
+                emoji = '🌟';
+            } else if (percentage >= 50) {
+                message = 'جيد! تحتاج لمزيد من التدريب';
+                emoji = '👍';
+            } else {
+                message = 'حاول مرة أخرى، ستتحسن!';
+                emoji = '💪';
+            }
+
+            document.getElementById('gameContainer').innerHTML = `
+                <div class="game-over">
+                    <h2>${emoji} انتهت اللعبة! ${emoji}</h2>
+                    <div class="final-message">النتيجة النهائية: ${score} / ${riddles.length * 10}</div>
+                    <p style="font-size: 1.4em; margin: 25px 0;">${message}</p>
+                    <p style="font-size: 1.1em; opacity: 0.9;">
+                        لقد حللت ${riddles.length} حزورة حول إن وأخواتها!<br>
+                        معدل نجاحك هو: ${percentage.toFixed(0)}%
+                    </p>
+                    <button class="restart-btn" onclick="restartGame()">🔄 لعب مرة أخرى</button>
+                </div>
+            `;
+            createMegaFireworks();
+        }
+
+        function restartGame() {
+            currentRiddleIndex = 0;
+            score = 0;
+            hintsUsed = 0;
+            answered = false;
+            loadGame();
+        }
+
+        function createFireworks() {
+            const celebration = document.getElementById('celebration');
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7', '#fd79a8'];
+            for (let i = 0; i < 20; i++) {
+                const firework = document.createElement('div');
+                firework.className = 'firework';
+                firework.style.left = Math.random() * 100 + '%';
+                firework.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                firework.style.animationDelay = Math.random() * 1 + 's';
+                celebration.appendChild(firework);
+                setTimeout(() => {
+                    firework.remove();
+                }, 3000);
+            }
+        }
+        function createMegaFireworks() {
+            const celebration = document.getElementById('celebration');
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7', '#fd79a8'];
+            for (let i = 0; i < 50; i++) {
+                const firework = document.createElement('div');
+                firework.className = 'firework';
+                firework.style.left = Math.random() * 100 + '%';
+                firework.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                firework.style.animationDelay = Math.random() * 2 + 's';
+                firework.style.animationDuration = Math.random() * 3 + 's';
+                celebration.appendChild(firework);
+                setTimeout(() => {
+                    firework.remove();
+                }, 5000);
+            }
+        }
+        document.addEventListener('DOMContentLoaded', loadGame);
+    </script>
+</body>
+</html>

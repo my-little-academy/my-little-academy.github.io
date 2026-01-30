@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <title>لعبة الكلمات - ضع الكلمة المناسبة</title>
+  <style>
+    body {
+      direction: rtl;
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(to bottom, #fff3e0, #ffffff);
+      text-align: center;
+      padding: 30px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    h1 {
+      color: #e65100;
+      font-size: 2em;
+      margin-bottom: 20px;
+      text-shadow: 1px 1px 2px #ccc;
+    }
+    .sentence {
+      font-size: 1.5em;
+      margin: 40px auto;
+      padding: 20px;
+      width: 90%;
+      max-width: 600px;
+      background: #fffde7;
+      border-radius: 15px;
+      border: 2px dashed #ffb300;
+      min-height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .drop-word {
+      display: inline-block;
+      min-width: 120px;
+      height: 40px;
+      border: 2px dashed #ffcc80;
+      background-color: #fff3e0;
+      border-radius: 10px;
+      vertical-align: middle;
+      margin: 0 5px;
+      transition: background 0.3s;
+      line-height: 40px;
+      font-weight: 600;
+      user-select: none;
+    }
+    .word {
+      display: inline-block;
+      margin: 10px 8px;
+      padding: 10px 15px;
+      background-color: #ffe0b2;
+      border: 2px solid #fb8c00;
+      border-radius: 12px;
+      cursor: grab;
+      font-size: 1.2em;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+      user-select: none;
+    }
+    .word:hover {
+      transform: scale(1.1);
+      background-color: #ffd180;
+    }
+    .correct-message {
+      color: #2e7d32;
+      font-weight: bold;
+      font-size: 1.3em;
+      margin-top: 20px;
+      min-height: 30px;
+      transition: color 0.3s;
+    }
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+<h1>✍️ ضع الكلمة المناسبة في مكانها</h1>
+
+<div class="sentence" id="sentence-area"></div>
+
+<div id="word-bank" style="margin-top:30px;"></div>
+
+<p id="result" class="correct-message"></p>
+
+<script>
+  const sentences = [
+    {
+      textParts: ["ذهب", "إلى", "مبكرًا."],
+      blanks: ["الولد", "المدرسة"],
+      options: ["الولد", "المدرسة", "الحديقة", "البنت", "الرجل"]
+    },
+    {
+      textParts: ["أحببت", "في", "أن أقرأ."],
+      blanks: ["الكتاب", "البيت"],
+      options: ["الكتاب", "البيت", "المدرسة", "الحديقة", "السيارة"]
+    },
+    {
+      textParts: ["جلس", "على", "تحت الشجرة."],
+      blanks: ["الولد", "المقعد"],
+      options: ["الولد", "المقعد", "البنت", "الكرسي", "المعلم"]
+    },
+    {
+      textParts: ["شربت", "من", "الزجاجة."],
+      blanks: ["الماء", "العصير"],
+      options: ["الماء", "العصير", "اللبن", "الشاي", "القهوة"]
+    },
+    {
+      textParts: ["دخلت", "إلى", "بسرعة."],
+      blanks: ["الغرفة", "الصف"],
+      options: ["الغرفة", "الصف", "المدرسة", "المطبخ", "الحديقة"]
+    },
+    {
+      textParts: ["اللعب في", "يجعلني سعيدًا."],
+      blanks: ["الحديقة"],
+      options: ["الحديقة", "الشارع", "البيت", "المدرسة", "المسبح"]
+    }
+  ];
+
+  let currentIndex = 0;
+  let correctCount = 0;
+
+  const sentenceArea = document.getElementById('sentence-area');
+  const wordBank = document.getElementById('word-bank');
+  const result = document.getElementById('result');
+
+  function loadSentence(index) {
+    result.textContent = '';
+    correctCount = 0;
+
+    const sentence = sentences[index];
+    sentenceArea.innerHTML = '';
+    wordBank.innerHTML = '';
+
+    // بناء الجملة مع فراغات (div.drop-word)
+    for(let i = 0; i < sentence.textParts.length; i++) {
+      sentenceArea.appendChild(document.createTextNode(sentence.textParts[i] + " "));
+      if(i < sentence.blanks.length) {
+        const drop = document.createElement('span');
+        drop.classList.add('drop-word');
+        drop.dataset.word = sentence.blanks[i];
+        drop.textContent = '';
+        sentenceArea.appendChild(drop);
+        sentenceArea.appendChild(document.createTextNode(" "));
+      }
+    }
+
+    // إضافة الكلمات للاختيار
+    sentence.options.forEach(word => {
+      const wordDiv = document.createElement('div');
+      wordDiv.classList.add('word');
+      wordDiv.setAttribute('draggable', 'true');
+      wordDiv.id = word;
+      wordDiv.textContent = word;
+      wordBank.appendChild(wordDiv);
+
+      wordDiv.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text', wordDiv.id);
+      });
+    });
+
+    // إضافة أحداث السحب والإفلات للمناطق الفارغة
+    const dropZones = sentenceArea.querySelectorAll('.drop-word');
+    dropZones.forEach(zone => {
+      zone.addEventListener('dragover', e => {
+        e.preventDefault();
+        zone.style.backgroundColor = '#ffe0b2';
+      });
+      zone.addEventListener('dragleave', () => {
+        zone.style.backgroundColor = '';
+      });
+      zone.addEventListener('drop', e => {
+        e.preventDefault();
+        const draggedWord = e.dataTransfer.getData('text');
+        if(zone.dataset.word === draggedWord) {
+          zone.textContent = draggedWord;
+          zone.style.backgroundColor = '#c8e6c9';
+          const draggedElement = document.getElementById(draggedWord);
+          if(draggedElement) draggedElement.style.display = 'none';
+          correctCount++;
+          result.style.color = '#2e7d32';
+          result.textContent = '✔️ أحسنت!';
+          if(correctCount === dropZones.length) {
+            result.textContent = '🎉 ممتاز! أكملت الجملة بنجاح.';
+            setTimeout(() => {
+              currentIndex++;
+              if(currentIndex >= sentences.length) currentIndex = 0;
+              loadSentence(currentIndex);
+            }, 1500);
+          }
+        } else {
+          result.style.color = '#c62828';
+          result.textContent = `❌ الكلمة "${draggedWord}" لا تناسب هذا المكان. حاول مجددًا.`;
+          zone.style.backgroundColor = '#ffcdd2';
+          setTimeout(() => { zone.style.backgroundColor = ''; result.textContent = ''; }, 1500);
+        }
+      });
+    });
+  }
+
+  loadSentence(currentIndex);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الطرح العشري التفاعلي</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f9ff;
+            text-align: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #4a6baf;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        
+        .place-values {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .place-value {
+            font-size: 14px;
+            color: #555;
+            padding: 6px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+        
+        .math-problem {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 5px;
+            margin: 20px auto;
+            width: fit-content;
+        }
+        
+        .card {
+            width: 65px;
+            height: 85px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            font-weight: bold;
+            border-radius: 8px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .decimal-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #6c757d;
+            color: #495057;
+        }
+        
+        .top-card {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 2px solid #4a6baf;
+            color: #2c3e6b;
+        }
+        
+        .result-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #adb5bd;
+            cursor: pointer;
+        }
+        
+        .result-card.selected {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 2px solid #4a6baf;
+            transform: translateY(-5px);
+        }
+        
+        .borrow-hint {
+            position: absolute;
+            top: -15px;
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #FFD54F 0%, #FFB300 100%);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 2;
+            border: 2px solid #FFA000;
+        }
+        
+        .line {
+            grid-column: 1 / span 8;
+            height: 2px;
+            background: linear-gradient(to right, transparent 0%, #333 50%, transparent 100%);
+            margin: 15px 0;
+        }
+        
+        .buttons {
+            margin-top: 25px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .check-btn {
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            color: white;
+        }
+        
+        .new-btn {
+            background: linear-gradient(135deg, #17a2b8 0%, #117a8b 100%);
+            color: white;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 15px;
+            display: none;
+        }
+        
+        .success {
+            background: linear-gradient(135deg, #d4edda 0%, #a7d7b8 100%);
+            color: #155724;
+            display: block;
+        }
+        
+        .error {
+            background: linear-gradient(135deg, #f8d7da 0%, #e9b7bf 100%);
+            color: #721c24;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 لعبة الطرح العشري (الفاصلة تحت الفاصلة) 🎮</h1>
+        
+        <div class="place-values">
+            <div class="place-value">جزء من ألف</div>
+            <div class="place-value">جزء من مئة</div>
+            <div class="place-value">جزء من عشرة</div>
+            <div class="place-value">الفاصلة</div>
+            <div class="place-value">الآحاد</div>
+            <div class="place-value">العشرات</div>
+            <div class="place-value">المئات</div>
+            <div class="place-value">الآلاف</div>
+        </div>
+        
+        <div class="math-problem" id="mathProblem"></div>
+        
+        <div class="message" id="message"></div>
+        
+        <div class="buttons">
+            <button class="check-btn" id="checkBtn">✅ تحقق من الإجابة</button>
+            <button class="new-btn" id="newBtn">🔄 مسألة جديدة</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mathProblem = document.getElementById('mathProblem');
+            const checkBtn = document.getElementById('checkBtn');
+            const newBtn = document.getElementById('newBtn');
+            const message = document.getElementById('message');
+            
+            let topNumber = 0;
+            let correctAnswer = 0;
+            let currentTopDigits = [];
+            let selectedResultPosition = null;
+            let resultValues = [0, 0, 0, 0, '.', 0, 0, 0, 0];
+            
+            function createNewProblem() {
+                // إنشاء عدد عشري عشوائي
+                topNumber = Math.floor(1000 + Math.random() * 9000) + Math.random();
+                correctAnswer = parseFloat((topNumber / 2).toFixed(3)); // مثال: النصف بدل الطرح
+                
+                const topStr = topNumber.toFixed(3);
+                currentTopDigits = topStr.split('');
+                resultValues = [0, 0, 0, 0, '.', 0, 0, 0, 0];
+                selectedResultPosition = null;
+                displayProblem(topStr);
+                message.style.display = 'none';
+            }
+            
+            function displayProblem(topStr) {
+                mathProblem.innerHTML = '';
+                
+                const topDigits = topStr.split('');
+                
+                // عرض الرقم العلوي فقط
+                topDigits.forEach((digit, index) => {
+                    const card = document.createElement('div');
+                    if (digit === '.') {
+                        card.className = 'card decimal-card top-card';
+                    } else {
+                        card.className = 'card top-card';
+                    }
+                    card.textContent = digit;
+                    mathProblem.appendChild(card);
+                });
+                
+                // الخط الفاصل
+                const line = document.createElement('div');
+                line.className = 'line';
+                mathProblem.appendChild(line);
+                
+                // عرض النتيجة
+                for (let i = 0; i < 9; i++) {
+                    if (i === 4) { // موقع الفاصلة
+                        const decimalCard = document.createElement('div');
+                        decimalCard.className = 'card decimal-card';
+                        decimalCard.textContent = '.';
+                        mathProblem.appendChild(decimalCard);
+                        continue;
+                    }
+                    
+                    const card = document.createElement('div');
+                    card.className = 'card result-card';
+                    if (i === selectedResultPosition) {
+                        card.classList.add('selected');
+                    }
+                    card.textContent = resultValues[i];
+                    card.onclick = function() {
+                        selectResultPosition(i);
+                    };
+                    mathProblem.appendChild(card);
+                }
+            }
+            
+            function selectResultPosition(position) {
+                if (position === 4) return;
+                
+                if (selectedResultPosition !== null) {
+                    const prevCards = document.querySelectorAll('.result-card');
+                    prevCards.forEach(card => card.classList.remove('selected'));
+                }
+                
+                selectedResultPosition = position;
+                const cards = document.querySelectorAll('.result-card');
+                cards[position - (position > 4 ? 1 : 0)].classList.add('selected');
+            }
+            
+            function checkAnswer() {
+                const integerPart = resultValues.slice(5).join('');
+                const decimalPart = resultValues.slice(0, 4).join('');
+                const userAnswer = parseFloat(integerPart + '.' + decimalPart);
+                
+                if (Math.abs(userAnswer - correctAnswer) < 0.0001) {
+                    message.textContent = '🎉 إجابة صحيحة! أحسنت!';
+                    message.className = 'message success';
+                } else {
+                    message.textContent = `❌ إجابة خاطئة! الإجابة الصحيحة هي ${correctAnswer}`;
+                    message.className = 'message error';
+                }
+                message.style.display = 'block';
+            }
+            
+            document.addEventListener('keydown', function(e) {
+                if (selectedResultPosition !== null) {
+                    if (e.key === 'ArrowUp') {
+                        resultValues[selectedResultPosition] = (resultValues[selectedResultPosition] + 1) % 10;
+                    } else if (e.key === 'ArrowDown') {
+                        resultValues[selectedResultPosition] = (resultValues[selectedResultPosition] - 1 + 10) % 10;
+                    }
+                    displayProblem(currentTopDigits.join(''));
+                }
+            });
+            
+            newBtn.addEventListener('click', createNewProblem);
+            checkBtn.addEventListener('click', checkAnswer);
+            
+            createNewProblem();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة خريطة الهجرة النبوية 🕌</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-bg: #EAF7F8; /* Very light blue/green */
+            --header-bg: #87CEEB; /* Sky Blue */
+            --header-text: white;
+            --container-bg: white;
+            --map-bg-color: #D2B48C; /* Desert Sand for map */
+            --map-border: #6B4C38; /* Dark Brown */
+            --point-color: #3CB371; /* Medium Sea Green */
+            --point-active-color: #FFD700; /* Gold */
+            --point-visited-color: #2E8B57; /* Sea Green */
+            --feedback-correct: #2E8B57; /* Green */
+            --feedback-wrong: #DC143C; /* Crimson Red */
+            --text-color: #333333;
+            --shadow-light: rgba(0, 0, 0, 0.1);
+            --shadow-strong: rgba(0, 0, 0, 0.25);
+            --border-radius-lg: 30px;
+            --border-radius-md: 15px;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--primary-bg);
+            margin: 0;
+            padding: 0;
+            color: var(--text-color);
+            line-height: 1.8;
+            overflow-x: hidden;
+            direction: rtl;
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--header-bg) 0%, #6A5ACD 100%); /* Blue to Slate Blue */
+            color: var(--header-text);
+            padding: 40px 20px;
+            text-align: center;
+            width: 100%;
+            border-bottom-left-radius: var(--border-radius-lg);
+            border-bottom-right-radius: var(--border-radius-lg);
+            box-shadow: 0 5px 20px var(--shadow-strong);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInDown 1.2s ease-out;
+        }
+
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><text x="10" y="50" font-family="Arial" font-size="40" fill="%23ffffff15">🌟</text></svg>') repeat;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        h1 {
+            font-family: 'Amiri', serif;
+            font-size: 3.5rem;
+            margin: 0;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            font-size: 1.8rem;
+            margin-top: 10px;
+            color: #FFD700; /* Gold */
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+        }
+
+        /* Game Container */
+        .game-container {
+            background-color: var(--container-bg);
+            border-radius: var(--border-radius-lg);
+            box-shadow: 0 8px 25px var(--shadow-strong);
+            padding: 30px;
+            margin-top: 40px;
+            width: 90%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 4px solid var(--header-bg);
+            animation: scaleIn 0.8s ease-out;
+        }
+
+        .game-instruction {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            color: var(--text-color);
+            text-align: center;
+            font-weight: bold;
+        }
+
+        #hijra-map-canvas-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 60%; /* Aspect ratio 16:9 for responsive height */
+            height: 0;
+            background-color: var(--map-bg-color);
+            border: 3px solid var(--map-border);
+            border-radius: var(--border-radius-md);
+            overflow: hidden;
+            margin-bottom: 25px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M0 50 Q 25 25 50 50 T 100 50" stroke="%236B4C38" stroke-width="1" fill="none" opacity="0.08"/><circle cx="20" cy="80" r="5" fill="%23D4AF3705"/><circle cx="80" cy="20" r="5" fill="%23D4AF3705"/></svg>');
+            background-size: 100px 100px;
+        }
+
+        .map-point {
+            position: absolute;
+            width: 55px; /* Larger for kids */
+            height: 55px;
+            background-color: var(--point-color);
+            border-radius: 50%;
+            border: 4px solid var(--map-border);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.3rem; /* Larger text */
+            color: white;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px var(--shadow-strong);
+            z-index: 5;
+            text-align: center;
+            line-height: 1.2;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+
+        .map-point:hover {
+            transform: scale(1.15);
+            background-color: var(--point-active-color);
+        }
+        .map-point.active {
+            background-color: var(--point-active-color);
+            border-color: #DAA520; /* Darker gold */
+            transform: scale(1.2);
+            animation: pulse 1s infinite alternate;
+        }
+        .map-point.visited {
+            background-color: var(--point-visited-color);
+            border-color: var(--feedback-correct);
+            pointer-events: none; /* Disable click after visiting */
+            transform: scale(1);
+            animation: none;
+            cursor: default;
+        }
+        
+        /* Specific point positions (adjust as needed for map layout) */
+        #point-makkah { top: 75%; left: 10%; }
+        #point-ghar { top: 60%; left: 20%; }
+        #point-kuba { top: 20%; left: 75%; }
+        #point-madinah { top: 5%; left: 85%; }
+
+
+        #game-feedback {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-top: 15px;
+            height: 50px; /* Reserve space to prevent layout shift */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-color);
+        }
+
+        #reset-game-btn {
+            background: var(--header-bg);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: var(--border-radius-lg);
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px var(--shadow-light);
+            display: none; /* Hidden until game ends */
+        }
+        #reset-game-btn:hover {
+            background: #6A5ACD; /* Deeper blue */
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 20px var(--shadow-strong);
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            0% { opacity: 0; transform: translateY(-50px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes scaleIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1.2); box-shadow: 0 0 0 0px var(--point-active-color); }
+            100% { transform: scale(1.25); box-shadow: 0 0 0 15px rgba(255, 215, 0, 0); }
+        }
+        @keyframes correctPop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); color: var(--feedback-correct); }
+            100% { transform: scale(1); }
+        }
+        @keyframes wrongShake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; padding: 0 10px;}
+            .subtitle { font-size: 1.4rem; }
+            .game-container { padding: 20px; width: 95%; }
+            .game-instruction { font-size: 1.2rem; margin-bottom: 20px; }
+            .map-point {
+                width: 45px;
+                height: 45px;
+                font-size: 1.1rem;
+                border: 3px solid var(--map-border);
+            }
+            #game-feedback { font-size: 1.6rem; height: 40px;}
+            #reset-game-btn { padding: 12px 30px; font-size: 1.3rem; }
+
+            /* Adjust point positions for smaller screens if needed */
+            #point-makkah { top: 78%; left: 8%; }
+            #point-ghar { top: 63%; left: 18%; }
+            #point-kuba { top: 18%; left: 77%; }
+            #point-madinah { top: 3%; left: 88%; }
+        }
+
+        @media (max-width: 480px) {
+            header { padding: 30px 10px; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;}
+            h1 { font-size: 2rem; }
+            .subtitle { font-size: 1.2rem; }
+            .game-container { padding: 15px; margin-top: 25px;}
+            .game-instruction { font-size: 1rem; margin-bottom: 15px; }
+            .map-point {
+                width: 38px;
+                height: 38px;
+                font-size: 0.9rem;
+            }
+            #game-feedback { font-size: 1.3rem; height: 35px; }
+            #reset-game-btn { padding: 10px 25px; font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>لعبة خريطة الهجرة النبوية 🗺️</h1>
+        <div class="subtitle">تعالَ نتعلم رحلة النور معًا!</div>
+    </header>
+
+    <div class="game-container">
+        <p class="game-instruction">اضغط على نقاط الطريق بالترتيب الصحيح لتتبع مسار الهجرة النبوية!</p>
+        
+        <div id="hijra-map-canvas-container">
+            <div class="map-point" id="point-makkah" data-name="مكة المكرمة">مكة</div>
+            <div class="map-point" id="point-ghar" data-name="غار ثور">غار ثور</div>
+            <div class="map-point" id="point-kuba" data-name="قباء">قباء</div>
+            <div class="map-point" id="point-madinah" data-name="المدينة المنورة">المدينة</div>
+        </div>
+
+        <p id="game-feedback">هيا نبدأ من <span style="color: var(--point-active-color); font-size: 1.1em;">مكة المكرمة</span>!</p>
+        <button id="reset-game-btn">ابدأ اللعب من جديد <i class="fas fa-redo"></i></button>
+    </div>
+
+    <script>
+        const mapPointsOrder = ['point-makkah', 'point-ghar', 'point-kuba', 'point-madinah'];
+        let currentMapPointIndex = 0;
+        const gameFeedback = document.getElementById('game-feedback');
+        const resetGameBtn = document.getElementById('reset-game-btn');
+        const mapPoints = document.querySelectorAll('.map-point');
+
+        function initializeGame() {
+            currentMapPointIndex = 0;
+            gameFeedback.innerHTML = 'هيا نبدأ من <span style="color: var(--point-active-color); font-size: 1.1em;">مكة المكرمة</span>!';
+            resetGameBtn.style.display = 'none';
+
+            mapPoints.forEach(point => {
+                point.classList.remove('active', 'visited');
+                point.addEventListener('click', handleMapPointClick);
+            });
+
+            // Set the first point as active to guide the user
+            document.getElementById(mapPointsOrder[0]).classList.add('active');
+        }
+
+        function handleMapPointClick(event) {
+            const clickedPointId = event.target.id;
+
+            // Check if the clicked point is the next one in the sequence
+            if (clickedPointId === mapPointsOrder[currentMapPointIndex]) {
+                event.target.classList.remove('active'); // Remove active animation
+                event.target.classList.add('visited'); // Mark as visited
+                event.target.removeEventListener('click', handleMapPointClick); // Prevent re-clicking
+
+                gameFeedback.innerHTML = `أحسنت! هذه ${event.target.dataset.name}.`;
+                gameFeedback.style.color = 'var(--feedback-correct)';
+                gameFeedback.style.animation = 'correctPop 0.5s ease-out';
+                setTimeout(() => gameFeedback.style.animation = 'none', 500); // Reset animation
+
+                currentMapPointIndex++;
+
+                // If all points are visited
+                if (currentMapPointIndex >= mapPointsOrder.length) {
+                    gameFeedback.innerHTML = 'تهانينا! لقد أكملت مسار الهجرة النبوية بنجاح! أنت بطل! 🎉';
+                    gameFeedback.style.color = 'var(--feedback-correct)';
+                    resetGameBtn.style.display = 'block'; // Show reset button
+                } else {
+                    // Activate the next point
+                    const nextPoint = document.getElementById(mapPointsOrder[currentMapPointIndex]);
+                    nextPoint.classList.add('active');
+                    gameFeedback.innerHTML += `<br>الآن اضغط على <span style="color: var(--point-active-color); font-size: 1.1em;">${nextPoint.dataset.name}</span>.`;
+                }
+            } else {
+                gameFeedback.innerHTML = `هذه ليست النقطة التالية يا صغيري. حاول مرة أخرى! 😞`;
+                gameFeedback.style.color = 'var(--feedback-wrong)';
+                gameFeedback.style.animation = 'wrongShake 0.3s ease-out';
+                setTimeout(() => gameFeedback.style.animation = 'none', 300); // Reset animation
+            }
+        }
+
+        // Initialize the game when the page loads
+        document.addEventListener('DOMContentLoaded', initializeGame);
+
+        // Reset game on button click
+        resetGameBtn.addEventListener('click', initializeGame);
+    </script>
+</body>
+</html>

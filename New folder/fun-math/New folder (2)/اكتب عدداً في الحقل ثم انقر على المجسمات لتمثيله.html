@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تعليم النظام العشري التفاعلي</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f9fc;
+            color: #333;
+            margin: 0;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #2c7be5;
+            margin-bottom: 20px;
+        }
+        
+        .instructions {
+            background-color: #e6f0ff;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-right: 4px solid #2c7be5;
+        }
+        
+        .control-panel {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        
+        input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            text-align: center;
+            width: 120px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            background-color: #2c7be5;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #1a68d1;
+        }
+        
+        .btn-clear {
+            background-color: #ff5252;
+        }
+        
+        .btn-clear:hover {
+            background-color: #e04141;
+        }
+        
+        .btn-check {
+            background-color: #4caf50;
+        }
+        
+        .btn-check:hover {
+            background-color: #3d8b40;
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .grid-item {
+            background-color: bisque;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .shape {
+            margin: 10px auto;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .shape:hover {
+            transform: scale(1.05);
+        }
+        
+        .shape:active {
+            transform: scale(0.95);
+        }
+        
+        .unit {
+            width: 10px;
+            height: 10px;
+            background-color: #9A2527;
+            border-radius: 4px;
+        }
+        
+        .ten {
+            width: 10px;
+            height: 100px;
+            background-color: #4F176F;
+            border-radius: 4px;
+        }
+        
+        .hundred {
+            width: 100px;
+            height: 100px;
+            background-color: #2d96ff;
+            border-radius: 8px;
+        }
+        
+        .thousand {
+            width: 200px;
+            height: 200px;
+            background-color: #1D6A14;
+            border-radius: 8px;
+        }
+        
+        .drop-zone {
+            min-height: 200px;
+            border: 2px dashed #2c7be5;
+            border-radius: 8px;
+            padding: 15px;
+            background-color: rgba(44, 123, 229, 0.05);
+            margin-top: 20px;
+        }
+        
+        #shapes-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            align-items: flex-end;
+            min-height: 150px;
+            padding: 15px;
+        }
+        
+        .dropped-shape {
+            position: relative;
+            display: inline-block;
+            margin: 5px;
+        }
+        
+        .delete-btn {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            background-color: #ff5252;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #result {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .hundred, .thousand {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .ten {
+                height: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>تعليم النظام العشري التفاعلي</h1>
+    
+    <div class="instructions">
+        <p>اكتب عدداً في الحقل ثم انقر على المجسمات لتمثيله</p>
+    </div>
+    
+    <div class="control-panel">
+        <div class="input-group">
+            <input type="number" id="number-input" placeholder="أدخل رقماً من 1 إلى 9999" min="1" max="9999">
+            <button class="btn" id="represent-btn">تمثيل العدد</button>
+        </div>
+        <div class="input-group">
+            <button class="btn btn-check" id="check-btn">تحقق من الجواب</button>
+            <button class="btn btn-clear" id="clear-btn">مسح الكل</button>
+        </div>
+    </div>
+    
+    <div class="grid-container">
+        <div class="grid-item">
+            <h3>الوحدات</h3>
+            <div class="shape unit" data-value="1"></div>
+            <p>تمثل الرقم 1</p>
+        </div>
+        <div class="grid-item">
+            <h3>العشرات</h3>
+            <div class="shape ten" data-value="10"></div>
+            <p>تمثل الرقم 10</p>
+        </div>
+        <div class="grid-item">
+            <h3>المئات</h3>
+            <div class="shape hundred" data-value="100"></div>
+            <p>تمثل الرقم 100</p>
+        </div>
+        <div class="grid-item">
+            <h3>الآلاف</h3>
+            <div class="shape thousand" data-value="1000"></div>
+            <p>تمثل الرقم 1000</p>
+        </div>
+    </div>
+    
+    <div class="drop-zone">
+        <h3>منطقة التمثيل</h3>
+        <div id="shapes-container"></div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const shapes = document.querySelectorAll('.shape');
+            const numberInput = document.getElementById('number-input');
+            const representBtn = document.getElementById('represent-btn');
+            const checkBtn = document.getElementById('check-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const shapesContainer = document.getElementById('shapes-container');
+            const resultDiv = document.getElementById('result');
+            
+            let targetNumber = 0;
+            let currentTotal = 0;
+            
+            // إضافة مجسم عند النقر عليه
+            shapes.forEach(shape => {
+                shape.addEventListener('click', function() {
+                    if (targetNumber === 0) {
+                        alert('الرجاء إدخال عدد أولاً ثم الضغط على زر "تمثيل العدد"');
+                        return;
+                    }
+                    
+                    const value = parseInt(this.dataset.value);
+                    addShapeToDropZone(this.className.split(' ')[1], value);
+                });
+            });
+            
+            // تمثيل العدد
+            representBtn.addEventListener('click', function() {
+                const number = parseInt(numberInput.value);
+                if (isNaN(number)) {
+                    alert('الرجاء إدخال عدد صحيح');
+                    return;
+                }
+                if (number < 1 || number > 9999) {
+                    alert('الرجاء إدخال عدد بين 1 و 9999');
+                    return;
+                }
+                targetNumber = number;
+                clearDropZone();
+                resultDiv.innerHTML = `<p>العدد المطلوب تمثيله: ${number}</p>`;
+            });
+            
+            // التحقق من الجواب
+            checkBtn.addEventListener('click', function() {
+                if (targetNumber === 0) {
+                    alert('الرجاء إدخال عدد أولاً ثم الضغط على زر "تمثيل العدد"');
+                    return;
+                }
+                
+                if (currentTotal === targetNumber) {
+                    alert('🎉 أحسنت! التمثيل صحيح');
+                } else if (currentTotal < targetNumber) {
+                    alert(`❗ العدد الحالي (${currentTotal}) أقل من المطلوب (${targetNumber}) بمقدار ${targetNumber - currentTotal}`);
+                } else {
+                    alert(`❗ العدد الحالي (${currentTotal}) أكبر من المطلوب (${targetNumber}) بمقدار ${currentTotal - targetNumber}`);
+                }
+            });
+            
+            // مسح الكل
+            clearBtn.addEventListener('click', function() {
+                targetNumber = 0;
+                currentTotal = 0;
+                numberInput.value = '';
+                clearDropZone();
+                resultDiv.innerHTML = '';
+            });
+            
+            // دالة إضافة مجسم لمنطقة التمثيل
+            function addShapeToDropZone(shapeType, value) {
+                const shapeDiv = document.createElement('div');
+                shapeDiv.className = shapeType + ' shape';
+                
+                const containerDiv = document.createElement('div');
+                containerDiv.className = 'dropped-shape';
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.innerHTML = '×';
+                deleteBtn.onclick = function() {
+                    shapesContainer.removeChild(containerDiv);
+                    currentTotal -= value;
+                    updateTotal();
+                };
+                
+                containerDiv.appendChild(shapeDiv);
+                containerDiv.appendChild(deleteBtn);
+                shapesContainer.appendChild(containerDiv);
+                
+                currentTotal += value;
+                updateTotal();
+            }
+            
+            // دالة مسح المنطقة
+            function clearDropZone() {
+                shapesContainer.innerHTML = '';
+                currentTotal = 0;
+                updateTotal();
+            }
+            
+            // تحديث المجموع
+            function updateTotal() {
+                const totalElements = resultDiv.getElementsByTagName('p');
+                if (totalElements.length > 1) {
+                    resultDiv.removeChild(totalElements[1]);
+                }
+                
+                if (targetNumber > 0) {
+                    const totalElement = document.createElement('p');
+                    totalElement.textContent = `المجموع الحالي: ${currentTotal}`;
+                    if (currentTotal === targetNumber) {
+                        totalElement.style.color = '#4caf50';
+                    } else {
+                        totalElement.style.color = '#2c7be5';
+                    }
+                    resultDiv.appendChild(totalElement);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

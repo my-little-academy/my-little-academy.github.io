@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الكلمات المتقاطعة للأطفال 🎨</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            direction: rtl;
+        }
+        
+        .game-container {
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+            border: 3px solid #ff9a9e;
+            animation: bounceIn 0.8s;
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        h1 {
+            color: #ff6b6b;
+            font-size: 2.2em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 0px rgba(255, 107, 107, 0.2);
+            background: linear-gradient(to right, #ff6b6b, #ff8e8e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+            padding: 0 15px;
+        }
+        
+        .header::after {
+            content: "";
+            display: block;
+            width: 100px;
+            height: 20px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><path d="M0,10 Q25,20 50,10 T100,10" fill="none" stroke="%23ff9a9e" stroke-width="2"/></svg>') no-repeat;
+            margin: 10px auto;
+        }
+        
+        .level-info {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .level-badge {
+            padding: 8px 20px;
+            background: linear-gradient(45deg, #74ebd5, #ACB6E5);
+            color: white;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 1.1em;
+            box-shadow: 0 4px 8px rgba(116, 235, 213, 0.3);
+            border: 2px solid white;
+        }
+        
+        .difficulty-badge {
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 1em;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border: 2px solid white;
+        }
+        
+        .difficulty-easy { background: linear-gradient(45deg, #a1c4fd, #c2e9fb); color: white; }
+        .difficulty-medium { background: linear-gradient(45deg, #ffb347, #ffcc33); color: white; }
+        .difficulty-hard { background: linear-gradient(45deg, #ff758c, #ff7eb3); color: white; }
+        
+        .game-board {
+            display: grid;
+            gap: 3px;
+            margin: 0 auto 25px;
+            background: #ffd3b6;
+            padding: 15px;
+            border-radius: 20px;
+            box-shadow: inset 0 5px 15px rgba(255, 169, 164, 0.3);
+            justify-content: center;
+            max-width: 100%;
+            overflow-x: auto;
+            border: 3px solid #ffaaa5;
+        }
+        
+        .cell {
+            width: 45px;
+            height: 45px;
+            background: #fff;
+            border: 2px solid #dcedc1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            position: relative;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.1);
+        }
+        
+        .cell:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+        
+        .cell.active {
+            background: #ffffcc;
+            border-color: #ffd700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            transform: scale(1.05);
+        }
+        
+        .cell.black {
+            background: #ffaaa5;
+            border-color: #ff8c94;
+            cursor: default;
+            box-shadow: inset 0 3px 5px rgba(0,0,0,0.1);
+        }
+        
+        .cell.correct {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+            animation: pulse 0.6s ease-in-out;
+        }
+        
+        .cell.incorrect {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .cell-number {
+            position: absolute;
+            top: 3px;
+            right: 5px;
+            font-size: 10px;
+            color: #ff6b6b;
+            font-weight: 700;
+        }
+        
+        .clues-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .clues-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 2px solid #dcedc1;
+        }
+        
+        .clues-section h3 {
+            color: #ff6b6b;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            font-weight: 700;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px dashed #dcedc1;
+        }
+        
+        .clue {
+            margin-bottom: 10px;
+            padding: 10px 15px;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #e9ecef;
+            font-size: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .clue::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 5px;
+            height: 100%;
+            background: #a1c4fd;
+            transition: all 0.3s ease;
+        }
+        
+        .clue:hover {
+            background: #f1f8ff;
+            transform: translateX(-5px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .clue:hover::before {
+            width: 8px;
+            background: #74b9ff;
+        }
+        
+        .clue.selected {
+            background: #e3f2fd;
+            border-color: #bbdefb;
+            box-shadow: 0 0 10px rgba(100, 181, 246, 0.3);
+        }
+        
+        .clue.selected::before {
+            width: 8px;
+            background: #2196f3;
+        }
+        
+        .clue.completed {
+            background: #e8f5e9;
+            border-color: #c8e6c9;
+            color: #2e7d32;
+            text-decoration: line-through;
+        }
+        
+        .clue.completed::before {
+            background: #66bb6a;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        
+        .btn:active::after {
+            animation: ripple 0.6s ease-out;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #74b9ff, #0984e3);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(116, 185, 255, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(45deg, #ffbe76, #f0932b);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 190, 118, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(45deg, #55efc4, #00b894);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(85, 239, 196, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none;
+        }
+        
+        .score-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .score-item {
+            text-align: center;
+            font-size: 1.1em;
+            color: #2d3436;
+            font-weight: 700;
+            padding: 12px 20px;
+            background: white;
+            border-radius: 15px;
+            border: 2px solid #dfe6e9;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            min-width: 150px;
+            position: relative;
+        }
+        
+        .score-item::before {
+            content: "";
+            position: absolute;
+            top: -5px;
+            right: 20px;
+            width: 20px;
+            height: 10px;
+            background: #fdcb6e;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+        
+        .completion-message {
+            text-align: center;
+            font-size: 1.5em;
+            color: #00b894;
+            font-weight: 700;
+            margin: 20px 0;
+            padding: 20px;
+            background: #e8f5e9;
+            border-radius: 20px;
+            border: 2px dashed #00b894;
+            display: none;
+            animation: celebration 1s ease-in-out;
+            position: relative;
+        }
+        
+        .completion-message::before {
+            content: "🎉";
+            position: absolute;
+            top: -15px;
+            right: -10px;
+            font-size: 1.5em;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .completion-message::after {
+            content: "✨";
+            position: absolute;
+            bottom: -15px;
+            left: -10px;
+            font-size: 1.5em;
+            animation: float 3s ease-in-out infinite 0.5s;
+        }
+        
+        .level-completion {
+            text-align: center;
+            font-size: 1.8em;
+            color: #6c5ce7;
+            font-weight: 700;
+            margin: 20px 0;
+            padding: 25px;
+            background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+            border-radius: 20px;
+            border: 3px dotted #6c5ce7;
+            display: none;
+            animation: celebration 1.5s ease-in-out;
+        }
+        
+        @keyframes celebration {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .level-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .level-btn {
+            padding: 10px 18px;
+            border: 2px solid #dfe6e9;
+            border-radius: 20px;
+            background: white;
+            color: #636e72;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 15px;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+        
+        .level-btn::before {
+            content: "";
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: #ff7675;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .level-btn.active {
+            background: linear-gradient(45deg, #a29bfe, #6c5ce7);
+            color: white;
+            border-color: #6c5ce7;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.3);
+        }
+        
+        .level-btn.completed {
+            background: #55efc4;
+            border-color: #00b894;
+            color: white;
+        }
+        
+        .level-btn.completed::before {
+            opacity: 1;
+            background: #00b894;
+        }
+        
+        .level-btn:hover:not(.active) {
+            background: #f1f2f6;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .input-field {
+            width: 100%;
+            height: 100%;
+            padding: 5px;
+            border: 2px solid #dfe6e9;
+            border-radius: 8px;
+            font-size: 20px;
+            font-family: 'Tajawal', sans-serif;
+            text-align: center;
+            direction: rtl;
+            background: transparent;
+            color: #2d3436;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: #74b9ff;
+            box-shadow: 0 0 10px rgba(116, 185, 255, 0.3);
+        }
+        
+        .timer {
+            text-align: center;
+            font-size: 1.5em;
+            color: #e84393;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #ffeaa7;
+            border-radius: 15px;
+            border: 2px solid #fdcb6e;
+            display: none;
+            position: relative;
+        }
+        
+        .timer::before {
+            content: "⏱️";
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .hint-section {
+            text-align: center;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .hint-btn {
+            background: linear-gradient(45deg, #fd79a8, #e84393);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 5px;
+            box-shadow: 0 5px 15px rgba(253, 121, 168, 0.3);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .hint-btn::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        
+        .hint-btn:active::after {
+            animation: ripple 0.6s ease-out;
+        }
+        
+        .hint-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(253, 121, 168, 0.4);
+        }
+        
+        .hint-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none;
+            background: #b2bec3;
+        }
+        
+        .hint-letter {
+            background: #fff9c4 !important;
+            color: #f57f17 !important;
+            border-color: #fff176 !important;
+        }
+        
+        .revealed-letter {
+            background: #b3e5fc !important;
+            color: #0277bd !important;
+            border-color: #4fc3f7 !important;
+        }
+        
+        .character-counter {
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            font-size: 10px;
+            color: #636e72;
+        }
+        
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .clues-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .cell {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn, .hint-btn {
+                width: 100%;
+                max-width: 300px;
+                margin-bottom: 10px;
+            }
+            
+            .score-item {
+                min-width: 120px;
+                padding: 10px 15px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>لعبة الكلمات المتقاطعة للأطفال 🎨</h1>
+            <div class="level-info">
+                <div class="level-badge" id="levelBadge">المرحلة: 1</div>
+                <div class="difficulty-badge difficulty-easy" id="difficultyBadge">سهل</div>
+            </div>
+        </div>
+        
+        <div class="level-selector" id="levelSelector"></div>
+        
+        <div class="score-container">
+            <div class="score-item">
+                <span id="score">النقاط: 0</span>
+            </div>
+            <div class="score-item">
+                <span id="progress">التقدم: 0/0</span>
+            </div>
+            <div class="score-item">
+                <span id="totalScore">المجموع: 0</span>
+            </div>
+            <div class="score-item">
+                <span id="hintsLeft">التلميحات: 3</span>
+            </div>
+        </div>
+        
+        <div class="timer" id="timer">الوقت المتبقي: 05:00</div>
+        
+        <div class="game-board" id="gameBoard"></div>
+        
+        <div class="clues-container">
+            <div class="clues-section">
+                <h3>📋 الكلمات الأفقية</h3>
+                <div id="horizontalClues"></div>
+            </div>
+            <div class="clues-section">
+                <h3>📋 الكلمات العمودية</h3>
+                <div id="verticalClues"></div>
+            </div>
+        </div>
+        
+        <div class="hint-section">
+            <button class="hint-btn" id="hintBtn" onclick="useHint()">💡 تلميح للكلمة</button>
+            <button class="hint-btn" onclick="revealLetter()">🔍 كشف حرف عشوائي</button>
+        </div>
+        
+        <div class="controls">
+            <button class="btn btn-primary" onclick="checkAnswers()">✓ تحقق من الإجابات</button>
+            <button class="btn btn-secondary" onclick="resetLevel()">🔄 إعادة تعيين</button>
+            <button class="btn btn-success" id="nextLevelBtn" onclick="nextLevel()" disabled>⏭️ المرحلة التالية</button>
+        </div>
+        
+        <div class="completion-message" id="completionMessage">
+            أحسنت! لقد أكملت هذه المرحلة بنجاح!
+        </div>
+        
+        <div class="level-completion" id="levelCompletionMessage">
+            🏆 مبروك! لقد أكملت جميع المراحل! 🏆<br>
+            <span style="font-size: 0.7em;">مجموع النقاط النهائي: <span id="finalScore">0</span></span>
+        </div>
+    </div>
+
+    <script>
+        // Game levels data - موضوعات طفولية
+        const gameLevels = [
+            // Level 1 - الحيوانات
+            {
+                size: 5,
+                difficulty: 'easy',
+                timeLimit: 300,
+                grid: [
+                    ['ق', 'ط', '', '', ''],
+                    ['', '', 'ا', '', ''],
+                    ['', '', 'ط', '', ''],
+                    ['', '', 'ا', '', ''],
+                    ['', '', '', '', '']
+                ],
+                words: [
+                    { word: 'قط', clue: 'حيوان أليف يحب اللعب بالخيط', direction: 'horizontal', row: 0, col: 0, number: 1 },
+                    { word: 'طاووس', clue: 'طير جميل ذو ذيل ملون', direction: 'vertical', row: 0, col: 2, number: 2 }
+                ],
+                theme: 'الحيوانات'
+            },
+            // Level 2 - الفواكه
+            {
+                size: 6,
+                difficulty: 'easy',
+                timeLimit: 360,
+                grid: [
+                    ['ت', 'ف', 'ا', '', '', ''],
+                    ['', '', 'ح', '', '', ''],
+                    ['', '', '', '', '', ''],
+                    ['', '', 'ة', '', '', ''],
+                    ['', '', '', '', '', ''],
+                    ['', '', '', '', '', '']
+                ],
+                words: [
+                    { word: 'تفاح', clue: 'فاكهة حمراء أو خضراء مقرمشة', direction: 'horizontal', row: 0, col: 0, number: 1 },
+                    { word: 'فراولة', clue: 'فاكهة حمراء صغيرة بها بذور خارجية', direction: 'vertical', row: 0, col: 2, number: 2 }
+                ],
+                theme: 'الفواكه'
+            },
+            // Level 3 - الألعاب
+            {
+                size: 7,
+                difficulty: 'medium',
+                timeLimit: 420,
+                grid: [
+                    ['', '', 'ك', '', '', '', ''],
+                    ['', '', 'ر', '', '', '', ''],
+                    ['ع', 'ر', 'ب', 'ة', '', '', ''],
+                    ['', '', 'ة', '', '', '', ''],
+                    ['', '', '', '', '', '', ''],
+                    ['', '', 'د', 'و', 'ل', 'ا', 'ب'],
+                    ['', '', '', '', '', '', '']
+                ],
+                words: [
+                    { word: 'عربة', clue: 'مركبة يجرها حصان', direction: 'horizontal', row: 2, col: 0, number: 1 },
+                    { word: 'كرة', clue: 'أداة مستديرة نلعب بها العديد من الألعاب', direction: 'vertical', row: 0, col: 2, number: 2 },
+                    { word: 'دولاب', clue: 'يوجد في الملاهي ويدور حول نفسه', direction: 'horizontal', row: 5, col: 2, number: 3 }
+                ],
+                theme: 'الألعاب'
+            },
+            // Level 4 - المدرسة
+            {
+                size: 8,
+                difficulty: 'medium',
+                timeLimit: 480,
+                grid: [
+                    ['', '', '', 'م', '', '', '', ''],
+                    ['', '', '', 'ح', '', '', '', ''],
+                    ['', '', '', 'و', '', '', '', ''],
+                    ['ق', 'ل', 'م', 'ر', 'ة', '', '', ''],
+                    ['', '', '', '', '', '', '', ''],
+                    ['', 'ك', 'ت', 'ا', 'ب', '', '', ''],
+                    ['', '', '', '', '', '', '', ''],
+                    ['', '', '', '', '', '', '', '']
+                ],
+                words: [
+                    { word: 'مقلمة', clue: 'حافظة نضع فيها الأقلام', direction: 'vertical', row: 0, col: 3, number: 1 },
+                    { word: 'قلم', clue: 'نكتب به في الدفاتر', direction: 'horizontal', row: 3, col: 0, number: 2 },
+                    { word: 'كتاب', clue: 'يحتوي على دروس ومعلومات', direction: 'horizontal', row: 5, col: 1, number: 3 }
+                ],
+                theme: 'المدرسة'
+            },
+            // Level 5 - الفضاء
+            {
+                size: 9,
+                difficulty: 'hard',
+                timeLimit: 540,
+                grid: [
+                    ['', '', '', '', 'ق', '', '', '', ''],
+                    ['', '', '', '', 'م', '', '', '', ''],
+                    ['', '', '', '', 'ر', '', '', '', ''],
+                    ['', '', '', '', '', '', '', '', ''],
+                    ['ش', 'م', 'س', '', '', '', '', '', ''],
+                    ['', '', '', '', '', '', '', '', ''],
+                    ['', '', 'ك', 'و', 'ك', 'ب', '', '', ''],
+                    ['', '', '', '', '', '', '', '', ''],
+                    ['', '', '', '', '', '', '', '', '']
+                ],
+                words: [
+                    { word: 'قمر', clue: 'جرم سماوي يضيء ليلاً', direction: 'vertical', row: 0, col: 4, number: 1 },
+                    { word: 'شمس', clue: 'نجم يضيء كوكبنا بالنهار', direction: 'horizontal', row: 4, col: 0, number: 2 },
+                    { word: 'كوكب', clue: 'جرم يدور حول الشمس مثل الأرض', direction: 'horizontal', row: 7, col: 2, number: 3 }
+                ],
+                theme: 'الفضاء'
+            }
+        ];
+
+        let currentLevel = 0;
+        let currentScore = 0;
+        let totalScore = 0;
+        let completedWords = 0;
+        let selectedClue = null;
+        let currentCells = [];
+        let hintsLeft = 3;
+        let timer = null;
+        let timeLeft = 0;
+        let completedLevels = [];
+
+        // Initialize game
+        function initGame() {
+            createLevelSelector();
+            loadLevel(currentLevel);
+        }
+
+        // Create level selector
+        function createLevelSelector() {
+            const levelSelector = document.getElementById('levelSelector');
+            levelSelector.innerHTML = '';
+            
+            gameLevels.forEach((level, index) => {
+                const levelBtn = document.createElement('button');
+                levelBtn.className = 'level-btn';
+                levelBtn.textContent = `المرحلة ${index + 1}: ${level.theme}`;
+                levelBtn.onclick = () => loadLevel(index);
+                
+                if (index === currentLevel) {
+                    levelBtn.classList.add('active');
+                }
+                
+                if (completedLevels.includes(index)) {
+                    levelBtn.classList.add('completed');
+                }
+                
+                levelSelector.appendChild(levelBtn);
+            });
+        }
+
+        // Load level
+        function loadLevel(levelIndex) {
+            currentLevel = levelIndex;
+            const level = gameLevels[levelIndex];
+            
+            // Reset game state
+            currentScore = 0;
+            completedWords = 0;
+            selectedClue = null;
+            currentCells = [];
+            hintsLeft = 3;
+            
+            // Update UI
+            document.getElementById('levelBadge').textContent = `المرحلة: ${levelIndex + 1}`;
+            document.getElementById('difficultyBadge').textContent = 
+                level.difficulty === 'easy' ? 'سهل' : 
+                level.difficulty === 'medium' ? 'متوسط' : 'صعب';
+            document.getElementById('difficultyBadge').className = 
+                `difficulty-badge difficulty-${level.difficulty}`;
+            
+            // Hide messages
+            document.getElementById('completionMessage').style.display = 'none';
+            document.getElementById('levelCompletionMessage').style.display = 'none';
+            document.getElementById('nextLevelBtn').disabled = true;
+            
+            // Setup timer
+            if (timer) clearInterval(timer);
+            
+            if (level.timeLimit) {
+                timeLeft = level.timeLimit;
+                document.getElementById('timer').style.display = 'block';
+                updateTimerDisplay();
+                startTimer();
+            } else {
+                document.getElementById('timer').style.display = 'none';
+            }
+            
+            createGrid(level);
+            createClues(level);
+            createLevelSelector();
+            updateScore();
+        }
+
+        // Update timer display
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer').textContent = 
+                `الوقت المتبقي: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Create grid
+        function createGrid(level) {
+            const gameBoard = document.getElementById('gameBoard');
+            gameBoard.innerHTML = '';
+            gameBoard.style.gridTemplateColumns = `repeat(${level.size}, 1fr)`;
+            
+            for (let row = 0; row < level.size; row++) {
+                for (let col = 0; col < level.size; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    
+                    if (level.grid[row][col] === '') {
+                        cell.classList.add('black');
+                    } else {
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.maxLength = 1;
+                        input.className = 'input-field';
+                        input.addEventListener('input', handleInput);
+                        input.addEventListener('focus', handleFocus);
+                        cell.appendChild(input);
+                        
+                        // Add number if it's the start of a word
+                        const wordStart = level.words.find(w => w.row === row && w.col === col);
+                        if (wordStart) {
+                            const number = document.createElement('div');
+                            number.className = 'cell-number';
+                            number.textContent = wordStart.number;
+                            cell.appendChild(number);
+                        }
+                    }
+                    
+                    gameBoard.appendChild(cell);
+                }
+            }
+        }
+
+        // Create clues
+        function createClues(level) {
+            const horizontalClues = document.getElementById('horizontalClues');
+            const verticalClues = document.getElementById('verticalClues');
+            
+            horizontalClues.innerHTML = '';
+            verticalClues.innerHTML = '';
+            
+            level.words.forEach(word => {
+                const clueDiv = document.createElement('div');
+                clueDiv.className = 'clue';
+                clueDiv.textContent = `${word.number}. ${word.clue}`;
+                clueDiv.dataset.wordNumber = word.number;
+                clueDiv.addEventListener('click', () => selectClue(word, level, clueDiv));
+                
+                if (word.direction === 'horizontal') {
+                    horizontalClues.appendChild(clueDiv);
+                } else {
+                    verticalClues.appendChild(clueDiv);
+                }
+            });
+        }
+
+        // Select clue
+        function selectClue(word, level, clueElement) {
+            // Remove previous selection
+            document.querySelectorAll('.clue').forEach(clue => clue.classList.remove('selected'));
+            document.querySelectorAll('.cell').forEach(cell => cell.classList.remove('active'));
+            
+            // Add selection
+            if (clueElement) {
+                clueElement.classList.add('selected');
+            } else {
+                // Find the clue element if not provided
+                const clueElements = document.querySelectorAll('.clue');
+                clueElements.forEach(el => {
+                    if (el.dataset.wordNumber == word.number) {
+                        el.classList.add('selected');
+                    }
+                });
+            }
+            
+            selectedClue = word;
+            
+            // Highlight cells for this word
+            currentCells = [];
+            for (let i = 0; i < word.word.length; i++) {
+                let row = word.row;
+                let col = word.col;
+                
+                if (word.direction === 'horizontal') {
+                    col += i;
+                } else {
+                    row += i;
+                }
+                
+                const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                if (cell) {
+                    cell.classList.add('active');
+                    currentCells.push(cell);
+                    
+                    // Focus on first empty cell
+                    if (i === 0) {
+                        const input = cell.querySelector('input');
+                        if (input) input.focus();
+                    }
+                }
+            }
+        }
+
+        // Handle input
+        function handleInput(event) {
+            const input = event.target;
+            const cell = input.parentElement;
+            const row = parseInt(cell.dataset.row);
+            const col = parseInt(cell.dataset.col);
+            
+            // Auto-focus next cell when a letter is entered
+            if (input.value && selectedClue) {
+                const currentIndex = currentCells.indexOf(cell);
+                if (currentIndex < currentCells.length - 1) {
+                    const nextCell = currentCells[currentIndex + 1];
+                    const nextInput = nextCell.querySelector('input');
+                    if (nextInput) {
+                        setTimeout(() => nextInput.focus(), 10);
+                    }
+                }
+            }
+            
+            // Convert to Arabic characters if needed
+            if (input.value) {
+                input.value = input.value.replace(/[أ-ي]/g, function(match) {
+                    return match;
+                });
+            }
+        }
+
+        // Handle focus
+        function handleFocus(event) {
+            const cell = event.target.parentElement;
+            const row = parseInt(cell.dataset.row);
+            const col = parseInt(cell.dataset.col);
+            const level = gameLevels[currentLevel];
+            
+            // Find word that contains this cell
+            const word = level.words.find(w => {
+                if (w.direction === 'horizontal') {
+                    return w.row === row && col >= w.col && col < w.col + w.word.length;
+                } else {
+                    return w.col === col && row >= w.row && row < w.row + w.word.length;
+                }
+            });
+            
+            if (word) {
+                selectClue(word, level);
+            }
+        }
+
+        // Start timer
+        function startTimer() {
+            if (timer) clearInterval(timer);
+            
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    alert('انتهى الوقت! جرب المرحلة مرة أخرى.');
+                    resetLevel();
+                }
+            }, 1000);
+        }
+
+        // Check answers
+        function checkAnswers() {
+            const level = gameLevels[currentLevel];
+            let correctCount = 0;
+            
+            level.words.forEach(word => {
+                let isCorrect = true;
+                let wordCells = [];
+                
+                for (let i = 0; i < word.word.length; i++) {
+                    let row = word.row;
+                    let col = word.col;
+                    
+                    if (word.direction === 'horizontal') {
+                        col += i;
+                    } else {
+                        row += i;
+                    }
+                    
+                    const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                    const input = cell.querySelector('input');
+                    wordCells.push(cell);
+                    
+                    if (!input || input.value.toLowerCase() !== word.word[i].toLowerCase()) {
+                        isCorrect = false;
+                    }
+                }
+                
+                // Apply styling and mark completed clues
+                wordCells.forEach(cell => {
+                    cell.classList.remove('correct', 'incorrect');
+                    if (isCorrect) {
+                        cell.classList.add('correct');
+                    } else {
+                        cell.classList.add('incorrect');
+                    }
+                });
+                
+                // Mark clue as completed
+                const clueElements = document.querySelectorAll('.clue');
+                clueElements.forEach(clueEl => {
+                    if (clueEl.textContent.includes(`${word.number}. ${word.clue}`)) {
+                        if (isCorrect) {
+                            clueEl.classList.add('completed');
+                        } else {
+                            clueEl.classList.remove('completed');
+                        }
+                    }
+                });
+                
+                if (isCorrect) {
+                    correctCount++;
+                }
+            });
+            
+            currentScore = correctCount * 10;
+            completedWords = correctCount;
+            updateScore();
+            
+            if (correctCount === level.words.length) {
+                if (timer) clearInterval(timer);
+                
+                // Add bonus for time remaining
+                const timeBonus = Math.floor(timeLeft / 10);
+                const difficultyBonus = level.difficulty === 'easy' ? 5 : level.difficulty === 'medium' ? 10 : 15;
+                currentScore += timeBonus + difficultyBonus;
+                
+                totalScore += currentScore;
+                if (!completedLevels.includes(currentLevel)) {
+                    completedLevels.push(currentLevel);
+                }
+                
+                document.getElementById('completionMessage').style.display = 'block';
+                document.getElementById('nextLevelBtn').disabled = false;
+                
+                updateScore();
+                createLevelSelector();
+                
+                // Check if all levels completed
+                if (completedLevels.length === gameLevels.length) {
+                    document.getElementById('finalScore').textContent = totalScore;
+                    document.getElementById('levelCompletionMessage').style.display = 'block';
+                }
+            }
+        }
+
+        // Reset level
+        function resetLevel() {
+            if (timer) clearInterval(timer);
+            loadLevel(currentLevel);
+        }
+
+        // Next level
+        function nextLevel() {
+            if (currentLevel < gameLevels.length - 1) {
+                loadLevel(currentLevel + 1);
+            }
+        }
+
+        // Use hint
+        function useHint() {
+            if (hintsLeft > 0 && selectedClue) {
+                const level = gameLevels[currentLevel];
+                const word = selectedClue;
+                
+                // Find first empty cell in selected word
+                for (let i = 0; i < word.word.length; i++) {
+                    let row = word.row;
+                    let col = word.col;
+                    
+                    if (word.direction === 'horizontal') {
+                        col += i;
+                    } else {
+                        row += i;
+                    }
+                    
+                    const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                    const input = cell.querySelector('input');
+                    
+                    if (input && !input.value) {
+                        input.value = word.word[i];
+                        input.classList.add('hint-letter');
+                        hintsLeft--;
+                        updateScore();
+                        
+                        // Auto-focus next cell
+                        if (i < word.word.length - 1) {
+                            const nextRow = word.direction === 'horizontal' ? row : row + 1;
+                            const nextCol = word.direction === 'horizontal' ? col + 1 : col;
+                            const nextCell = document.querySelector(`[data-row="${nextRow}"][data-col="${nextCol}"]`);
+                            if (nextCell) {
+                                const nextInput = nextCell.querySelector('input');
+                                if (nextInput) nextInput.focus();
+                            }
+                        }
+                        
+                        break;
+                    }
+                }
+            } else if (hintsLeft === 0) {
+                alert('لا توجد تلميحات متبقية!');
+            } else {
+                alert('اختر كلمة أولاً من قائمة الأدلة!');
+            }
+        }
+
+        // Reveal letter
+        function revealLetter() {
+            if (hintsLeft > 0) {
+                const level = gameLevels[currentLevel];
+                const allCells = document.querySelectorAll('.cell input');
+                const emptyCells = Array.from(allCells).filter(input => !input.value);
+                
+                if (emptyCells.length > 0) {
+                    const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                    const cell = randomCell.parentElement;
+                    const row = parseInt(cell.dataset.row);
+                    const col = parseInt(cell.dataset.col);
+                    
+                    randomCell.value = level.grid[row][col];
+                    randomCell.classList.add('revealed-letter');
+                    
+                    hintsLeft--;
+                    updateScore();
+                } else {
+                    alert('لا توجد خلايا فارغة!');
+                }
+            } else {
+                alert('لا توجد تلميحات متبقية!');
+            }
+        }
+
+        // Update score
+        function updateScore() {
+            const level = gameLevels[currentLevel];
+            document.getElementById('score').textContent = `النقاط: ${currentScore}`;
+            document.getElementById('progress').textContent = `التقدم: ${completedWords}/${level.words.length}`;
+            document.getElementById('totalScore').textContent = `المجموع: ${totalScore}`;
+            document.getElementById('hintsLeft').textContent = `التلميحات: ${hintsLeft}`;
+            
+            // Disable hint buttons if no hints left
+            document.querySelectorAll('.hint-btn').forEach(btn => {
+                btn.disabled = hintsLeft <= 0;
+            });
+        }
+
+        // Initialize game on load
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html>

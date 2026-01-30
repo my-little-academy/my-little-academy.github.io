@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>مخطط تشعبي جذاب</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: linear-gradient(to bottom right, #e3f2fd, #bbdefb);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Cairo', sans-serif;
+    }
+
+    .container {
+      position: relative;
+      width: 600px;
+      height: 600px;
+    }
+
+    .card {
+      position: absolute;
+      width: 130px;
+      height: 90px;
+      border-radius: 16px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: white;
+      border: 3px solid #4fc3f7;
+      transition: transform 0.3s, background 0.3s;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+      background: #e1f5fe;
+    }
+
+    .card textarea {
+      width: 90%;
+      height: 70%;
+      resize: none;
+      border: none;
+      background: transparent;
+      font-size: 15px;
+      text-align: center;
+      outline: none;
+      font-family: inherit;
+      color: #0277bd;
+    }
+
+    .center {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #81d4fa;
+      color: white;
+      border: 3px solid #0288d1;
+      z-index: 2;
+    }
+
+    .svg-lines {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    .svg-lines line {
+      stroke: #0288d1;
+      stroke-width: 2;
+    }
+
+    /* مواضع البطاقات المحيطة */
+    .card1 { top: 20px; left: 50%; transform: translateX(-50%); background: #fff8e1; }
+    .card2 { top: 100px; left: 88%; transform: translate(-50%, -50%); background: #e8f5e9; }
+    .card3 { bottom: 100px; left: 88%; transform: translate(-50%, 50%); background: #fce4ec; }
+    .card4 { bottom: 20px; left: 50%; transform: translateX(-50%); background: #ede7f6; }
+    .card5 { bottom: 100px; left: 12%; transform: translate(-50%, 50%); background: #f3e5f5; }
+    .card6 { top: 100px; left: 12%; transform: translate(-50%, -50%); background: #fff3e0; }
+
+  </style>
+</head>
+<body>
+
+  <div class="container" id="diagram">
+
+    <!-- الخطوط -->
+    <svg class="svg-lines">
+      <line id="line1" />
+      <line id="line2" />
+      <line id="line3" />
+      <line id="line4" />
+      <line id="line5" />
+      <line id="line6" />
+    </svg>
+
+    <!-- البطاقة المركزية -->
+    <div class="card center" id="center">
+      <textarea placeholder="الفكرة الرئيسية"></textarea>
+    </div>
+
+    <!-- البطاقات الستة -->
+    <div class="card card1" id="card1"><textarea placeholder="فرع 1"></textarea></div>
+    <div class="card card2" id="card2"><textarea placeholder="فرع 2"></textarea></div>
+    <div class="card card3" id="card3"><textarea placeholder="فرع 3"></textarea></div>
+    <div class="card card4" id="card4"><textarea placeholder="فرع 4"></textarea></div>
+    <div class="card card5" id="card5"><textarea placeholder="فرع 5"></textarea></div>
+    <div class="card card6" id="card6"><textarea placeholder="فرع 6"></textarea></div>
+
+  </div>
+
+  <script>
+    function getCenter(el) {
+      const rect = el.getBoundingClientRect();
+      return {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2
+      };
+    }
+
+    function adjustToEdge(from, to, size) {
+      const dx = to.x - from.x;
+      const dy = to.y - from.y;
+      const angle = Math.atan2(dy, dx);
+      const offsetX = Math.cos(angle) * size.width / 2;
+      const offsetY = Math.sin(angle) * size.height / 2;
+      return {
+        x: from.x + offsetX,
+        y: from.y + offsetY
+      };
+    }
+
+    function drawLines() {
+      const centerEl = document.getElementById("center");
+      const centerRect = centerEl.getBoundingClientRect();
+      const centerPoint = getCenter(centerEl);
+      const containerRect = document.getElementById("diagram").getBoundingClientRect();
+
+      for (let i = 1; i <= 6; i++) {
+        const cardEl = document.getElementById("card" + i);
+        const cardRect = cardEl.getBoundingClientRect();
+        const cardCenter = getCenter(cardEl);
+        const line = document.getElementById("line" + i);
+
+        const fromEdge = adjustToEdge(centerPoint, cardCenter, centerRect);
+        const toEdge = adjustToEdge(cardCenter, centerPoint, cardRect);
+
+        line.setAttribute("x1", fromEdge.x - containerRect.left);
+        line.setAttribute("y1", fromEdge.y - containerRect.top);
+        line.setAttribute("x2", toEdge.x - containerRect.left);
+        line.setAttribute("y2", toEdge.y - containerRect.top);
+      }
+    }
+
+    window.addEventListener("load", drawLines);
+    window.addEventListener("resize", drawLines);
+  </script>
+
+</body>
+</html>

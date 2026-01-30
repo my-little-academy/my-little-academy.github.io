@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة تحليل الكلمات إلى مقاطع صوتية</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .intro {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-right: 5px solid #3498db;
+        }
+        
+        .game-area {
+            margin-top: 30px;
+        }
+        
+        .word-display {
+            font-size: 32px;
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            min-height: 60px;
+        }
+        
+        .syllables-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .syllable {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .syllable:hover {
+            background-color: #2980b9;
+        }
+        
+        .selected-syllables {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            min-height: 60px;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f0f8ff;
+            border-radius: 8px;
+            border: 2px dashed #3498db;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .check-btn {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .check-btn:hover {
+            background-color: #27ae60;
+        }
+        
+        .new-word-btn {
+            background-color: #e67e22;
+            color: white;
+        }
+        
+        .new-word-btn:hover {
+            background-color: #d35400;
+        }
+        
+        .reset-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .reset-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        .feedback {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 18px;
+            min-height: 27px;
+        }
+        
+        .correct {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        
+        .incorrect {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        .score {
+            text-align: center;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+        
+        .rules {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 30px;
+            border-left: 5px solid #9b59b6;
+        }
+        
+        .rules h3 {
+            color: #9b59b6;
+            margin-top: 0;
+        }
+        
+        .rules ul {
+            padding-right: 20px;
+        }
+        
+        .rules li {
+            margin-bottom: 8px;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #eee;
+            border-radius: 5px 5px 0 0;
+            margin-left: 5px;
+        }
+        
+        .tab.active {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .examples {
+            margin-top: 30px;
+        }
+        
+        .example {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .example-word {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .hint-btn {
+            background-color: #9b59b6;
+            color: white;
+        }
+        
+        .hint-btn:hover {
+            background-color: #8e44ad;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>لعبة تحليل الكلمات إلى مقاطع صوتية</h1>
+        
+        <div class="intro">
+            <p>مرحباً بك في لعبة تحليل الكلمات إلى مقاطع صوتية! ستساعدك هذه اللعبة على فهم كيفية تقسيم الكلمات العربية إلى مقاطعها الصوتية الأساسية حسب القواعد الصحيحة.</p>
+        </div>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="openTab('game')">اللعبة</div>
+            <div class="tab" onclick="openTab('rules')">القواعد الصحيحة</div>
+            <div class="tab" onclick="openTab('examples')">أمثلة صحيحة</div>
+        </div>
+        
+        <div id="game" class="tab-content active">
+            <div class="game-area">
+                <div class="word-display" id="current-word">...</div>
+                
+                <div class="selected-syllables" id="selected-syllables"></div>
+                
+                <div class="syllables-container" id="syllables-container"></div>
+                
+                <div class="feedback" id="feedback"></div>
+                
+                <div class="controls">
+                    <button class="check-btn" onclick="checkAnswer()">تحقق</button>
+                    <button class="hint-btn" onclick="showHint()">مساعدة</button>
+                    <button class="reset-btn" onclick="resetSelection()">إعادة</button>
+                    <button class="new-word-btn" onclick="newWord()">كلمة جديدة</button>
+                </div>
+                
+                <div class="score" id="score">النقاط: 0</div>
+            </div>
+        </div>
+        
+        <div id="rules" class="tab-content">
+            <div class="rules">
+                <h3>القواعد الصحيحة لتحليل الكلمات إلى مقاطع صوتية</h3>
+                <ul>
+                    <li><strong>كل حرف متحرك مقطع</strong>: الحرف المتحرك (مفتوح أو مضموم أو مكسور) يعتبر مقطعاً صوتياً.</li>
+                    <li><strong>الحرف الساكن</strong>: لا ينطق بمفرده وينطق مع ما قبله، فيكون الحرف الساكن وما قبله مقطعاً صوتياً.</li>
+                    <li><strong>حرف المد</strong>: (الألف، الواو، الياء) وما قبله يكون مقطعاً صوتياً.</li>
+                    <li><strong>الحرف المشدد</strong>: يفك إلى حرفين: الأول ساكن والثاني متحرك، والحرف الساكن مع ما قبله مقطع صوتي.</li>
+                    <li><strong>اللام القمرية</strong>: مع همزة الوصل قبلها تكون مقطعاً صوتياً.</li>
+                    <li><strong>اللام الشمسية</strong>: مع همزة الوصل قبلها والحرف الساكن بعدها تكون مقطعاً صوتياً.</li>
+                    <li><strong>الألف المقصورة</strong>: وما قبلها تكون مقطعاً صوتياً.</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div id="examples" class="tab-content">
+            <div class="examples">
+                <h3>أمثلة صحيحة على تحليل الكلمات</h3>
+                
+                <div class="example">
+                    <div class="example-word">بِسِيط</div>
+                    <div>بِ - سِيط (حرف متحرك + حرف متحرك مع حرف مد)</div>
+                </div>
+                
+                <div class="example">
+                    <div class="example-word">الْبَيْت</div>
+                    <div>الْ - بَيْ - ت (لام قمرية + حرف مد + حرف متحرك)</div>
+                </div>
+                
+                <div class="example">
+                    <div class="example-word">الشَّمْس</div>
+                    <div>الشْ - شَمْ - س (لام شمسية مع همزة وصل + حرف مشدد مفكوك + حرف ساكن)</div>
+                </div>
+                
+                <div class="example">
+                    <div class="example-word">مُعَلِّم</div>
+                    <div>مُ - عَلْ - لِم (حرف متحرك + حرف مشدد مفكوك + حرف متحرك)</div>
+                </div>
+                
+                <div class="example">
+                    <div class="example-word">قَاضٍ</div>
+                    <div>قَاض (حرف متحرك + ألف مقصورة)</div>
+                </div>
+                
+                <div class="example">
+                    <div class="example-word">يَذْهَبُ</div>
+                    <div>يَذ - هَ - بُ (حرف ساكن مع ما قبله + حرف متحرك + حرف متحرك)</div>
+                </div>
+                
+                <div class="example">
+                    <div class="example-word">اسْتَمَعَ</div>
+                    <div>اس - تَمَ - عَ (همزة وصل مع ساكن + حرف متحرك مع مد + حرف متحرك)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // قائمة الكلمات مع مقاطعها الصوتية الصحيحة حسب القواعد
+        const words = [
+            { word: "بِسِيط", syllables: ["بِ", "سِيط"] },
+            { word: "الْبَيْت", syllables: ["الْ", "بَيْ", "ت"] },
+            { word: "الشَّمْس", syllables: ["الشْ", "شَمْ", "س"] },
+            { word: "مُعَلِّم", syllables: ["مُ", "عَلْ", "لِم"] },
+            { word: "قَاضٍ", syllables: ["قَاض"] },
+            { word: "يَذْهَبُ", syllables: ["يَذ", "هَ", "بُ"] },
+            { word: "اسْتَمَعَ", syllables: ["اس", "تَمَ", "عَ"] },
+            { word: "الْكِتَابُ", syllables: ["الْ", "كِ", "تَا", "بُ"] },
+            { word: "مُسْتَشْفَى", syllables: ["مُس", "تَش", "فَى"] },
+            { word: "الْحَمْدُ", syllables: ["الْ", "حَمْ", "دُ"] }
+        ];
+        
+        let currentWord = null;
+        let selectedSyllables = [];
+        let score = 0;
+        let shuffledSyllables = [];
+        let hintsUsed = 0;
+        
+        // تهيئة اللعبة عند تحميل الصفحة
+        window.onload = function() {
+            newWord();
+        };
+        
+        // اختيار كلمة جديدة عشوائية
+        function newWord() {
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('feedback').className = 'feedback';
+            hintsUsed = 0;
+            
+            // اختيار كلمة عشوائية
+            const randomIndex = Math.floor(Math.random() * words.length);
+            currentWord = words[randomIndex];
+            
+            // عرض الكلمة
+            document.getElementById('current-word').textContent = currentWord.word;
+            
+            // إعداد المقاطع الصوتية
+            prepareSyllables();
+            
+            // مسح المقاطع المختارة
+            selectedSyllables = [];
+            updateSelectedSyllables();
+        }
+        
+        // إعداد المقاطع الصوتية للاختيار
+        function prepareSyllables() {
+            // إنشاء قائمة بجميع المقاطع الصحيحة
+            let allSyllables = [...currentWord.syllables];
+            
+            // إضافة بعض المقاطع الخاطئة بناء على القواعد
+            const wrongSyllables = generateWrongSyllables(currentWord.word);
+            
+            // إضافة 2-3 مقاطع خاطئة عشوائية
+            const numWrong = 2 + Math.floor(Math.random() * 2);
+            for (let i = 0; i < numWrong && i < wrongSyllables.length; i++) {
+                allSyllables.push(wrongSyllables[i]);
+            }
+            
+            // خلط المقاطع عشوائياً
+            shuffledSyllables = shuffleArray([...allSyllables]);
+            
+            // عرض المقاطع في واجهة اللعبة
+            const syllablesContainer = document.getElementById('syllables-container');
+            syllablesContainer.innerHTML = '';
+            
+            shuffledSyllables.forEach(syllable => {
+                const syllableElement = document.createElement('div');
+                syllableElement.className = 'syllable';
+                syllableElement.textContent = syllable;
+                syllableElement.onclick = function() {
+                    selectSyllable(syllable);
+                };
+                syllablesContainer.appendChild(syllableElement);
+            });
+        }
+        
+        // توليد مقاطع صوتية خاطئة بناء على القواعد
+        function generateWrongSyllables(word) {
+            const wrongSyllables = [];
+            const letters = word.split('');
+            
+            // توليد مقاطع تنتهك القواعد
+            for (let i = 0; i < letters.length; i++) {
+                // مقاطع تبدأ بحرف ساكن (غير صحيحة)
+                if (i > 0 && letters[i].match(/[^َُِْ]/) && letters[i-1].match(/[^َُِ]/)) {
+                    wrongSyllables.push(letters[i]);
+                }
+                
+                // مقاطع تنتهي بحرف متحرك ثم ساكن (غير صحيحة)
+                if (i < letters.length - 1 && letters[i].match(/[َُِ]/) && letters[i+1].match(/[^َُِْ]/)) {
+                    wrongSyllables.push(letters[i] + letters[i+1]);
+                }
+            }
+            
+            // إزالة التكرارات والمقاطع الصحيحة
+            return [...new Set(wrongSyllables)].filter(syl => !currentWord.syllables.includes(syl));
+        }
+        
+        // اختيار مقطع صوتي
+        function selectSyllable(syllable) {
+            selectedSyllables.push(syllable);
+            updateSelectedSyllables();
+        }
+        
+        // تحديث عرض المقاطع المختارة
+        function updateSelectedSyllables() {
+            const selectedContainer = document.getElementById('selected-syllables');
+            selectedContainer.innerHTML = '';
+            
+            selectedSyllables.forEach((syllable, index) => {
+                const syllableElement = document.createElement('div');
+                syllableElement.className = 'syllable';
+                syllableElement.textContent = syllable;
+                syllableElement.onclick = function() {
+                    removeSyllable(index);
+                };
+                selectedContainer.appendChild(syllableElement);
+            });
+        }
+        
+        // إزالة مقطع صوتي من المختارة
+        function removeSyllable(index) {
+            selectedSyllables.splice(index, 1);
+            updateSelectedSyllables();
+        }
+        
+        // إعادة تعيين الاختيارات
+        function resetSelection() {
+            selectedSyllables = [];
+            updateSelectedSyllables();
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('feedback').className = 'feedback';
+        }
+        
+        // التحقق من الإجابة
+        function checkAnswer() {
+            const feedbackElement = document.getElementById('feedback');
+            
+            // التحقق إذا كانت المقاطع المختارة مطابقة للمقاطع الصحيحة
+            const isCorrect = arraysEqual(selectedSyllables, currentWord.syllables);
+            
+            if (isCorrect) {
+                feedbackElement.textContent = 'إجابة صحيحة! أحسنت!';
+                feedbackElement.className = 'feedback correct';
+                score += 10 - (hintsUsed * 3); // خصم نقاط عند استخدام المساعدة
+            } else {
+                feedbackElement.textContent = 'إجابة خاطئة. حاول مرة أخرى!';
+                feedbackElement.className = 'feedback incorrect';
+                
+                // عرض الإجابة الصحيحة بعد الخطأ
+                const correctAnswer = currentWord.syllables.join(' - ');
+                feedbackElement.textContent += ` الإجابة الصحيحة هي: ${correctAnswer}`;
+                
+                // خصم نقاط للإجابة الخاطئة
+                if (score > 0) {
+                    score -= 5;
+                }
+            }
+            
+            document.getElementById('score').textContent = `النقاط: ${score}`;
+        }
+        
+        // عرض تلميح
+        function showHint() {
+            if (hintsUsed >= currentWord.syllables.length) return;
+            
+            const nextSyllable = currentWord.syllables[hintsUsed];
+            document.getElementById('feedback').textContent = `تلميح: المقطع التالي هو "${nextSyllable}"`;
+            document.getElementById('feedback').className = 'feedback';
+            
+            hintsUsed++;
+        }
+        
+        // تبديل بين تبويبات الصفحة
+        function openTab(tabId) {
+            // إخفاء جميع المحتويات
+            const tabContents = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove('active');
+            }
+            
+            // إزالة النشط من جميع التبويبات
+            const tabs = document.getElementsByClassName('tab');
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('active');
+            }
+            
+            // عرض المحتوى المحدد
+            document.getElementById(tabId).classList.add('active');
+            
+            // وضع علامة على التبويب النشط
+            event.currentTarget.classList.add('active');
+        }
+        
+        // ===== دوال مساعدة =====
+        
+        // خلط عناصر المصفوفة عشوائياً
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // مقارنة مصفوفتين
+        function arraysEqual(a, b) {
+            if (a === b) return true;
+            if (a == null || b == null) return false;
+            if (a.length !== b.length) return false;
+            
+            for (let i = 0; i < a.length; ++i) {
+                if (a[i] !== b[i]) return false;
+            }
+            return true;
+        }
+    </script>
+</body>
+</html>

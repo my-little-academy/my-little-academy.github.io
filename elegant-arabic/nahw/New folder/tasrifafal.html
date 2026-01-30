@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة تصريف الأفعال العربية</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .verb-selector {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .verb-selector select {
+            padding: 10px 20px;
+            font-size: 18px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            background: white;
+            min-width: 200px;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .score-item {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .score-item h3 {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .score-item span {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .game-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-table th {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            border: none;
+        }
+
+        .game-table td {
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            text-align: center;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .game-table tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        .game-table tr:hover {
+            background-color: #e6fffa;
+            transform: scale(1.02);
+        }
+
+        .pronoun-cell {
+            background: linear-gradient(45deg, #a8e6cf, #88d8a3);
+            font-weight: bold;
+            color: #2d5016;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+            transform: scale(1.05);
+        }
+
+        .correct {
+            background-color: #c6f6d5 !important;
+            border-color: #38a169 !important;
+            color: #22543d;
+        }
+
+        .incorrect {
+            background-color: #fed7d7 !important;
+            border-color: #e53e3e !important;
+            color: #742a2a;
+        }
+
+        .result-message {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .success {
+            background-color: #c6f6d5;
+            color: #22543d;
+            border: 2px solid #38a169;
+        }
+
+        .error {
+            background-color: #fed7d7;
+            color: #742a2a;
+            border: 2px solid #e53e3e;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .animate-correct {
+            animation: pulse 0.6s ease-in-out;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .game-table {
+                font-size: 14px;
+            }
+            
+            .game-table th,
+            .game-table td {
+                padding: 10px 5px;
+            }
+            
+            input[type="text"] {
+                font-size: 14px;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 لعبة تصريف الأفعال العربية</h1>
+        
+        <div class="verb-selector">
+            <select id="verbSelect">
+                <option value="كتب">كَتَبَ (كتب)</option>
+                <option value="قرأ">قَرَأَ (قرأ)</option>
+                <option value="درس">دَرَسَ (درس)</option>
+                <option value="لعب">لَعِبَ (لعب)</option>
+                <option value="أكل">أَكَلَ (أكل)</option>
+                <option value="شرب">شَرِبَ (شرب)</option>
+                <option value="نام">نَامَ (نام)</option>
+                <option value="ذهب">ذَهَبَ (ذهب)</option>
+            </select>
+        </div>
+
+        <div class="game-controls">
+            <button class="btn btn-primary" onclick="checkAnswers()">✅ تحقق من الإجابات</button>
+            <button class="btn btn-secondary" onclick="showAnswers()">💡 عرض الإجابات</button>
+            <button class="btn btn-danger" onclick="resetGame()">🔄 إعادة تعيين</button>
+        </div>
+
+        <div class="score-board">
+            <div class="score-item">
+                <h3>الصحيحة</h3>
+                <span id="correctScore">0</span>
+            </div>
+            <div class="score-item">
+                <h3>الخاطئة</h3>
+                <span id="incorrectScore">0</span>
+            </div>
+            <div class="score-item">
+                <h3>النسبة</h3>
+                <span id="percentage">0%</span>
+            </div>
+        </div>
+
+        <table class="game-table">
+            <thead>
+                <tr>
+                    <th>الضمائر</th>
+                    <th>الماضي</th>
+                    <th>المضارع</th>
+                    <th>الأمر</th>
+                </tr>
+            </thead>
+            <tbody id="gameTableBody">
+                <!-- سيتم إنشاء الصفوف هنا بواسطة JavaScript -->
+            </tbody>
+        </table>
+
+        <div id="resultMessage" class="result-message" style="display: none;"></div>
+    </div>
+
+    <script>
+        const pronouns = [
+            'أنا', 'أنتَ', 'أنتِ', 'هو', 'هي', 
+            'نحن', 'أنتما', 'أنتم', 'أنتن', 
+            'هما (مذكر)', 'هما (مؤنث)', 'هم', 'هن'
+        ];
+
+        const verbConjugations = {
+            'كتب': {
+                past: ['كتبتُ', 'كتبتَ', 'كتبتِ', 'كتبَ', 'كتبتْ', 'كتبنا', 'كتبتما', 'كتبتم', 'كتبتن', 'كتبا', 'كتبتا', 'كتبوا', 'كتبن'],
+                present: ['أكتبُ', 'تكتبُ', 'تكتبين', 'يكتبُ', 'تكتبُ', 'نكتبُ', 'تكتبان', 'تكتبون', 'تكتبن', 'يكتبان', 'تكتبان', 'يكتبون', 'يكتبن'],
+                imperative: ['', 'اكتبْ', 'اكتبي', '', '', '', 'اكتبا', 'اكتبوا', 'اكتبن', '', '', '', '']
+            },
+            'قرأ': {
+                past: ['قرأتُ', 'قرأتَ', 'قرأتِ', 'قرأَ', 'قرأتْ', 'قرأنا', 'قرأتما', 'قرأتم', 'قرأتن', 'قرآ', 'قرأتا', 'قرأوا', 'قرأن'],
+                present: ['أقرأُ', 'تقرأُ', 'تقرئين', 'يقرأُ', 'تقرأُ', 'نقرأُ', 'تقرآن', 'تقرؤون', 'تقرأن', 'يقرآن', 'تقرآن', 'يقرؤون', 'يقرأن'],
+                imperative: ['', 'اقرأْ', 'اقرئي', '', '', '', 'اقرآ', 'اقرؤوا', 'اقرأن', '', '', '', '']
+            },
+            'درس': {
+                past: ['درستُ', 'درستَ', 'درستِ', 'درسَ', 'درستْ', 'درسنا', 'درستما', 'درستم', 'درستن', 'درسا', 'درستا', 'درسوا', 'درسن'],
+                present: ['أدرسُ', 'تدرسُ', 'تدرسين', 'يدرسُ', 'تدرسُ', 'ندرسُ', 'تدرسان', 'تدرسون', 'تدرسن', 'يدرسان', 'تدرسان', 'يدرسون', 'يدرسن'],
+                imperative: ['', 'ادرسْ', 'ادرسي', '', '', '', 'ادرسا', 'ادرسوا', 'ادرسن', '', '', '', '']
+            },
+            'لعب': {
+                past: ['لعبتُ', 'لعبتَ', 'لعبتِ', 'لعبَ', 'لعبتْ', 'لعبنا', 'لعبتما', 'لعبتم', 'لعبتن', 'لعبا', 'لعبتا', 'لعبوا', 'لعبن'],
+                present: ['ألعبُ', 'تلعبُ', 'تلعبين', 'يلعبُ', 'تلعبُ', 'نلعبُ', 'تلعبان', 'تلعبون', 'تلعبن', 'يلعبان', 'تلعبان', 'يلعبون', 'يلعبن'],
+                imperative: ['', 'العبْ', 'العبي', '', '', '', 'العبا', 'العبوا', 'العبن', '', '', '', '']
+            },
+            'أكل': {
+                past: ['أكلتُ', 'أكلتَ', 'أكلتِ', 'أكلَ', 'أكلتْ', 'أكلنا', 'أكلتما', 'أكلتم', 'أكلتن', 'أكلا', 'أكلتا', 'أكلوا', 'أكلن'],
+                present: ['آكلُ', 'تأكلُ', 'تأكلين', 'يأكلُ', 'تأكلُ', 'نأكلُ', 'تأكلان', 'تأكلون', 'تأكلن', 'يأكلان', 'تأكلان', 'يأكلون', 'يأكلن'],
+                imperative: ['', 'كُلْ', 'كُلي', '', '', '', 'كُلا', 'كُلوا', 'كُلن', '', '', '', '']
+            },
+            'شرب': {
+                past: ['شربتُ', 'شربتَ', 'شربتِ', 'شربَ', 'شربتْ', 'شربنا', 'شربتما', 'شربتم', 'شربتن', 'شربا', 'شربتا', 'شربوا', 'شربن'],
+                present: ['أشربُ', 'تشربُ', 'تشربين', 'يشربُ', 'تشربُ', 'نشربُ', 'تشربان', 'تشربون', 'تشربن', 'يشربان', 'تشربان', 'يشربون', 'يشربن'],
+                imperative: ['', 'اشربْ', 'اشربي', '', '', '', 'اشربا', 'اشربوا', 'اشربن', '', '', '', '']
+            },
+            'نام': {
+                past: ['نمتُ', 'نمتَ', 'نمتِ', 'نامَ', 'نامتْ', 'نمنا', 'نمتما', 'نمتم', 'نمتن', 'ناما', 'نامتا', 'ناموا', 'نمن'],
+                present: ['أنامُ', 'تنامُ', 'تنامين', 'ينامُ', 'تنامُ', 'ننامُ', 'تنامان', 'تنامون', 'تنمن', 'ينامان', 'تنامان', 'ينامون', 'ينمن'],
+                imperative: ['', 'نَمْ', 'نامي', '', '', '', 'ناما', 'ناموا', 'نمن', '', '', '', '']
+            },
+            'ذهب': {
+                past: ['ذهبتُ', 'ذهبتَ', 'ذهبتِ', 'ذهبَ', 'ذهبتْ', 'ذهبنا', 'ذهبتما', 'ذهبتم', 'ذهبتن', 'ذهبا', 'ذهبتا', 'ذهبوا', 'ذهبن'],
+                present: ['أذهبُ', 'تذهبُ', 'تذهبين', 'يذهبُ', 'تذهبُ', 'نذهبُ', 'تذهبان', 'تذهبون', 'تذهبن', 'يذهبان', 'تذهبان', 'يذهبون', 'يذهبن'],
+                imperative: ['', 'اذهبْ', 'اذهبي', '', '', '', 'اذهبا', 'اذهبوا', 'اذهبن', '', '', '', '']
+            }
+        };
+
+        let currentVerb = 'كتب';
+        let correctCount = 0;
+        let incorrectCount = 0;
+
+        function initializeGame() {
+            const tableBody = document.getElementById('gameTableBody');
+            tableBody.innerHTML = '';
+
+            pronouns.forEach((pronoun, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="pronoun-cell">${pronoun}</td>
+                    <td><input type="text" id="past_${index}" placeholder="الماضي"></td>
+                    <td><input type="text" id="present_${index}" placeholder="المضارع"></td>
+                    <td><input type="text" id="imperative_${index}" placeholder="الأمر" ${verbConjugations[currentVerb].imperative[index] === '' ? 'disabled' : ''}></td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            resetScores();
+        }
+
+        function resetScores() {
+            correctCount = 0;
+            incorrectCount = 0;
+            updateScoreDisplay();
+            document.getElementById('resultMessage').style.display = 'none';
+        }
+
+        function updateScoreDisplay() {
+            document.getElementById('correctScore').textContent = correctCount;
+            document.getElementById('incorrectScore').textContent = incorrectCount;
+            const total = correctCount + incorrectCount;
+            const percentage = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+            document.getElementById('percentage').textContent = percentage + '%';
+        }
+
+        function checkAnswers() {
+            correctCount = 0;
+            incorrectCount = 0;
+
+            pronouns.forEach((pronoun, index) => {
+                const pastInput = document.getElementById(`past_${index}`);
+                const presentInput = document.getElementById(`present_${index}`);
+                const imperativeInput = document.getElementById(`imperative_${index}`);
+
+                // تحقق من الماضي
+                if (pastInput.value.trim() === verbConjugations[currentVerb].past[index]) {
+                    pastInput.classList.remove('incorrect');
+                    pastInput.classList.add('correct', 'animate-correct');
+                    correctCount++;
+                } else if (pastInput.value.trim() !== '') {
+                    pastInput.classList.remove('correct');
+                    pastInput.classList.add('incorrect');
+                    incorrectCount++;
+                }
+
+                // تحقق من المضارع
+                if (presentInput.value.trim() === verbConjugations[currentVerb].present[index]) {
+                    presentInput.classList.remove('incorrect');
+                    presentInput.classList.add('correct', 'animate-correct');
+                    correctCount++;
+                } else if (presentInput.value.trim() !== '') {
+                    presentInput.classList.remove('correct');
+                    presentInput.classList.add('incorrect');
+                    incorrectCount++;
+                }
+
+                // تحقق من الأمر (إذا لم يكن معطلاً)
+                if (!imperativeInput.disabled) {
+                    if (imperativeInput.value.trim() === verbConjugations[currentVerb].imperative[index]) {
+                        imperativeInput.classList.remove('incorrect');
+                        imperativeInput.classList.add('correct', 'animate-correct');
+                        correctCount++;
+                    } else if (imperativeInput.value.trim() !== '') {
+                        imperativeInput.classList.remove('correct');
+                        imperativeInput.classList.add('incorrect');
+                        incorrectCount++;
+                    }
+                }
+            });
+
+            updateScoreDisplay();
+            showResultMessage();
+        }
+
+        function showResultMessage() {
+            const resultMessage = document.getElementById('resultMessage');
+            const total = correctCount + incorrectCount;
+            
+            if (total === 0) {
+                resultMessage.textContent = '⚠️ يرجى ملء بعض الخانات أولاً!';
+                resultMessage.className = 'result-message error';
+            } else {
+                const percentage = Math.round((correctCount / total) * 100);
+                if (percentage >= 80) {
+                    resultMessage.textContent = `🎉 ممتاز! حصلت على ${percentage}% - ${correctCount} من ${total}`;
+                    resultMessage.className = 'result-message success';
+                } else if (percentage >= 60) {
+                    resultMessage.textContent = `👍 جيد! حصلت على ${percentage}% - ${correctCount} من ${total}`;
+                    resultMessage.className = 'result-message success';
+                } else {
+                    resultMessage.textContent = `💪 استمر في المحاولة! حصلت على ${percentage}% - ${correctCount} من ${total}`;
+                    resultMessage.className = 'result-message error';
+                }
+            }
+            
+            resultMessage.style.display = 'block';
+        }
+
+        function showAnswers() {
+            pronouns.forEach((pronoun, index) => {
+                document.getElementById(`past_${index}`).value = verbConjugations[currentVerb].past[index];
+                document.getElementById(`present_${index}`).value = verbConjugations[currentVerb].present[index];
+                if (!document.getElementById(`imperative_${index}`).disabled) {
+                    document.getElementById(`imperative_${index}`).value = verbConjugations[currentVerb].imperative[index];
+                }
+            });
+        }
+
+        function resetGame() {
+            pronouns.forEach((pronoun, index) => {
+                const pastInput = document.getElementById(`past_${index}`);
+                const presentInput = document.getElementById(`present_${index}`);
+                const imperativeInput = document.getElementById(`imperative_${index}`);
+
+                pastInput.value = '';
+                presentInput.value = '';
+                imperativeInput.value = '';
+
+                pastInput.classList.remove('correct', 'incorrect', 'animate-correct');
+                presentInput.classList.remove('correct', 'incorrect', 'animate-correct');
+                imperativeInput.classList.remove('correct', 'incorrect', 'animate-correct');
+            });
+
+            resetScores();
+        }
+
+        // حدث تغيير الفعل
+        document.getElementById('verbSelect').addEventListener('change', function() {
+            currentVerb = this.value;
+            resetGame();
+            initializeGame();
+        });
+
+        // إزالة الرسوم المتحركة بعد انتهائها
+        document.addEventListener('animationend', function(e) {
+            if (e.target.classList.contains('animate-correct')) {
+                e.target.classList.remove('animate-correct');
+            }
+        });
+
+        // تهيئة اللعبة عند تحميل الصفحة
+        initializeGame();
+    </script>
+</body>
+</html>

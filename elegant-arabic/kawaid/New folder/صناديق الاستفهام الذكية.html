@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>🎯 صناديق الاستفهام الذكية</title>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(to top left, #a1c4fd, #c2e9fb);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      direction: rtl;
+    }
+
+    .game-container {
+      background-color: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      text-align: center;
+      max-width: 800px;
+      width: 100%;
+      animation: fadeIn 0.6s ease;
+    }
+
+    h1 {
+      font-size: 26px;
+      color: #064663;
+      margin-bottom: 20px;
+    }
+
+    .question {
+      font-size: 22px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    select {
+      font-size: 18px;
+      padding: 8px 15px;
+      border-radius: 10px;
+      border: 2px solid #00a8cc;
+      margin: 10px 0;
+      width: 80%;
+      max-width: 400px;
+    }
+
+    button {
+      padding: 10px 30px;
+      font-size: 18px;
+      background-color: #00a8cc;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    button:hover {
+      background-color: #007ea7;
+      animation: pulse 0.5s;
+    }
+
+    #feedback {
+      margin-top: 20px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <h1>🎯 صناديق الاستفهام الذكية</h1>
+    <div class="question" id="question"></div>
+
+    <select id="tool">
+      <option value="">اختر أداة الاستفهام</option>
+      <option>هل</option>
+      <option>الهمزة</option>
+      <option>أيّ</option>
+      <option>من</option>
+      <option>ما</option>
+      <option>ماذا</option>
+      <option>أين</option>
+      <option>متى</option>
+      <option>كيف</option>
+      <option>كم</option>
+      <option>أيّان</option>
+    </select>
+
+    <select id="type">
+      <option value="">اختر نوع الأداة</option>
+      <option>اسم</option>
+      <option>حرف</option>
+    </select>
+
+    <select id="meaning">
+      <option value="">اختر دلالتها</option>
+      <option>الجمل المثبتة</option>
+      <option>الجمل المثبتة والمنفية</option>
+      <option>بحسب المضاف إليه</option>
+      <option>العاقل</option>
+      <option>غير العاقل</option>
+      <option>الأخبار</option>
+      <option>المكان</option>
+      <option>الزمان</option>
+      <option>الحال</option>
+      <option>العدد</option>
+    </select>
+
+    <button onclick="checkAnswer()">تحقق</button>
+    <div id="feedback"></div>
+  </div>
+
+  <script>
+    const questions = [
+      { text: "هل كان عمروٌ موجودًا؟", tool: "هل", type: "حرف", meaning: "الجمل المثبتة" },
+      { text: "أتلعبُ الكرة؟", tool: "الهمزة", type: "حرف", meaning: "الجمل المثبتة والمنفية" },
+      { text: "أيّ الطالبين أكثر نبوغًا: محمد أم أحمد؟", tool: "أيّ", type: "اسم", meaning: "بحسب المضاف إليه" },
+      { text: "من الذي درّسك مادّة العلوم؟", tool: "من", type: "اسم", meaning: "العاقل" },
+      { text: "ما عنوان كتاب حمزة بن سليمان الجديد؟", tool: "ما", type: "اسم", meaning: "غير العاقل" },
+      { text: "ماذا كان في الصندوق؟", tool: "ماذا", type: "اسم", meaning: "الأخبار" },
+      { text: "أينَ هاجرت الطيور هذه السنة؟", tool: "أين", type: "اسم", meaning: "المكان" },
+      { text: "متى ستقلع الطائرة؟", tool: "متى", type: "اسم", meaning: "الزمان" },
+      { text: "كيف تجلّدون الكتب القديمة؟", tool: "كيف", type: "اسم", meaning: "الحال" },
+      { text: "كم كتابًا تقرأ في الشهر؟", tool: "كم", type: "اسم", meaning: "العدد" },
+      { text: "يسألك الناس: أيّان تُقام الصلاة؟", tool: "أيّان", type: "اسم", meaning: "الزمان" }
+    ];
+
+    let current = 0;
+
+    function loadQuestion() {
+      document.getElementById("question").textContent = questions[current].text;
+      document.getElementById("tool").value = "";
+      document.getElementById("type").value = "";
+      document.getElementById("meaning").value = "";
+      document.getElementById("feedback").textContent = "";
+    }
+
+    function checkAnswer() {
+      const userTool = document.getElementById("tool").value;
+      const userType = document.getElementById("type").value;
+      const userMeaning = document.getElementById("meaning").value;
+      const q = questions[current];
+
+      if (userTool === q.tool && userType === q.type && userMeaning === q.meaning) {
+        document.getElementById("feedback").textContent = "✔️ أحسنت! إجابة صحيحة!";
+        current++;
+        if (current < questions.length) {
+          setTimeout(loadQuestion, 1000);
+        } else {
+          document.getElementById("feedback").textContent = "🎉 أنهيت اللعبة! أنت رائع!";
+        }
+      } else {
+        document.getElementById("feedback").textContent = "❌ حاول مرة أخرى!";
+      }
+    }
+
+    loadQuestion();
+  </script>
+</body>
+</html>

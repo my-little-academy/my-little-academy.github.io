@@ -1,0 +1,188 @@
+
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>لعبة أدوات الاستفهام</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #d0f0c0, #f0f8ff);
+            text-align: center;
+            direction: rtl;
+            padding: 20px;
+        }
+
+        #game-container {
+            background-color: #fff;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            margin: auto;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #2c7873;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        #sentence {
+            font-size: 22px;
+            margin: 20px 0;
+            animation: fadeSlide 0.6s ease;
+        }
+
+        .option-btn {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #6fb98f;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .option-btn:hover {
+            animation: pulseHover 0.8s infinite;
+        }
+
+        .option-btn.wrong {
+            animation: shake 0.4s ease;
+            background-color: #f67280 !important;
+        }
+
+        .option-btn.correct {
+            background-color: #355c7d !important;
+        }
+
+        #result {
+            font-size: 20px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        #stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        @keyframes fadeSlide {
+            0% { opacity: 0; transform: translateY(-20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        @keyframes pulseHover {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes starBurst {
+            0% { transform: scale(0); opacity: 0.8; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>اختر أداة الاستفهام المناسبة</h1>
+        <div id="sentence"></div>
+        <div id="options"></div>
+        <div id="result"></div>
+    </div>
+    <div id="stars"></div>
+
+    <script>
+        const questions = [
+            { text: "..... حالك اليوم؟", answer: "كيف" },
+            { text: "..... في البيتِ أحدٌ؟", answer: "هل" },
+            { text: "..... أخرج ولم أجهز بعد؟", answer: "أ" },
+            { text: "..... تصميمٍ أعجبك؟", answer: "أيّ" },
+            { text: "..... هو جدّك؟", answer: "من" },
+            { text: "..... أخبار المشروع؟", answer: "ما" },
+            { text: "..... وجدت في السوق؟", answer: "ماذا" },
+            { text: "..... ستسافر هذا الصيف؟", answer: "أين" },
+            { text: "..... ينتهي الفصل الدراسيّ؟", answer: "متى" },
+            { text: "..... عالمًا أردنيًّا رشّح لجائزة نوبل؟", answer: "كم" },
+            { text: "..... موعد الامتحان النصفيّ؟", answer: "أيّان" },
+            { text: "..... زرعت في هذا الشهر؟", answer: "ماذا" }
+        ];
+
+        const options = ["ماذا", "من", "ما", "كيف", "هل", "أيّ", "أين", "متى", "كم", "أيّان", "أ"];
+
+        let current = 0;
+
+        const sentenceEl = document.getElementById("sentence");
+        const optionsEl = document.getElementById("options");
+        const resultEl = document.getElementById("result");
+
+        function showQuestion() {
+            resultEl.textContent = "";
+            const q = questions[current];
+            sentenceEl.textContent = q.text;
+            optionsEl.innerHTML = "";
+
+            options.forEach(opt => {
+                const btn = document.createElement("button");
+                btn.className = "option-btn";
+                btn.textContent = opt;
+                btn.onclick = () => checkAnswer(opt, btn);
+                optionsEl.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selected, button) {
+            const correct = questions[current].answer;
+            if (selected === correct) {
+                button.classList.add("correct");
+                current++;
+                if (current < questions.length) {
+                    setTimeout(showQuestion, 1000);
+                } else {
+                    endGame();
+                }
+            } else {
+                button.classList.add("wrong");
+                resultEl.textContent = "جرّب مرة أخرى!";
+            }
+        }
+
+        function endGame() {
+            sentenceEl.textContent = "أحسنت! لقد أنهيت اللعبة!";
+            optionsEl.innerHTML = "";
+            resultEl.textContent = "";
+            showStars();
+        }
+
+        function showStars() {
+            const container = document.getElementById("stars");
+            for (let i = 0; i < 15; i++) {
+                const star = document.createElement("div");
+                star.textContent = "⭐";
+                star.style.position = "absolute";
+                star.style.fontSize = "24px";
+                star.style.left = Math.random() * window.innerWidth + "px";
+                star.style.top = Math.random() * window.innerHeight + "px";
+                star.style.animation = "starBurst 1s ease-out forwards";
+                container.appendChild(star);
+                setTimeout(() => star.remove(), 1000);
+            }
+        }
+
+        showQuestion();
+    </script>
+</body>
+</html>

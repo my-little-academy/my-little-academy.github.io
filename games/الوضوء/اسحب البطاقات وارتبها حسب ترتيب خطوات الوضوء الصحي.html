@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة ترتيب خطوات الوضوء</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #e6f7ff, #f0fff0);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        h1 {
+            color: #2c7be5;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            font-size: 2.2em;
+        }
+        
+        .game-container {
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+            width: 90%;
+            max-width: 800px;
+            text-align: center;
+        }
+        
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .card {
+            background: linear-gradient(145deg, #ffffff, #f0f8ff);
+            border-radius: 15px;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            border: 3px solid transparent;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .card img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+        
+        .card.correct {
+            border-color: #28a745;
+            background: linear-gradient(145deg, #e6ffed, #f0fff4);
+        }
+        
+        .card.wrong {
+            animation: shake 0.5s;
+            border-color: #dc3545;
+            background: linear-gradient(145deg, #ffebee, #fff0f0);
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+        
+        .card-placeholder {
+            background-color: #f8f9fa;
+            border: 3px dashed #adb5bd;
+            border-radius: 15px;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .card-placeholder.highlight {
+            border-color: #3a9efd;
+            background-color: #e6f7ff;
+        }
+        
+        .steps-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .step-item {
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .step-number {
+            background-color: #3a9efd;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-left: 15px;
+            font-weight: bold;
+        }
+        
+        .controls {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        button {
+            background: linear-gradient(145deg, #3a9efd, #2c7be5);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            border-radius: 50%;
+            animation: fall 3s linear forwards;
+        }
+        
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .success-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            z-index: 100;
+            display: none;
+        }
+        
+        .success-message h2 {
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 99;
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .cards-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .card {
+                height: 120px;
+            }
+            
+            .card-placeholder {
+                height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>لعبة ترتيب خطوات الوضوء 🧩</h1>
+    
+    <div class="game-container">
+        <p>اسحب البطاقات وارتبها حسب ترتيب خطوات الوضوء الصحيح</p>
+        
+        <div class="cards-grid" id="cardsGrid">
+            <!-- البطاقات سيتم إضافتها بواسطة JavaScript -->
+        </div>
+        
+        <h3>ترتيب الخطوات:</h3>
+        <div class="steps-container" id="stepsContainer">
+            <!-- أماكن وضع البطاقات سيتم إضافتها بواسطة JavaScript -->
+        </div>
+        
+        <div class="controls">
+            <button id="checkBtn">تحقق من الإجابات</button>
+            <button id="resetBtn">إعادة اللعبة</button>
+        </div>
+    </div>
+    
+    <div class="overlay" id="overlay"></div>
+    
+    <div class="success-message" id="successMessage">
+        <h2>أحسنت! 🌟</h2>
+        <p>لقد رتبت خطوات الوضوء بشكل صحيح!</p>
+        <button id="playAgainBtn">العب مرة أخرى</button>
+    </div>
+    
+    <script>
+        // خطوات الوضوء مع الصور
+        const wuduSteps = [
+            { number: 1, name: "النية", image: "https://i.imgur.com/JQ6Y0yP.png" },
+            { number: 2, name: "غسل الكفين", image: "https://i.imgur.com/5X4wW9j.png" },
+            { number: 3, name: "المضمضة والاستنشاق", image: "https://i.imgur.com/8mQZb0y.png" },
+            { number: 4, name: "غسل الوجه", image: "https://i.imgur.com/3KvY5xL.png" },
+            { number: 5, name: "غسل اليدين", image: "https://i.imgur.com/7G2Ww9Y.png" },
+            { number: 6, name: "مسح الرأس", image: "https://i.imgur.com/1LtH9fK.png" },
+            { number: 7, name: "غسل القدمين", image: "https://i.imgur.com/4N6Xy0Z.png" }
+        ];
+        
+        // عناصر DOM
+        const cardsGrid = document.getElementById('cardsGrid');
+        const stepsContainer = document.getElementById('stepsContainer');
+        const checkBtn = document.getElementById('checkBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const successMessage = document.getElementById('successMessage');
+        const overlay = document.getElementById('overlay');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+        
+        // متغيرات اللعبة
+        let selectedCard = null;
+        let shuffledSteps = [];
+        
+        // تهيئة اللعبة
+        function initGame() {
+            // خلط الخطوات عشوائياً
+            shuffledSteps = [...wuduSteps].sort(() => Math.random() - 0.5);
+            
+            // مسح المحتوى السابق
+            cardsGrid.innerHTML = '';
+            stepsContainer.innerHTML = '';
+            
+            // إنشاء بطاقات الخطوات
+            shuffledSteps.forEach(step => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.draggable = true;
+                card.dataset.stepNumber = step.number;
+                
+                const img = document.createElement('img');
+                img.src = step.image;
+                img.alt = step.name;
+                
+                card.appendChild(img);
+                cardsGrid.appendChild(card);
+                
+                // إضافة أحداث السحب
+                addDragEvents(card);
+            });
+            
+            // إنشاء أماكن وضع البطاقات
+            wuduSteps.forEach(step => {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'step-item';
+                placeholder.dataset.stepNumber = step.number;
+                
+                const numberSpan = document.createElement('div');
+                numberSpan.className = 'step-number';
+                numberSpan.textContent = step.number;
+                
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = step.name;
+                
+                const cardPlaceholder = document.createElement('div');
+                cardPlaceholder.className = 'card-placeholder';
+                cardPlaceholder.dataset.stepNumber = step.number;
+                
+                placeholder.appendChild(numberSpan);
+                placeholder.appendChild(nameSpan);
+                placeholder.appendChild(cardPlaceholder);
+                
+                stepsContainer.appendChild(placeholder);
+                
+                // إضافة أحداث السحب لأماكن الوضع
+                addDropEvents(cardPlaceholder);
+            });
+        }
+        
+        // إضافة أحداث السحب للبطاقات
+        function addDragEvents(item) {
+            item.addEventListener('dragstart', () => {
+                selectedCard = item;
+                item.style.opacity = '0.5';
+                
+                // إضافة تأثير التظليل لأماكن الوضع
+                document.querySelectorAll('.card-placeholder').forEach(placeholder => {
+                    placeholder.classList.add('highlight');
+                });
+            });
+            
+            item.addEventListener('dragend', () => {
+                item.style.opacity = '1';
+                
+                // إزالة تأثير التظليل
+                document.querySelectorAll('.card-placeholder').forEach(placeholder => {
+                    placeholder.classList.remove('highlight');
+                });
+            });
+        }
+        
+        // إضافة أحداث السحب لأماكن الوضع
+        function addDropEvents(item) {
+            item.addEventListener('dragover', (e) => {
+                e.preventDefault();
+            });
+            
+            item.addEventListener('dragenter', (e) => {
+                e.preventDefault();
+                item.style.backgroundColor = '#d4edff';
+            });
+            
+            item.addEventListener('dragleave', () => {
+                item.style.backgroundColor = '';
+            });
+            
+            item.addEventListener('drop', () => {
+                item.style.backgroundColor = '';
+                
+                // إذا كان المكان فارغاً
+                if (item.children.length === 0 && selectedCard) {
+                    // نقل البطاقة إلى المكان الجديد
+                    item.appendChild(selectedCard);
+                    
+                    // إزالة تأثير السحب
+                    selectedCard.style.opacity = '1';
+                    selectedCard = null;
+                }
+            });
+        }
+        
+        // التحقق من الإجابات
+        function checkAnswers() {
+            let allCorrect = true;
+            
+            document.querySelectorAll('.card-placeholder').forEach(placeholder => {
+                const stepNumber = parseInt(placeholder.dataset.stepNumber);
+                const card = placeholder.querySelector('.card');
+                
+                if (card) {
+                    const cardStepNumber = parseInt(card.dataset.stepNumber);
+                    
+                    if (cardStepNumber === stepNumber) {
+                        card.classList.add('correct');
+                        card.classList.remove('wrong');
+                    } else {
+                        card.classList.add('wrong');
+                        card.classList.remove('correct');
+                        allCorrect = false;
+                    }
+                } else {
+                    allCorrect = false;
+                }
+            });
+            
+            if (allCorrect) {
+                showSuccess();
+            }
+        }
+        
+        // عرض رسالة النجاح
+        function showSuccess() {
+            overlay.style.display = 'block';
+            successMessage.style.display = 'block';
+            
+            // إضافة تأثيرات الكونفيتي
+            for (let i = 0; i < 100; i++) {
+                createConfetti();
+            }
+        }
+        
+        // إنشاء تأثير الكونفيتي
+        function createConfetti() {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            
+            // ألوان عشوائية
+            const colors = ['#3a9efd', '#28a745', '#ffc107', '#dc3545', '#6f42c1'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            confetti.style.backgroundColor = randomColor;
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.top = -10 + 'px';
+            
+            document.body.appendChild(confetti);
+            
+            // إزالة الكونفيتي بعد انتهاء الحركة
+            setTimeout(() => {
+                confetti.remove();
+            }, 3000);
+        }
+        
+        // إعادة تعيين اللعبة
+        function resetGame() {
+            initGame();
+        }
+        
+        // أحداث الأزرار
+        checkBtn.addEventListener('click', checkAnswers);
+        resetBtn.addEventListener('click', resetGame);
+        playAgainBtn.addEventListener('click', () => {
+            overlay.style.display = 'none';
+            successMessage.style.display = 'none';
+            resetGame();
+        });
+        
+        // بدء اللعبة عند تحميل الصفحة
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html>

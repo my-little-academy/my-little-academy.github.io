@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة اكتشف نمط الأعداد</title>
+    <style>
+        /* أنماط عامة */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            text-align: right;
+        }
+        
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border: 5px solid #4CAF50;
+        }
+        
+        h1 {
+            color: #FF6B6B;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        /* إصلاح اتجاه الأرقام في كل العناصر */
+        .card, .info-value, input, .step-display, 
+        .number, .feedback-number, .hint-number {
+            direction: ltr;
+            unicode-bidi: embed;
+            display: inline-block;
+        }
+        
+        /* أنماط البطاقات */
+        .cards-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .card {
+            width: 70px;
+            height: 100px;
+            background-color: #FFD166;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .card.revealed {
+            background-color: #06D6A0;
+            color: white;
+        }
+        
+        .card.hidden {
+            background-color: #118AB2;
+            color: white;
+        }
+        
+        .card.hidden::before {
+            content: "؟";
+            font-size: 1.5em;
+            direction: rtl;
+            unicode-bidi: bidi-override;
+        }
+        
+        /* أنماط الإدخال والأزرار */
+        .input-container {
+            margin: 20px 0;
+        }
+        
+        input {
+            width: 100px;
+            height: 50px;
+            font-size: 1.5em;
+            text-align: center;
+            border: 3px solid #4CAF50;
+            border-radius: 10px;
+            margin: 0 5px;
+        }
+        
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        /* أنماط المعلومات والنجوم */
+        .game-info {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .info-box {
+            text-align: center;
+        }
+        
+        .stars {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin: 10px 0;
+        }
+        
+        .star {
+            font-size: 2em;
+            color: #FFD700;
+            opacity: 0.3;
+        }
+        
+        .star.active {
+            opacity: 1;
+        }
+        
+        /* أنماط التأثيرات */
+        .feedback {
+            font-size: 1.2em;
+            font-weight: bold;
+            min-height: 30px;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .correct {
+            color: #06D6A0;
+            background-color: #e8f8f3;
+        }
+        
+        .wrong {
+            color: #EF476F;
+            background-color: #fde8ec;
+        }
+        
+        @media (max-width: 600px) {
+            .card {
+                width: 50px;
+                height: 80px;
+                font-size: 1.3em;
+            }
+            
+            input {
+                width: 70px;
+                height: 40px;
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>لعبة اكتشف نمط الأعداد</h1>
+        <p>أكمل التسلسل واكتشف مقدار العد</p>
+        
+        <div class="cards-container" id="cards-container">
+            <!-- البطاقات تُضاف هنا بالجافاسكريبت -->
+        </div>
+        
+        <div class="input-container">
+            <h3>ما هو مقدار العد؟</h3>
+            <input type="number" id="step-input" min="1">
+            <button id="submit-btn">تحقق</button>
+        </div>
+        
+        <div class="feedback" id="feedback"></div>
+        
+        <div class="game-info">
+            <div class="info-box">
+                <div class="info-label">المحاولات</div>
+                <div class="info-value" id="attempts">0</div>
+            </div>
+            <div class="info-box">
+                <div class="info-label">النقاط</div>
+                <div class="info-value" id="score">0</div>
+            </div>
+            <div class="info-box">
+                <div class="info-label">الأنماط</div>
+                <div class="info-value" id="patterns">0</div>
+            </div>
+        </div>
+        
+        <div class="stars" id="stars">
+            <div class="star">★</div>
+            <div class="star">★</div>
+            <div class="star">★</div>
+            <div class="star">★</div>
+            <div class="star">★</div>
+        </div>
+        
+        <div class="controls">
+            <button id="new-game-btn">جولة جديدة</button>
+            <button id="hint-btn">مساعدة</button>
+        </div>
+    </div>
+
+    <script>
+        // العناصر
+        const cardsContainer = document.getElementById('cards-container');
+        const stepInput = document.getElementById('step-input');
+        const submitBtn = document.getElementById('submit-btn');
+        const newGameBtn = document.getElementById('new-game-btn');
+        const hintBtn = document.getElementById('hint-btn');
+        const feedback = document.getElementById('feedback');
+        const attemptsDisplay = document.getElementById('attempts');
+        const scoreDisplay = document.getElementById('score');
+        const patternsDisplay = document.getElementById('patterns');
+        const starsContainer = document.getElementById('stars');
+        
+        // متغيرات اللعبة
+        let currentSequence = [];
+        let stepSize = 0;
+        let score = 0;
+        let attempts = 0;
+        let patternsFound = 0;
+        let revealedCards = 0;
+        const totalCards = 10;
+        
+        // بدء لعبة جديدة
+        function startNewGame() {
+            // اختيار نمط عشوائي (1, 2, 5, 10, 20, 50, 100)
+            const possibleSteps = [1, 2, 5, 10, 20, 50, 100];
+            stepSize = possibleSteps[Math.floor(Math.random() * possibleSteps.length)];
+            
+            // إنشاء تسلسل الأعداد
+            const startNumber = Math.floor(Math.random() * 100) * stepSize;
+            currentSequence = [];
+            for (let i = 0; i < totalCards; i++) {
+                currentSequence.push(startNumber + (i * stepSize));
+            }
+            
+            // عرض البطاقات (إظهار بطاقتين عشوائيتين)
+            renderCards();
+            
+            // إعادة تعيين القيم
+            stepInput.value = '';
+            feedback.textContent = '';
+            revealedCards = 2;
+            
+            // تمكين/تعطيل الأزرار
+            submitBtn.disabled = false;
+            stepInput.disabled = false;
+            stepInput.focus();
+        }
+        
+        // عرض البطاقات
+        function renderCards() {
+            cardsContainer.innerHTML = '';
+            
+            // اختيار موقعين عشوائيين للإظهار
+            const revealedIndices = [];
+            while (revealedIndices.length < 2) {
+                const randomIndex = Math.floor(Math.random() * totalCards);
+                if (!revealedIndices.includes(randomIndex)) {
+                    revealedIndices.push(randomIndex);
+                }
+            }
+            
+            // إنشاء البطاقات
+            currentSequence.forEach((number, index) => {
+                const card = document.createElement('div');
+                card.className = revealedIndices.includes(index) ? 'card revealed' : 'card hidden';
+                
+                if (revealedIndices.includes(index)) {
+                    card.textContent = number;
+                }
+                
+                card.addEventListener('click', () => {
+                    if (card.classList.contains('hidden')) {
+                        revealCard(card, index);
+                    }
+                });
+                
+                cardsContainer.appendChild(card);
+            });
+        }
+        
+        // كشف بطاقة
+        function revealCard(card, index) {
+            card.classList.remove('hidden');
+            card.classList.add('revealed');
+            card.textContent = currentSequence[index];
+            revealedCards++;
+            
+            // منع المزيد من الكشف إذا تم كشف كل البطاقات
+            if (revealedCards === totalCards) {
+                document.querySelectorAll('.card').forEach(c => {
+                    c.style.cursor = 'default';
+                });
+            }
+        }
+        
+        // التحقق من الإجابة
+        function checkAnswer() {
+            const userAnswer = parseInt(stepInput.value);
+            attempts++;
+            attemptsDisplay.textContent = attempts;
+            
+            if (userAnswer === stepSize) {
+                // إجابة صحيحة
+                feedback.textContent = 'أحسنت! مقدار العد الصحيح هو ' + stepSize;
+                feedback.className = 'feedback correct';
+                
+                score += 50;
+                scoreDisplay.textContent = score;
+                
+                patternsFound++;
+                patternsDisplay.textContent = patternsFound;
+                
+                // تحديث النجوم
+                updateStars();
+                
+                // تعطيل الإدخال بعد الإجابة الصحيحة
+                submitBtn.disabled = true;
+                stepInput.disabled = true;
+            } else {
+                // إجابة خاطئة
+                feedback.textContent = 'إجابة خاطئة، حاول مرة أخرى';
+                feedback.className = 'feedback wrong';
+                
+                // كشف بطاقة إضافية للمساعدة
+                revealRandomCard();
+            }
+        }
+        
+        // كشف بطاقة عشوائية للمساعدة
+        function revealRandomCard() {
+            const hiddenCards = document.querySelectorAll('.card.hidden');
+            if (hiddenCards.length > 0) {
+                const randomIndex = Math.floor(Math.random() * hiddenCards.length);
+                const card = hiddenCards[randomIndex];
+                const cardIndex = Array.from(cardsContainer.children).indexOf(card);
+                
+                revealCard(card, cardIndex);
+            }
+        }
+        
+        // عرض تلميح
+        function showHint() {
+            const revealedNumbers = [];
+            document.querySelectorAll('.card.revealed').forEach(card => {
+                revealedNumbers.push(parseInt(card.textContent));
+            });
+            
+            if (revealedNumbers.length >= 2) {
+                const diff = revealedNumbers[1] - revealedNumbers[0];
+                feedback.textContent = 'تلميح: الفرق بين العددين الظاهرين هو ' + diff;
+                feedback.className = 'feedback';
+            } else {
+                feedback.textContent = 'يجب أن تكشف بطاقتين على الأقل للحصول على تلميح';
+                feedback.className = 'feedback';
+            }
+        }
+        
+        // تحديث النجوم
+        function updateStars() {
+            const stars = Math.min(Math.floor(patternsFound / 2), 5);
+            const starElements = document.querySelectorAll('.star');
+            
+            starElements.forEach((star, index) => {
+                if (index < stars) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+        
+        // أحداث الأزرار
+        submitBtn.addEventListener('click', checkAnswer);
+        newGameBtn.addEventListener('click', startNewGame);
+        hintBtn.addEventListener('click', showHint);
+        
+        stepInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+        
+        // بدء اللعبة عند التحميل
+        window.addEventListener('load', startNewGame);
+    </script>
+</body>
+</html>

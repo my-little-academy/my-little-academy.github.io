@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>الإيمان باليوم الآخر - لعبة تفاعلية للأطفال</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo&display=swap');
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(135deg, #a8edea, #fed6e3);
+      margin: 0;
+      padding: 0;
+      direction: rtl;
+      color: #333;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-bottom: 50px;
+    }
+
+    h1 {
+      margin-top: 30px;
+      color: #ba426b;
+      text-shadow: 1px 1px 3px #fff;
+    }
+
+    .game-container {
+      background: #fff;
+      max-width: 600px;
+      width: 90%;
+      padding: 25px 30px;
+      margin-top: 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 18px rgba(186, 66, 107, 0.3);
+      user-select: none;
+    }
+
+    .question {
+      font-size: 1.3rem;
+      margin-bottom: 20px;
+      color: #ba426b;
+      min-height: 80px;
+    }
+
+    .answers {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 20px 0;
+    }
+
+    .answers li {
+      background: #f8d7da;
+      border: 2px solid #f5c2c7;
+      color: #7f1d2b;
+      margin-bottom: 12px;
+      padding: 12px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    .answers li:hover {
+      background: #e295a0;
+      border-color: #ba426b;
+      color: #fff;
+    }
+
+    .answers li.correct {
+      background: #d4edda;
+      border-color: #28a745;
+      color: #155724;
+      cursor: default;
+    }
+
+    .answers li.wrong {
+      background: #f8d7da;
+      border-color: #dc3545;
+      color: #721c24;
+      cursor: default;
+    }
+
+    .feedback {
+      font-size: 1.1rem;
+      min-height: 50px;
+      margin-bottom: 15px;
+      padding: 10px 15px;
+      border-radius: 10px;
+      background: #fff3cd;
+      border: 2px solid #ffeeba;
+      color: #856404;
+      display: none;
+      line-height: 1.4;
+    }
+
+    .next-btn {
+      background-color: #ba426b;
+      color: white;
+      padding: 10px 22px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      display: none;
+    }
+
+    .next-btn:hover {
+      background-color: #912a4c;
+    }
+
+    /* مؤشر القلب */
+    .heart {
+      position: fixed;
+      width: 25px;
+      height: 25px;
+      pointer-events: none;
+      transform-origin: center;
+      animation: pulse 1s infinite;
+      z-index: 1000;
+      filter: drop-shadow(0 0 2px rgba(186, 66, 107, 0.6));
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.3); }
+    }
+
+    /* آيات وأحاديث */
+    .reference {
+      background: #fefefe;
+      border-left: 5px solid #ba426b;
+      padding: 15px 20px;
+      margin-top: 20px;
+      font-style: italic;
+      color: #555;
+      border-radius: 8px;
+      box-shadow: 1px 1px 6px rgba(186, 66, 107, 0.1);
+    }
+
+    footer {
+      margin-top: 40px;
+      color: #ba426b;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    @media(max-width: 480px) {
+      .game-container {
+        padding: 20px 15px;
+      }
+
+      .question {
+        font-size: 1.1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>لعبة الإيمان باليوم الآخر للأطفال</h1>
+
+  <div class="game-container" aria-live="polite">
+    <div class="question" id="question">تحميل السؤال...</div>
+    <ul class="answers" id="answers"></ul>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" aria-label="السؤال التالي">السؤال التالي</button>
+    <div class="reference" id="reference" aria-live="polite" style="display:none;"></div>
+  </div>
+
+  <footer>© 2025 - الإيمان باليوم الآخر</footer>
+
+  <!-- عنصر القلب -->
+  <svg class="heart" id="heart" viewBox="0 0 24 24" fill="#ba426b" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 
+      4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 
+      16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 
+      11.54L12 21.35z"/>
+  </svg>
+
+<script>
+  // متغيرات اللعبة
+  const questions = [
+    {
+      question: "ما هو اليوم الآخر؟",
+      answers: [
+        "يوم الولادة فقط",
+        "اليوم الذي يُحاسب فيه الناس",
+        "يوم العيد فقط",
+        "يوم الذهاب إلى المدرسة"
+      ],
+      correctIndex: 1,
+      reference: "قال رسول الله ﷺ: «إنما الأعمال بالنيات» (صحيح البخاري)."
+    },
+    {
+      question: "ماذا يحدث في اليوم الآخر؟",
+      answers: [
+        "الناس يحاسبون على أعمالهم",
+        "الناس يذهبون في رحلة",
+        "الناس يلعبون طوال الوقت",
+        "الناس ينامون"
+      ],
+      correctIndex: 0,
+      reference: "قال تعالى: {يَوْمَ يُنْفَخُ فِي الصُّورِ فَتَأْتُونَ أَفْوَاجًا} (الزمر: 68)."
+    },
+    {
+      question: "هل الإيمان باليوم الآخر مهم؟",
+      answers: [
+        "نعم، لأنه يجعلنا نعمل الخير",
+        "لا، لا يهم",
+        "نعم، لنلعب أكثر",
+        "لا، لأنه بعيد جدا"
+      ],
+      correctIndex: 0,
+      reference: "قال رسول الله ﷺ: «آمنوا بالله وبرسوله والقرآن الذي أنزل على نبيه» (مسند أحمد)."
+    },
+    {
+      question: "ما الجزاء في اليوم الآخر للناس الصالحين؟",
+      answers: [
+        "جنة الله ورضوانه",
+        "العقاب فقط",
+        "النوم طوال الوقت",
+        "الذهاب في رحلة"
+      ],
+      correctIndex: 0,
+      reference: "قال تعالى: {وَجَزَاءُ ٱلَّذِينَ أَحْسَنُواْ ٱلسَّيِّئَاتِ ۖ هُوَ ٱلْحُسْنَىٰ} (يوسف: 30)."
+    },
+    {
+      question: "ماذا يجب أن نعمل لكي نرضى الله في اليوم الآخر؟",
+      answers: [
+        "نعمل الخير ونتبع ديننا",
+        "نلعب كثيراً",
+        "نأكل الكثير من الحلوى",
+        "نذهب إلى النوم"
+      ],
+      correctIndex: 0,
+      reference: "قال رسول الله ﷺ: «خير الناس أنفعهم للناس» (الترمذي)."
+    }
+  ];
+
+  let currentQuestionIndex = 0;
+
+  // اختيار العناصر
+  const questionEl = document.getElementById('question');
+  const answersEl = document.getElementById('answers');
+  const feedbackEl = document.getElementById('feedback');
+  const nextBtn = document.getElementById('nextBtn');
+  const referenceEl = document.getElementById('reference');
+
+  // عرض السؤال
+  function showQuestion() {
+    const q = questions[currentQuestionIndex];
+    questionEl.textContent = q.question;
+    answersEl.innerHTML = '';
+    feedbackEl.style.display = 'none';
+    referenceEl.style.display = 'none';
+    nextBtn.style.display = 'none';
+
+    q.answers.forEach((answer, index) => {
+      const li = document.createElement('li');
+      li.textContent = answer;
+      li.setAttribute('tabindex', '0');
+      li.setAttribute('role', 'button');
+      li.addEventListener('click', () => selectAnswer(index));
+      li.addEventListener('keydown', (e) => {
+        if(e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          selectAnswer(index);
+        }
+      });
+      answersEl.appendChild(li);
+    });
+  }
+
+  // اختيار إجابة
+  function selectAnswer(selectedIndex) {
+    const q = questions[currentQuestionIndex];
+    const items = answersEl.querySelectorAll('li');
+    // منع اختيار متعدد
+    answersEl.style.pointerEvents = 'none';
+
+    if (selectedIndex === q.correctIndex) {
+      items[selectedIndex].classList.add('correct');
+      feedbackEl.textContent = "إجابة صحيحة! 😊";
+      feedbackEl.style.background = '#d4edda';
+      feedbackEl.style.borderColor = '#28a745';
+      feedbackEl.style.color = '#155724';
+      referenceEl.textContent = q.reference;
+      referenceEl.style.display = 'block';
+    } else {
+      items[selectedIndex].classList.add('wrong');
+      items[q.correctIndex].classList.add('correct');
+      feedbackEl.textContent = "إجابة خاطئة، حاول مرة أخرى في السؤال التالي!";
+      feedbackEl.style.background = '#f8d7da';
+      feedbackEl.style.borderColor = '#dc3545';
+      feedbackEl.style.color = '#721c24';
+    }
+    feedbackEl.style.display = 'block';
+    nextBtn.style.display = 'inline-block';
+  }
+
+  // السؤال التالي
+  nextBtn.addEventListener('click', () => {
+    currentQuestionIndex++;
+    if (currentQuestionIndex >= questions.length) {
+      showFinalMessage();
+    } else {
+      showQuestion();
+    }
+  });
+
+  function showFinalMessage() {
+    questionEl.textContent = "لقد أتممت اللعبة، بارك الله فيك! 🌟";
+    answersEl.innerHTML = '';
+    feedbackEl.style.display = 'none';
+    nextBtn.style.display = 'none';
+    referenceEl.style.display = 'none';
+  }
+
+  // تحميل أول سؤال عند بداية الصفحة
+  showQuestion();
+
+  // مؤشر القلب يتبع الفأرة
+  const heart = document.getElementById('heart');
+
+  document.addEventListener('mousemove', e => {
+    heart.style.left = e.pageX + 10 + 'px';
+    heart.style.top = e.pageY + 10 + 'px';
+  });
+</script>
+
+</body>
+</html>

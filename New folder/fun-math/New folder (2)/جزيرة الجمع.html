@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مملكة الجموع السحرية</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            background-image: url('https://img.freepik.com/free-vector/hand-drawn-arabic-pattern-background_23-2149430436.jpg');
+            background-size: cover;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #8B4513;
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .intro {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+        
+        .character-selection {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .character {
+            cursor: pointer;
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            transition: all 0.3s;
+            width: 150px;
+            margin: 10px;
+        }
+        
+        .character:hover {
+            transform: scale(1.1);
+            background-color: #f0e6ff;
+        }
+        
+        .character img {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+        }
+        
+        .character.selected {
+            background-color: #d4b5ff;
+            box-shadow: 0 0 15px #8a2be2;
+        }
+        
+        .game-area {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .island {
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .island h2 {
+            color: #fff;
+            background-color: #4CAF50;
+            padding: 10px;
+            margin: -20px -20px 20px -20px;
+            text-align: center;
+        }
+        
+        .island.salim h2 {
+            background-color: #2196F3;
+        }
+        
+        .island.taksir h2 {
+            background-color: #FF9800;
+        }
+        
+        .island.monath h2 {
+            background-color: #E91E63;
+        }
+        
+        .question {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .option {
+            background-color: #f5f5f5;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid #ddd;
+        }
+        
+        .option:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .option.selected {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+        
+        .feedback {
+            text-align: center;
+            margin-top: 15px;
+            font-weight: bold;
+            min-height: 24px;
+        }
+        
+        .correct {
+            color: #4CAF50;
+        }
+        
+        .incorrect {
+            color: #F44336;
+        }
+        
+        .progress-container {
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background-color: #4CAF50;
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.5s;
+            text-align: center;
+            color: white;
+            line-height: 20px;
+        }
+        
+        .treasure-map {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .treasure-map img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+        
+        .final-battle {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            background-color: #ffebee;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+        
+        .monster {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 20px;
+            background-image: url('https://cdn-icons-png.flaticon.com/512/1864/1864593.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            transition: all 0.5s;
+        }
+        
+        .monster.weak {
+            transform: scale(0.8);
+            opacity: 0.7;
+        }
+        
+        .monster.defeated {
+            transform: scale(0.5);
+            opacity: 0.3;
+        }
+        
+        .victory {
+            display: none;
+            text-align: center;
+            padding: 30px;
+            background-color: #e8f5e9;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+        
+        .victory h2 {
+            color: #2E7D32;
+        }
+        
+        .jewel {
+            font-size: 100px;
+            margin: 20px 0;
+            color: #FFD700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+        }
+        
+        button {
+            background-color: #8B4513;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 10px;
+        }
+        
+        button:hover {
+            background-color: #A0522D;
+            transform: scale(1.05);
+        }
+        
+        .badges {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .badge {
+            background-color: #FFD700;
+            color: #8B4513;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                margin: 15px;
+            }
+            
+            .character {
+                width: 120px;
+            }
+            
+            .character img {
+                width: 80px;
+                height: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>مملكة الجموع السحرية</h1>
+        
+        <div class="intro">
+            <p>في مملكة اللغة العربية، سُرقت "جوهرة القواعد" من قلعة النحو بواسطة وحش التشويش!</p>
+            <p>ساعد البطل في استعادة الجوهرة عبر تجميع قطعها المبعثرة في ثلاث جزر سحرية.</p>
+        </div>
+        
+        <h2>اختر شخصيتك:</h2>
+        <div class="character-selection">
+            <div class="character" onclick="selectCharacter(this, 'knight')">
+                <img src="https://cdn-icons-png.flaticon.com/512/3940/3940403.png" alt="فارس">
+                <p>الفارس الشجاع</p>
+            </div>
+            <div class="character" onclick="selectCharacter(this, 'princess')">
+                <img src="https://cdn-icons-png.flaticon.com/512/3940/3940407.png" alt="أميرة">
+                <p>الأميرة الذكية</p>
+            </div>
+            <div class="character" onclick="selectCharacter(this, 'wizard')">
+                <img src="https://cdn-icons-png.flaticon.com/512/3940/3940416.png" alt="ساحر">
+                <p>العالم الحكيم</p>
+            </div>
+        </div>
+        
+        <div class="game-area" id="gameArea">
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar">0%</div>
+            </div>
+            
+            <div class="treasure-map" id="treasureMap">
+                <img src="https://img.freepik.com/free-vector/hand-drawn-treasure-map_23-2149238426.jpg" alt="خريطة الكنز">
+                <p>لقد وجدت جزءًا من خريطة الكنز! تابع المغامرة لاكتشاف المزيد.</p>
+            </div>
+            
+            <div class="island salim" id="islandSalim">
+                <h2>جزيرة الجمع السالم</h2>
+                <div class="question">ما هو جمع كلمة "مُعَلِّم"؟</div>
+                <div class="options">
+                    <div class="option" onclick="checkAnswer(this, 'مُعَلِّمون', 'salim')">مُعَلِّمون</div>
+                    <div class="option" onclick="checkAnswer(this, 'مُعَلِّمين', 'salim')">مُعَلِّمين</div>
+                    <div class="option" onclick="checkAnswer(this, 'مَعالِم', 'salim')">مَعالِم</div>
+                    <div class="option" onclick="checkAnswer(this, 'مُعَلِّمات', 'salim')">مُعَلِّمات</div>
+                </div>
+                <div class="feedback" id="feedbackSalim"></div>
+            </div>
+            
+            <div class="island taksir" id="islandTaksir">
+                <h2>جزيرة جمع التكسير</h2>
+                <div class="question">ما هو جمع كلمة "كِتاب"؟</div>
+                <div class="options">
+                    <div class="option" onclick="checkAnswer(this, 'كِتابون', 'taksir')">كِتابون</div>
+                    <div class="option" onclick="checkAnswer(this, 'كُتُب', 'taksir')">كُتُب</div>
+                    <div class="option" onclick="checkAnswer(this, 'كِتابات', 'taksir')">كِتابات</div>
+                    <div class="option" onclick="checkAnswer(this, 'كِتابين', 'taksir')">كِتابين</div>
+                </div>
+                <div class="feedback" id="feedbackTaksir"></div>
+            </div>
+            
+            <div class="island monath" id="islandMonath">
+                <h2>جزيرة جمع المؤنث السالم</h2>
+                <div class="question">ما هو جمع كلمة "شَجَرة"؟</div>
+                <div class="options">
+                    <div class="option" onclick="checkAnswer(this, 'شَجَرات', 'monath')">شَجَرات</div>
+                    <div class="option" onclick="checkAnswer(this, 'أَشجار', 'monath')">أَشجار</div>
+                    <div class="option" onclick="checkAnswer(this, 'شَجَرون', 'monath')">شَجَرون</div>
+                    <div class="option" onclick="checkAnswer(this, 'شَجَرين', 'monath')">شَجَرين</div>
+                </div>
+                <div class="feedback" id="feedbackMonath"></div>
+            </div>
+            
+            <div class="final-battle" id="finalBattle">
+                <h2>المواجهة النهائية مع وحش التشويش!</h2>
+                <div class="monster" id="monster"></div>
+                <div class="question">ما هو جمع كلمة "طالِب"؟</div>
+                <div class="options">
+                    <div class="option" onclick="battleAnswer(this, 'طالِبون')">طالِبون</div>
+                    <div class="option" onclick="battleAnswer(this, 'طالِبات')">طالِبات</div>
+                    <div class="option" onclick="battleAnswer(this, 'طُلّاب')">طُلّاب</div>
+                    <div class="option" onclick="battleAnswer(this, 'طالِبين')">طالِبين</div>
+                </div>
+                <div class="feedback" id="feedbackBattle"></div>
+            </div>
+            
+            <div class="victory" id="victory">
+                <h2>مبروك! لقد انتصرت!</h2>
+                <div class="jewel">💎</div>
+                <p>لقد استعدت جوهرة القواعد وأنقذت مملكة اللغة العربية!</p>
+                <p>أنت الآن بطل الجموع!</p>
+                
+                <div class="badges">
+                    <div class="badge">درع الجمع السالم</div>
+                    <div class="badge">سيف جمع التكسير</div>
+                    <div class="badge">تاج المؤنث السالم</div>
+                </div>
+                
+                <button onclick="resetGame()">العب مرة أخرى</button>
+            </div>
+            
+            <button onclick="nextQuestion()" id="nextBtn" style="display: none;">التالي</button>
+        </div>
+    </div>
+
+    <script>
+        let selectedCharacter = '';
+        let progress = 0;
+        let correctAnswers = 0;
+        let monsterHealth = 3;
+        
+        function selectCharacter(element, character) {
+            // Remove selection from all characters
+            document.querySelectorAll('.character').forEach(char => {
+                char.classList.remove('selected');
+            });
+            
+            // Add selection to clicked character
+            element.classList.add('selected');
+            selectedCharacter = character;
+            
+            // Show game area
+            document.getElementById('gameArea').style.display = 'block';
+            
+            // Scroll to game area
+            document.getElementById('gameArea').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function checkAnswer(element, correctAnswer, island) {
+            // Disable all options
+            const options = element.parentElement.querySelectorAll('.option');
+            options.forEach(opt => {
+                opt.style.pointerEvents = 'none';
+            });
+            
+            // Check if answer is correct
+            if (element.textContent === correctAnswer) {
+                element.classList.add('selected');
+                document.getElementById('feedback' + island.charAt(0).toUpperCase() + island.slice(1)).innerHTML = 
+                    '<span class="correct">إجابة صحيحة! أحسنت!</span>';
+                progress += 10;
+                correctAnswers++;
+            } else {
+                element.style.backgroundColor = '#F44336';
+                element.style.color = 'white';
+                document.getElementById('feedback' + island.charAt(0).toUpperCase() + island.slice(1)).innerHTML = 
+                    '<span class="incorrect">إجابة خاطئة! الجواب الصحيح هو: ' + correctAnswer + '</span>';
+                progress += 5;
+            }
+            
+            // Update progress bar
+            updateProgress();
+            
+            // Show next button
+            document.getElementById('nextBtn').style.display = 'inline-block';
+        }
+        
+        function battleAnswer(element, correctAnswer) {
+            // Disable all options
+            const options = element.parentElement.querySelectorAll('.option');
+            options.forEach(opt => {
+                opt.style.pointerEvents = 'none';
+            });
+            
+            // Check if answer is correct
+            if (element.textContent === correctAnswer) {
+                element.classList.add('selected');
+                document.getElementById('feedbackBattle').innerHTML = 
+                    '<span class="correct">إصابة مباشرة! لقد أضعفت الوحش!</span>';
+                monsterHealth--;
+                
+                // Update monster appearance
+                const monster = document.getElementById('monster');
+                if (monsterHealth === 2) {
+                    monster.classList.add('weak');
+                } else if (monsterHealth === 1) {
+                    monster.classList.remove('weak');
+                    monster.classList.add('very-weak');
+                } else if (monsterHealth === 0) {
+                    monster.classList.remove('very-weak');
+                    monster.classList.add('defeated');
+                    
+                    // Show victory screen
+                    setTimeout(() => {
+                        document.getElementById('finalBattle').style.display = 'none';
+                        document.getElementById('victory').style.display = 'block';
+                    }, 1500);
+                }
+            } else {
+                element.style.backgroundColor = '#F44336';
+                element.style.color = 'white';
+                document.getElementById('feedbackBattle').innerHTML = 
+                    '<span class="incorrect">أخطأت! حاول مرة أخرى!</span>';
+            }
+        }
+        
+        function updateProgress() {
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = progress + '%';
+            progressBar.textContent = progress + '%';
+            
+            // Show treasure map at 30% progress
+            if (progress >= 30 && progress < 100) {
+                document.getElementById('treasureMap').style.display = 'block';
+            } else {
+                document.getElementById('treasureMap').style.display = 'none';
+            }
+            
+            // Show final battle at 100% progress
+            if (progress >= 100) {
+                document.querySelectorAll('.island').forEach(island => {
+                    island.style.display = 'none';
+                });
+                document.getElementById('nextBtn').style.display = 'none';
+                document.getElementById('finalBattle').style.display = 'block';
+            }
+        }
+        
+        function nextQuestion() {
+            // Hide next button
+            document.getElementById('nextBtn').style.display = 'none';
+            
+            // Reset current question (for demo purposes)
+            // In a full game, you would load a new question here
+            document.querySelectorAll('.feedback').forEach(fb => {
+                fb.innerHTML = '';
+            });
+            
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.style.pointerEvents = 'auto';
+                opt.style.backgroundColor = '#f5f5f5';
+                opt.style.color = '#333';
+                opt.classList.remove('selected');
+            });
+        }
+        
+        function resetGame() {
+            // Reset all game state
+            progress = 0;
+            correctAnswers = 0;
+            monsterHealth = 3;
+            
+            // Reset UI
+            updateProgress();
+            document.getElementById('victory').style.display = 'none';
+            document.getElementById('finalBattle').style.display = 'none';
+            document.getElementById('monster').className = 'monster';
+            
+            // Show all islands again
+            document.querySelectorAll('.island').forEach(island => {
+                island.style.display = 'block';
+            });
+            
+            // Reset questions (for demo)
+            document.querySelectorAll('.feedback').forEach(fb => {
+                fb.innerHTML = '';
+            });
+            
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.style.pointerEvents = 'auto';
+                opt.style.backgroundColor = '#f5f5f5';
+                opt.style.color = '#333';
+                opt.classList.remove('selected');
+            });
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مزرعة الكلمات</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #e8f5e9;
+            margin: 0;
+            padding: 0;
+            color: #2e7d32;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: #4caf50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 2em;
+        }
+        
+        .game-area {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .word-farm {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .word-category {
+            width: 30%;
+            min-height: 200px;
+            background-color: #f1f8e9;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+        }
+        
+        .word-category h3 {
+            text-align: center;
+            border-bottom: 2px dashed #81c784;
+            padding-bottom: 10px;
+            color: #388e3c;
+        }
+        
+        .word-item {
+            background-color: #c8e6c9;
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 20px;
+            cursor: grab;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .word-item:hover {
+            background-color: #a5d6a7;
+            transform: translateY(-3px);
+        }
+        
+        .word-bank {
+            background-color: #e8f5e9;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            min-height: 80px;
+            border: 2px dashed #81c784;
+        }
+        
+        .controls {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            background-color: #2e7d32;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #1b5e20;
+            transform: translateY(-2px);
+        }
+        
+        .score {
+            background-color: #a5d6a7;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        
+        .feedback {
+            text-align: center;
+            margin: 15px 0;
+            font-weight: bold;
+            min-height: 24px;
+        }
+        
+        .correct {
+            color: #2e7d32;
+        }
+        
+        .incorrect {
+            color: #c62828;
+        }
+        
+        @media (max-width: 600px) {
+            .word-category {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>مزرعة الكلمات</h1>
+            <p>قم بفرز الكلمات إلى الفئات الصحيحة!</p>
+        </header>
+        
+        <div class="game-area">
+            <div class="score">
+                النقاط: <span id="points">0</span>
+            </div>
+            
+            <div class="feedback" id="feedback"></div>
+            
+            <div class="word-farm">
+                <div class="word-category" id="nouns" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <h3>أسماء 🏠</h3>
+                    <div id="nouns-container"></div>
+                </div>
+                
+                <div class="word-category" id="verbs" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <h3>أفعال 🏃</h3>
+                    <div id="verbs-container"></div>
+                </div>
+                
+                <div class="word-category" id="letters" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <h3>حروف 🔠</h3>
+                    <div id="letters-container"></div>
+                </div>
+            </div>
+            
+            <div class="word-bank" id="word-bank">
+                <!-- الكلمات ستضاف هنا بالجافاسكريبت -->
+            </div>
+            
+            <div class="controls">
+                <button class="btn" onclick="checkAnswers()">تحقق من الإجابات</button>
+                <button class="btn" onclick="newGame()">لعبة جديدة</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let points = 0;
+        const words = [
+            {text: "مدرسة", type: "nouns"},
+            {text: "يقرأ", type: "verbs"},
+            {text: "في", type: "letters"},
+            {text: "قطة", type: "nouns"},
+            {text: "يجري", type: "verbs"},
+            {text: "على", type: "letters"},
+            {text: "شمس", type: "nouns"},
+            {text: "يكتب", type: "verbs"},
+            {text: "من", type: "letters"},
+            {text: "كتاب", type: "nouns"},
+            {text: "يأكل", type: "verbs"},
+            {text: "إلى", type: "letters"},
+            {text: "طالب", type: "nouns"},
+            {text: "يشرب", type: "verbs"},
+            {text: "عن", type: "letters"}
+        ];
+        
+        // بدء لعبة جديدة
+        function newGame() {
+            points = 0;
+            document.getElementById('points').textContent = points;
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('feedback').className = 'feedback';
+            
+            // مسح المحتوى السابق
+            document.getElementById('nouns-container').innerHTML = '';
+            document.getElementById('verbs-container').innerHTML = '';
+            document.getElementById('letters-container').innerHTML = '';
+            
+            // خلط الكلمات عشوائياً
+            const shuffledWords = [...words].sort(() => Math.random() - 0.5);
+            
+            // عرض الكلمات في بنك الكلمات
+            const wordBank = document.getElementById('word-bank');
+            wordBank.innerHTML = '';
+            
+            shuffledWords.forEach(word => {
+                const wordElement = document.createElement('div');
+                wordElement.className = 'word-item';
+                wordElement.textContent = word.text;
+                wordElement.setAttribute('draggable', 'true');
+                wordElement.setAttribute('ondragstart', 'drag(event)');
+                wordElement.setAttribute('data-type', word.type);
+                wordBank.appendChild(wordElement);
+            });
+        }
+        
+        // السماح بإسقاط العنصر
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+        
+        // بدء سحب العنصر
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.textContent);
+            ev.dataTransfer.setData("type", ev.target.getAttribute('data-type'));
+        }
+        
+        // إسقاط العنصر
+        function drop(ev) {
+            ev.preventDefault();
+            const data = ev.dataTransfer.getData("text");
+            const type = ev.dataTransfer.getData("type");
+            const targetCategory = ev.target.closest('.word-category').id;
+            
+            // إنشاء العنصر الجديد
+            const wordElement = document.createElement('div');
+            wordElement.className = 'word-item';
+            wordElement.textContent = data;
+            wordElement.setAttribute('data-type', type);
+            
+            // إضافة إلى الفئة المناسبة
+            if (targetCategory === 'nouns') {
+                document.getElementById('nouns-container').appendChild(wordElement);
+            } else if (targetCategory === 'verbs') {
+                document.getElementById('verbs-container').appendChild(wordElement);
+            } else if (targetCategory === 'letters') {
+                document.getElementById('letters-container').appendChild(wordElement);
+            }
+        }
+        
+        // التحقق من الإجابات
+        function checkAnswers() {
+            let correct = 0;
+            let total = 0;
+            
+            // التحقق من الأسماء
+            const nounsContainer = document.getElementById('nouns-container');
+            const nounWords = nounsContainer.getElementsByClassName('word-item');
+            
+            for (let word of nounWords) {
+                total++;
+                if (word.getAttribute('data-type') === 'nouns') {
+                    correct++;
+                    word.style.backgroundColor = '#a5d6a7';
+                } else {
+                    word.style.backgroundColor = '#ffcdd2';
+                }
+            }
+            
+            // التحقق من الأفعال
+            const verbsContainer = document.getElementById('verbs-container');
+            const verbWords = verbsContainer.getElementsByClassName('word-item');
+            
+            for (let word of verbWords) {
+                total++;
+                if (word.getAttribute('data-type') === 'verbs') {
+                    correct++;
+                    word.style.backgroundColor = '#a5d6a7';
+                } else {
+                    word.style.backgroundColor = '#ffcdd2';
+                }
+            }
+            
+            // التحقق من الحروف
+            const lettersContainer = document.getElementById('letters-container');
+            const letterWords = lettersContainer.getElementsByClassName('word-item');
+            
+            for (let word of letterWords) {
+                total++;
+                if (word.getAttribute('data-type') === 'letters') {
+                    correct++;
+                    word.style.backgroundColor = '#a5d6a7';
+                } else {
+                    word.style.backgroundColor = '#ffcdd2';
+                }
+            }
+            
+            // حساب النقاط
+            points = Math.round((correct / total) * 100);
+            document.getElementById('points').textContent = points;
+            
+            // عرض التقييم
+            const feedback = document.getElementById('feedback');
+            if (points === 100) {
+                feedback.textContent = 'ممتاز! جميع الإجابات صحيحة';
+                feedback.className = 'feedback correct';
+            } else if (points >= 70) {
+                feedback.textContent = 'جيد جداً! يمكنك تحسين أدائك';
+                feedback.className = 'feedback correct';
+            } else if (points >= 50) {
+                feedback.textContent = 'ليس سيئاً، لكن يمكنك أن تفعل أفضل';
+                feedback.className = 'feedback';
+            } else {
+                feedback.textContent = 'يحتاج إلى تحسين، حاول مرة أخرى!';
+                feedback.className = 'feedback incorrect';
+            }
+        }
+        
+        // بدء اللعبة عند تحميل الصفحة
+        window.onload = newGame;
+    </script>
+</body>
+</html>

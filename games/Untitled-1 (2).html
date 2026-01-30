@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الحروف الهجائية</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Changa:wght@400;700&display=swap');
+        body {
+            font-family: 'Changa', sans-serif;
+            background-color: #f0f9ff;
+        }
+        .card {
+            background-color: #ffffff;
+            border: 3px solid #6366f1;
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: #4f46e5;
+        }
+        .correct {
+            border-color: #22c55e !important;
+        }
+        .incorrect {
+            border-color: #ef4444 !important;
+        }
+        .correct-answer-text {
+            color: #22c55e;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl w-full text-center space-y-8">
+        <h1 class="text-4xl font-extrabold text-indigo-600 mb-6">لعبة الحروف الهجائية</h1>
+        
+        <div id="game-container" class="space-y-6">
+            <div id="question-area" class="bg-indigo-100 rounded-2xl p-6">
+                <p class="text-3xl font-bold text-indigo-800">ما هي الصورة التي تبدأ بحرف:</p>
+                <div id="letter-display" class="text-7xl font-extrabold text-indigo-900 mt-4"></div>
+            </div>
+
+            <div id="choices-container" class="grid grid-cols-2 sm:grid-cols-4 gap-6">
+                <!-- Choices will be rendered here by JavaScript -->
+            </div>
+
+            <div id="message-box" class="text-2xl font-bold mt-4 h-8"></div>
+
+            <button id="next-button" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:scale-105 duration-200 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50" style="display: none;">
+                التالي
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Array of letters and corresponding image URLs and correct words
+        const gameData = [
+            { letter: 'أ', correctWord: 'أرنب', correctImageUrl: 'https://placehold.co/200x200/529E5A/ffffff?text=أرنب' },
+            { letter: 'ب', correctWord: 'بطة', correctImageUrl: 'https://placehold.co/200x200/F1C40F/ffffff?text=بطة' },
+            { letter: 'ت', correctWord: 'تفاحة', correctImageUrl: 'https://placehold.co/200x200/E74C3C/ffffff?text=تفاحة' },
+            { letter: 'ث', correctWord: 'ثعلب', correctImageUrl: 'https://placehold.co/200x200/8E44AD/ffffff?text=ثعلب' },
+            { letter: 'ج', correctWord: 'جمل', correctImageUrl: 'https://placehold.co/200x200/3498DB/ffffff?text=جمل' },
+            { letter: 'ح', correctWord: 'حصان', correctImageUrl: 'https://placehold.co/200x200/1ABC9C/ffffff?text=حصان' },
+            { letter: 'خ', correctWord: 'خروف', correctImageUrl: 'https://placehold.co/200x200/D35400/ffffff?text=خروف' },
+            { letter: 'د', correctWord: 'دجاجة', correctImageUrl: 'https://placehold.co/200x200/95A5A6/ffffff?text=دجاجة' },
+            { letter: 'ذ', correctWord: 'ذرة', correctImageUrl: 'https://placehold.co/200x200/E67E22/ffffff?text=ذرة' },
+            { letter: 'ر', correctWord: 'رمان', correctImageUrl: 'https://placehold.co/200x200/27AE60/ffffff?text=رمان' },
+            { letter: 'ز', correctWord: 'زرافة', correctImageUrl: 'https://placehold.co/200x200/F39C12/ffffff?text=زرافة' },
+            { letter: 'س', correctWord: 'سمكة', correctImageUrl: 'https://placehold.co/200x200/34495E/ffffff?text=سمكة' },
+            { letter: 'ش', correctWord: 'شجرة', correctImageUrl: 'https://placehold.co/200x200/16A085/ffffff?text=شجرة' },
+            { letter: 'ص', correctWord: 'صاروخ', correctImageUrl: 'https://placehold.co/200x200/C0392B/ffffff?text=صاروخ' },
+            { letter: 'ض', correctWord: 'ضفدع', correctImageUrl: 'https://placehold.co/200x200/2ECC71/ffffff?text=ضفدع' },
+            { letter: 'ط', correctWord: 'طائرة', correctImageUrl: 'https://placehold.co/200x200/9B59B6/ffffff?text=طائرة' },
+            { letter: 'ظ', correctWord: 'ظرف', correctImageUrl: 'https://placehold.co/200x200/3498DB/ffffff?text=ظرف' },
+            { letter: 'ع', correctWord: 'عين', correctImageUrl: 'https://placehold.co/200x200/F1C40F/ffffff?text=عين' },
+            { letter: 'غ', correctWord: 'غزال', correctImageUrl: 'https://placehold.co/200x200/95A5A6/ffffff?text=غزال' },
+            { letter: 'ف', correctWord: 'فيل', correctImageUrl: 'https://placehold.co/200x200/E67E22/ffffff?text=فيل' },
+            { letter: 'ق', correctWord: 'قلم', correctImageUrl: 'https://placehold.co/200x200/E74C3C/ffffff?text=قلم' },
+            { letter: 'ك', correctWord: 'كلب', correctImageUrl: 'https://placehold.co/200x200/1ABC9C/ffffff?text=كلب' },
+            { letter: 'ل', correctWord: 'ليمون', correctImageUrl: 'https://placehold.co/200x200/27AE60/ffffff?text=ليمون' },
+            { letter: 'م', correctWord: 'موز', correctImageUrl: 'https://placehold.co/200x200/D35400/ffffff?text=موز' },
+            { letter: 'ن', correctWord: 'نحلة', correctImageUrl: 'https://placehold.co/200x200/F39C12/ffffff?text=نحلة' },
+            { letter: 'ه', correctWord: 'هلال', correctImageUrl: 'https://placehold.co/200x200/34495E/ffffff?text=هلال' },
+            { letter: 'و', correctWord: 'وردة', correctImageUrl: 'https://placehold.co/200x200/9B59B6/ffffff?text=وردة' },
+            { letter: 'ي', correctWord: 'يد', correctImageUrl: 'https://placehold.co/200x200/C0392B/ffffff?text=يد' }
+        ];
+
+        // Global variables
+        let currentLetterIndex = 0;
+        let choicesLocked = false;
+        const choicesContainer = document.getElementById('choices-container');
+        const nextButton = document.getElementById('next-button');
+        const messageBox = document.getElementById('message-box');
+        const letterDisplay = document.getElementById('letter-display');
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function generateChoices() {
+            choicesLocked = false;
+            choicesContainer.innerHTML = '';
+            messageBox.textContent = '';
+            nextButton.style.display = 'none';
+
+            if (currentLetterIndex >= gameData.length) {
+                endGame();
+                return;
+            }
+
+            const currentQuestion = gameData[currentLetterIndex];
+            letterDisplay.textContent = currentQuestion.letter;
+
+            let choices = [currentQuestion];
+            // Add 3 other random, incorrect choices
+            while (choices.length < 4) {
+                const randomIndex = Math.floor(Math.random() * gameData.length);
+                const randomChoice = gameData[randomIndex];
+                if (!choices.some(c => c.letter === randomChoice.letter)) {
+                    choices.push(randomChoice);
+                }
+            }
+
+            shuffleArray(choices);
+
+            choices.forEach(choice => {
+                const card = document.createElement('div');
+                card.classList.add('card', 'rounded-2xl', 'p-4', 'cursor-pointer', 'text-center');
+                card.dataset.correct = (choice.letter === currentQuestion.letter);
+                
+                card.innerHTML = `
+                    <img src="${choice.correctImageUrl}" alt="${choice.correctWord}" class="w-full h-auto rounded-lg mb-2">
+                    <p class="text-xl font-semibold text-gray-800">${choice.correctWord}</p>
+                `;
+
+                card.addEventListener('click', () => {
+                    if (choicesLocked) return;
+                    choicesLocked = true;
+
+                    const allCards = choicesContainer.querySelectorAll('.card');
+                    allCards.forEach(c => {
+                        if (c.dataset.correct === 'true') {
+                            c.classList.add('correct');
+                        } else {
+                            c.classList.remove('card'); // Remove base styles for incorrect cards
+                            c.style.opacity = 0.5;
+                        }
+                    });
+
+                    if (card.dataset.correct === 'true') {
+                        messageBox.innerHTML = '<span class="text-green-600">أحسنت! إجابة صحيحة!</span>';
+                        // Add a simple animation or sound here
+                    } else {
+                        messageBox.innerHTML = `
+                            <span class="text-red-600">للأسف، إجابة خاطئة.</span><br>
+                            <span class="correct-answer-text">الجواب الصحيح هو: ${currentQuestion.correctWord}</span>
+                        `;
+                    }
+                    
+                    nextButton.style.display = 'block';
+                });
+
+                choicesContainer.appendChild(card);
+            });
+        }
+
+        function endGame() {
+            gameContainer.innerHTML = `
+                <div class="bg-yellow-100 rounded-2xl p-8">
+                    <h2 class="text-4xl font-extrabold text-yellow-800 mb-4">انتهت اللعبة!</h2>
+                    <p class="text-2xl text-yellow-900">لقد تعلمت جميع الحروف. أحسنت!</p>
+                </div>
+            `;
+        }
+
+        nextButton.addEventListener('click', () => {
+            currentLetterIndex++;
+            generateChoices();
+        });
+
+        // Initialize the first round
+        generateChoices();
+    </script>
+</body>
+</html>

@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مغامرة النحو العربي</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Chosen Palette: Sky & Amber Harmony */
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f0f9ff; /* Light Sky Blue */
+            color: #1e3a8a; /* Dark Blue */
+        }
+        .module-card:hover {
+            transform: translateY(-8px) scale(1.03);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+        .rule-item:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+        .modal {
+            transition: opacity 0.3s ease;
+        }
+        .modal-content {
+            transition: transform 0.3s ease;
+        }
+        .correct-answer {
+            background-color: #22c55e !important; /* Green */
+            border-color: #16a34a !important;
+            color: white !important;
+        }
+        .wrong-answer {
+            background-color: #ef4444 !important; /* Red */
+            border-color: #dc2626 !important;
+            color: white !important;
+        }
+        .pulse-effect {
+            animation: pulse-animation 2s infinite alternate;
+        }
+        @keyframes pulse-animation {
+            0% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(251, 191, 36, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); }
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px; /* Max width for chart */
+            height: 300px; /* Base height */
+            max-height: 350px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
+
+    <div id="app-container" class="bg-white rounded-3xl shadow-2xl p-6 md:p-8 w-full max-w-6xl mx-auto">
+        
+        <!-- Global Header/Dashboard -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8 pb-4 border-b-4 border-amber-300">
+            <h1 class="text-4xl md:text-5xl font-black bg-gradient-to-r from-amber-400 to-orange-500 text-transparent bg-clip-text mb-4 md:mb-0">
+                <i class="fas fa-book-open-reader"></i> مغامرة النحو العربي
+            </h1>
+            <div class="flex items-center space-x-6 rtl:space-x-reverse">
+                <div class="flex items-center text-xl font-bold text-sky-800">
+                    <i class="fas fa-star text-amber-500 text-2xl ml-2"></i>
+                    <span>النقاط: <span id="global-score">0</span></span>
+                </div>
+                <div class="flex items-center text-xl font-bold text-sky-800">
+                    <i class="fas fa-gem text-blue-500 text-2xl ml-2"></i>
+                    <span>الكنوز: <span id="global-treasures">0</span> / <span id="total-modules">0</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Grammar Map View -->
+        <div id="grammar-map-view" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <p class="col-span-full text-lg text-gray-700 text-center mb-4">
+                مرحباً بك في خريطة النحو! اختر وحدة لتبدأ رحلتك في اكتشاف كنوز اللغة العربية.
+
+            </p>
+            <!-- Module cards will be dynamically inserted here -->
+        </div>
+
+        <!-- Module Detail View -->
+        <div id="module-detail-view" class="hidden">
+            <button id="back-to-map-btn" class="bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-full shadow-md hover:bg-gray-400 transform transition-colors duration-300 mb-6">
+                <i class="fas fa-arrow-right ml-2"></i> العودة للخريطة
+            </button>
+            <h2 id="module-detail-title" class="text-3xl md:text-4xl font-bold text-sky-700 mb-6 text-center"></h2>
+            <p id="module-detail-description" class="text-lg text-gray-700 text-center mb-8"></p>
+            
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-center gap-8 mb-8">
+                <div class="w-full md:w-1/2 flex flex-col items-center">
+                    <h3 class="text-2xl font-bold text-sky-800 mb-4">تقدم الوحدة</h3>
+                    <div class="chart-container bg-white p-4 rounded-xl shadow-lg border border-gray-200">
+                        <canvas id="moduleProgressChart"></canvas>
+                    </div>
+                </div>
+                <div class="w-full md:w-1/2">
+                    <h3 class="text-2xl font-bold text-sky-800 mb-4 text-center md:text-right">قواعد هذه الوحدة:</h3>
+                    <ul id="rules-list" class="space-y-4">
+                        <!-- Rules will be dynamically inserted here -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rule Explanation Modal -->
+        <div id="rule-explanation-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+            <div class="modal-content bg-white rounded-3xl shadow-2xl p-8 w-full max-w-3xl text-center transform scale-95">
+                <button class="close-modal absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-3xl font-bold">&times;</button>
+                <h2 id="explanation-title" class="text-3xl font-bold text-sky-800 mb-4"></h2>
+                <p id="explanation-text" class="text-lg text-gray-700 mb-6 text-justify"></p>
+                <h3 class="text-xl font-bold text-amber-600 mb-3">أمثلة:</h3>
+                <ul id="explanation-examples" class="list-disc list-inside text-gray-600 text-lg mb-8 text-right px-4">
+                    <!-- Examples will be inserted here -->
+                </ul>
+                <button class="bg-sky-500 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-sky-600 transform transition-colors duration-300 text-lg close-modal">
+                    فهمت!
+                </button>
+            </div>
+        </div>
+
+        <!-- Challenge/Quiz Modal -->
+        <div id="challenge-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+            <div class="modal-content bg-white rounded-3xl shadow-2xl p-8 w-full max-w-2xl text-center transform scale-95">
+                <button class="close-modal absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-3xl font-bold">&times;</button>
+                <h2 id="challenge-title" class="text-3xl font-bold text-sky-800 mb-4">تحدي القاعدة: <span id="challenge-rule-name"></span></h2>
+                <p id="challenge-question-text" class="text-2xl text-gray-700 mb-8"></p>
+                <div id="challenge-options" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Options will be added here by JavaScript -->
+                </div>
+                <p id="challenge-feedback" class="mt-6 text-2xl font-bold"></p>
+                <button id="next-question-btn" class="bg-gray-300 text-gray-800 font-bold py-3 px-8 rounded-full shadow-lg hover:bg-gray-400 transform transition-colors duration-300 text-lg mt-6 hidden">
+                    السؤال التالي
+                </button>
+                <button id="finish-challenge-btn" class="bg-green-500 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-green-600 transform transition-colors duration-300 text-lg mt-6 hidden">
+                    إنهاء التحدي
+                </button>
+            </div>
+        </div>
+
+        <!-- Mastery Celebration Modal -->
+        <div id="mastery-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+            <div class="modal-content bg-amber-50 border-4 border-amber-300 rounded-3xl shadow-2xl p-8 w-full max-w-2xl text-center transform scale-95">
+                <div class="text-amber-400 text-7xl mb-4">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <h2 id="mastery-title" class="text-4xl font-bold text-amber-800 mb-4"></h2>
+                <p id="mastery-message" class="text-xl text-gray-700 mb-8"></p>
+                <button class="bg-amber-500 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-amber-600 transform transition-colors duration-300 text-lg close-modal">
+                    متابعة المغامرة
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        /* Application Structure Plan:
+        The application follows a "Hub and Spoke" information architecture.
+        1. Main Hub (Grammar Map): This is the initial view, presenting major grammar modules (like "الأسماء", "الأفعال") as distinct, clickable cards/sections. This provides a high-level overview of the game's content and allows users to choose their learning path. The rationale is to prevent information overload by segmenting complex grammar into manageable, thematic units, making the learning journey less daunting and more exploratory.
+        2. Module Detail View: Upon clicking a module, the user transitions to a dedicated view for that module. This view lists all sub-topics/rules within the chosen module, along with their mastery status. It also includes a progress chart specific to that module. This "spoke" provides a focused learning environment, allowing users to delve into specific rules without distraction.
+        3. Rule Explanation Modal: From the Module Detail view, clicking on a specific rule (e.g., "المفرد") opens a modal. This modal displays a detailed explanation of the rule with examples. This is a crucial interactive element for learning, providing on-demand information without navigating away from the module context.
+        4. Challenge/Quiz Modal: Also from the Module Detail view, or after reviewing a rule, users can initiate a "challenge" (quiz) for that rule. This modal presents multiple-choice questions. This interactive component facilitates active recall and immediate feedback, reinforcing learning.
+        5. Global Dashboard/Progress Tracking: A persistent element (or easily accessible section) will display overall player progress, score, and collected treasures. This serves as a motivational tool and a clear indicator of achievement within the comprehensive grammar curriculum.
+
+        This structure was chosen for usability because it breaks down the vast subject of Arabic grammar into digestible, navigable chunks. Users can choose their area of focus, learn at their own pace, and test their knowledge interactively. The clear visual hierarchy and dedicated views for different tasks (exploration, learning, quizzing) enhance user understanding and ease of navigation.
+        */
+
+        /* Visualization & Content Choices:
+        * Grammar Modules (Main Hub):
+            * Report Info: Top-level grammar categories.
+            * Goal: Inform about available learning paths, allow selection.
+            * Viz/Presentation Method: Clickable cards/buttons with icons and names.
+            * Interaction: Click to navigate to module detail.
+            * Justification: Visually appealing, clear entry points, easy to understand.
+            * Library/Method: HTML/Tailwind CSS.
+        * Module Progress Chart (Module Detail View):
+            * Report Info: Mastery status of rules within a module (e.g., mastered vs. unmastered).
+            * Goal: Visualize progress within the current module.
+            * Viz/Presentation Method: Doughnut Chart.
+            * Interaction: Static display.
+            * Justification: Clearly shows proportion of mastered rules, intuitive.
+            * Library/Method: Chart.js (Canvas).
+        * Rule Explanations (Rule Explanation Modal):
+            * Report Info: Detailed textual explanations and examples for each grammar rule.
+            * Goal: Provide in-depth learning content.
+            * Viz/Presentation Method: Formatted text with headings and bullet points.
+            * Interaction: Modal display (show/hide).
+            * Justification: Clear, readable presentation of complex information.
+            * Library/Method: HTML/Tailwind CSS.
+        * Quiz Questions (Challenge/Quiz Modal):
+            * Report Info: Multiple-choice questions for each rule.
+            * Goal: Test user understanding and reinforce learning.
+            * Viz/Presentation Method: Text question, clickable buttons for options.
+            * Interaction: Click to select answer, immediate feedback.
+            * Justification: Standard, effective quiz format for quick assessment.
+            * Library/Method: HTML/Tailwind CSS/Vanilla JS.
+        * Player Score & Treasures (Global Dashboard):
+            * Report Info: Quantitative metrics (points, mastered modules).
+            * Goal: Display overall player progress and motivation.
+            * Viz/Presentation Method: Numeric display with icons.
+            * Interaction: Static display, updates dynamically.
+            * Justification: Clear, concise progress indicators.
+            * Library/Method: HTML/Tailwind CSS/Vanilla JS.
+        */
+        /* CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. */
+
+        const grammarModules = [
+            {
+                id: 'asmaa',
+                name: 'الأسماء',
+                icon: 'fas fa-font',
+                description: 'اكتشف عالم الأسماء وأنواعها المختلفة في اللغة العربية، من المفرد والمثنى إلى أنواع الجموع والأسماء الخمسة.',
+                rules: [
+                    {
+                        id: 'mufrad',
+                        name: 'المفرد',
+                        explanation: 'المفرد هو كل كلمة تدل على واحد أو واحدة من الأشياء، سواء كان مذكرًا أو مؤنثًا، عاقلاً أو غير عاقل. علامات إعرابه الأصلية هي: الرفع بالضمة، النصب بالفتحة، الجر بالكسرة.',
+                        examples: ['كتابٌ (مفرد مذكر مرفوع)', 'معلمةً (مفرد مؤنث منصوبة)', 'في بيتٍ (مفرد مذكر مجرور)'],
+                        questions: [
+                            { q: "أي من الكلمات التالية اسم مفرد؟", opts: ["أقلام", "كتاب", "بيوت", "مدارس"], answer: "كتاب" },
+                            { q: "علامة رفع الاسم المفرد هي:", opts: ["الألف", "الواو", "الضمة"], answer: "الضمة" }
+                        ],
+                        mastered: false
+                    },
+                    {
+                        id: 'muthanna',
+                        name: 'المثنى',
+                        explanation: 'المثنى هو ما دل على اثنين أو اثنتين بزيادة ألف ونون مكسورة أو ياء ونون مكسورة على مفرده. يرفع بالألف (مثل: طالبانِ)، وينصب ويجر بالياء (مثل: طالبينِ).',
+                        examples: ['حضَرَ الطالبانِ (رفع)', 'رأيتُ الطالبينِ (نصب)', 'سلمتُ على الطالبينِ (جر)'],
+                        questions: [
+                            { q: "أي كلمة تدل على مثنى؟", opts: ["مهندسون", "معلم", "طالبان", "بنات"], answer: "طالبان" },
+                            { q: "علامة نصب المثنى هي:", opts: ["الفتحة", "الياء", "الكسرة"], answer: "الياء" }
+                        ],
+                        mastered: false
+                    },
+                    {
+                        id: 'jam_mudhakkar_salim',
+                        name: 'جمع المذكر السالم',
+                        explanation: 'هو ما دل على أكثر من اثنين من الذكور بزيادة واو ونون مفتوحة أو ياء ونون مفتوحة على مفرده. يرفع بالواو (مثل: معلمون)، وينصب ويجر بالياء (مثل: معلمين).',
+                        examples: ['حضر المعلمون (رفع)', 'رأيت المعلمين (نصب)', 'سلمت على المعلمين (جر)'],
+                        questions: [
+                            { q: "أي كلمة جمع مذكر سالم؟", opts: ["طلاب", "معلمون", "كاتبات"], answer: "معلمون" },
+                            { q: "علامة رفع جمع المذكر السالم هي:", opts: ["الضمة", "الألف", "الواو"], answer: "الواو" }
+                        ],
+                        mastered: false
+                    }
+                ]
+            },
+            {
+                id: 'afaaal',
+                name: 'الأفعال',
+                icon: 'fas fa-running',
+                description: 'تعرف على أنواع الأفعال وأزمنتها المختلفة في اللغة العربية: الماضي، المضارع، والأمر.',
+                rules: [
+                    {
+                        id: 'madi',
+                        name: 'الفعل الماضي',
+                        explanation: 'الفعل الماضي هو ما دل على حدث وقع وانتهى قبل زمن التكلم، وهو مبني دائماً. علامات بنائه تختلف حسب اتصاله بالضمائر.',
+                        examples: ['كتبَ (مبني على الفتح)', 'ذهبَتْ (مبني على الفتح)', 'لعبوا (مبني على الضم)'],
+                        questions: [
+                            { q: "أي من الكلمات التالية فعل ماضٍ؟", opts: ["يكتب", "اذهب", "قرأ", "كتاب"], answer: "قرأ" },
+                            { q: "الفعل 'شرب' يدل على زمن:", opts: ["الحاضر", "المستقبل", "الماضي"], answer: "الماضي" }
+                        ],
+                        mastered: false
+                    },
+                    {
+                        id: 'mudari',
+                        name: 'الفعل المضارع',
+                        explanation: 'الفعل المضارع هو ما دل على حدث يقع الآن أو سيقع في المستقبل، ويبدأ بأحد أحرف المضارعة (أ، ن، ي، ت). وهو مرفوع ما لم يسبقه ناصب أو جازم.',
+                        examples: ['يكتبُ (مرفوع بالضمة)', 'لن نلعبَ (منصوب بالفتحة)', 'لم تذهبْ (مجزوم بالسكون)'],
+                        questions: [
+                            { q: "أي من الكلمات التالية فعل مضارع؟", opts: ["لعب", "العب", "يلعب", "لعبة"], answer: "يلعب" },
+                            { q: "الفعل 'تدرسين' يدل على زمن:", opts: ["الماضي", "المضارع", "الأمر"], answer: "المضارع" }
+                        ],
+                        mastered: false
+                    }
+                ]
+            },
+            {
+                id: 'huruf',
+                name: 'الحروف',
+                icon: 'fas fa-quote-right',
+                description: 'استكشف الحروف في اللغة العربية التي تربط الكلمات والجمل وتضيف إليها المعنى.',
+                rules: [
+                    {
+                        id: 'jar',
+                        name: 'حروف الجر',
+                        explanation: 'حروف الجر هي حروف تربط الأسماء بالأفعال أو الأسماء ببعضها، وتجعل الاسم الذي يليها مجروراً. من أشهرها: من، إلى، عن، على، في، الباء، اللام، الكاف.',
+                        examples: ['ذهبتُ إلى المدرسةِ', 'كتبتُ بالقلمِ', 'الكتابُ على الطاولةِ'],
+                        questions: [
+                            { q: "أي من الكلمات التالية حرف جر؟", opts: ["ذهب", "كتاب", "على", "جميل"], answer: "على" },
+                            { q: "أكمل الجملة: وضعتُ القلمَ ___ الحقيبةِ.", opts: ["من", "إلى", "في"], answer: "في" }
+                        ],
+                        mastered: false
+                    }
+                ]
+            },
+            {
+                id: 'jumla-ismiya',
+                name: 'الجملة الاسمية',
+                icon: 'fas fa-comment-dots',
+                description: 'تعرف على الجملة الاسمية التي تبدأ باسم، وتتكون من ركنين أساسيين: المبتدأ والخبر.',
+                rules: [
+                    {
+                        id: 'mubtada-khabar',
+                        name: 'المبتدأ والخبر',
+                        explanation: 'المبتدأ هو الاسم الذي تبدأ به الجملة الاسمية، والخبر هو ما يخبر عن المبتدأ ويكمل المعنى. كلاهما يكونان مرفوعين.',
+                        examples: ['الشمسُ مشرقةٌ (الشمس: مبتدأ، مشرقة: خبر)', 'الطلابُ مجتهدون (الطلاب: مبتدأ، مجتهدون: خبر)'],
+                        questions: [
+                            { q: "في جملة 'الجوُ جميلٌ'، ما هو المبتدأ؟", opts: ["الجوُ", "جميلٌ"], answer: "الجوُ" },
+                            { q: "علامة رفع المبتدأ والخبر هي:", opts: ["الفتحة", "الضمة", "الكسرة"], answer: "الضمة" }
+                        ],
+                        mastered: false
+                    }
+                ]
+            },
+            {
+                id: 'nawasikh',
+                name: 'النواسخ',
+                icon: 'fas fa-exchange-alt',
+                description: 'اكتشف الأفعال والحروف الناسخة التي تدخل على الجملة الاسمية وتغير حكم المبتدأ والخبر.',
+                rules: [
+                    {
+                        id: 'kana-akhawatuha',
+                        name: 'كان وأخواتها',
+                        explanation: 'كان وأخواتها أفعال ناسخة تدخل على الجملة الاسمية فترفع المبتدأ ويسمى اسمها، وتنصب الخبر ويسمى خبرها. مثل: كان، أصبح، أمسى، ظل، بات، صار، ليس.',
+                        examples: ['كان الجوُ جميلاً (الجو: اسم كان مرفوع، جميلاً: خبر كان منصوب)', 'أصبحَ الطالبُ نشيطاً'],
+                        questions: [
+                            { q: "الفعل الناسخ في جملة 'كان الولدُ نائماً' هو:", opts: ["الولدُ", "نائماً", "كان"], answer: "كان" },
+                            { q: "كان وأخواتها ___ المبتدأ و ___ الخبر.", opts: ["ترفع - ترفع", "تنصب - تنصب", "ترفع - تنصب"], answer: "ترفع - تنصب" }
+                        ],
+                        mastered: false
+                    },
+                    {
+                        id: 'inna-akhawatuha',
+                        name: 'إن وأخواتها',
+                        explanation: 'إن وأخواتها حروف ناسخة تدخل على الجملة الاسمية فتنصب المبتدأ ويسمى اسمها، وترفع الخبر ويسمى خبرها. مثل: إن، أن، كأن، لكن، ليت، لعل.',
+                        examples: ['إن العلمَ نورٌ (العلم: اسم إن منصوب، نور: خبر إن مرفوع)', 'ليت الشبابَ يعودُ'],
+                        questions: [
+                            { q: "الحرف الناسخ في جملة 'إن الكتابَ مفيدٌ' هو:", opts: ["الكتابَ", "مفيدٌ", "إن"], answer: "إن" },
+                            { q: "إن وأخواتها ___ المبتدأ و ___ الخبر.", opts: ["ترفع - ترفع", "تنصب - ترفع", "تنصب - تنصب"], answer: "تنصب - ترفع" }
+                        ],
+                        mastered: false
+                    }
+                ]
+            }
+        ];
+
+        let player = {
+            score: 0,
+            masteredRules: {}, // { 'mufrad': true, 'madi': false }
+            masteredModules: {}, // { 'asmaa': true }
+            currentModuleId: null,
+            currentRuleId: null,
+            currentChallenge: {
+                rule: null,
+                questions: [],
+                currentQuestionIndex: 0
+            }
+        };
+
+        const appContainer = document.getElementById('app-container');
+        const grammarMapView = document.getElementById('grammar-map-view');
+        const moduleDetailView = document.getElementById('module-detail-view');
+        const moduleDetailTitle = document.getElementById('module-detail-title');
+        const moduleDetailDescription = document.getElementById('module-detail-description');
+        const rulesList = document.getElementById('rules-list');
+        const backToMapBtn = document.getElementById('back-to-map-btn');
+
+        const ruleExplanationModal = document.getElementById('rule-explanation-modal');
+        const explanationTitle = document.getElementById('explanation-title');
+        const explanationText = document.getElementById('explanation-text');
+        const explanationExamples = document.getElementById('explanation-examples');
+
+        const challengeModal = document.getElementById('challenge-modal');
+        const challengeRuleName = document.getElementById('challenge-rule-name');
+        const challengeQuestionText = document.getElementById('challenge-question-text');
+        const challengeOptions = document.getElementById('challenge-options');
+        const challengeFeedback = document.getElementById('challenge-feedback');
+        const nextQuestionBtn = document.getElementById('next-question-btn');
+        const finishChallengeBtn = document.getElementById('finish-challenge-btn');
+
+        const masteryModal = document.getElementById('mastery-modal');
+        const masteryTitle = document.getElementById('mastery-title');
+        const masteryMessage = document.getElementById('mastery-message');
+
+        const globalScoreEl = document.getElementById('global-score');
+        const globalTreasuresEl = document.getElementById('global-treasures');
+        const totalModulesEl = document.getElementById('total-modules');
+
+        let moduleProgressChartInstance = null;
+
+        // Utility functions
+        function showModal(modalElement) {
+            modalElement.classList.remove('hidden');
+            modalElement.querySelector('.modal-content').classList.replace('scale-95', 'scale-100');
+        }
+
+        function hideModal(modalElement) {
+            modalElement.querySelector('.modal-content').classList.replace('scale-100', 'scale-95');
+            setTimeout(() => modalElement.classList.add('hidden'), 300);
+        }
+
+        function updateGlobalUI() {
+            globalScoreEl.textContent = player.score;
+            const masteredModuleCount = Object.values(player.masteredModules).filter(m => m).length;
+            globalTreasuresEl.textContent = masteredModuleCount;
+            totalModulesEl.textContent = grammarModules.length;
+        }
+
+        function renderGrammarMap() {
+            grammarMapView.innerHTML = `
+                <p class="col-span-full text-lg text-gray-700 text-center mb-4">
+                    مرحباً بك في خريطة النحو! اختر وحدة لتبدأ رحلتك في اكتشاف كنوز اللغة العربية.
+                </p>
+            `;
+            grammarMapView.classList.remove('hidden');
+            moduleDetailView.classList.add('hidden');
+
+            grammarModules.forEach(module => {
+                const moduleCard = document.createElement('div');
+                const isMastered = player.masteredModules[module.id];
+                moduleCard.className = `module-card bg-gradient-to-br from-blue-200 to-blue-300 p-6 rounded-2xl shadow-lg cursor-pointer transform transition-all duration-300 relative flex flex-col items-center text-center ${isMastered ? 'border-4 border-amber-400 pulse-effect' : 'border-4 border-blue-400'}`;
+                
+                moduleCard.innerHTML = `
+                    <div class="text-5xl mb-4 text-blue-700">
+                        <i class="${module.icon}"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-blue-800 mb-2">${module.name}</h3>
+                    <p class="text-gray-600 text-sm">${module.description}</p>
+                    ${isMastered ? '<div class="absolute top-2 right-2 text-amber-500 text-3xl"><i class="fas fa-check-circle"></i></div>' : ''}
+                `;
+                moduleCard.onclick = () => showModuleDetail(module.id);
+                grammarMapView.appendChild(moduleCard);
+            });
+        }
+
+        function showModuleDetail(moduleId) {
+            player.currentModuleId = moduleId;
+            const module = grammarModules.find(m => m.id === moduleId);
+            if (!module) return;
+
+            moduleDetailTitle.innerHTML = `<i class="${module.icon} ml-2"></i> ${module.name}`;
+            moduleDetailDescription.textContent = module.description;
+            rulesList.innerHTML = '';
+
+            let masteredCount = 0;
+            module.rules.forEach(rule => {
+                const isRuleMastered = player.masteredRules[rule.id];
+                if (isRuleMastered) {
+                    masteredCount++;
+                }
+
+                const ruleItem = document.createElement('li');
+                ruleItem.className = `rule-item bg-blue-50 p-4 rounded-xl shadow-md flex justify-between items-center border-l-4 ${isRuleMastered ? 'border-green-500' : 'border-sky-400'} transition-all duration-200`;
+                ruleItem.innerHTML = `
+                    <span class="text-lg font-semibold text-gray-800">${rule.name}</span>
+                    <div class="flex space-x-2 rtl:space-x-reverse">
+                        <button class="bg-sky-400 text-white px-3 py-1 rounded-full text-sm hover:bg-sky-500 transition-colors view-explanation-btn" data-rule-id="${rule.id}">
+                            شرح <i class="fas fa-info-circle mr-1"></i>
+                        </button>
+                        <button class="bg-amber-400 text-white px-3 py-1 rounded-full text-sm hover:bg-amber-500 transition-colors start-challenge-btn" data-rule-id="${rule.id}" ${isRuleMastered ? 'disabled' : ''}>
+                            تحدي <i class="fas fa-question-circle mr-1"></i>
+                        </button>
+                        ${isRuleMastered ? '<span class="text-green-600 text-xl"><i class="fas fa-check-circle"></i></span>' : ''}
+                    </div>
+                `;
+                rulesList.appendChild(ruleItem);
+            });
+
+            // Attach event listeners for dynamically created buttons
+            rulesList.querySelectorAll('.view-explanation-btn').forEach(btn => {
+                btn.onclick = () => showRuleExplanation(btn.dataset.ruleId);
+            });
+            rulesList.querySelectorAll('.start-challenge-btn').forEach(btn => {
+                btn.onclick = () => startChallenge(btn.dataset.ruleId);
+            });
+
+            updateModuleProgressChart(masteredCount, module.rules.length);
+            grammarMapView.classList.add('hidden');
+            moduleDetailView.classList.remove('hidden');
+        }
+
+        function updateModuleProgressChart(mastered, total) {
+            const ctx = document.getElementById('moduleProgressChart').getContext('2d');
+            if (moduleProgressChartInstance) {
+                moduleProgressChartInstance.destroy();
+            }
+            moduleProgressChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['قواعد متقنة', 'قواعد متبقية'],
+                    datasets: [{
+                        data: [mastered, total - mastered],
+                        backgroundColor: ['#48bb78', '#cbd5e0'], // Green-500, Gray-300
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    family: 'Cairo',
+                                    size: 14
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        label += context.parsed;
+                                    }
+                                    return label;
+                                }
+                            },
+                            bodyFont: {
+                                family: 'Cairo'
+                            },
+                            titleFont: {
+                                family: 'Cairo'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function showRuleExplanation(ruleId) {
+            const module = grammarModules.find(m => m.id === player.currentModuleId);
+            const rule = module.rules.find(r => r.id === ruleId);
+            if (!rule) return;
+
+            explanationTitle.innerHTML = `<i class="${module.icon} ml-2"></i> ${rule.name}`;
+            explanationText.textContent = rule.explanation;
+            explanationExamples.innerHTML = '';
+            rule.examples.forEach(example => {
+                const li = document.createElement('li');
+                li.textContent = example;
+                explanationExamples.appendChild(li);
+            });
+
+            showModal(ruleExplanationModal);
+        }
+
+        function startChallenge(ruleId) {
+            const module = grammarModules.find(m => m.id === player.currentModuleId);
+            const rule = module.rules.find(r => r.id === ruleId);
+            if (!rule || rule.mastered) return;
+
+            player.currentChallenge.rule = rule;
+            player.currentChallenge.questions = [...rule.questions].sort(() => 0.5 - Math.random()); // Shuffle questions
+            player.currentChallenge.currentQuestionIndex = 0;
+
+            challengeRuleName.textContent = rule.name;
+            nextQuestionBtn.classList.add('hidden');
+            finishChallengeBtn.classList.add('hidden');
+            challengeFeedback.textContent = '';
+            
+            showQuestion();
+            showModal(challengeModal);
+        }
+
+        function showQuestion() {
+            const challenge = player.currentChallenge;
+            const currentQuestion = challenge.questions[challenge.currentQuestionIndex];
+
+            challengeQuestionText.textContent = currentQuestion.q;
+            challengeOptions.innerHTML = '';
+            challengeFeedback.textContent = '';
+            nextQuestionBtn.classList.add('hidden');
+            finishChallengeBtn.classList.add('hidden');
+
+            currentQuestion.opts.forEach(opt => {
+                const button = document.createElement('button');
+                button.textContent = opt;
+                button.className = "bg-sky-400 text-white font-bold py-4 px-6 rounded-xl shadow-md hover:bg-sky-500 transform transition-all duration-200 text-lg";
+                button.onclick = () => checkChallengeAnswer(opt, currentQuestion.answer);
+                challengeOptions.appendChild(button);
+            });
+        }
+
+        function checkChallengeAnswer(selected, correct) {
+            const buttons = challengeOptions.querySelectorAll('button');
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                if (btn.textContent === correct) {
+                    btn.classList.add('correct-answer');
+                } else if (btn.textContent === selected) {
+                    btn.classList.add('wrong-answer');
+                }
+            });
+
+            if (selected === correct) {
+                challengeFeedback.textContent = "إجابة صحيحة! أحسنت.";
+                challengeFeedback.className = "mt-6 text-2xl font-bold text-green-500";
+                player.score += 20; // Points for correct answer
+            } else {
+                challengeFeedback.textContent = `إجابة خاطئة. الصحيح هو: ${correct}`;
+                challengeFeedback.className = "mt-6 text-2xl font-bold text-red-500";
+            }
+
+            player.currentChallenge.currentQuestionIndex++;
+            if (player.currentChallenge.currentQuestionIndex < player.currentChallenge.questions.length) {
+                nextQuestionBtn.classList.remove('hidden');
+            } else {
+                finishChallengeBtn.classList.remove('hidden');
+            }
+            updateGlobalUI();
+        }
+
+        function finishChallenge() {
+            hideModal(challengeModal);
+            const rule = player.currentChallenge.rule;
+            // For simplicity, let's say completing all questions marks rule as mastered.
+            // In a real game, you might check score/accuracy.
+            player.masteredRules[rule.id] = true;
+            rule.mastered = true; // Update the rule object directly
+
+            updateGlobalUI();
+            checkModuleMastery(player.currentModuleId);
+            showModuleDetail(player.currentModuleId); // Re-render module detail to show updated status
+        }
+
+        function checkModuleMastery(moduleId) {
+            const module = grammarModules.find(m => m.id === moduleId);
+            if (!module) return;
+
+            const allRulesMastered = module.rules.every(rule => player.masteredRules[rule.id]);
+            if (allRulesMastered && !player.masteredModules[moduleId]) {
+                player.masteredModules[moduleId] = true;
+                updateGlobalUI();
+                showMasteryCelebration(module.name);
+                renderGrammarMap(); // Re-render map to show mastered module
+            }
+        }
+
+        function showMasteryCelebration(moduleName) {
+            masteryTitle.textContent = `تهانينا! لقد أتقنت وحدة ${moduleName}!`;
+            masteryMessage.textContent = `لقد جمعت كنزًا جديدًا من كنوز اللغة! استمر في رحلتك الرائعة.`;
+            showModal(masteryModal);
+        }
+
+        function resetGame() {
+            player = {
+                score: 0,
+                masteredRules: {},
+                masteredModules: {},
+                currentModuleId: null,
+                currentRuleId: null,
+                currentChallenge: {
+                    rule: null,
+                    questions: [],
+                    currentQuestionIndex: 0
+                }
+            };
+            grammarModules.forEach(module => {
+                module.rules.forEach(rule => {
+                    rule.mastered = false;
+                });
+            });
+            updateGlobalUI();
+            renderGrammarMap();
+        }
+
+        // Event Listeners for main navigation and modals
+        backToMapBtn.addEventListener('click', renderGrammarMap);
+        nextQuestionBtn.addEventListener('click', showQuestion);
+        finishChallengeBtn.addEventListener('click', finishChallenge);
+
+        document.querySelectorAll('.close-modal').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                hideModal(e.target.closest('.modal'));
+                // After closing any modal, if we are in a module detail view, re-render it to update status
+                if (player.currentModuleId && !moduleDetailView.classList.contains('hidden')) {
+                    showModuleDetail(player.currentModuleId);
+                }
+            });
+        });
+
+        // Initial render
+        document.addEventListener('DOMContentLoaded', () => {
+            updateGlobalUI();
+            renderGrammarMap();
+        });
+    </script>
+</body>
+</html>

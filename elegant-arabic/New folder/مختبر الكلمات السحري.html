@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الدرس الأول: أقسام الكلمة - مختبر الكلمات السحرية</title>
+    <!-- Google Fonts for a playful look -->
+    <link href="https://fonts.googleapis.com/css2?family=Changa:wght@600;800&family=Cairo:wght%40700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #FF6B6B; /* Vibrant Red */
+            --secondary-color: #4ECDC4; /* Teal Green */
+            --accent-color-1: #FFE66D; /* Sunny Yellow */
+            --accent-color-2: #484848; /* Dark Grey for text */
+            --bg-light: #F7FFF7; /* Off-white for general background */
+            --bg-dark: #2F3640; /* Darker background for contrast */
+            --shadow-light: rgba(0, 0, 0, 0.1);
+            --shadow-medium: rgba(0, 0, 0, 0.2);
+            --letter-glow-color: #FFE66D; /* Yellow glow for letters */
+            --text-color-light: #F7FFF7;
+            --cursor-glow-color: #FFD700; /* Gold for cursor glow */
+            --paragraph-box-bg: rgba(255, 255, 255, 0.9); /* Slightly transparent white for general paragraph boxes */
+            
+            /* Specific Glow Colors for Paragraphs and Game Buttons */
+            --name-glow-color: rgba(255, 214, 0, 0.5);   /* Sunny yellow glow for Names */
+            --verb-glow-color: rgba(78, 205, 196, 0.5);  /* Teal green glow for Verbs */
+            --char-glow-color: rgba(255, 107, 107, 0.5); /* Vibrant red glow for Characters */
+
+            /* Specific Background Colors for Game Buttons */
+            --name-button-bg: #F0E68C; /* Khaki for name button */
+            --verb-button-bg: #80CED7; /* Medium turquoise for verb button */
+            --char-button-bg: #FF9999; /* Light red for char button */
+
+            /* Analyzer specific colors */
+            --analyzer-bg: #e6f7ff; /* Light blue for analyzer background */
+            --analyzer-border: #80CED7; /* Teal border for analyzer */
+        }
+
+        body {
+            font-family: 'Changa', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, var(--bg-light) 0%, #DFF3E0 100%);
+            color: var(--accent-color-2);
+            text-align: center;
+            line-height: 1.8;
+            overflow-x: hidden; /* Prevent horizontal scroll from letters */
+            cursor: none; /* Hide default cursor */
+        }
+
+        /* Custom Cursor Style (Circular) */
+        #custom-cursor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            pointer-events: none; /* Allow clicks to pass through */
+            z-index: 9999; /* Ensure it's always on top */
+            width: 30px; /* Size of the circle */
+            height: 30px; /* Size of the circle */
+            background-color: var(--cursor-glow-color); /* Inner color of the circle */
+            border-radius: 50%; /* Makes it a circle */
+            transform: translate(-50%, -50%); /* Center the circle on the cursor position */
+            box-shadow: 
+                0 0 10px var(--cursor-glow-color), /* Inner glow */
+                0 0 20px var(--cursor-glow-color), /* Medium glow */
+                0 0 30px rgba(255, 215, 0, 0.7), /* Outer glow with transparency */
+                0 0 40px rgba(255, 215, 0, 0.5); /* Wider, softer glow */
+            transition: transform 0.05s ease-out; /* Smooth follow effect */
+            user-select: none; /* Prevent text selection by cursor */
+        }
+
+        /* Animated Letters Background */
+        .letters-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+            background: #2F3640; /* Darker background to make letters glow */
+        }
+
+        .floating-letter {
+            position: absolute;
+            font-family: 'Amiri', serif; /* Use a clear Arabic font */
+            font-size: 3em; /* Larger letters */
+            color: var(--text-color-light); /* Light color for letters */
+            text-shadow: 0 0 10px var(--letter-glow-color), 0 0 20px var(--letter-glow-color), 0 0 30px var(--letter-glow-color);
+            opacity: 0; /* Start invisible */
+            animation: floatAndGlow 20s infinite ease-in-out forwards;
+        }
+
+        @keyframes floatAndGlow {
+            0% { transform: translateY(100vh) translateX(0) scale(0.5); opacity: 0; }
+            10% { opacity: 0.8; }
+            50% { transform: translateY(50vh) translateX(50px) scale(1); opacity: 0.9; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(-100px) translateX(-20px) scale(0.7); opacity: 0; }
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            background-color: #fff;
+            padding: 30px 50px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px var(--shadow-medium);
+            border: 6px solid var(--secondary-color);
+            position: relative;
+            z-index: 10;
+        }
+
+        header {
+            background: linear-gradient(45deg, var(--primary-color), #FFB1B1);
+            color: white;
+            padding: 30px 20px;
+            border-radius: 15px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 20px var(--shadow-light);
+            animation: slideDown 1s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-family: 'Cairo', sans-serif;
+            font-size: 3.5em;
+            margin: 0;
+            text-shadow: 2px 2px 5px var(--shadow-light);
+        }
+
+        .story-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        /* Base Paragraph Box Style */
+        .story-section p {
+            font-family: 'Amiri', serif; /* More formal font for story text */
+            font-size: 1.3em;
+            text-align: justify;
+            margin: 15px 0;
+            padding: 20px; /* Increased padding inside the box */
+            background-color: var(--paragraph-box-bg); /* Light background for the box */
+            border-radius: 15px; /* Rounded corners for the box */
+            box-shadow: 0 5px 15px var(--shadow-light); /* Soft shadow for the box */
+            border: 2px solid transparent; /* Default transparent border */
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; /* Smooth transition on hover */
+            width: calc(100% - 40px); /* Adjust width considering padding */
+            box-sizing: border-box; /* Include padding in width calculation */
+        }
+
+        /* Specific Hover Effects for each type */
+        .story-section p:hover {
+            transform: translateY(-5px); /* Lift slightly on hover */
+            box-shadow: 0 8px 20px var(--shadow-medium); /* General shadow on hover */
+        }
+
+        .story-section p.name-paragraph:hover {
+            border-color: var(--accent-color-1); /* Yellow border on hover */
+            box-shadow: 0 8px 20px var(--shadow-medium), 0 0 15px var(--name-glow-color); /* Yellow glow */
+        }
+
+        .story-section p.verb-paragraph:hover {
+            border-color: var(--secondary-color); /* Teal border on hover */
+            box-shadow: 0 8px 20px var(--shadow-medium), 0 0 15px var(--verb-glow-color); /* Teal glow */
+        }
+
+        .story-section p.char-paragraph:hover {
+            border-color: var(--primary-color); /* Red border on hover */
+            box-shadow: 0 8px 20px var(--shadow-medium), 0 0 15px var(--char-glow-color); /* Red glow */
+        }
+
+        .story-section img {
+            max-width: 80%;
+            height: auto;
+            border-radius: 15px;
+            margin: 25px 0;
+            box-shadow: 0 8px 20px var(--shadow-light);
+            border: 4px solid var(--accent-color-1);
+            transition: transform 0.3s ease;
+        }
+
+        .story-section img:hover {
+            transform: scale(1.02);
+        }
+
+        h2 {
+            font-family: 'Changa', sans-serif;
+            color: var(--primary-color);
+            font-size: 2.5em;
+            margin-top: 50px;
+            margin-bottom: 30px;
+            border-bottom: 3px solid var(--accent-color-1);
+            padding-bottom: 10px;
+            display: inline-block;
+            text-shadow: 1px 1px 3px var(--shadow-light);
+            animation: scaleIn 1s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        h3 {
+            font-family: 'Changa', sans-serif;
+            color: var(--secondary-color);
+            font-size: 2em;
+            margin-top: 30px;
+            margin-bottom: 20px;
+        }
+
+        .highlight {
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        /* --- Word Analyzer Section Styles --- */
+        .word-analyzer-section {
+            margin-top: 60px;
+            padding: 30px;
+            background-color: var(--analyzer-bg);
+            border-radius: 20px;
+            box-shadow: inset 0 0 15px var(--shadow-light);
+            border: 3px solid var(--analyzer-border);
+            text-align: center;
+        }
+
+        .analyzer-display {
+            background-color: #ffffff;
+            border: 3px solid var(--accent-color-1);
+            border-radius: 15px;
+            padding: 30px 20px;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px var(--shadow-light);
+            position: relative; /* For animations */
+            overflow: hidden;
+        }
+
+        .analyzer-display .analyzed-word {
+            font-family: 'Cairo', sans-serif;
+            font-size: 3.5em;
+            font-weight: 800;
+            color: var(--accent-color-2);
+            text-shadow: 2px 2px 5px var(--shadow-light);
+            transition: color 0.5s ease-out, transform 0.5s ease-out, text-shadow 0.5s ease-out;
+        }
+
+        .analyzer-display .analysis-result {
+            font-family: 'Amiri', serif;
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-top: 15px;
+            color: var(--accent-color-2);
+            transition: color 0.5s ease-out;
+        }
+        /* Style for verb conjugations */
+        .analyzer-display .conjugation-examples {
+            font-family: 'Amiri', serif;
+            font-size: 1.2em;
+            margin-top: 10px;
+            color: #666; /* Slightly lighter color for examples */
+            font-weight: normal;
+        }
+
+
+        /* Analyzer specific animations/glows */
+        .analyzed-word.name-glow {
+            color: var(--accent-color-2); /* Keep dark text for contrast */
+            text-shadow: 0 0 10px var(--name-glow-color), 0 0 20px var(--name-glow-color), 0 0 30px rgba(255, 214, 0, 0.7);
+            animation: pulse-glow 1.5s infinite alternate;
+        }
+
+        .analyzed-word.verb-glow {
+            color: var(--accent-color-2);
+            text-shadow: 0 0 10px var(--verb-glow-color), 0 0 20px var(--verb-glow-color), 0 0 30px rgba(78, 205, 196, 0.7);
+            animation: bounce-scale 0.8s ease-out;
+        }
+
+        .analyzed-word.char-glow {
+            color: var(--accent-color-2);
+            text-shadow: 0 0 10px var(--char-glow-color), 0 0 20px var(--char-glow-color), 0 0 30px rgba(255, 107, 107, 0.7);
+            animation: fade-pulse 1s infinite alternate;
+        }
+
+        /* Specific result text colors */
+        .analysis-result.name-text { color: var(--accent-color-1); }
+        .analysis-result.verb-text { color: var(--secondary-color); }
+        .analysis-result.char-text { color: var(--primary-color); }
+
+        @keyframes pulse-glow {
+            from { text-shadow: 0 0 10px var(--name-glow-color), 0 0 20px var(--name-glow-color); }
+            to { text-shadow: 0 0 20px var(--name-glow-color), 0 0 40px var(--name-glow-color); }
+        }
+
+        @keyframes bounce-scale {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes fade-pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .analyzer-buttons button {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 15px 35px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            margin: 10px;
+            box-shadow: 0 4px 10px var(--shadow-light);
+        }
+        .analyzer-buttons button:hover {
+            background-color: #3BB7B0;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px var(--shadow-medium);
+        }
+        .analyzer-buttons button:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 10px var(--shadow-light);
+        }
+
+        /* Games Section */
+        .games-section {
+            margin-top: 60px;
+            padding: 30px;
+            background-color: #e0f7f7; /* Lighter background for games */
+            border-radius: 20px;
+            box-shadow: inset 0 0 15px var(--shadow-light);
+            border: 3px dashed var(--secondary-color);
+        }
+
+        .game-title {
+            font-size: 2.2em;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+        }
+
+        /* Click & Categorize Game */
+        .click-categorize-game .word-to-categorize {
+            font-size: 2.5em;
+            font-weight: 800;
+            color: var(--accent-color-2);
+            background-color: var(--accent-color-1);
+            padding: 15px 30px;
+            border-radius: 15px;
+            margin: 30px auto;
+            display: inline-block;
+            cursor: pointer; /* Indicate it's clickable */
+            box-shadow: 0 5px 15px var(--shadow-light);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+            border: 3px solid transparent; /* For selected state */
+        }
+        .click-categorize-game .word-to-categorize:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px var(--shadow-light);
+        }
+        .click-categorize-game .word-to-categorize.selected {
+            border-color: var(--primary-color); /* Highlight when selected */
+            background-color: #FFD272; /* Slightly darker yellow */
+        }
+
+
+        .category-buttons-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        /* Base Category Button Style */
+        .category-button {
+            color: white; /* Default text color */
+            padding: 20px;
+            border: none;
+            border-radius: 15px;
+            margin: 15px;
+            width: 28%;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column; /* For text and icon if needed */
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 15px var(--shadow-light);
+        }
+
+        /* Specific styles for each category button */
+        .category-button[data-category="اسم"] {
+            background-color: var(--name-button-bg); /* Use specific name button color */
+        }
+        .category-button[data-category="اسم"]:hover {
+            background-color: var(--accent-color-1); /* Lighter hover color */
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px var(--shadow-medium), 0 0 15px var(--name-glow-color); /* Name glow */
+        }
+
+        .category-button[data-category="فعل"] {
+            background-color: var(--verb-button-bg); /* Use specific verb button color */
+        }
+        .category-button[data-category="فعل"]:hover {
+            background-color: var(--secondary-color); /* Lighter hover color */
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px var(--shadow-medium), 0 0 15px var(--verb-glow-color); /* Verb glow */
+        }
+
+        .category-button[data-category="حرف"] {
+            background-color: var(--char-button-bg); /* Use specific char button color */
+        }
+        .category-button[data-category="حرف"]:hover {
+            background-color: var(--primary-color); /* Lighter hover color */
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px var(--shadow-medium), 0 0 15px var(--char-glow-color); /* Char glow */
+        }
+
+        .category-button:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 10px var(--shadow-light);
+        }
+
+        .category-button.correct-choice {
+            background-color: #28a745 !important; /* Darker green, !important to override other bgs */
+            animation: bounceIn 0.8s ease-out;
+            box-shadow: 0 0 20px #28a745, 0 0 30px #28a745; /* Stronger glow on correct */
+        }
+        .category-button.wrong-choice {
+            background-color: #dc3545 !important; /* Darker red, !important to override other bgs */
+            animation: shake 0.5s ease-out;
+            box-shadow: 0 0 20px #dc3545, 0 0 30px #dc3545; /* Stronger glow on wrong */
+        }
+
+        @keyframes bounceIn {
+            0%, 20%, 40%, 60%, 80%, 100% {
+                transition-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+            }
+            0% { transform: scale3d(0.3, 0.3, 0.3); }
+            20% { transform: scale3d(1.1, 1.1, 1.1); }
+            40% { transform: scale3d(0.9, 0.9, 0.9); }
+            60% { transform: scale3d(1.03, 1.03, 1.03); }
+            80% { transform: scale3d(0.97, 0.97, 0.97); }
+            100% { transform: scale3d(1, 1, 1); }
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+            100% { transform: translateX(0); }
+        }
+
+        .game-feedback {
+            margin-top: 30px;
+            font-size: 1.8em;
+            font-weight: 800;
+            min-height: 2.2em;
+            color: var(--accent-color-2);
+        }
+        .game-feedback.correct {
+            color: #28a745;
+        }
+        .game-feedback.wrong {
+            color: #dc3545;
+        }
+
+        .game-buttons button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.3em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin: 10px;
+            box-shadow: 0 4px 10px var(--shadow-light);
+        }
+        .game-buttons button:hover {
+            background-color: #e65a5a;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                margin: 20px auto;
+                padding: 20px 25px;
+            }
+            h1 {
+                font-size: 2.5em;
+            }
+            h2 {
+                font-size: 2em;
+            }
+            h3 {
+                font-size: 1.6em;
+            }
+            .story-section p {
+                font-size: 1.1em;
+                padding: 15px; /* Adjust padding for smaller screens */
+                width: calc(100% - 30px);
+            }
+            .story-section img {
+                max-width: 95%;
+            }
+            .category-buttons-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            .category-button {
+                width: 80%;
+                margin: 10px 0;
+                min-height: 100px;
+                font-size: 1.5em;
+            }
+            .click-categorize-game .word-to-categorize {
+                font-size: 2em;
+                padding: 10px 20px;
+            }
+            .game-feedback {
+                font-size: 1.5em;
+            }
+            .game-buttons button {
+                font-size: 1.1em;
+                padding: 10px 20px;
+            }
+            /* Hide custom cursor on small screens as it might interfere */
+            #custom-cursor {
+                display: none;
+            }
+            body {
+                cursor: auto; /* Show default cursor on small screens */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="letters-background" id="letters-container"></div>
+
+    <!-- Custom Cursor Element (Circular Shape) -->
+    <div id="custom-cursor"></div>
+
+    <div class="container">
+        <header>
+            <h1>مختبر الكلمات السحري</h1>
+            <p>الدرس الأول: أقسام الكلمة</p>
+        </header>
+
+        <section class="story-section">
+            <p>في مدينة الكلمات الساحرة، حيث تتراقص الحروف وتتألق التشكيلات، كان هناك <span class="highlight">مختبر عجيب</span> يُديره عالم ذكي ولطيف اسمه <span class="highlight">البروفيسور فصيح</span>. لم يكن هذا المختبر يُصنع أدوية، بل كان يُفكّك الكلمات ليعرف أسرارها!</p>
+            <img src="https://placehold.co/600x300/c4f1ff/4ECDC4?text=البروفيسور+فصيح+والمختبر" alt="صورة البروفيسور فصيح في مختبره" onerror="this.onerror=null;this.src='https://placehold.co/600x300/c4f1ff/4ECDC4?text=صورة+البروفيسور+فصيح';">
+            <p>في يوم مشمس، زارت الطفلة <span class="highlight">ليلى الفضولية</span> المختبر. كانت ليلى تحب الكلمات كثيرًا، لكنها كانت تتساءل: "كيف تعمل هذه الكلمات؟ وماذا يوجد بداخلها؟"</p>
+            <img src="https://placehold.co/600x300/a7e9ff/4ECDC4?text=ليلى+الفضولية+والفضول" alt="صورة ليلى الفضولية" onerror="this.onerror=null;this.src='https://placehold.co/600x300/a7e9ff/4ECDC4?text=صورة+ليلى+الفضولية';">
+            <p>استقبلها البروفيسور فصيح بابتسامة كبيرة وقال: "أهلاً بكِ يا ليلى في مختبر الكلمات السري! اليوم سنكتشف سراً عظيماً. هل تعلمين أن كل كلمة نتحدث بها أو نكتبها تتكون من أجزاء؟"</p>
+            <p>لمعت عينا ليلى وقالت بحماس: "حقًا؟ مثل أجزاء لعبة الليجو؟"</p>
+            <p>ضحك البروفيسور فصيح وقال: "أحسنتِ! تقريبًا هكذا. لدينا في مختبرنا <span class="highlight">ثلاثة صناديق سحرية</span>، كل صندوق يحتفظ بنوع خاص من الكلمات."</p>
+
+            ---
+
+            <h2>الصندوق الأول: بيت الأستاذ اسم-و 🏡</h2>
+            <p class="name-paragraph">أشار البروفيسور إلى صندوق لامع مكتوب عليه بخط كبير: "<span class="highlight">الأسماء</span>". خرج منه شخصية مبتسمة ترتدي تاجاً ذهبياً مكتوب عليه "الـ" وتحمل حقيبة مليئة بالأشياء. هذا هو <span class="highlight">الأستاذ اسم-و</span>!</p>
+            <img src="https://placehold.co/600x300/FFE66D/FF6B6B?text=الأستاذ+اسم-و" alt="صورة الأستاذ اسم-و" onerror="this.onerror=null;this.src='https://placehold.co/600x300/FFE66D/FF6B6B?text=صورة+الأستاذ+اسم-و';">
+            <p class="name-paragraph">قال الأستاذ اسم-و بصوته الهادئ: "أنا أمثل كل الكلمات التي تُخبرنا عن <span class="highlight">أشياء موجودة</span> في العالم من حولنا، سواء كانت أشخاصاً، حيوانات، نباتات، جمادات، أو أماكن. مثل: <span class="highlight">باب</span>، <span class="highlight">كتاب</span>، <span class="highlight">شجرة</span>، <span class="highlight">قمر</span>، <span class="highlight">معلم</span>، <span class="highlight">أسد</span>."</p>
+            <p class="name-paragraph">وأضاف: "تذكروا دائماً، أنا أحب أن أرتدي تاجي السحري <span class="highlight">'الـ' التعريف</span>! فكل اسم يمكن أن يقبل دخول 'الـ' عليه، مثل: <span class="highlight">الـباب</span>، <span class="highlight">الـكتاب</span>، <span class="highlight">الـشجرة</span>. وأيضاً، أحب أن أرتدي خاتم <span class="highlight">التنوين</span>، مثل: <span class="highlight">كتابٌ</span>، <span class="highlight">معلمٍ</span>."</p>
+            <p>أومأت ليلى برأسها بفهم، وبدأت تُردد أسماء أشياء كثيرة حولها.</p>
+
+            ---
+
+            <h2>الصندوق الثاني: ورشة البطل فعّال ⚙️</h2>
+            <p class="verb-paragraph">ثم انتقلا إلى صندوق آخر يدور ويتحرك باستمرار، وعليه كلمة: "<span class="highlight">الأفعال</span>". خرج منه شخصية قوية ونشيطة ترتدي حذاءً رياضياً وتلف حول معصمها ساعة كبيرة. هذا هو <span class="highlight">البطل فعّال</span>!</p>
+            <img src="https://placehold.co/600x300/FFB1B1/4ECDC4?text=البطل+فعّال" alt="صورة البطل فعّال" onerror="this.onerror=null;this.src='https://placehold.co/600x300/FFB1B1/4ECDC4?text=صورة+البطل+فعّال';">
+            <p class="verb-paragraph">قال البطل فعّال بصوته المليء بالحماس: "أنا أمثل كل الكلمات التي تُخبرنا عن <span class="highlight">ماذا يفعل الشخص أو الشيء</span>. أنا دائمًا في حركة! مثل: <span class="highlight">يقرأ</span>، <span class="highlight">يلعب</span>، <span class="highlight">نام</span>، <span class="highlight">يأكل</span>، <span class="highlight">يشرب</span>، <span class="highlight">يكتب</span>."</p>
+            <p class="verb-paragraph">وأشار إلى ساعته: "أنا مرتبط بالزمن! هل الحدث <span class="highlight">انتهى</span> (مثل: <span class="highlight">لعبَ</span>)؟ أم <span class="highlight">يحدث الآن</span> (مثل: <span class="highlight">يَلعبُ</span>)؟ أم <span class="highlight">أطلب منك فعله</span> (مثل: <span class="highlight">اِلعبْ</span>)؟ أنا لا أقبل تاج 'الـ' التعريف أبداً!"</p>
+            <p>ليلى صرخت: "آه! مثلما <span class="highlight">أنا ألعب</span> الآن، أو <span class="highlight">أنت تشرح</span> لي!"</p>
+
+            ---
+
+            <h2>الصندوق الثالث: حديقة الموصل رُبطة 🌱</h2>
+            <p class="char-paragraph">أخيرًا، وصلا إلى صندوق صغير وجميل، مليء بالألوان، ومكتوب عليه: "<span class="highlight">الحروف</span>". خرجت منه شخصية صغيرة ومرنة، تمد أذرعها لتشبك بين الأشياء. هذا هو <span class="highlight">الموصل رُبطة</span>!</p>
+            <img src="https://placehold.co/600x300/D4EDDA/FF6B6B?text=الموصل+رُبطة" alt="صورة الموصل رُبطة" onerror="this.onerror=null;this.src='https://placehold.co/600x300/D4EDDA/FF6B6B?text=صورة+الموصل+رُبطة';">
+            <p class="char-paragraph">قال الموصل رُبطة بصوته الودود: "أنا كلمة صغيرة، لا أستطيع أن أقف وحدي وأعطي معنى كاملاً. وظيفتي أن <span class="highlight">أربط بين الكلمات والجمل</span>، وأجعل كلامكم مفهومًا وجميلاً. تخيلوا لو قلتُ: 'ذهبتُ المدرسة'. هل فهمتِ؟"</p>
+            <p class="char-paragraph">هزت ليلى رأسها: "لا، أحتاج شيئًا يربط!"</p>
+            <p class="char-paragraph">"بالضبط!" قال الموصل رُبطة. "نحتاج حرفاً مثلي: 'ذهبتُ <span class="highlight">إلى</span> المدرسة'. أو 'الكتاب <span class="highlight">على</span> الطاولة'. أو 'لعبتُ <span class="highlight">بالكرة</span>'. أنا لا أقبل 'الـ' ولا أتغير مع الزمن!"</p>
+
+            ---
+
+            <h2>سر الكلمات الثلاثة ✨</h2>
+            <p>وقفت ليلى وهي تنظر إلى الشخصيات الثلاثة الكبيرة.</p>
+            <p>قال البروفيسور فصيح: "الآن يا ليلى، عندما تقرئين أي جملة أو تستمعين لأي كلام، ستعرفين أن كل كلمة فيه إما أن تكون <span class="highlight">اسماً</span> (مثل الأستاذ اسم-و، يدل على شيء أو شخص)، أو <span class="highlight">فعلاً</span> (مثل البطل فعّال، يدل على حركة أو حدث في زمن معين)، أو <span class="highlight">حرفاً</span> (مثل الموصل رُبطة، يربط الكلمات والجمل)."</p>
+            <p>ابتسمت ليلى وقالت: "هذا رائع! الآن أشعر أنني أستطيع أن أفهم أسرار الكلمات كلها!"</p>
+            <p>وقبل أن تغادر، أهداها البروفيسور فصيح عدسة مكبرة صغيرة وقال: "هذه عدسة سحرية، ستساعدكِ دائمًا على رؤية أقسام الكلمة في أي جملة تقابلينها!"</p>
+            <p>عادت ليلى إلى منزلها وهي سعيدة، وبدأت تنظر إلى كل كلمة حولها بعدستها السحرية، وتقول بحماس: "هذا اسم! وهذا فعل! وهذا حرف!" وهكذا، أصبحت الكلمات بالنسبة لها ليست مجرد حروف، بل عالمًا سحريًا مليئًا بالأسرار الممتعة!</p>
+        </section>
+
+        ---
+        
+        <section class="word-analyzer-section">
+            <h2 class="analyzer-title">محطة تحليل الكلمات السحرية 🔬</h2>
+            <h3>ضع كلمة هنا لتعرف سرها!</h3>
+            <div class="analyzer-display" id="analyzer-display">
+                <span id="analyzed-word" class="analyzed-word"></span> <!-- الكلمة ستظهر هنا ديناميكياً -->
+                <p id="analysis-result" class="analysis-result">اضغط على زر "تحليل"!</p>
+                <p id="conjugation-examples" class="conjugation-examples"></p> <!-- لإضافة أمثلة التصريف هنا -->
+            </div>
+            <div class="analyzer-buttons">
+                <button id="analyze-button">تحليل الكلمة!</button>
+                <button id="next-analyze-word">كلمة جديدة</button>
+            </div>
+        </section>
+
+        ---
+
+        <section class="games-section">
+            <h2 class="game-title">هيا نلعب ونختبر معلوماتنا! 🎮</h2>
+            <h3>لعبة تصنيف الكلمات (بالنقر)</h3>
+            <p>انقر على الكلمة ثم انقر على الصندوق الصحيح.</p>
+
+            <div class="click-categorize-game">
+                <div id="word-to-categorize" class="word-to-categorize"></div>
+                <div class="category-buttons-container">
+                    <button class="category-button" data-category="اسم">اسم</button>
+                    <button class="category-button" data-category="فعل">فعل</button>
+                    <button class="category-button" data-category="حرف">حرف</button>
+                </div>
+                <div class="game-feedback" id="game-feedback"></div>
+                <div class="game-buttons">
+                    <button id="next-game-word">كلمة جديدة</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Audio elements (for sound effects)
+        // تم استبدال روابط FreeSound.org ببيانات صوتية صامتة (Base64) لتجنب أخطاء التحميل.
+        // إذا كنت ترغب في أصوات حقيقية، يرجى استبدال هذه بملفات صوتية صالحة ومستقرة.
+        const silentAudioData = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+        const nameSound = new Audio(silentAudioData); 
+        const verbSound = new Audio(silentAudioData); 
+        const charSound = new Audio(silentAudioData); 
+        const generalChime = new Audio(silentAudioData); 
+
+
+        // توليد الحروف المضيئة الطافية في الخلفية
+        function createFloatingLetters() {
+            const lettersContainer = document.getElementById('letters-container');
+            const arabicLetters = "أب ت ث ج ح خ د ذ ر ز س ش ص ض ط ظ ع غ ف ق ك ل م ن ه و ي".split('');
+            const numLetters = 40; // عدد الحروف الطافية
+
+            for (let i = 0; i < numLetters; i++) {
+                const letter = document.createElement('div');
+                letter.classList.add('floating-letter');
+                letter.textContent = arabicLetters[Math.floor(Math.random() * arabicLetters.length)];
+
+                // أحجام ومواقع عشوائية
+                const size = Math.random() * 2 + 1; // حجم من 1em إلى 3em
+                letter.style.fontSize = size + 'em';
+                letter.style.left = Math.random() * 100 + 'vw';
+                letter.style.animationDelay = Math.random() * 15 + 's'; // تأخير عشوائي
+                letter.style.animationDuration = Math.random() * 15 + 10 + 's'; // مدة حركة عشوائية
+                lettersContainer.appendChild(letter);
+            }
+        }
+        createFloatingLetters(); // استدعاء الدالة لإنشاء الحروف عند تحميل الصفحة
+
+        // Custom Cursor Logic
+        const customCursor = document.getElementById('custom-cursor');
+
+        document.addEventListener('mousemove', (e) => {
+            customCursor.style.left = e.clientX + 'px';
+            customCursor.style.top = e.clientY + 'px';
+        });
+
+        // Hide custom cursor when it leaves the body or for touch devices
+        document.body.addEventListener('mouseleave', () => {
+            customCursor.style.display = 'none';
+        });
+
+        document.body.addEventListener('mouseenter', () => {
+            customCursor.style.display = 'block';
+        });
+
+        // Optional: Hide custom cursor for touch devices (mobile)
+        // This is handled by media query in CSS, but good to have JS fallback
+        if ('ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0) {
+            document.body.style.cursor = 'auto'; // Show default cursor
+            customCursor.style.display = 'none';
+        }
+
+
+        // --- Word Analyzer Logic ---
+        const analyzerWords = [
+            { word: "قلم", category: "اسم", explanation: "هذا اسم! إنه شيء ثابت يمكننا أن نلمسه ونراه. الأستاذ اسم-و يقول: أنا أقبل 'الـ' التعريف، مثل: 'الـقلم'.", conjugation: null },
+            { word: "يجري", category: "فعل", explanation: "هذا فعل! البطل فعّال يقول: أنا أُخبر عن حركة ونشاط. لا أقبل 'الـ' التعريف. أتصرف في الأزمنة:", conjugation: { past: "جرى", present: "يجري", imperative: "اِجرِ" } },
+            { word: "في", category: "حرف", explanation: "هذا حرف! الموصل رُبطة يقول: أنا أربط الكلمات ببعضها لجعل الجملة مفهومة. لا أتغير مع الزمن ولا أقبل 'الـ'.", conjugation: null },
+            { word: "طاولة", category: "اسم", explanation: "هذا اسم! الأستاذ اسم-و يقول: أنا أقبل 'الـ' التعريف، مثل: 'الـطاولة'.", conjugation: null },
+            { word: "يقرأ", category: "فعل", explanation: "هذا فعل! البطل فعّال يقول: أنا أُخبر عن عمل يقوم به شخص ما. لا أقبل 'الـ' التعريف. أتصرف في الأزمنة:", conjugation: { past: "قرأ", present: "يقرأ", imperative: "اِقرأ" } },
+            { word: "إلى", category: "حرف", explanation: "هذا حرف! الموصل رُبطة يقول: أنا أربط بين الأماكن أو الأفعال. لا أتغير مع الزمن ولا أقبل 'الـ'.", conjugation: null },
+            { word: "معلم", category: "اسم", explanation: "هذا اسم! الأستاذ اسم-و يقول: أنا أقبل 'الـ' التعريف، مثل: 'الـمعلم'.", conjugation: null },
+            { word: "أكل", category: "فعل", explanation: "هذا فعل! البطل فعّال يقول: أنا أُخبر عن حدث انتهى في الماضي. لا أقبل 'الـ' التعريف. أتصرف في الأزمنة:", conjugation: { past: "أكل", present: "يأكل", imperative: "كُلْ" } },
+            { word: "على", category: "حرف", explanation: "هذا حرف! الموصل رُبطة يقول: أنا أُوضح مكان شيء ما. لا أتغير مع الزمن ولا أقبل 'الـ'.", conjugation: null },
+            { word: "مدينة", category: "اسم", explanation: "هذا اسم! الأستاذ اسم-و يقول: أنا أقبل 'الـ' التعريف، مثل: 'الـمدينة'.", conjugation: null },
+            { word: "ينام", category: "فعل", explanation: "هذا فعل! البطل فعّال يقول: أنا أُخبر عن حركة تحدث الآن. لا أقبل 'الـ' التعريف. أتصرف في الأزمنة:", conjugation: { past: "نام", present: "ينام", imperative: "نَمْ" } },
+            { word: "من", category: "حرف", explanation: "هذا حرف! الموصل رُبطة يقول: أنا أُوضح بداية شيء أو مصدره. لا أتغير مع الزمن ولا أقبل 'الـ'.", conjugation: null }
+        ];
+
+        let currentAnalyzerWordIndex = -1; // -1 to start before the first word
+        const analyzedWordSpan = document.getElementById('analyzed-word');
+        const analysisResultP = document.getElementById('analysis-result');
+        const conjugationExamplesP = document.getElementById('conjugation-examples'); // العنصر الجديد
+        const analyzeButton = document.getElementById('analyze-button');
+        const nextAnalyzeWordButton = document.getElementById('next-analyze-word');
+        
+        function resetAnalyzerDisplay() {
+            analyzedWordSpan.className = 'analyzed-word'; // Reset classes
+            analysisResultP.textContent = "اضغط على زر 'تحليل'!";
+            analysisResultP.className = 'analysis-result'; // Reset classes
+            conjugationExamplesP.textContent = ''; // مسح أمثلة التصريف
+        }
+
+        function loadNextAnalyzerWord() {
+            currentAnalyzerWordIndex = (currentAnalyzerWordIndex + 1) % analyzerWords.length;
+            const wordData = analyzerWords[currentAnalyzerWordIndex];
+            analyzedWordSpan.textContent = wordData.word; // تحديث الكلمة المعروضة
+            resetAnalyzerDisplay(); // مسح نتائج التحليل السابقة والتأثيرات
+            try {
+                generalChime.play(); // تشغيل صوت عند تحميل كلمة جديدة
+            } catch (error) {
+                console.error("Error playing general chime:", error);
+            }
+        }
+
+        function analyzeWord() {
+            const wordData = analyzerWords[currentAnalyzerWordIndex];
+            if (!wordData) {
+                analysisResultP.textContent = "لا توجد كلمة لتحليلها. اضغط 'كلمة جديدة'.";
+                return;
+            }
+
+            // إزالة جميع أنماط التوهج والنصوص من الكلمة ونتيجة التحليل قبل إضافة النمط الجديد
+            analyzedWordSpan.classList.remove('name-glow', 'verb-glow', 'char-glow');
+            analysisResultP.classList.remove('name-text', 'verb-text', 'char-text');
+            conjugationExamplesP.textContent = ''; // تأكيد مسح أمثلة التصريف
+
+            try {
+                if (wordData.category === "اسم") {
+                    analyzedWordSpan.classList.add('name-glow');
+                    analysisResultP.classList.add('name-text');
+                    nameSound.play();
+                } else if (wordData.category === "فعل") {
+                    analyzedWordSpan.classList.add('verb-glow');
+                    analysisResultP.classList.add('verb-text');
+                    verbSound.play();
+                    // عرض أمثلة التصريف
+                    if (wordData.conjugation) {
+                        conjugationExamplesP.textContent = 
+                            `الماضي: '${wordData.conjugation.past}'، ` +
+                            `المضارع: '${wordData.conjugation.present}'، ` +
+                            `الأمر: '${wordData.conjugation.imperative}'.`;
+                    }
+                } else if (wordData.category === "حرف") {
+                    analyzedWordSpan.classList.add('char-glow');
+                    analysisResultP.classList.add('char-text');
+                    charSound.play();
+                }
+            } catch (error) {
+                console.error("Error playing sound or applying glow:", error);
+            }
+            // استخدام الشرح المخصص من البيانات
+            analysisResultP.textContent = wordData.explanation;
+        }
+
+        analyzeButton.addEventListener('click', analyzeWord);
+        nextAnalyzeWordButton.addEventListener('click', loadNextAnalyzerWord);
+
+        // Initial load for analyzer
+        loadNextAnalyzerWord();
+
+
+        // --- Click & Categorize Game Logic ---
+        const gameWords = [
+            { word: "كتاب", category: "اسم" },
+            { word: "يلعب", category: "فعل" },
+            { word: "على", category: "حرف" },
+            { word: "مدرسة", category: "اسم" },
+            { word: "يأكل", category: "فعل" },
+            { word: "إلى", category: "حرف" },
+            { word: "طبيب", category: "اسم" },
+            { word: "نام", category: "فعل" },
+            { word: "في", category: "حرف" },
+            { word: "شجرة", category: "اسم" },
+            { word: "يرسم", category: "فعل" },
+            { word: "من", category: "حرف" },
+            { word: "قلم", category: "اسم" },
+            { word: "يكتب", category: "فعل" },
+            { word: "و", category: "حرف" },
+            { word: "ولد", category: "اسم" },
+            { word: "يشرب", category: "فعل" },
+            { word: "عن", category: "حرف" },
+            { word: "بيت", category: "اسم" },
+            { word: "قفز", category: "فعل" },
+            { word: "ف", category: "حرف" }
+        ];
+
+        let currentWordData = null;
+        let wordSelected = false; // Flag to track if a word is selected
+
+        const wordToCategorize = document.getElementById('word-to-categorize');
+        const categoryButtons = document.querySelectorAll('.category-button');
+        const gameFeedback = document.getElementById('game-feedback');
+        const nextGameWordButton = document.getElementById('next-game-word');
+
+        function loadNewGameWord() {
+            if (gameWords.length === 0) {
+                gameFeedback.textContent = "أنهيت جميع الكلمات! أحسنت!";
+                wordToCategorize.textContent = "";
+                wordToCategorize.style.display = 'none'; // Hide the word box
+                nextGameWordButton.style.display = 'none'; // Hide next button if no more words
+                categoryButtons.forEach(btn => btn.style.display = 'none'); // Hide category buttons
+                return;
+            }
+
+            const randomIndex = Math.floor(Math.random() * gameWords.length);
+            currentWordData = gameWords[randomIndex];
+
+            wordToCategorize.textContent = currentWordData.word;
+            wordToCategorize.classList.remove('selected'); // Remove selection highlight
+            wordToCategorize.style.display = 'inline-block'; // Ensure word is visible
+            wordSelected = false; // Reset selection flag
+            gameFeedback.textContent = '';
+            gameFeedback.className = 'game-feedback'; // Reset feedback class
+
+            // Reset category button styles
+            categoryButtons.forEach(btn => {
+                btn.classList.remove('correct-choice', 'wrong-choice');
+                btn.disabled = false; // Enable buttons
+            });
+        }
+
+        // Event listener for the word to be categorized
+        wordToCategorize.addEventListener('click', () => {
+            wordToCategorize.classList.toggle('selected');
+            wordSelected = !wordSelected;
+            // Optionally, give a hint to click a category if word is selected
+            if (wordSelected) {
+                gameFeedback.textContent = 'الآن اختر الصندوق الصحيح!';
+                gameFeedback.className = 'game-feedback';
+            } else {
+                gameFeedback.textContent = '';
+            }
+        });
+
+        // Event listener for category buttons
+        categoryButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                if (!wordSelected || !currentWordData) {
+                    gameFeedback.textContent = 'الرجاء النقر على الكلمة أولاً!';
+                    gameFeedback.className = 'game-feedback wrong';
+                    return;
+                }
+
+                const chosenCategory = button.dataset.category;
+                const correctCategory = currentWordData.category;
+
+                // Disable buttons after a choice is made to prevent multiple clicks
+                categoryButtons.forEach(btn => btn.disabled = true);
+                wordToCategorize.classList.remove('selected'); // Remove highlight after choice
+
+                if (chosenCategory === correctCategory) {
+                    gameFeedback.textContent = 'أحسنت! إجابة صحيحة ✅';
+                    gameFeedback.className = 'game-feedback correct';
+                    button.classList.add('correct-choice');
+                    // Remove the word from the array so it doesn't reappear
+                    const indexToRemove = gameWords.findIndex(item => item.word === currentWordData.word);
+                    if (indexToRemove > -1) {
+                        gameWords.splice(indexToRemove, 1);
+                    }
+                    // Hide the current word
+                    wordToCategorize.style.display = 'none';
+                } else {
+                    gameFeedback.textContent = `إجابة خاطئة ❌. هذا ${correctCategory}.`;
+                    gameFeedback.className = 'game-feedback wrong';
+                    button.classList.add('wrong-choice');
+                    // Highlight the correct answer briefly
+                    document.querySelector(`.category-button[data-category="${correctCategory}"]`).classList.add('correct-choice');
+                    // Reset after a short delay
+                    setTimeout(() => {
+                        button.classList.remove('wrong-choice');
+                        document.querySelector(`.category-button[data-category="${correctCategory}"]`).classList.remove('correct-choice');
+                        categoryButtons.forEach(btn => btn.disabled = false); // Re-enable buttons
+                        wordSelected = false; // Allow re-selection
+                        gameFeedback.textContent = ''; // Clear feedback
+                    }, 1500); // Wait 1.5 seconds before resetting
+                }
+            });
+        });
+
+        nextGameWordButton.addEventListener('click', loadNewGameWord);
+
+        // Initial load for game
+        loadNewGameWord();
+    </script>
+</body>
+</html>

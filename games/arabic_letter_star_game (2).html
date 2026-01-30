@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الحروف المرحة للأطفال</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, Arial;
+            background: linear-gradient(135deg, #87CEEB, #98FB98, #F0E68C);
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .clouds {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 50px;
+            opacity: 0.8;
+            animation: cloudFloat 15s infinite linear;
+        }
+
+        .cloud::before {
+            content: '';
+            position: absolute;
+            background: white;
+            border-radius: 50px;
+        }
+
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: white;
+            border-radius: 50px;
+        }
+
+        .cloud1 {
+            width: 80px;
+            height: 30px;
+            top: 20%;
+            left: -100px;
+        }
+
+        .cloud1::before {
+            width: 50px;
+            height: 40px;
+            top: -20px;
+            left: 10px;
+        }
+
+        .cloud1::after {
+            width: 60px;
+            height: 35px;
+            top: -15px;
+            right: 10px;
+        }
+
+        .cloud2 {
+            width: 100px;
+            height: 40px;
+            top: 10%;
+            left: -120px;
+            animation-delay: -5s;
+        }
+
+        .cloud2::before {
+            width: 60px;
+            height: 50px;
+            top: -25px;
+            left: 15px;
+        }
+
+        .cloud2::after {
+            width: 70px;
+            height: 45px;
+            top: -20px;
+            right: 15px;
+        }
+
+        .cloud3 {
+            width: 60px;
+            height: 25px;
+            top: 30%;
+            left: -80px;
+            animation-delay: -10s;
+        }
+
+        .cloud3::before {
+            width: 40px;
+            height: 30px;
+            top: -15px;
+            left: 8px;
+        }
+
+        .cloud3::after {
+            width: 45px;
+            height: 28px;
+            top: -12px;
+            right: 8px;
+        }
+
+        @keyframes cloudFloat {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(calc(100vw + 200px)); }
+        }
+
+        .rainbow {
+            position: fixed;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 150px;
+            border-radius: 150px 150px 0 0;
+            background: linear-gradient(to right, 
+                #ff0000 0%, #ff8000 16.66%, #ffff00 33.33%, 
+                #00ff00 50%, #0080ff 66.66%, #8000ff 83.33%, #ff00ff 100%);
+            opacity: 0.6;
+            z-index: 2;
+            animation: rainbowGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes rainbowGlow {
+            0% { opacity: 0.6; }
+            100% { opacity: 0.8; }
+        }
+
+        .game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10;
+        }
+
+        .title {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 2.5rem;
+            color: #ff6b6b;
+            text-shadow: 3px 3px 0 #fff, 6px 6px 10px rgba(0,0,0,0.3);
+            animation: titleBounce 2s ease-in-out infinite;
+        }
+
+        @keyframes titleBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .score-area {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.5rem;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .score-stars {
+            font-size: 2rem;
+            margin: 10px 0;
+        }
+
+        .letter-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 40px 0;
+        }
+
+        .letter-box {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(45deg, #FFB6C1, #FFC0CB);
+            border: 5px solid #ff6b6b;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: #333;
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.8);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            animation: letterPulse 1.5s ease-in-out infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .letter-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: letterShine 2s infinite;
+        }
+
+        @keyframes letterShine {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes letterPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .letter-name {
+            text-align: center;
+            font-size: 1.8rem;
+            color: #666;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .buttons-area {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 40px 20px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .letter-button {
+            width: 80px;
+            height: 80px;
+            font-size: 2rem;
+            background: linear-gradient(45deg, #98FB98, #90EE90);
+            border: 3px solid #4CAF50;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #333;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+
+        .letter-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, #90EE90, #98FB98);
+        }
+
+        .letter-button:active {
+            transform: translateY(-1px);
+        }
+
+        .letter-button.correct {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            border-color: #FF8C00;
+            animation: correctBounce 0.6s ease;
+        }
+
+        .letter-button.wrong {
+            background: linear-gradient(45deg, #FFB6C1, #FFA0B4);
+            border-color: #FF69B4;
+            animation: wrongShake 0.6s ease;
+        }
+
+        @keyframes correctBounce {
+            0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
+            40%, 43% { transform: translateY(-20px); }
+            70% { transform: translateY(-10px); }
+            90% { transform: translateY(-4px); }
+        }
+
+        @keyframes wrongShake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .feedback {
+            text-align: center;
+            font-size: 2rem;
+            margin: 20px 0;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feedback.correct {
+            color: #4CAF50;
+            animation: feedbackPop 0.8s ease;
+        }
+
+        .feedback.wrong {
+            color: #FF5722;
+            animation: feedbackPop 0.8s ease;
+        }
+
+        @keyframes feedbackPop {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .next-button {
+            display: block;
+            margin: 20px auto;
+            padding: 15px 30px;
+            font-size: 1.5rem;
+            background: linear-gradient(45deg, #87CEEB, #B0E0E6);
+            border: 3px solid #4682B4;
+            border-radius: 25px;
+            cursor: pointer;
+            color: #333;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+
+        .next-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+        }
+
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #FFD700;
+            animation: confettiFall 3s linear infinite;
+        }
+
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .sun {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #FFD700, #FFA500);
+            border-radius: 50%;
+            z-index: 3;
+            animation: sunRotate 10s linear infinite;
+        }
+
+        .sun::before {
+            content: '😊';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+        }
+
+        @keyframes sunRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 600px) {
+            .title { font-size: 2rem; }
+            .letter-box { width: 120px; height: 120px; font-size: 3rem; }
+            .letter-button { width: 60px; height: 60px; font-size: 1.5rem; }
+            .buttons-area { gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="clouds">
+        <div class="cloud cloud1"></div>
+        <div class="cloud cloud2"></div>
+        <div class="cloud cloud3"></div>
+    </div>
+    
+    <div class="rainbow"></div>
+    <div class="sun"></div>
+
+    <div class="game-container">
+        <h1 class="title">🌟 تعلم الحروف مع النجوم 🌟</h1>
+        
+        <div class="score-area">
+            <div>نجومي: <span id="score">0</span></div>
+            <div class="score-stars" id="stars">⭐</div>
+        </div>
+
+        <div class="letter-area">
+            <div class="letter-box" id="currentLetter">أ</div>
+        </div>
+        
+        <div class="letter-name" id="letterName">أَلِف</div>
+
+        <div class="feedback" id="feedback">اختر الحرف الصحيح! 😊</div>
+
+        <div class="buttons-area" id="buttonsArea">
+            <!-- سيتم إنشاء الأزرار هنا -->
+        </div>
+
+        <button class="next-button" id="nextButton" onclick="nextLetter()" style="display: none;">
+            الحرف التالي 🎉
+        </button>
+    </div>
+
+    <script>
+        const letters = [
+            {arabic: 'أ', name: 'أَلِف'},
+            {arabic: 'ب', name: 'بَاء'},
+            {arabic: 'ت', name: 'تَاء'},
+            {arabic: 'ث', name: 'ثَاء'},
+            {arabic: 'ج', name: 'جِيم'},
+            {arabic: 'ح', name: 'حَاء'},
+            {arabic: 'خ', name: 'خَاء'},
+            {arabic: 'د', name: 'دَال'},
+            {arabic: 'ذ', name: 'ذَال'},
+            {arabic: 'ر', name: 'رَاء'},
+            {arabic: 'ز', name: 'زَاي'},
+            {arabic: 'س', name: 'سِين'},
+            {arabic: 'ش', name: 'شِين'},
+            {arabic: 'ص', name: 'صَاد'},
+            {arabic: 'ض', name: 'ضَاد'},
+            {arabic: 'ط', name: 'طَاء'},
+            {arabic: 'ظ', name: 'ظَاء'},
+            {arabic: 'ع', name: 'عَين'},
+            {arabic: 'غ', name: 'غَين'},
+            {arabic: 'ف', name: 'فَاء'},
+            {arabic: 'ق', name: 'قَاف'},
+            {arabic: 'ك', name: 'كَاف'},
+            {arabic: 'ل', name: 'لاَم'},
+            {arabic: 'م', name: 'مِيم'},
+            {arabic: 'ن', name: 'نُون'},
+            {arabic: 'ه', name: 'هَاء'},
+            {arabic: 'و', name: 'وَاو'},
+            {arabic: 'ي', name: 'يَاء'}
+        ];
+
+        let currentIndex = 0;
+        let score = 0;
+        let answered = false;
+
+        // إنشاء الأزرار
+        function createButtons() {
+            const buttonsArea = document.getElementById('buttonsArea');
+            buttonsArea.innerHTML = '';
+            
+            // اختيار 6 حروف عشوائية تشمل الحرف الصحيح
+            const correctLetter = letters[currentIndex];
+            let options = [correctLetter];
+            
+            // إضافة 5 حروف عشوائية أخرى
+            while (options.length < 6) {
+                const randomLetter = letters[Math.floor(Math.random() * letters.length)];
+                if (!options.some(option => option.arabic === randomLetter.arabic)) {
+                    options.push(randomLetter);
+                }
+            }
+            
+            // خلط الخيارات
+            options = options.sort(() => Math.random() - 0.5);
+            
+            // إنشاء الأزرار
+            options.forEach(letter => {
+                const button = document.createElement('button');
+                button.className = 'letter-button';
+                button.textContent = letter.arabic;
+                button.onclick = () => checkAnswer(button, letter.arabic === correctLetter.arabic);
+                buttonsArea.appendChild(button);
+            });
+        }
+
+        // فحص الإجابة
+        function checkAnswer(button, isCorrect) {
+            if (answered) return;
+            answered = true;
+            
+            const feedback = document.getElementById('feedback');
+            const nextButton = document.getElementById('nextButton');
+            
+            // إزالة التأثيرات السابقة من جميع الأزرار
+            document.querySelectorAll('.letter-button').forEach(btn => {
+                btn.classList.remove('correct', 'wrong');
+                btn.style.pointerEvents = 'none';
+            });
+            
+            if (isCorrect) {
+                button.classList.add('correct');
+                feedback.textContent = 'أحسنت! 🎉 إجابة صحيحة! ⭐';
+                feedback.className = 'feedback correct';
+                score++;
+                updateScore();
+                createCelebration();
+                nextButton.style.display = 'block';
+            } else {
+                button.classList.add('wrong');
+                feedback.textContent = 'حاول مرة أخرى! 😊 الإجابة الصحيحة هي: ' + letters[currentIndex].arabic;
+                feedback.className = 'feedback wrong';
+                
+                // إظهار الإجابة الصحيحة
+                document.querySelectorAll('.letter-button').forEach(btn => {
+                    if (btn.textContent === letters[currentIndex].arabic) {
+                        btn.classList.add('correct');
+                    }
+                });
+                
+                setTimeout(() => {
+                    nextButton.style.display = 'block';
+                }, 2000);
+            }
+        }
+
+        // الانتقال للحرف التالي
+        function nextLetter() {
+            currentIndex = (currentIndex + 1) % letters.length;
+            answered = false;
+            
+            // تحديث العرض
+            document.getElementById('currentLetter').textContent = letters[currentIndex].arabic;
+            document.getElementById('letterName').textContent = letters[currentIndex].name;
+            document.getElementById('feedback').textContent = 'اختر الحرف الصحيح! 😊';
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('nextButton').style.display = 'none';
+            
+            // إعادة تنشيط الأزرار
+            document.querySelectorAll('.letter-button').forEach(btn => {
+                btn.style.pointerEvents = 'auto';
+                btn.classList.remove('correct', 'wrong');
+            });
+            
+            createButtons();
+        }
+
+        // تحديث النقاط
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+            let stars = '';
+            for (let i = 0; i < Math.min(score, 10); i++) {
+                stars += '⭐';
+            }
+            if (score > 10) {
+                stars += ` +${score - 10}`;
+            }
+            document.getElementById('stars').textContent = stars;
+        }
+
+        // إنشاء احتفال
+        function createCelebration() {
+            const celebration = document.createElement('div');
+            celebration.className = 'celebration';
+            
+            const colors = ['#FFD700', '#FF69B4', '#00CED1', '#32CD32', '#FF4500', '#9370DB'];
+            
+            for (let i = 0; i < 15; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                celebration.appendChild(confetti);
+            }
+            
+            document.body.appendChild(celebration);
+            
+            setTimeout(() => {
+                if (celebration.parentNode) {
+                    document.body.removeChild(celebration);
+                }
+            }, 3000);
+        }
+
+        // تهيئة اللعبة
+        function initGame() {
+            document.getElementById('currentLetter').textContent = letters[currentIndex].arabic;
+            document.getElementById('letterName').textContent = letters[currentIndex].name;
+            createButtons();
+            updateScore();
+        }
+
+        // بدء اللعبة
+        initGame();
+    </script>
+</body>
+</html>

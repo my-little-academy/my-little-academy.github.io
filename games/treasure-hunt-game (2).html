@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة صيد الكنز - يا بطل!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 900px;
+            width: 100%;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .game-title {
+            font-size: 2.5em;
+            color: #d4af37;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 20px rgba(212, 175, 55, 0.5); }
+            to { text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 30px rgba(212, 175, 55, 0.8); }
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5em;
+            color: #667eea;
+        }
+        
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.3);
+            height: 8px;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(45deg, #d4af37, #ffd700);
+            height: 100%;
+            width: 0%;
+            border-radius: 4px;
+            transition: width 0.5s ease-in-out;
+        }
+        
+        .puzzle-container {
+            position: relative;
+            max-width: 600px;
+            margin: 30px auto;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+        
+        .background-image {
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(45deg, 
+                #ff6b6b 0%, #ffd93d 16.67%, #6bcf7f 33.33%, 
+                #4ecdc4 50%, #45b7d1 66.67%, #96ceb4 83.33%, #ffeaa7 100%);
+            background-size: 300% 300%;
+            animation: gradientShift 8s ease infinite;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            position: relative;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .image-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            position: relative;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        .image-section:nth-child(1) { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .image-section:nth-child(2) { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .image-section:nth-child(3) { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .image-section:nth-child(4) { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+        .image-section:nth-child(5) { background: linear-gradient(135deg, #fa709a, #fee140); }
+        .image-section:nth-child(6) { background: linear-gradient(135deg, #a8edea, #fed6e3); }
+        .image-section:nth-child(7) { background: linear-gradient(135deg, #ffeaa7, #fab1a0); }
+        .image-section:nth-child(8) { background: linear-gradient(135deg, #fd79a8, #fdcb6e); }
+        .image-section:nth-child(9) { background: linear-gradient(135deg, #6c5ce7, #74b9ff); }
+        
+        .overlay-card {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        
+        .overlay-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+            z-index: 20;
+        }
+        
+        .overlay-card.removing {
+            animation: cardDisappear 0.8s ease-in-out forwards;
+        }
+        
+        @keyframes cardDisappear {
+            0% { 
+                transform: scale(1);
+                opacity: 1;
+                filter: blur(0px);
+            }
+            50% { 
+                transform: scale(1.1) rotateY(90deg);
+                opacity: 0.5;
+                filter: blur(2px);
+            }
+            100% { 
+                transform: scale(0) rotateY(180deg);
+                opacity: 0;
+                filter: blur(5px);
+                display: none;
+            }
+        }
+        
+        .treasure-symbol {
+            font-size: 4em;
+            animation: bounce 2s ease-in-out infinite;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+        }
+        
+        .modal-content {
+            background: white;
+            margin: 8% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            animation: modalAppear 0.3s ease-in-out;
+        }
+        
+        @keyframes modalAppear {
+            from { transform: scale(0.5) rotateY(-90deg); opacity: 0; }
+            to { transform: scale(1) rotateY(0deg); opacity: 1; }
+        }
+        
+        .close {
+            color: #aaa;
+            float: left;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .close:hover {
+            color: #333;
+            transform: scale(1.2);
+        }
+        
+        .question {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        
+        .answers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .answer-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .answer-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .answer-btn:hover::before {
+            left: 100%;
+        }
+        
+        .answer-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .answer-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .answer-btn.correct {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            animation: correctPulse 0.6s ease-in-out;
+        }
+        
+        .answer-btn.incorrect {
+            background: linear-gradient(45deg, #dc3545, #e74c3c);
+            animation: incorrectShake 0.6s ease-in-out;
+        }
+        
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); box-shadow: 0 0 20px rgba(40, 167, 69, 0.5); }
+        }
+        
+        @keyframes incorrectShake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        .feedback {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .feedback.correct {
+            background: linear-gradient(45deg, rgba(40, 167, 69, 0.1), rgba(32, 201, 151, 0.1));
+            color: #28a745;
+            border: 2px solid rgba(40, 167, 69, 0.3);
+        }
+        
+        .feedback.incorrect {
+            background: linear-gradient(45deg, rgba(220, 53, 69, 0.1), rgba(231, 76, 60, 0.1));
+            color: #dc3545;
+            border: 2px solid rgba(220, 53, 69, 0.3);
+        }
+        
+        .victory {
+            background: linear-gradient(45deg, #ffd700, #ffed4a);
+            padding: 40px;
+            border-radius: 20px;
+            margin: 20px 0;
+            display: none;
+            animation: celebration 2s ease-in-out infinite;
+            box-shadow: 0 20px 40px rgba(255, 215, 0, 0.3);
+        }
+        
+        @keyframes celebration {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.02) rotate(0.5deg); }
+            50% { transform: scale(1.05) rotate(0deg); }
+            75% { transform: scale(1.02) rotate(-0.5deg); }
+        }
+        
+        .victory h2 {
+            color: #d4af37;
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .reset-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .reset-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="game-title">🏆 يا بطل! 🏆</h1>
+        <p class="subtitle">اضغط على البطاقات وأجب عن الأسئلة لتكشف عن الصورة المخفية خلفها!</p>
+        
+        <div class="stats">
+            <div class="stat">
+                <div>النقاط</div>
+                <div class="stat-value" id="score">0</div>
+            </div>
+            <div class="stat">
+                <div>البطاقات المكتشفة</div>
+                <div class="stat-value" id="progress">0/9</div>
+            </div>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        
+        <div class="puzzle-container">
+            <div class="background-image">
+                <div class="image-section">
+                    <div class="treasure-symbol">💎</div>
+                </div>
+                <div class="image-section">
+                    <div class="treasure-symbol">👑</div>
+                </div>
+                <div class="image-section">
+                    <div class="treasure-symbol">🗝️</div>
+                </div>
+                <div class="image-section">
+                    <div class="treasure-symbol">💰</div>
+                </div>
+                <div class="image-section">
+                    <div class="treasure-symbol">⚱️</div>
+                </div>
+                <div class="image-section">
+                    <div class="treasure-symbol">💍</div>
+                </div>
+                <div class="image-section">
+                    <div class="treasure-symbol">🏺</div>
+                </div>
+                <div class="image-section">
+                    <div class="treasure-symbol">💎</div>
+                </div>
+                <div class="image-section">
+                    <div class="treasure-symbol">🔮</div>
+                </div>
+            </div>
+            
+            <!-- Overlay Cards -->
+            <div class="overlay-card" style="position: absolute; top: 0; left: 0; width: 33.33%; height: 33.33%;" data-card="0" onclick="openQuestion(0)">
+                <span>❓</span>
+            </div>
+            <div class="overlay-card" style="position: absolute; top: 0; left: 33.33%; width: 33.33%; height: 33.33%;" data-card="1" onclick="openQuestion(1)">
+                <span>❓</span>
+            </div>
+            <div class="overlay-card" style="position: absolute; top: 0; left: 66.66%; width: 33.33%; height: 33.33%;" data-card="2" onclick="openQuestion(2)">
+                <span>❓</span>
+            </div>
+            <div class="overlay-card" style="position: absolute; top: 33.33%; left: 0; width: 33.33%; height: 33.33%;" data-card="3" onclick="openQuestion(3)">
+                <span>❓</span>
+            </div>
+            <div class="overlay-card" style="position: absolute; top: 33.33%; left: 33.33%; width: 33.33%; height: 33.33%;" data-card="4" onclick="openQuestion(4)">
+                <span>❓</span>
+            </div>
+            <div class="overlay-card" style="position: absolute; top: 33.33%; left: 66.66%; width: 33.33%; height: 33.33%;" data-card="5" onclick="openQuestion(5)">
+                <span>❓</span>
+            </div>
+            <div class="overlay-card" style="position: absolute; top: 66.66%; left: 0; width: 33.33%; height: 33.33%;" data-card="6" onclick="openQuestion(6)">
+                <span>❓</span>
+            </div>
+            <div class="overlay-card" style="position: absolute; top: 66.66%; left: 33.33%; width: 33.33%; height: 33.33%;" data-card="7" onclick="openQuestion(7)">
+                <span>❓</span>
+            </div>
+            <div class="overlay-card" style="position: absolute; top: 66.66%; left: 66.66%; width: 33.33%; height: 33.33%;" data-card="8" onclick="openQuestion(8)">
+                <span>❓</span>
+            </div>
+        </div>
+        
+        <div class="victory" id="victory">
+            <h2>🎉 مبروك! لقد كشفت عن الصورة كاملة! 🎉</h2>
+            <p>لقد أجبت على جميع الأسئلة وكشفت عن كنز الحكمة المخفي!</p>
+            <p>نقاطك النهائية: <span id="finalScore">0</span></p>
+            <button class="reset-btn" onclick="resetGame()">العب مرة أخرى 🔄</button>
+        </div>
+    </div>
+    
+    <!-- Modal for Questions -->
+    <div id="questionModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3 id="cardTitle">السؤال رقم 1</h3>
+            <div class="question" id="modalQuestion">ما هي عاصمة المغرب؟</div>
+            <div class="answers" id="modalAnswers">
+                <!-- Answers will be populated here -->
+            </div>
+            <div class="feedback" id="modalFeedback"></div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "ما هي عاصمة المغرب؟",
+                answers: ["الدار البيضاء", "الرباط", "فاس", "مراكش"],
+                correct: 1
+            },
+            {
+                question: "كم عدد أيام السنة الميلادية؟",
+                answers: ["364", "365", "366", "367"],
+                correct: 1
+            },
+            {
+                question: "ما هو أكبر محيط في العالم؟",
+                answers: ["المحيط الأطلسي", "المحيط الهندي", "المحيط الهادئ", "المحيط المتجمد"],
+                correct: 2
+            },
+            {
+                question: "كم عدد ألوان قوس قزح؟",
+                answers: ["6", "7", "8", "9"],
+                correct: 1
+            },
+            {
+                question: "ما هو أطول نهر في العالم؟",
+                answers: ["النيل", "الأمازون", "المسيسيبي", "اليانغتسي"],
+                correct: 0
+            },
+            {
+                question: "كم عدد قارات العالم؟",
+                answers: ["5", "6", "7", "8"],
+                correct: 2
+            },
+            {
+                question: "ما هي أصغر دولة في العالم؟",
+                answers: ["موناكو", "الفاتيكان", "سان مارينو", "ليختنشتاين"],
+                correct: 1
+            },
+            {
+                question: "كم عدد أسنان الإنسان البالغ؟",
+                answers: ["28", "30", "32", "34"],
+                correct: 2
+            },
+            {
+                question: "ما هو أسرع حيوان في البر؟",
+                answers: ["الأسد", "الفهد", "الحصان", "الغزال"],
+                correct: 1
+            }
+        ];
+        
+        let score = 0;
+        let cardsAnswered = 0;
+        let currentCardIndex = -1;
+        let answeredCards = new Set();
+        
+        function openQuestion(cardIndex) {
+            if (answeredCards.has(cardIndex)) return;
+            
+            currentCardIndex = cardIndex;
+            const question = questions[cardIndex];
+            
+            document.getElementById('cardTitle').textContent = `السؤال رقم ${cardIndex + 1}`;
+            document.getElementById('modalQuestion').textContent = question.question;
+            
+            const answersContainer = document.getElementById('modalAnswers');
+            answersContainer.innerHTML = '';
+            
+            question.answers.forEach((answer, index) => {
+                const button = document.createElement('button');
+                button.className = 'answer-btn';
+                button.textContent = answer;
+                button.onclick = () => checkAnswer(button, index === question.correct, cardIndex);
+                answersContainer.appendChild(button);
+            });
+            
+            document.getElementById('modalFeedback').textContent = '';
+            document.getElementById('modalFeedback').className = 'feedback';
+            document.getElementById('questionModal').style.display = 'block';
+        }
+        
+        function closeModal() {
+            document.getElementById('questionModal').style.display = 'none';
+        }
+        
+        function checkAnswer(button, isCorrect, cardIndex) {
+            const buttons = document.querySelectorAll('.answer-btn');
+            buttons.forEach(btn => btn.disabled = true);
+            
+            const feedback = document.getElementById('modalFeedback');
+            
+            if (isCorrect) {
+                button.classList.add('correct');
+                feedback.textContent = '🎉 إجابة صحيحة! البطاقة ستختفي لتكشف عن جزء من الصورة!';
+                feedback.className = 'feedback correct';
+                score += 100;
+                cardsAnswered++;
+                answeredCards.add(cardIndex);
+                
+                setTimeout(() => {
+                    // Remove the overlay card with animation
+                    const card = document.querySelector(`[data-card="${cardIndex}"]`);
+                    card.classList.add('removing');
+                    
+                    setTimeout(() => {
+                        card.style.display = 'none';
+                    }, 800);
+                    
+                    updateStats();
+                    closeModal();
+                    
+                    if (cardsAnswered === 9) {
+                        setTimeout(() => {
+                            showVictory();
+                        }, 1200);
+                    }
+                }, 1500);
+                
+            } else {
+                button.classList.add('incorrect');
+                feedback.textContent = '❌ إجابة خاطئة! جرب بطاقة أخرى.';
+                feedback.className = 'feedback incorrect';
+                
+                setTimeout(() => {
+                    closeModal();
+                }, 1500);
+            }
+        }
+        
+        function updateStats() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('progress').textContent = `${cardsAnswered}/9`;
+            document.getElementById('progressFill').style.width = `${(cardsAnswered / 9) * 100}%`;
+        }
+        
+        function showVictory() {
+            document.querySelector('.puzzle-container').style.display = 'none';
+            document.getElementById('victory').style.display = 'block';
+            document.getElementById('finalScore').textContent = score;
+        }
+        
+        function resetGame() {
+            score = 0;
+            cardsAnswered = 0;
+            answeredCards.clear();
+            
+            // Reset all overlay cards
+            const cards = document.querySelectorAll('.overlay-card');
+            cards.forEach(card => {
+                card.style.display = 'flex';
+                card.classList.remove('removing');
+            });
+            
+            // Reset UI
+            document.querySelector('.puzzle-container').style.display = 'block';
+            document.getElementById('victory').style.display = 'none';
+            
+            updateStats();
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('questionModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+        
+        // Initialize game
+        updateStats();
+    </script>
+</body>
+</html>

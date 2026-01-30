@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>رحلة في ممالك اللغة – فهرس تفاعلي</title>
+  <style>
+    :root {
+      --bg1: #e0f7fa;
+      --bg2: #fce4ec;
+      --card: #ffffffee;
+      --primary: #d81b60;   /* وردي دافئ للعناوين */
+      --accent: #00695c;    /* أخضر لطيف للنص */
+      --chip: #f3e5f5;      /* بنفسجي خفيف للعناصر */
+      --chip-hover: #e1bee7;
+      --border: #f06292;
+      --shadow: 0 10px 25px rgba(0,0,0,.08);
+      --radius: 22px;
+      --focus: 0 0 0 3px rgba(216,27,96,.25);
+      --transition: 300ms ease;
+    }
+
+    /* Reset بسيط */
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Cairo", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: linear-gradient(135deg,var(--bg1),var(--bg2)); color: #333; }
+
+    header { text-align: center; padding: 28px 16px 10px; }
+    h1 { margin: 0 0 8px; font-size: clamp(1.8rem, 2.2vw + 1rem, 2.8rem); color: var(--primary); text-shadow: 0 1px 2px #fff8; }
+    p.lead { margin: 0 auto; max-width: 820px; color: #444; font-size: 1rem; }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr 200px;
+      gap: 12px;
+      max-width: 1100px;
+      margin: 18px auto 6px;
+      padding: 0 16px;
+    }
+    @media (max-width: 640px){ .toolbar{ grid-template-columns: 1fr; } }
+
+    .search {
+      display: flex; align-items: center; gap: 10px; background: var(--card); border: 2px dashed var(--border);
+      border-radius: var(--radius); padding: 10px 14px; box-shadow: var(--shadow);
+    }
+    .search input { border: none; outline: none; flex: 1; background: transparent; font-size: 1rem; }
+
+    .view-toggle { display:flex; gap:8px; align-items:center; justify-content:flex-end; }
+    .btn {
+      border: 0; background: var(--primary); color: #fff; padding: 10px 14px; border-radius: 14px; cursor: pointer; box-shadow: var(--shadow);
+      font-weight: 600; transition: transform var(--transition), opacity var(--transition);
+    }
+    .btn[aria-pressed="true"] { filter: saturate(1.15) brightness(1.05); }
+    .btn:active { transform: translateY(1px) scale(.99); }
+
+    main { max-width: 1100px; margin: 10px auto 50px; padding: 0 16px; }
+
+    /* بطاقات الممالك */
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 18px; }
+    .card { grid-column: span 12; background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
+            border: 3px dashed var(--border); overflow: hidden; transition: transform var(--transition); }
+    .card:hover { transform: translateY(-2px); }
+
+    .card-header { display:flex; align-items:center; justify-content:space-between; gap: 10px; cursor: pointer; padding: 16px 18px; background: #fce4ec; }
+    .card-title { display:flex; align-items:center; gap: 12px; font-size: clamp(1.1rem, 1.2vw + .8rem, 1.5rem); font-weight: 800; color: var(--accent); }
+    .card-title .ico { font-size: 1.6em; }
+
+    .chev { transition: transform var(--transition); font-size: 1.2em; }
+    .card[open] .chev { transform: rotate(180deg); }
+
+    /* المحتوى المنزلق */
+    .panel { max-height: 0; overflow: hidden; transition: max-height 500ms ease; background: #fff; }
+    .card[open] .panel { max-height: 1000px; } /* يكفي لقائمة طويلة؛ يتكيف بالحجم */
+
+    /* قائمة الدروس */
+    .lessons { display: flex; flex-wrap: wrap; gap: 10px; padding: 16px; }
+    .chip { background: var(--chip); padding: 9px 12px; border-radius: 999px; box-shadow: var(--shadow); font-weight: 700; font-size: .98rem; white-space: nowrap; cursor: pointer; border: 2px solid transparent; transition: background var(--transition), transform var(--transition); }
+    .chip:hover { background: var(--chip-hover); transform: translateY(-1px); }
+    .chip:focus-visible { outline: none; box-shadow: var(--focus); }
+
+    /* رموز مصغرة حسب المملكة */
+    .k-grammar .chip::before { content: "📘 "; }
+    .k-sarf   .chip::before { content: "🌀 "; }
+    .k-imla   .chip::before { content: "✍️ "; }
+
+    /* تخطيط استجابة */
+    @media (min-width: 640px){ .card { grid-column: span 12; } }
+    @media (min-width: 900px){ .card { grid-column: span 12; } }
+
+    /* تفضيل تقليل الحركة */
+    @media (prefers-reduced-motion: reduce){
+      .panel { transition: none; }
+      .chev { transition: none; }
+      .btn { transition: none; }
+      .card { transition: none; }
+    }
+
+    footer { text-align:center; color:#555; font-size:.9rem; padding: 20px 0 40px; }
+    a.link { color: var(--primary); text-decoration: none; border-bottom: 2px dotted currentColor; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🌟 رحلة في ممالك اللغة 🌟</h1>
+    <p class="lead">فهرس مُبهِر للأطفال لثلاث ممالك: <strong>النحو</strong>، <strong>الصرف</strong>، <strong>الإملاء</strong>. اضغطي لفتح البطاقة واستكشاف الدروس. استخدمي البحث للعثور على أي درس بسرعة.</p>
+  </header>
+
+  <section class="toolbar" aria-label="أدوات الفهرس">
+    <div class="search" role="search">
+      <span aria-hidden="true">🔎</span>
+      <input id="q" type="search" placeholder="ابحثي عن درس… (مثال: المبتدأ، الهمزة، الميزان)" aria-label="ابحثي عن درس" />
+    </div>
+    <div class="view-toggle">
+      <button id="expandAll" class="btn" type="button">🔽 فتح الكل</button>
+      <button id="collapseAll" class="btn" type="button" aria-pressed="true">🔼 غلق الكل</button>
+    </div>
+  </section>
+
+  <main>
+    <div class="grid" id="kingdoms">
+      <!-- مملكة النحو -->
+      <section class="card k-grammar" data-kingdom="النحو" aria-label="مملكة النحو">
+        <div class="card-header" role="button" tabindex="0" aria-expanded="false">
+          <div class="card-title"><span class="ico">🏰</span><span>مملكة النحو</span></div>
+          <div class="chev" aria-hidden="true">⬇️</div>
+        </div>
+        <div class="panel" hidden>
+          <nav class="lessons" aria-label="دروس النحو">
+            <!-- أضف روابط حقيقية عبر href لاحقًا -->
+           
+           <a class="chip" href="grammar/introduction.html">مدخل إلى النحو</a>
+      <a class="chip" href="grammar/parts-of-speech.html">أقسام الكلمة</a>
+      <a class="chip" href="grammar/noun-verb-particle.html">علامات الاسم والفعل والحرف</a>
+      <a class="chip" href="grammar/nominal-sentence.html">الجملة الاسمية</a>
+      <a class="chip" href="grammar/verbal-sentence.html">الجملة الفعلية</a>
+      <a class="chip" href="grammar/subject-predicate.html">المبتدأ والخبر</a>
+      <a class="chip" href="grammar/verb-subject.html">الفعل والفاعل</a>
+      <a class="chip" href="grammar/object.html">المفعول به</a>
+      <a class="chip" href="grammar/adjective.html">النعت والمنعوت</a>
+      <a class="chip" href="grammar/conjunction.html">العطف</a>
+      <a class="chip" href="grammar/adverb.html">الحال</a>
+      <a class="chip" href="grammar/specification.html">التمييز</a>
+      <a class="chip" href="grammar/genitives.html">المجرورات</a>
+      <a class="chip" href="grammar/nasab-tools.html">أدوات النصب</a>
+      <a class="chip" href="grammar/jazm-tools.html">أدوات الجزم</a>
+      <a class="chip" href="grammar/kaana.html">كان وأخواتها</a>
+      <a class="chip" href="grammar/inna.html">إن وأخواتها</a>
+      <a class="chip" href="grammar/la-nafiya.html">لا النافية للجنس</a>
+      <a class="chip" href="grammar/condition-tools.html">أدوات الشرط</a>
+      <a class="chip" href="grammar/interrogative.html">أسلوب الاستفهام</a>
+      <a class="chip" href="grammar/vocative.html">أسلوب النداء</a>
+      <a class="chip" href="grammar/negation.html">أسلوب النفي</a>
+          </nav>
+        </div>
+      </section>
+
+      <!-- مملكة الصرف -->
+      <section class="card k-sarf" data-kingdom="الصرف" aria-label="مملكة الصرف">
+        <div class="card-header" role="button" tabindex="0" aria-expanded="false">
+          <div class="card-title"><span class="ico">🌀</span><span>مملكة الصرف</span></div>
+          <div class="chev" aria-hidden="true">⬇️</div>
+        </div>
+        <div class="panel" hidden>
+          <nav class="lessons" aria-label="دروس الصرف">
+            <a class="chip" href="sarf/introduction.html">معنى الصرف وأهميته</a>
+      <a class="chip" href="sarf/root-pattern.html">الجذر والوزن</a>
+      <a class="chip" href="sarf/sarf-scale.html">الميزان الصرفي</a>
+      <a class="chip" href="sarf/verb-forms.html">صيغ الماضي والمضارع والأمر</a>
+      <a class="chip" href="sarf/sound-weak.html">الصحيح والمعتل</a>
+      <a class="chip" href="sarf/basic-derived.html">المجرد والمزيد</a>
+      <a class="chip" href="sarf/verb-nouns.html">مصادر الأفعال</a>
+      <a class="chip" href="sarf/active-participle.html">اسم الفاعل</a>
+      <a class="chip" href="sarf/passive-participle.html">اسم المفعول</a>
+      <a class="chip" href="sarf/intensive-forms.html">صيغ المبالغة</a>
+      <a class="chip" href="sarf/comparative.html">اسم التفضيل</a>
+      <a class="chip" href="sarf/time-place.html">اسم الزمان والمكان</a>
+      <a class="chip" href="sarf/tool-noun.html">اسم الآلة</a>
+      <a class="chip" href="sarf/broken-plurals.html">جمع التكسير</a>
+      <a class="chip" href="sarf/diminutive.html">التصغير</a>
+      <a class="chip" href="sarf/attribution.html">النسب</a>
+      <a class="chip" href="sarf/ilal.html">الإعلال والإبدال</a>
+      <a class="chip" href="sarf/idgham.html">الإدغام</a>
+          </nav>
+        </div>
+      </section>
+
+      <!-- مملكة الإملاء -->
+      <section class="card k-imla" data-kingdom="الإملاء" aria-label="مملكة الإملاء">
+        <div class="card-header" role="button" tabindex="0" aria-expanded="false">
+          <div class="card-title"><span class="ico">✍️</span><span>مملكة الإملاء</span></div>
+          <div class="chev" aria-hidden="true">⬇️</div>
+        </div>
+        <div class="panel" hidden>
+          <nav class="lessons" aria-label="دروس الإملاء">
+           <a class="chip" href="imla/similar-letters.html">التمييز بين الحروف المتشابهة</a>
+      <a class="chip" href="imla/taa.html">التاء المفتوحة والمربوطة</a>
+      <a class="chip" href="imla/hamza-begin.html">الهمزة في أول الكلمة</a>
+      <a class="chip" href="imla/hamza-middle.html">الهمزة في وسط الكلمة</a>
+      <a class="chip" href="imla/hamza-end.html">الهمزة في آخر الكلمة</a>
+      <a class="chip" href="imla/hamzat.html">همزة الوصل والقطع</a>
+      <a class="chip" href="imla/soft-alif.html">الألف اللينة</a>
+      <a class="chip" href="imla/alif-ya.html">الألف المقصورة والياء</a>
+      <a class="chip" href="imla/tanween.html">التنوين</a>
+      <a class="chip" href="imla/numbers.html">كتابة الأعداد بالحروف</a>
+      <a class="chip" href="imla/punctuation.html">علامات الترقيم</a>
+      <a class="chip" href="imla/shadda.html">الحروف المشددة (الشدة)</a>
+      <a class="chip" href="imla/solar-lunar.html">أل الشمسية والقمرية</a>
+      <a class="chip" href="imla/silent-words.html">الكلمات التي تُكتب ولا تُنطق</a>
+      <a class="chip" href="imla/common-mistakes.html">الأخطاء الشائعة</a>
+          </nav>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer>
+    <span>💡 نصيحة: لربط أي درس بصفحة، استبدلي <code>#</code> في رابط الدرس بعنوان صفحتك.</span>
+  </footer>
+
+  <script>
+    // وظيفة: فتح/غلق بطاقة واحدة بانزلاق لطيف + تحديث حالة السهم وإتاحة لوحة المفاتيح
+    function toggleCard(card, forceOpen) {
+      const header = card.querySelector('.card-header');
+      const panel  = card.querySelector('.panel');
+      const chev   = card.querySelector('.chev');
+      const isOpen = typeof forceOpen === 'boolean' ? !forceOpen : card.hasAttribute('open');
+
+      if (isOpen) {
+        // غلق
+        card.removeAttribute('open');
+        header.setAttribute('aria-expanded', 'false');
+        panel.hidden = false; // نحتاجه لحساب الارتفاع
+        panel.style.maxHeight = panel.scrollHeight + 'px';
+        requestAnimationFrame(() => {
+          panel.style.maxHeight = '0px';
+        });
+        chev.textContent = '⬇️';
+        panel.addEventListener('transitionend', function onEnd(){ panel.hidden = true; panel.removeEventListener('transitionend', onEnd); }, { once:true });
+      } else {
+        // فتح
+        card.setAttribute('open', '');
+        header.setAttribute('aria-expanded', 'true');
+        panel.hidden = false;
+        panel.style.maxHeight = '0px';
+        requestAnimationFrame(() => {
+          panel.style.maxHeight = panel.scrollHeight + 'px';
+        });
+        chev.textContent = '⬆️';
+      }
+    }
+
+    // ربط الأحداث مع الرؤوس
+    document.querySelectorAll('.card').forEach(card => {
+      const header = card.querySelector('.card-header');
+      header.addEventListener('click', () => toggleCard(card));
+      header.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleCard(card); }
+      });
+    });
+
+    // أزرار فتح/غلق الكل
+    document.getElementById('expandAll').addEventListener('click', () => {
+      document.querySelectorAll('.card').forEach(card => {
+        if (!card.hasAttribute('open')) toggleCard(card, true);
+      });
+    });
+    document.getElementById('collapseAll').addEventListener('click', () => {
+      document.querySelectorAll('.card').forEach(card => {
+        if (card.hasAttribute('open')) toggleCard(card, false);
+      });
+    });
+
+    // بحث فوري داخل الدروس + إبقاء البطاقات التي بها نتائج مفتوحة
+    const q = document.getElementById('q');
+    q.addEventListener('input', () => {
+      const term = q.value.trim();
+      const norm = (s) => s
+        .replace(/[\u064B-\u0652]/g, '')      // إزالة التشكيل
+        .replace(/[\u0622\u0623\u0625]/g, '\u0627') // آ/أ/إ -> ا
+        .replace(/\u0649/g, '\u064A')          // ى -> ي
+        .toLowerCase();
+
+      const t = norm(term);
+      document.querySelectorAll('.card').forEach(card => {
+        const chips = card.querySelectorAll('.chip');
+        let anyVisible = false;
+        chips.forEach(chip => {
+          const visible = !t || norm(chip.textContent).includes(t);
+          chip.style.display = visible ? '' : 'none';
+          if (visible) anyVisible = true;
+        });
+        // إظهار البطاقة وفتحها إذا وُجدت نتيجة
+        card.style.display = anyVisible ? '' : (t ? 'none' : '');
+        if (anyVisible && t && !card.hasAttribute('open')) toggleCard(card, true);
+      });
+    });
+  </script>
+</body>
+</html>

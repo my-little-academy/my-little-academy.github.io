@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة عداد الحروف العربية</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            direction: rtl;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .title {
+            font-size: 2.5rem;
+            color: #4a5568;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .letter-display {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(45deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 30px auto;
+            box-shadow: 0 15px 35px rgba(255, 154, 158, 0.3);
+            border: 5px solid white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .letter-display::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%);
+            animation: shine 2s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .current-letter {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #2d3748;
+            z-index: 1;
+            position: relative;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.1s ease;
+        }
+
+        .spinning {
+            animation: letterSpin 0.1s infinite;
+        }
+
+        @keyframes letterSpin {
+            0% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(180deg); }
+            100% { transform: scale(1) rotate(360deg); }
+        }
+
+        .control-button {
+            font-size: 1.5rem;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(79, 172, 254, 0.3);
+            margin: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .control-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(79, 172, 254, 0.4);
+        }
+
+        .control-button:active {
+            transform: translateY(-1px);
+        }
+
+        .control-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s;
+        }
+
+        .control-button:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .stop-button {
+            background: linear-gradient(45deg, #fa709a 0%, #fee140 100%);
+            box-shadow: 0 8px 20px rgba(250, 112, 154, 0.3);
+        }
+
+        .stop-button:hover {
+            box-shadow: 0 12px 25px rgba(250, 112, 154, 0.4);
+        }
+
+        .reset-button {
+            background: linear-gradient(45deg, #a8edea 0%, #fed6e3 100%);
+            color: #4a5568;
+            box-shadow: 0 8px 20px rgba(168, 237, 234, 0.3);
+        }
+
+        .reset-button:hover {
+            box-shadow: 0 12px 25px rgba(168, 237, 234, 0.4);
+        }
+
+        .status-message {
+            font-size: 1.2rem;
+            margin: 20px 0;
+            min-height: 30px;
+            font-weight: bold;
+            color: #4a5568;
+        }
+
+        .winner-animation {
+            animation: bounce 0.6s ease infinite alternate;
+        }
+
+        @keyframes bounce {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.2); }
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #ff6b6b;
+            z-index: 1000;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+
+        .instructions {
+            background: linear-gradient(135deg, #ffeaa7, #fab1a0);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-size: 1.1rem;
+            color: #2d3748;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="title">🎮 لعبة عداد الحروف</h1>
+        
+        <div class="instructions">
+            اضغط على "ابدأ" لتبدأ الحروف في الدوران، ثم اضغط "توقف" عندما تريد التوقف على حرف!
+        </div>
+
+        <div class="letter-display">
+            <div class="current-letter" id="currentLetter">أ</div>
+        </div>
+
+        <div class="status-message" id="statusMessage">اضغط ابدأ للعب!</div>
+
+        <div class="controls">
+            <button class="control-button" id="startButton" onclick="startGame()">
+                🚀 ابدأ
+            </button>
+            <button class="control-button stop-button" id="stopButton" onclick="stopGame()" disabled>
+                ⏹️ توقف
+            </button>
+            <button class="control-button reset-button" onclick="resetGame()">
+                🔄 إعادة تشغيل
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // الحروف العربية
+        const arabicLetters = [
+            'أ', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 
+            'ز', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 
+            'ق', 'ك', 'ل', 'م', 'ن', 'ه', 'و', 'ي'
+        ];
+
+        let gameInterval;
+        let isGameRunning = false;
+        let currentLetterIndex = 0;
+
+        const currentLetterElement = document.getElementById('currentLetter');
+        const statusMessageElement = document.getElementById('statusMessage');
+        const startButton = document.getElementById('startButton');
+        const stopButton = document.getElementById('stopButton');
+
+        function getRandomLetter() {
+            return arabicLetters[Math.floor(Math.random() * arabicLetters.length)];
+        }
+
+        function startGame() {
+            if (isGameRunning) return;
+
+            isGameRunning = true;
+            startButton.disabled = true;
+            stopButton.disabled = false;
+            statusMessageElement.textContent = '🎯 الحروف تدور... اضغط توقف!';
+            
+            currentLetterElement.classList.add('spinning');
+
+            // تغيير الحروف بسرعة
+            gameInterval = setInterval(() => {
+                currentLetterElement.textContent = getRandomLetter();
+            }, 100);
+        }
+
+        function stopGame() {
+            if (!isGameRunning) return;
+
+            isGameRunning = false;
+            clearInterval(gameInterval);
+            startButton.disabled = false;
+            stopButton.disabled = true;
+            
+            currentLetterElement.classList.remove('spinning');
+            currentLetterElement.classList.add('winner-animation');
+
+            const finalLetter = currentLetterElement.textContent;
+            statusMessageElement.textContent = `🎉 رائع! توقفت على الحرف "${finalLetter}"`;
+
+            // إضافة تأثير الاحتفال
+            createConfetti();
+
+            // إزالة تأثير الفوز بعد 3 ثوانِ
+            setTimeout(() => {
+                currentLetterElement.classList.remove('winner-animation');
+            }, 3000);
+        }
+
+        function resetGame() {
+            clearInterval(gameInterval);
+            isGameRunning = false;
+            startButton.disabled = false;
+            stopButton.disabled = true;
+            
+            currentLetterElement.classList.remove('spinning', 'winner-animation');
+            currentLetterElement.textContent = 'أ';
+            statusMessageElement.textContent = 'اضغط ابدأ للعب!';
+            
+            // إزالة جميع قطع الكونفيتي
+            const confetti = document.querySelectorAll('.confetti');
+            confetti.forEach(piece => piece.remove());
+        }
+
+        function createConfetti() {
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3'];
+            
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animation = `confetti-fall ${Math.random() * 2 + 2}s linear forwards`;
+                    
+                    document.body.appendChild(confetti);
+
+                    // إزالة قطعة الكونفيتي بعد انتهاء الحركة
+                    setTimeout(() => {
+                        if (confetti.parentNode) {
+                            confetti.parentNode.removeChild(confetti);
+                        }
+                    }, 4000);
+                }, i * 100);
+            }
+        }
+
+        // إضافة مستمعات الأحداث للوحة المفاتيح
+        document.addEventListener('keydown', (event) => {
+            if (event.code === 'Space') {
+                event.preventDefault();
+                if (isGameRunning) {
+                    stopGame();
+                } else {
+                    startGame();
+                }
+            } else if (event.key === 'r' || event.key === 'R') {
+                resetGame();
+            }
+        });
+
+        // إضافة رسالة في وحدة التحكم للأطفال المهتمين بالبرمجة
+        console.log('🎮 مرحباً بك في لعبة عداد الحروف! هل تحب البرمجة؟');
+    </script>
+</body>
+</html>

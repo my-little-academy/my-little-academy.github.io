@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة صيد الكنز - يا بطل!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .game-title {
+            font-size: 2.5em;
+            color: #d4af37;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 20px rgba(212, 175, 55, 0.5); }
+            to { text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 30px rgba(212, 175, 55, 0.8); }
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .treasure-map {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 30px 0;
+            background: rgba(255, 215, 0, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            border: 3px dashed #d4af37;
+        }
+        
+        .treasure-piece {
+            width: 80px;
+            height: 80px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            border: 3px solid #ddd;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .treasure-piece.found {
+            background: linear-gradient(45deg, #ffd700, #ffed4a);
+            border-color: #d4af37;
+            transform: scale(1.1);
+            animation: sparkle 1s ease-in-out;
+        }
+        
+        @keyframes sparkle {
+            0%, 100% { transform: scale(1.1); }
+            50% { transform: scale(1.2) rotate(5deg); }
+        }
+        
+        .question-area {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-right: 5px solid #667eea;
+        }
+        
+        .question {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .answers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .answer-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        
+        .answer-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .answer-btn.correct {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            animation: pulse 0.6s ease-in-out;
+        }
+        
+        .answer-btn.incorrect {
+            background: linear-gradient(45deg, #dc3545, #e74c3c);
+            animation: shake 0.6s ease-in-out;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5em;
+            color: #667eea;
+        }
+        
+        .next-btn {
+            background: linear-gradient(45deg, #d4af37, #ffd700);
+            color: #333;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 20px;
+            transition: all 0.3s ease;
+            display: none;
+        }
+        
+        .next-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(212, 175, 55, 0.3);
+        }
+        
+        .victory {
+            background: linear-gradient(45deg, #ffd700, #ffed4a);
+            padding: 30px;
+            border-radius: 20px;
+            margin: 20px 0;
+            display: none;
+            animation: celebration 2s ease-in-out infinite;
+        }
+        
+        @keyframes celebration {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .victory h2 {
+            color: #d4af37;
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+        
+        .reset-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .reset-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .feedback {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        
+        .feedback.correct {
+            background: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+        }
+        
+        .feedback.incorrect {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="game-title">🏆 يا بطل! 🏆</h1>
+        <p class="subtitle">أجب عن الأسئلة واجمع قطع الكنز لتفوز بالجائزة الكبرى!</p>
+        
+        <div class="stats">
+            <div class="stat">
+                <div>النقاط</div>
+                <div class="stat-value" id="score">0</div>
+            </div>
+            <div class="stat">
+                <div>قطع الكنز</div>
+                <div class="stat-value" id="treasures">0/8</div>
+            </div>
+            <div class="stat">
+                <div>السؤال</div>
+                <div class="stat-value" id="questionNum">1</div>
+            </div>
+        </div>
+        
+        <div class="treasure-map">
+            <div class="treasure-piece" data-piece="0">❓</div>
+            <div class="treasure-piece" data-piece="1">❓</div>
+            <div class="treasure-piece" data-piece="2">❓</div>
+            <div class="treasure-piece" data-piece="3">❓</div>
+            <div class="treasure-piece" data-piece="4">❓</div>
+            <div class="treasure-piece" data-piece="5">❓</div>
+            <div class="treasure-piece" data-piece="6">❓</div>
+            <div class="treasure-piece" data-piece="7">❓</div>
+        </div>
+        
+        <div class="question-area">
+            <div class="question" id="question">ما هي عاصمة المغرب؟</div>
+            <div class="answers" id="answers">
+                <button class="answer-btn" onclick="checkAnswer(this, false)">الدار البيضاء</button>
+                <button class="answer-btn" onclick="checkAnswer(this, true)">الرباط</button>
+                <button class="answer-btn" onclick="checkAnswer(this, false)">فاس</button>
+                <button class="answer-btn" onclick="checkAnswer(this, false)">مراكش</button>
+            </div>
+            <div class="feedback" id="feedback"></div>
+        </div>
+        
+        <button class="next-btn" id="nextBtn" onclick="nextQuestion()">السؤال التالي ➡️</button>
+        
+        <div class="victory" id="victory">
+            <h2>🎉 مبروك! لقد فزت بالكنز! 🎉</h2>
+            <p>لقد جمعت جميع قطع الكنز وأصبحت البطل الحقيقي!</p>
+            <p>نقاطك النهائية: <span id="finalScore">0</span></p>
+            <button class="reset-btn" onclick="resetGame()">العب مرة أخرى 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "ما هي عاصمة المغرب؟",
+                answers: ["الدار البيضاء", "الرباط", "فاس", "مراكش"],
+                correct: 1,
+                treasure: "💎"
+            },
+            {
+                question: "كم عدد أيام السنة الميلادية؟",
+                answers: ["364", "365", "366", "367"],
+                correct: 1,
+                treasure: "👑"
+            },
+            {
+                question: "ما هو أكبر محيط في العالم؟",
+                answers: ["المحيط الأطلسي", "المحيط الهندي", "المحيط الهادئ", "المحيط المتجمد"],
+                correct: 2,
+                treasure: "🗝️"
+            },
+            {
+                question: "كم عدد ألوان قوس قزح؟",
+                answers: ["6", "7", "8", "9"],
+                correct: 1,
+                treasure: "💰"
+            },
+            {
+                question: "ما هو أطول نهر في العالم؟",
+                answers: ["النيل", "الأمازون", "المسيسيبي", "اليانغتسي"],
+                correct: 0,
+                treasure: "⚱️"
+            },
+            {
+                question: "كم عدد قارات العالم؟",
+                answers: ["5", "6", "7", "8"],
+                correct: 2,
+                treasure: "💍"
+            },
+            {
+                question: "ما هي أصغر دولة في العالم؟",
+                answers: ["موناكو", "الفاتيكان", "سان مارينو", "ليختنشتاين"],
+                correct: 1,
+                treasure: "🏺"
+            },
+            {
+                question: "كم عدد أسنان الإنسان البالغ؟",
+                answers: ["28", "30", "32", "34"],
+                correct: 2,
+                treasure: "💎"
+            }
+        ];
+        
+        let currentQuestion = 0;
+        let score = 0;
+        let treasuresFound = 0;
+        let gameFinished = false;
+        
+        function checkAnswer(button, isCorrect) {
+            if (gameFinished) return;
+            
+            const buttons = document.querySelectorAll('.answer-btn');
+            buttons.forEach(btn => btn.disabled = true);
+            
+            const feedback = document.getElementById('feedback');
+            
+            if (isCorrect) {
+                button.classList.add('correct');
+                feedback.textContent = '🎉 إجابة صحيحة! لقد وجدت قطعة كنز!';
+                feedback.className = 'feedback correct';
+                score += 100;
+                treasuresFound++;
+                
+                // Show treasure piece
+                const treasurePiece = document.querySelector(`[data-piece="${currentQuestion}"]`);
+                treasurePiece.textContent = questions[currentQuestion].treasure;
+                treasurePiece.classList.add('found');
+                
+                updateStats();
+                
+                if (treasuresFound === 8) {
+                    setTimeout(() => {
+                        showVictory();
+                    }, 1500);
+                } else {
+                    document.getElementById('nextBtn').style.display = 'inline-block';
+                }
+            } else {
+                button.classList.add('incorrect');
+                feedback.textContent = '❌ إجابة خاطئة! حاول في السؤال التالي.';
+                feedback.className = 'feedback incorrect';
+                
+                setTimeout(() => {
+                    if (currentQuestion < 7) {
+                        document.getElementById('nextBtn').style.display = 'inline-block';
+                    } else {
+                        showVictory();
+                    }
+                }, 1500);
+            }
+        }
+        
+        function nextQuestion() {
+            if (currentQuestion < 7) {
+                currentQuestion++;
+                loadQuestion();
+                document.getElementById('nextBtn').style.display = 'none';
+            }
+        }
+        
+        function loadQuestion() {
+            const question = questions[currentQuestion];
+            document.getElementById('question').textContent = question.question;
+            document.getElementById('questionNum').textContent = currentQuestion + 1;
+            
+            const answersContainer = document.getElementById('answers');
+            answersContainer.innerHTML = '';
+            
+            question.answers.forEach((answer, index) => {
+                const button = document.createElement('button');
+                button.className = 'answer-btn';
+                button.textContent = answer;
+                button.onclick = () => checkAnswer(button, index === question.correct);
+                answersContainer.appendChild(button);
+            });
+            
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('feedback').className = 'feedback';
+        }
+        
+        function updateStats() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('treasures').textContent = `${treasuresFound}/8`;
+        }
+        
+        function showVictory() {
+            gameFinished = true;
+            document.querySelector('.question-area').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('victory').style.display = 'block';
+            document.getElementById('finalScore').textContent = score;
+            
+            // Add celebration effect to all found treasures
+            const foundPieces = document.querySelectorAll('.treasure-piece.found');
+            foundPieces.forEach(piece => {
+                piece.style.animation = 'sparkle 1s ease-in-out infinite';
+            });
+        }
+        
+        function resetGame() {
+            currentQuestion = 0;
+            score = 0;
+            treasuresFound = 0;
+            gameFinished = false;
+            
+            // Reset treasure pieces
+            const pieces = document.querySelectorAll('.treasure-piece');
+            pieces.forEach(piece => {
+                piece.textContent = '❓';
+                piece.classList.remove('found');
+                piece.style.animation = '';
+            });
+            
+            // Reset UI
+            document.querySelector('.question-area').style.display = 'block';
+            document.getElementById('victory').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'none';
+            
+            updateStats();
+            loadQuestion();
+        }
+        
+        // Initialize game
+        updateStats();
+        loadQuestion();
+    </script>
+</body>
+</html>

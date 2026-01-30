@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عالم النحو العربي</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ======= الأساسيات ======= */
+        :root {
+            --player1-color: #e74c3c;
+            --player2-color: #3498db;
+            --primary: #2c3e50;
+            --secondary: #f39c12;
+        }
+        
+        body {
+            font-family: 'Tajawal', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        h1 {
+            color: var(--primary);
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+            position: relative;
+            display: inline-block;
+        }
+        
+        h1::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--secondary);
+            border-radius: 3px;
+        }
+        
+        /* ======= لوحة اللعب ======= */
+        #game-container {
+            max-width: 800px;
+            margin: 30px auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        #game-board {
+            width: 650px;
+            height: 650px;
+            margin: 0 auto;
+            position: relative;
+            background: url('https://example.com/arabic-pattern.png') center/cover;
+            border-radius: 10px;
+        }
+        
+        /* ======= مربعات اللعب ======= */
+        .cell {
+            width: 90px;
+            height: 90px;
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-weight: bold;
+            text-align: center;
+            padding: 5px;
+            border: 2px solid transparent;
+        }
+        
+        .cell:hover {
+            transform: scale(1.05) rotate(5deg);
+            z-index: 10;
+        }
+        
+        .cell i {
+            font-size: 24px;
+            margin-bottom: 5px;
+            color: var(--primary);
+        }
+        
+        /* أنواع المربعات */
+        .start { background: linear-gradient(135deg, #a3e4a3 0%, #2ecc71 100%); color: white; }
+        .rule { background: linear-gradient(135deg, #ffeb99 0%, #f1c40f 100%); }
+        .question { background: linear-gradient(135deg, #c2e0ff 0%, #3498db 100%); color: white; }
+        .jail { background: linear-gradient(135deg, #ffb3b3 0%, #e74c3c 100%); color: white; }
+        .surprise { background: linear-gradient(135deg, #e0b0ff 0%, #9b59b6 100%); color: white; }
+        
+        /* ======= اللاعبون ======= */
+        .player-marker {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            position: absolute;
+            z-index: 20;
+            transition: all 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            border: 3px solid white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: white;
+        }
+        
+        #player1-marker { background: var(--player1-color); }
+        #player2-marker { background: var(--player2-color); }
+        
+        /* ======= لوحة التحكم ======= */
+        #controls {
+            background: var(--primary);
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        #roll-btn {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        #roll-btn:hover {
+            background: #e67e22;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(241, 196, 15, 0.4);
+        }
+        
+        #next-btn {
+            background: #ecf0f1;
+            color: var(--primary);
+        }
+        
+        /* ======= لوحة المعلومات ======= */
+        #info-panel {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #eee;
+        }
+        
+        .player-info {
+            text-align: center;
+            padding: 10px 20px;
+            border-radius: 10px;
+            min-width: 150px;
+        }
+        
+        .player-info.active {
+            box-shadow: 0 0 0 3px var(--secondary);
+        }
+        
+        /* ======= نافذة الأسئلة ======= */
+        #question-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #question-box {
+            background: white;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            animation: modalFade 0.5s;
+        }
+        
+        @keyframes modalFade {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        #question-header {
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            font-size: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        #question-content {
+            padding: 20px;
+        }
+        
+        .option-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: right;
+        }
+        
+        .option-btn:hover {
+            background: #e9f7fe;
+            border-color: var(--player2-color);
+        }
+        
+        /* ======= التأثيرات ======= */
+        @keyframes diceRoll {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+        
+        .dice-animation {
+            animation: diceRoll 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        /* ======= responsive ======= */
+        @media (max-width: 768px) {
+            #game-board {
+                width: 95vw;
+                height: 95vw;
+            }
+            
+            .cell {
+                width: 70px;
+                height: 70px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1 style="text-align: center; margin-top: 20px;">عالم النحو العربي</h1>
+        
+        <div id="game-board"></div>
+        
+        <div id="controls">
+            <button id="roll-btn" class="btn">
+                <i class="fas fa-dice"></i> اطر النرد
+            </button>
+            <button id="next-btn" class="btn" disabled>
+                <i class="fas fa-forward"></i> الدور التالي
+            </button>
+        </div>
+        
+        <div id="info-panel">
+            <div id="player1-info" class="player-info active">
+                <h3 style="color: var(--player1-color);">اللاعب 1</h3>
+                <p><i class="fas fa-coins"></i> <span id="p1-points">100</span> نقطة</p>
+                <p><i class="fas fa-book"></i> <span id="p1-rules">0</span> قاعدة</p>
+            </div>
+            
+            <div id="player2-info" class="player-info">
+                <h3 style="color: var(--player2-color);">اللاعب 2</h3>
+                <p><i class="fas fa-coins"></i> <span id="p2-points">100</span> نقطة</p>
+                <p><i class="fas fa-book"></i> <span id="p2-rules">0</span> قاعدة</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- نافذة الأسئلة -->
+    <div id="question-modal">
+        <div id="question-box">
+            <div id="question-header">
+                <span>سؤال نحوي</span>
+                <span id="question-reward">+25 نقطة</span>
+            </div>
+            <div id="question-content">
+                <h3 id="question-text"></h3>
+                <div id="options-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ====== المتغيرات الأساسية ======
+        const board = document.getElementById('game-board');
+        const rollBtn = document.getElementById('roll-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const questionModal = document.getElementById('question-modal');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const questionReward = document.getElementById('question-reward');
+        
+        // بيانات اللعبة
+        const cellTypes = [
+            { id: 0, name: "البداية", type: "start", icon: "flag" },
+            { id: 1, name: "المرفوعات", type: "rule", price: 60, owned: false, owner: null, icon: "book" },
+            { id: 2, name: "المنصوبات", type: "rule", price: 80, owned: false, owner: null, icon: "book" },
+            { id: 3, name: "المجرورات", type: "rule", price: 100, owned: false, owner: null, icon: "book" },
+            { id: 4, name: "المجزومات", type: "rule", price: 120, owned: false, owner: null, icon: "book" },
+            { id: 5, name: "سؤال نحوي", type: "question", icon: "question-circle" },
+            { id: 6, name: "المجاز", type: "rule", price: 140, owned: false, owner: null, icon: "book" },
+            { id: 7, name: "السجن النحوي", type: "jail", icon: "lock" },
+            { id: 8, name: "التوكيد", type: "rule", price: 160, owned: false, owner: null, icon: "book" },
+            { id: 9, name: "العطف", type: "rule", price: 180, owned: false, owner: null, icon: "book" },
+            { id: 10, name: "البدل", type: "rule", price: 200, owned: false, owner: null, icon: "book" },
+            { id: 11, name: "المفاجآت", type: "surprise", icon: "gift" }
+        ];
+
+        const players = [
+            { 
+                id: 1, 
+                name: "اللاعب 1", 
+                position: 0, 
+                points: 100, 
+                ownedRules: [], 
+                color: "#e74c3c",
+                marker: null
+            },
+            { 
+                id: 2, 
+                name: "اللاعب 2", 
+                position: 0, 
+                points: 100, 
+                ownedRules: [], 
+                color: "#3498db",
+                marker: null
+            }
+        ];
+
+        let currentPlayerIndex = 0;
+        let diceValue = 0;
+        let gameStarted = false;
+
+        // ====== تهيئة اللعبة ======
+        function initGame() {
+            createBoard();
+            createPlayerMarkers();
+            updatePlayerInfo();
+            setupEventListeners();
+            
+            // إضافة تأثير عند البدء
+            setTimeout(() => {
+                alert("مرحباً بكِ في عالم النحو العربي!\nابدأي برمي النرد عندما تكونين جاهزة");
+                gameStarted = true;
+            }, 500);
+        }
+
+        // ====== إنشاء لوحة اللعب ======
+        function createBoard() {
+            const centerX = 325, centerY = 325, radius = 250;
+            const angleStep = (2 * Math.PI) / cellTypes.length;
+            
+            cellTypes.forEach((cell, index) => {
+                const cellElement = document.createElement('div');
+                cellElement.className = `cell ${cell.type}`;
+                cellElement.innerHTML = `
+                    <i class="fas fa-${cell.icon}"></i>
+                    ${cell.name}
+                    ${cell.price ? `<small>${cell.price} نقطة</small>` : ''}
+                `;
+                
+                const angle = angleStep * index - Math.PI/2;
+                const x = centerX + radius * Math.cos(angle);
+                const y = centerY + radius * Math.sin(angle);
+                
+                cellElement.style.left = (x - 45) + 'px';
+                cellElement.style.top = (y - 45) + 'px';
+                
+                // إضافة بيانات مخصصة للمربع
+                cellElement.dataset.cellId = cell.id;
+                
+                board.appendChild(cellElement);
+            });
+        }
+
+        // ====== إنشاء مؤشرات اللاعبين ======
+        function createPlayerMarkers() {
+            players.forEach(player => {
+                const marker = document.createElement('div');
+                marker.className = 'player-marker';
+                marker.id = `player${player.id}-marker`;
+                marker.textContent = player.id;
+                board.appendChild(marker);
+                
+                // حفظ المرجع في كائن اللاعب
+                player.marker = marker;
+                
+                updateMarkerPosition(player.id);
+            });
+        }
+
+        // ====== تحريك المؤشرات ======
+        function updateMarkerPosition(playerId) {
+            const player = players.find(p => p.id === playerId);
+            const marker = player.marker;
+            
+            const centerX = 325, centerY = 325, radius = 250;
+            const angleStep = (2 * Math.PI) / cellTypes.length;
+            const angle = angleStep * player.position - Math.PI/2;
+            
+            const x = centerX + (radius - 40) * Math.cos(angle);
+            const y = centerY + (radius - 40) * Math.sin(angle);
+            
+            marker.style.left = (x - 17) + 'px';
+            marker.style.top = (y - 17) + 'px';
+        }
+
+        // ====== إعداد مستمعي الأحداث ======
+        function setupEventListeners() {
+            rollBtn.addEventListener('click', rollDice);
+            nextBtn.addEventListener('click', nextTurn);
+        }
+
+        // ====== رمي النرد ======
+        function rollDice() {
+            if (!gameStarted) return;
+            
+            // تعطيل الزر أثناء الرمي
+            rollBtn.disabled = true;
+            rollBtn.classList.add('dice-animation');
+            
+            // محاكاة رمي النرد
+            let rolls = 0;
+            const maxRolls = 10;
+            const diceInterval = setInterval(() => {
+                diceValue = Math.floor(Math.random() * 6) + 1;
+                rollBtn.innerHTML = `<i class="fas fa-dice"></i> ${diceValue}`;
+                rolls++;
+                
+                if (rolls >= maxRolls) {
+                    clearInterval(diceInterval);
+                    finishRoll();
+                }
+            }, 100);
+        }
+
+        function finishRoll() {
+            rollBtn.classList.remove('dice-animation');
+            
+            setTimeout(() => {
+                alert(`🎲 حصلتِ على ${diceValue}!`);
+                movePlayer();
+            }, 300);
+        }
+
+        // ====== تحريك اللاعب ======
+        function movePlayer() {
+            const player = players[currentPlayerIndex];
+            const oldPosition = player.position;
+            player.position = (player.position + diceValue) % cellTypes.length;
+            
+            // تحريك المؤشر مع تأثير سلس
+            animateMarkerMovement(player, oldPosition);
+            
+            // معالجة حدث المربع بعد انتهاء الحركة
+            setTimeout(() => {
+                handleCellAction();
+            }, 700);
+        }
+
+        // ====== حركة المؤشر ======
+        function animateMarkerMovement(player, startPos) {
+            const steps = diceValue;
+            const duration = 700; // مدة الحركة بالمللي ثانية
+            const startTime = performance.now();
+            
+            function animate(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const currentStep = Math.floor(progress * steps);
+                
+                player.position = (startPos + currentStep) % cellTypes.length;
+                updateMarkerPosition(player.id);
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            
+            requestAnimationFrame(animate);
+        }
+
+        // ====== أحداث المربعات ======
+        function handleCellAction() {
+            const player = players[currentPlayerIndex];
+            const currentCell = cellTypes[player.position];
+            
+            switch(currentCell.type) {
+                case 'start':
+                    player.points += 20;
+                    showMessage(`مررتِ بمركز البداية! +20 نقطة`, 'success');
+                    break;
+                    
+                case 'rule':
+                    handleRuleCell(currentCell, player);
+                    break;
+                    
+                case 'question':
+                    showQuestion();
+                    return;
+                    
+                case 'jail':
+                    showMessage("السجن النحوي! توقف دور واحد", 'error');
+                    break;
+                    
+                case 'surprise':
+                    const reward = Math.floor(Math.random() * 50) + 10;
+                    player.points += reward;
+                    showMessage(`مفاجأة! ربحتِ ${reward} نقطة`, 'success');
+                    break;
+            }
+            
+            updatePlayerInfo();
+            nextBtn.disabled = false;
+        }
+
+        function handleRuleCell(cell, player) {
+            if (cell.owned) {
+                if (cell.owner !== player.id) {
+                    const fee = Math.floor(cell.price * 0.2);
+                    player.points -= fee;
+                    const owner = players.find(p => p.id === cell.owner);
+                    owner.points += fee;
+                    
+                    showMessage(`تدفعين ${fee} نقطة لـ ${owner.name} لإعراب ${cell.name}`, 'warning');
+                }
+            } else {
+                if (confirm(`هل تريدين شراء "${cell.name}" بـ ${cell.price} نقطة؟`)) {
+                    if (player.points >= cell.price) {
+                        player.points -= cell.price;
+                        cell.owned = true;
+                        cell.owner = player.id;
+                        player.ownedRules.push(cell.name);
+                        
+                        showMessage(`مبروك! أنتِ الآن تملكين ${cell.name}`, 'success');
+                        
+                        // تحديث شكل المربع
+                        const cellElement = document.querySelector(`[data-cell-id="${cell.id}"]`);
+                        if (cellElement) {
+                            cellElement.style.border = `3px solid ${player.color}`;
+                            cellElement.style.boxShadow = `0 0 10px ${player.color}`;
+                        }
+                    } else {
+                        showMessage("نقاطكِ غير كافية لشراء هذه القاعدة", 'error');
+                    }
+                }
+            }
+        }
+
+        // ====== نظام الأسئلة ======
+        function showQuestion() {
+            const questions = [
+                {
+                    question: "ما إعراب كلمة 'الكتاب' في الجملة: 'قرأتُ الكتابَ'؟",
+                    options: [
+                        "مفعول به منصوب",
+                        "فاعل مرفوع",
+                        "مبتدأ مرفوع"
+                    ],
+                    answer: 0,
+                    reward: 25,
+                    explanation: "الكتابَ: مفعول به منصوب بالفتحة لأنه وقع عليه فعل القراءة"
+                },
+                {
+                    question: "ما نوع 'إن' في الجملة: 'إنَّ العلمَ نور'؟",
+                    options: [
+                        "حرف نصب",
+                        "حرف جر",
+                        "حرف جزم"
+                    ],
+                    answer: 0,
+                    reward: 30,
+                    explanation: "إنَّ: حرف نصب ينصب المبتدأ ويرفع الخبر"
+                },
+                {
+                    question: "ما إعراب 'الطالبان' في الجملة: 'الطالبان مجتهدان'؟",
+                    options: [
+                        "مبتدأ مرفوع بالألف",
+                        "خبر مرفوع بالواو",
+                        "فاعل مرفوع بالضمة"
+                    ],
+                    answer: 0,
+                    reward: 35,
+                    explanation: "الطالبان: مبتدأ مرفوع بالألف لأنه مثنى"
+                }
+            ];
+            
+            const question = questions[Math.floor(Math.random() * questions.length)];
+            questionText.textContent = question.question;
+            questionReward.textContent = `+${question.reward} نقطة`;
+            
+            optionsContainer.innerHTML = '';
+            question.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = option;
+                btn.onclick = () => checkAnswer(index === question.answer, question.reward, question.explanation);
+                optionsContainer.appendChild(btn);
+            });
+            
+            questionModal.style.display = 'flex';
+        }
+
+        function checkAnswer(isCorrect, reward, explanation) {
+            const player = players[currentPlayerIndex];
+            questionModal.style.display = 'none';
+            
+            if (isCorrect) {
+                player.points += reward;
+                showMessage(`إجابة صحيحة! +${reward} نقطة\n${explanation}`, 'success');
+            } else {
+                showMessage("إجابة خاطئة!\n" + explanation, 'error');
+            }
+            
+            updatePlayerInfo();
+            nextBtn.disabled = false;
+        }
+
+        // ====== الدور التالي ======
+        function nextTurn() {
+            // إعادة تعيين زر النرد
+            rollBtn.disabled = false;
+            rollBtn.innerHTML = `<i class="fas fa-dice"></i> اطر النرد`;
+            nextBtn.disabled = true;
+            
+            // تغيير اللاعب
+            currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+            updatePlayerInfo();
+            
+            // إظهار رسالة
+            const nextPlayer = players[currentPlayerIndex];
+            showMessage(`دور ${nextPlayer.name} الآن`, 'info');
+        }
+
+        // ====== تحديث المعلومات ======
+        function updatePlayerInfo() {
+            // تحديث معلومات اللاعبين
+            players.forEach((player, index) => {
+                document.getElementById(`p${player.id}-points`).textContent = player.points;
+                document.getElementById(`p${player.id}-rules`).textContent = player.ownedRules.length;
+                
+                const infoPanel = document.getElementById(`player${player.id}-info`);
+                if (index === currentPlayerIndex) {
+                    infoPanel.classList.add('active');
+                } else {
+                    infoPanel.classList.remove('active');
+                }
+            });
+        }
+
+        // ====== عرض الرسائل ======
+        function showMessage(message, type) {
+            const colors = {
+                success: '#2ecc71',
+                error: '#e74c3c',
+                warning: '#f39c12',
+                info: '#3498db'
+            };
+            
+            const alertBox = document.createElement('div');
+            alertBox.style.position = 'fixed';
+            alertBox.style.bottom = '20px';
+            alertBox.style.left = '50%';
+            alertBox.style.transform = 'translateX(-50%)';
+            alertBox.style.backgroundColor = colors[type] || '#2c3e50';
+            alertBox.style.color = 'white';
+            alertBox.style.padding = '15px 25px';
+            alertBox.style.borderRadius = '50px';
+            alertBox.style.boxShadow = '0 5px 15px rgba(0,0,0,0.2)';
+            alertBox.style.zIndex = '1000';
+            alertBox.style.animation = 'fadeIn 0.5s, fadeOut 0.5s 2.5s';
+            alertBox.style.whiteSpace = 'pre-line';
+            alertBox.textContent = message;
+            
+            document.body.appendChild(alertBox);
+            
+            setTimeout(() => {
+                alertBox.remove();
+            }, 3000);
+        }
+
+        // بدء اللعبة عند تحميل الصفحة
+        window.onload = initGame;
+    </script>
+</body>
+</html>

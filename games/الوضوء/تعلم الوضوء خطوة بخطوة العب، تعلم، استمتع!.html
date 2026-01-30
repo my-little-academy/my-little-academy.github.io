@@ -1,0 +1,559 @@
+<!doctype html>
+
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تعلم الوضوء - ألعاب تفاعلية</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Amiri:wght@400;700&display=swap');
+        html {
+            scroll-behavior: smooth; /* Smooth scrolling for anchor links */
+        }
+        body {
+            font-family: 'Amiri', serif; /* Use Amiri for Arabic text, Inter for general */
+            background-color: #e0f2f7; /* Light blue background */
+            color: #2c3e50; /* Dark text */
+        }
+        .step-item {
+            cursor: grab;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .step-item:active {
+            cursor: grabbing;
+            transform: scale(1.02);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+        .step-item.dragging {
+            opacity: 0.7;
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+        .correct {
+            background-color: #d4edda; /* Light green */
+            border-color: #28a745;
+        }
+        .incorrect {
+            background-color: #f8d7da; /* Light red */
+            border-color: #dc3545;
+        }
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            max-width: 500px;
+            text-align: center;
+            position: relative;
+        }
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+     
+  <!--  <header class="bg-blue-600 text-white p-4 shadow-md rounded-b-xl">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-3xl font-bold">تعلم الوضوء</h1>
+            <nav>
+                <ul class="flex space-x-4 space-x-reverse">
+                    <li><a href="#home" class="hover:text-blue-200 transition-colors">الرئيسية</a></li>
+                    <li><a href="#order-game" class="hover:text-blue-200 transition-colors">لعبة الترتيب</a></li>
+                    <li><a href="#mistake-game" class="hover:text-blue-200 transition-colors">اكتشف الخطأ</a></li>
+                    <li><a href="#quiz-game" class="hover:text-blue-200 transition-colors">الاختبار</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>Header -->
+
+    <!-- Main Content -->
+    <main class="container mx-auto p-6 flex-grow">
+        <!-- Hero Section -->
+        <section id="home" class="text-center bg-white p-8 rounded-2xl shadow-lg mb-8">
+            <h2 class="text-4xl font-extrabold text-blue-700 mb-4">تعلم الوضوء خطوة بخطوة: العب، تعلم، استمتع!</h2>
+            <p class="text-lg text-gray-700 mb-6">انطلق في رحلة ممتعة لتعلم أركان وسنن الوضوء بطريقة تفاعلية ومسلية.</p>
+            <div class="flex justify-center items-center mb-6">
+                <!-- Placeholder for an animated image or video -->
+                <img src="../../images/ibadah/U1.png" alt="رسوم متحركة للوضوء" class="rounded-xl shadow-md">
+            </div>
+            <a href="#order-game" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105">
+                ابدأ التعلم الآن! <i class="fas fa-play-circle mr-2"></i>
+            </a>
+        </section>
+
+        <!-- Why Learn Wudu Section -->
+        <section id="why-wudu" class="bg-white p-8 rounded-2xl shadow-lg mb-8">
+            <h2 class="text-3xl font-bold text-center text-blue-700 mb-6">لماذا نتعلم الوضوء؟</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                <div class="p-4 bg-blue-50 rounded-xl shadow-sm">
+                    <i class="fas fa-hands-wash text-5xl text-blue-500 mb-3"></i>
+                    <h3 class="text-xl font-semibold mb-2">النظافة والطهارة</h3>
+                    <p class="text-gray-600">الوضوء هو مفتاح الطهارة والنظافة الجسدية والروحية.</p>
+                </div>
+                <div class="p-4 bg-green-50 rounded-xl shadow-sm">
+                    <i class="fas fa-mosque text-5xl text-green-500 mb-3"></i>
+                    <h3 class="text-xl font-semibold mb-2">مفتاح الصلاة</h3>
+                    <p class="text-gray-600">لا تصح الصلاة إلا بوضوء صحيح وكامل.</p>
+                </div>
+                <div class="p-4 bg-yellow-50 rounded-xl shadow-sm">
+                    <i class="fas fa-award text-5xl text-yellow-500 mb-3"></i>
+                    <h3 class="text-xl font-semibold mb-2">الأجر والثواب</h3>
+                    <p class="text-gray-600">الوضوء الصحيح يجلب الأجر العظيم ويمحو الذنوب.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Game 1: Wudu Steps Ordering -->
+        <section id="order-game" class="bg-white p-8 rounded-2xl shadow-lg mb-8">
+            <h2 class="text-3xl font-bold text-center text-blue-700 mb-6">لعبة: رتب خطوات الوضوء</h2>
+            <p class="text-center text-gray-700 mb-6">اسحب وأفلت خطوات الوضوء بالترتيب الصحيح.</p>
+            <div id="wudu-steps-container" class="flex flex-col items-center space-y-4 bg-blue-100 p-6 rounded-xl shadow-inner min-h-[300px]">
+                <!-- Steps will be dynamically loaded here -->
+            </div>
+            <div class="flex justify-center mt-6 space-x-4 space-x-reverse">
+                <button id="check-order-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-full shadow-md transition-all duration-300 transform hover:scale-105">
+                    تحقق من الترتيب <i class="fas fa-check mr-2"></i>
+                </button>
+                <button id="reset-order-btn" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-6 rounded-full shadow-md transition-all duration-300 transform hover:scale-105">
+                    إعادة تعيين <i class="fas fa-redo mr-2"></i>
+                </button>
+            </div>
+            <p id="order-feedback" class="text-center mt-4 text-lg font-semibold"></p>
+        </section>
+
+        <!-- Game 2: Identify the Mistake -->
+        <section id="mistake-game" class="bg-white p-8 rounded-2xl shadow-lg mb-8">
+            <h2 class="text-3xl font-bold text-center text-blue-700 mb-6">لعبة: اكتشف الخطأ في الوضوء</h2>
+            <p class="text-center text-gray-700 mb-6">انقر على الخطوة التي تحتوي على خطأ في تسلسل الوضوء.</p>
+            <div id="mistake-scenario" class="flex flex-col items-center space-y-4 bg-green-100 p-6 rounded-xl shadow-inner min-h-[300px]">
+                <!-- Mistake scenario steps will be loaded here -->
+            </div>
+            <p id="mistake-feedback" class="text-center mt-4 text-lg font-semibold"></p>
+            <div class="flex justify-center mt-6">
+                <button id="next-mistake-btn" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-full shadow-md transition-all duration-300 transform hover:scale-105">
+                    التالي <i class="fas fa-arrow-left mr-2"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Game 3: Wudu Quiz -->
+        <section id="quiz-game" class="bg-white p-8 rounded-2xl shadow-lg mb-8">
+            <h2 class="text-3xl font-bold text-center text-blue-700 mb-6">اختبار الوضوء السريع</h2>
+            <p class="text-center text-gray-700 mb-6">اختبر معلوماتك عن الوضوء وأحكامه.</p>
+            <div id="quiz-container" class="bg-yellow-100 p-6 rounded-xl shadow-inner min-h-[300px]">
+                <!-- Quiz questions will be loaded here -->
+            </div>
+            <div class="flex justify-center mt-6">
+                <button id="submit-quiz-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-full shadow-md transition-all duration-300 transform hover:scale-105">
+                    أرسل الإجابات <i class="fas fa-paper-plane mr-2"></i>
+                </button>
+            </div>
+            <p id="quiz-result" class="text-center mt-4 text-xl font-bold"></p>
+        </section>
+
+        <!-- Detailed Wudu Steps Section -->
+        <section id="detailed-steps" class="bg-white p-8 rounded-2xl shadow-lg mb-8">
+            <h2 class="text-3xl font-bold text-center text-blue-700 mb-6">خطوات الوضوء بالتفصيل</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Step 1 -->
+              <div class="p-6 bg-gray-50 rounded-xl shadow-sm flex flex-col items-center text-center">
+                    <img src="../../images/ibadah/U12.png" alt="النية" class="rounded-lg mb-4">
+                    <h3 class="text-xl font-semibold mb-2">1. النية ثم البسملة</h3>
+                    <p class="text-gray-600">استحضار نية الوضوء في القلب .</p>
+                </div>
+                <!-- Step 2 -->
+                <div class="p-6 bg-gray-50 rounded-xl shadow-sm flex flex-col items-center text-center">
+                  <img src="../../images/ibadah/U2.png" alt="التسمية" class="rounded-lg mb-4">
+                    <h3 class="text-xl font-semibold mb-2">2. التسمية</h3>
+                    <p class="text-gray-600">قول "بسم الله ".</p>
+                </div>
+                <!-- Step 3 -->
+                <div class="p-6 bg-gray-50 rounded-xl shadow-sm flex flex-col items-center text-center">
+                  <img src="../../images/ibadah/U3.png" alt="غسل الكفين" class="rounded-lg mb-4">
+                    <h3 class="text-xl font-semibold mb-2">3. غسل الكفين</h3>
+                    <p class="text-gray-600">غسل الكفين ثلاث مرات.</p>
+              </div>
+                <!-- Step 4 -->
+                <div class="p-6 bg-gray-50 rounded-xl shadow-sm flex flex-col items-center text-center">
+                  <img src="../../images/ibadah/U4.png" alt="المضمضة" class="rounded-lg mb-4">
+                    <h3 class="text-xl font-semibold mb-2">4. المضمضة</h3>
+                    <p class="text-gray-600">المضمضة ثلاث مرات.</p>
+                </div>
+                <!-- Step 5 -->
+                <div class="p-6 bg-gray-50 rounded-xl shadow-sm flex flex-col items-center text-center">
+                  <img src="../../images/ibadah/U5.png" alt="الاستنشاق" class="rounded-lg mb-4">
+                    <h3 class="text-xl font-semibold mb-2">5. الاستنشاق والاستنثار</h3>
+                    <p class="text-gray-600">الاستنشاق والاستنثار ثلاث مرات.</p>
+                </div>
+                <!-- Step 6 -->
+                <div class="p-6 bg-gray-50 rounded-xl shadow-sm flex flex-col items-center text-center">
+                  <img src="../../images/ibadah/U6.png" alt="غسل الوجه" class="rounded-lg mb-4">
+                    <h3 class="text-xl font-semibold mb-2">6. غسل الوجه</h3>
+                    <p class="text-gray-600">غسل الوجه ثلاث مرات.</p>
+                </div>
+                <!-- Step 7 -->
+                <div class="p-6 bg-gray-50 rounded-xl shadow-sm flex flex-col items-center text-center">
+                  <img src="../../images/ibadah/U7.png" alt="غسل اليدين" class="rounded-lg mb-4">
+                    <h3 class="text-xl font-semibold mb-2">7. غسل اليدين إلى المرفقين</h3>
+                    <p class="text-gray-600">غسل اليد اليمنى ثم اليسرى ثلاث مرات.</p>
+                </div>
+                <!-- Step 8 -->
+              <div class="p-6 bg-gray-50 rounded-xl shadow-sm flex flex-col items-center text-center">
+                    <img src="../../images/ibadah/U8.png" alt="مسح الرأس" class="rounded-lg mb-4">
+                    <h3 class="text-xl font-semibold mb-2">8. مسح الرأس </h3>
+                    <p class="text-gray-600">مسح الرأس مرة واحدة، .</p>
+                </div>
+                <div class="p-6 bg-gray-50 rounded-xl shadow-sm flex flex-col items-center text-center"> <img src="../../images/ibadah/U8.png" alt="مسح الرأس" class="rounded-lg mb-4">
+                  <h3 class="text-xl font-semibold mb-2">8. مسح الأذنين</h3>
+                  <p class="text-gray-600"> مسح الأذنين ظاهرهما وباطنهما.</p>
+                </div>
+                <!-- Step 9 -->
+                <div class="p-6 bg-gray-50 rounded-xl shadow-sm flex flex-col items-center text-center">
+                    <img src="../../images/ibadah/U10.png" alt="غسل الرجلين" class="rounded-lg mb-4">
+                    <h3 class="text-xl font-semibold mb-2">9. غسل الرجلين إلى الكعبين</h3>
+                    <p class="text-gray-600">غسل الرجل اليمنى ثم اليسرى ثلاث مرات.</p>
+              </div>
+                <!-- Step 10 -->
+              <div class="p-6 bg-gray-50 rounded-xl shadow-sm flex flex-col items-center text-center">
+                <img src="../../images/ibadah/U11.png" alt="الدعاء" class="rounded-lg mb-4">
+                <h3 class="text-xl font-semibold mb-2">10. الدعاء بعد الوضوء</h3>
+                  <p class="text-gray-600">قول: "أشهد أن لا إله إلا الله وحده لا شريك له، وأشهد أن محمدًا عبده ورسوله . اللهم اجعلني من التوابين، واجعلني من المتطهرين".</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-blue-800 text-white p-4 text-center mt-8 rounded-t-xl">
+        <p>&copy; 2025 تعلم الوضوء. جميع الحقوق محفوظة.</p>
+    </footer>
+
+    <!-- Message Modal -->
+   <!-- <div id="messageModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="closeModalBtn">&times;</span>
+            <h3 id="modalTitle" class="text-2xl font-bold mb-4"></h3>
+            <p id="modalMessage" class="text-lg mb-6"></p>
+            <button id="modalOkBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-5 rounded-full">حسناً</button>
+        </div> -->
+    </div>
+
+    <script>
+        const modal = document.getElementById('messageModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const modalOkBtn = document.getElementById('modalOkBtn');
+        let modalCallback = null; // To store the callback function
+
+        // Utility function to show a custom modal instead of alert/confirm
+        function showModal(title, message, callback = null) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMessage').innerText = message;
+            modal.style.display = 'flex'; // Show the modal
+            modalCallback = callback; // Store the callback
+        }
+
+        // Handler to close the modal and execute callback if any
+        function closeAndExecuteCallback() {
+            modal.style.display = 'none';
+            if (modalCallback) {
+                modalCallback();
+                modalCallback = null; // Clear the callback after execution
+            }
+        }
+
+        // Attach event listeners once when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            closeModalBtn.addEventListener('click', closeAndExecuteCallback);
+            modalOkBtn.addEventListener('click', closeAndExecuteCallback);
+        });
+
+        // --- Game 1: Wudu Steps Ordering ---
+        const wuduSteps = [
+            { id: 'step1', text: 'النية' },
+            { id: 'step2', text: 'التسمية' },
+            { id: 'step3', text: 'غسل الكفين ثلاث مرات' },
+            { id: 'step4', text: 'المضمضة ثلاث مرات' },
+            { id: 'step5', text: 'الاستنشاق والاستنثار ثلاث مرات' },
+            { id: 'step6', text: 'غسل الوجه ثلاث مرات' },
+            { id: 'step7', text: 'غسل اليدين إلى المرفقين ثلاث مرات (اليمنى ثم اليسرى)' },
+            { id: 'step8', text: 'مسح الرأس والأذنين مرة واحدة' },
+            { id: 'step9', text: 'غسل الرجلين إلى الكعبين ثلاث مرات (اليمنى ثم اليسرى)' },
+            { id: 'step10', text: 'الدعاء بعد الوضوء' }
+        ];
+
+        const wuduStepsContainer = document.getElementById('wudu-steps-container');
+        const checkOrderBtn = document.getElementById('check-order-btn');
+        const resetOrderBtn = document.getElementById('reset-order-btn');
+        const orderFeedback = document.getElementById('order-feedback');
+
+        let draggedItem = null;
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function createStepElement(step) {
+            const div = document.createElement('div');
+            div.className = 'step-item bg-white p-4 rounded-lg shadow-md w-full max-w-md text-center text-lg border-2 border-transparent hover:border-blue-300 transition-all duration-200';
+            div.draggable = true;
+            div.dataset.id = step.id;
+            div.innerText = step.text;
+
+            div.addEventListener('dragstart', (e) => {
+                draggedItem = div;
+                setTimeout(() => div.classList.add('dragging'), 0);
+            });
+
+            div.addEventListener('dragend', () => {
+                draggedItem.classList.remove('dragging');
+                draggedItem = null;
+            });
+
+            div.addEventListener('dragover', (e) => {
+                e.preventDefault(); // Allow drop
+            });
+
+            div.addEventListener('drop', (e) => {
+                e.preventDefault();
+                if (draggedItem && draggedItem !== div) {
+                    const container = div.parentNode;
+                    const reference = (draggedItem.offsetTop < div.offsetTop) ? div.nextSibling : div;
+                    container.insertBefore(draggedItem, reference);
+                }
+            });
+            return div;
+        }
+
+        function loadOrderGame() {
+            wuduStepsContainer.innerHTML = '';
+            const shuffledSteps = shuffleArray([...wuduSteps]); // Create a shallow copy to shuffle
+            shuffledSteps.forEach(step => {
+                wuduStepsContainer.appendChild(createStepElement(step));
+            });
+            orderFeedback.innerText = '';
+            orderFeedback.classList.remove('correct', 'incorrect');
+        }
+
+        checkOrderBtn.addEventListener('click', () => {
+            const currentOrder = Array.from(wuduStepsContainer.children).map(item => item.dataset.id);
+            const correctOrder = wuduSteps.map(step => step.id);
+
+            let isCorrect = true;
+            for (let i = 0; i < correctOrder.length; i++) {
+                if (currentOrder[i] !== correctOrder[i]) {
+                    isCorrect = false;
+                    break;
+                }
+            }
+
+            if (isCorrect) {
+                orderFeedback.innerText = 'أحسنت! الترتيب صحيح تماماً.';
+                orderFeedback.className = 'text-center mt-4 text-lg font-semibold text-green-700 correct';
+                showModal('رائع!', 'لقد قمت بترتيب خطوات الوضوء بشكل صحيح! عمل ممتاز!');
+            } else {
+                orderFeedback.innerText = 'حاول مرة أخرى. الترتيب غير صحيح.';
+                orderFeedback.className = 'text-center mt-4 text-lg font-semibold text-red-700 incorrect';
+                showModal('حاول مرة أخرى', 'الترتيب غير صحيح. راجع الخطوات وحاول مجدداً.');
+            }
+        });
+
+        resetOrderBtn.addEventListener('click', loadOrderGame);
+
+        // --- Game 2: Identify the Mistake ---
+        const mistakeScenarios = [
+            {
+                scenario: [
+                    { text: 'النية', correct: true },
+                    { text: 'غسل الكفين', correct: true },
+                    { text: 'مسح الأذنين قبل مسح الرأس', correct: false, explanation: 'يجب مسح الرأس والأذنين معاً أو بعد مسح الرأس مباشرة.' },
+                    { text: 'المضمضة والاستنشاق', correct: true },
+                    { text: 'غسل الوجه', correct: true },
+                ],
+                mistakeIndex: 2
+            },
+            {
+                scenario: [
+                    { text: 'التسمية', correct: true },
+                    { text: 'غسل اليد اليمنى فقط إلى المرفقين', correct: false, explanation: 'يجب غسل اليدين كلتيهما إلى الموعقين، اليمنى ثم اليسرى.' },
+                    { text: 'غسل الكفين', correct: true },
+                    { text: 'المضمضة', correct: true },
+                    { text: 'غسل الوجه', correct: true },
+                ],
+                mistakeIndex: 1
+            },
+            {
+                scenario: [
+                    { text: 'غسل الرجلين قبل غسل اليدين', correct: false, explanation: 'ترتيب الوضوء مهم، وغسل الرجلين يأتي بعد غسل اليدين ومسح الرأس.' },
+                    { text: 'النية', correct: true },
+                    { text: 'التسمية', correct: true },
+                    { text: 'غسل الوجه', correct: true },
+                    { text: 'غسل اليدين إلى المرفقين', correct: true },
+                ],
+                mistakeIndex: 0
+            }
+        ];
+
+        const mistakeScenarioContainer = document.getElementById('mistake-scenario');
+        const mistakeFeedback = document.getElementById('mistake-feedback');
+        const nextMistakeBtn = document.getElementById('next-mistake-btn');
+        let currentMistakeScenarioIndex = 0;
+
+        function loadMistakeGame() {
+            mistakeScenarioContainer.innerHTML = '';
+            mistakeFeedback.innerText = '';
+            mistakeFeedback.classList.remove('correct', 'incorrect');
+
+            const scenario = mistakeScenarios[currentMistakeScenarioIndex];
+            scenario.scenario.forEach((step, index) => {
+                const div = document.createElement('div');
+                div.className = 'bg-white p-4 rounded-lg shadow-md w-full max-w-md text-center text-lg border-2 border-transparent hover:border-green-300 transition-all duration-200';
+                div.innerText = step.text;
+                div.dataset.index = index;
+                div.addEventListener('click', handleMistakeClick);
+                mistakeScenarioContainer.appendChild(div);
+            });
+        }
+
+        function handleMistakeClick(event) {
+            const clickedIndex = parseInt(event.target.dataset.index);
+            const scenario = mistakeScenarios[currentMistakeScenarioIndex];
+
+            if (clickedIndex === scenario.mistakeIndex) {
+                mistakeFeedback.innerText = `أحسنت! هذا هو الخطأ: ${scenario.scenario[clickedIndex].explanation}`;
+                mistakeFeedback.className = 'text-center mt-4 text-lg font-semibold text-green-700 correct';
+                event.target.classList.add('bg-green-200', 'border-green-500');
+                // Disable further clicks on this scenario
+                Array.from(mistakeScenarioContainer.children).forEach(el => el.removeEventListener('click', handleMistakeClick));
+                showModal('أحسنت!', `لقد اكتشفت الخطأ بنجاح! ${scenario.scenario[clickedIndex].explanation}`);
+            } else {
+                mistakeFeedback.innerText = 'هذه الخطوة صحيحة. حاول البحث عن الخطأ في مكان آخر.';
+                mistakeFeedback.className = 'text-center mt-4 text-lg font-semibold text-red-700 incorrect';
+                event.target.classList.add('bg-red-200', 'border-red-500');
+                setTimeout(() => {
+                    event.target.classList.remove('bg-red-200', 'border-red-500');
+                }, 1000);
+                showModal('حاول مرة أخرى', 'هذه الخطوة صحيحة. ابحث عن الخطأ الحقيقي.');
+            }
+        }
+
+        nextMistakeBtn.addEventListener('click', () => {
+            currentMistakeScenarioIndex = (currentMistakeScenarioIndex + 1) % mistakeScenarios.length;
+            loadMistakeGame();
+        });
+
+        // --- Game 3: Wudu Quiz ---
+        const quizQuestions = [
+            {
+                question: 'ما هي أول خطوة في الوضوء؟',
+                options: ['غسل الوجه', 'النية', 'غسل اليدين', 'المضمضة'],
+                answer: 'النية'
+            },
+            {
+                question: 'كم مرة نغسل الوجه في الوضوء؟',
+                options: ['مرة واحدة', 'مرتين', 'ثلاث مرات', 'أربع مرات'],
+                answer: 'ثلاث مرات'
+            },
+            {
+                question: 'هل مسح الرأس يكون مرة واحدة أم ثلاث مرات؟',
+                options: ['مرة واحدة', 'ثلاث مرات', 'حسب الرغبة', 'مرتين'],
+                answer: 'مرة واحدة'
+            },
+            {
+                question: 'ماذا نقول بعد الانتهاء من الوضوء؟',
+                options: ['الحمد لله', 'الله أكبر', 'سبحان الله', 'أشهد أن لا إله إلا الله وحده لا شريك له...'],
+                answer: 'أشهد أن لا إله إلا الله وحده لا شريك له...'
+            }
+        ];
+
+        const quizContainer = document.getElementById('quiz-container');
+        const submitQuizBtn = document.getElementById('submit-quiz-btn');
+        const quizResult = document.getElementById('quiz-result');
+
+        function loadQuiz() {
+            quizContainer.innerHTML = '';
+            quizResult.innerText = '';
+            quizQuestions.forEach((q, qIndex) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'mb-6 p-4 bg-white rounded-lg shadow-sm';
+                questionDiv.innerHTML = `<p class="font-semibold text-lg mb-3">${qIndex + 1}. ${q.question}</p>`;
+
+                q.options.forEach((option, oIndex) => {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'mb-2';
+                    optionDiv.innerHTML = `
+                        <input type="radio" id="q${qIndex}o${oIndex}" name="question${qIndex}" value="${option}" class="ml-2">
+                        <label for="q${qIndex}o${oIndex}" class="text-gray-700">${option}</label>
+                    `;
+                    questionDiv.appendChild(optionDiv);
+                });
+                quizContainer.appendChild(questionDiv);
+            });
+        }
+
+        submitQuizBtn.addEventListener('click', () => {
+            let score = 0;
+            quizQuestions.forEach((q, qIndex) => {
+                const selectedOption = document.querySelector(`input[name="question${qIndex}"]:checked`);
+                if (selectedOption && selectedOption.value === q.answer) {
+                    score++;
+                }
+            });
+
+            quizResult.innerText = `لقد حصلت على ${score} من ${quizQuestions.length} إجابات صحيحة!`;
+            if (score === quizQuestions.length) {
+                quizResult.className = 'text-center mt-4 text-xl font-bold text-green-700';
+                showModal('تهانينا!', 'لقد أجبت على جميع الأسئلة بشكل صحيح! أنت خبير في الوضوء!');
+            } else if (score > quizQuestions.length / 2) {
+                quizResult.className = 'text-center mt-4 text-xl font-bold text-blue-700';
+                showModal('جيد جداً!', `لقد حصلت على ${score} من ${quizQuestions.length}. يمكنك مراجعة بعض النقاط لتحسين أدائك.`);
+            } else {
+                quizResult.className = 'text-center mt-4 text-xl font-bold text-red-700';
+                showModal('حاول مرة أخرى', `لقد حصلت على ${score} من ${quizQuestions.length}. لا بأس، استمر في التعلم وحاول مجدداً!`);
+            }
+        });
+
+        // Initialize games on page load
+        window.onload = () => {
+            loadOrderGame();
+            loadMistakeGame();
+            loadQuiz();
+        };
+    </script>
+</body>
+</html>
+

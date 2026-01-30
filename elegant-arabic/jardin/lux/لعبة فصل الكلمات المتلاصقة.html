@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة فصل الكلمات المتلاصقة</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            text-align: center;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+        }
+        .game-area {
+            margin: 25px 0;
+        }
+        .original-text {
+            font-size: 28px;
+            font-weight: bold;
+            margin: 25px 0;
+            color: #2980b9;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            letter-spacing: 2px;
+        }
+        .input-area {
+            margin: 20px 0;
+        }
+        #user-input {
+            width: 90%;
+            padding: 15px;
+            font-size: 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: right;
+            direction: rtl;
+        }
+        #user-input:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        .controls {
+            margin-top: 25px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        .feedback {
+            margin-top: 20px;
+            font-size: 18px;
+            min-height: 27px;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .correct {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .incorrect {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .hint {
+            color: #6c757d;
+            cursor: pointer;
+            text-decoration: underline;
+            margin-top: 15px;
+            display: inline-block;
+        }
+        .hidden {
+            display: none;
+        }
+        .correct-answer {
+            font-size: 20px;
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #e8f5e9;
+            border-radius: 5px;
+            color: #2e7d32;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>لعبة فصل الكلمات المتلاصقة</h1>
+        
+        <div class="instructions">
+            <p>إليك جملة مكتوبة بدون فراغات بين الكلمات. حاول كتابتها مع وضع الفراغات في الأماكن الصحيحة.</p>
+            <p><strong>ملاحظة:</strong> لن تؤثر الحركات (التشكيل) على التصحيح.</p>
+        </div>
+        
+        <div class="game-area">
+            <div class="original-text" id="word-display"></div>
+            
+            <div class="input-area">
+                <input type="text" id="user-input" placeholder="اكتب الجملة مع وضع الفراغات بين الكلمات...">
+            </div>
+            
+            <div class="hint" id="hint-btn">الحصول على مساعدة</div>
+            <div class="correct-answer hidden" id="correct-answer"></div>
+            
+            <div class="feedback" id="feedback"></div>
+            
+            <div class="controls">
+                <button id="check-btn">تحقق من الإجابة</button>
+                <button id="new-btn">جملة جديدة</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // مجموعة الجمل للعبة مع إجاباتها الصحيحة
+        const sentences = [
+            {
+                combined: "القطةتشربالحليب",
+                separated: "القطة تشرب الحليب"
+            },
+            {
+                combined: "الولديلعبالحديقة",
+                separated: "الولد يلعب في الحديقة"
+            },
+            {
+                combined: "التلميذهرإلىالمدرسة",
+                separated: "التلميذ ذهب إلى المدرسة"
+            },
+            {
+                combined: "قرأتالكتابالجديد",
+                separated: "قرأت الكتاب الجديد"
+            },
+            {
+                combined: "الشمستشرقفيالصباح",
+                separated: "الشمس تشرق في الصباح"
+            },
+            {
+                combined: "الجديجلسعلىالكرسي",
+                separated: "الجد يجلس على الكرسي"
+            },
+            {
+                combined: "الطفلأكلالتفاحة",
+                separated: "الطفل أكل التفاحة"
+            },
+            {
+                combined: "الجيرانيسكنونفيالبيتالجديد",
+                separated: "الجيران يسكنون في البيت الجديد"
+            },
+            {
+                combined: "المعلمكتبالدرسعلىالسبورة",
+                separated: "المعلم كتب الدرس على السبورة"
+            },
+            {
+                combined: "رأيتالبحرالكبير",
+                separated: "رأيت البحر الكبير"
+            }
+        ];
+
+        let currentSentence = "";
+        let correctAnswer = "";
+
+        // عناصر DOM
+        const wordDisplay = document.getElementById('word-display');
+        const userInput = document.getElementById('user-input');
+        const checkBtn = document.getElementById('check-btn');
+        const newBtn = document.getElementById('new-btn');
+        const feedback = document.getElementById('feedback');
+        const hintBtn = document.getElementById('hint-btn');
+        const correctAnswerEl = document.getElementById('correct-answer');
+
+        // تهيئة اللعبة
+        function initGame() {
+            // اختيار جملة عشوائية
+            const randomIndex = Math.floor(Math.random() * sentences.length);
+            currentSentence = sentences[randomIndex].combined;
+            correctAnswer = sentences[randomIndex].separated;
+            
+            // عرض الجملة المتلاصقة
+            wordDisplay.textContent = currentSentence;
+            
+            // مسح حق الإدخال والتغذية الراجعة
+            userInput.value = "";
+            feedback.textContent = "";
+            feedback.className = "feedback";
+            correctAnswerEl.classList.add("hidden");
+            
+            // التركيز على حقل الإدخال
+            userInput.focus();
+        }
+
+        // دالة لإزالة التشكيل والفراغات من النص للمقارنة
+        function normalizeText(text) {
+            return text.replace(/[\u064B-\u065F\u0670\u0674\u06D6-\u06ED\s]/g, '');
+        }
+
+        // التحقق من الإجابة
+        function checkAnswer() {
+            const userAnswer = userInput.value.trim();
+            const normalizedUserAnswer = normalizeText(userAnswer);
+            const normalizedCorrectAnswer = normalizeText(correctAnswer);
+            
+            if (normalizedUserAnswer === normalizedCorrectAnswer) {
+                feedback.textContent = "إجابة صحيحة! أحسنت!";
+                feedback.className = "feedback correct";
+                
+                // عرض الإجابة الصحيحة مع التأثير
+                correctAnswerEl.textContent = "الإجابة الصحيحة: " + correctAnswer;
+                correctAnswerEl.classList.remove("hidden");
+                correctAnswerEl.classList.add("fade-in");
+            } else {
+                feedback.textContent = "ليس صحيحاً تماماً. حاول مرة أخرى!";
+                feedback.className = "feedback incorrect";
+            }
+        }
+
+        // عرض مساعدة
+        function showHint() {
+            // عرض أول كلمتين من الإجابة الصحيحة
+            const words = correctAnswer.split(' ');
+            let hint = "";
+            
+            if (words.length > 0) {
+                hint = words[0];
+                if (words.length > 1) {
+                    hint += " " + words[1];
+                }
+            }
+            
+            feedback.textContent = "تلميح: ابدأ بـ \"" + hint + "\"";
+            feedback.className = "feedback";
+        }
+
+        // أحداث النقر على الأزرار
+        checkBtn.addEventListener('click', checkAnswer);
+        newBtn.addEventListener('click', initGame);
+        hintBtn.addEventListener('click', showHint);
+
+        // السماح بالتحقق عند الضغط على Enter
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+
+        // بدء اللعبة عند تحميل الصفحة
+        window.onload = initGame;
+    </script>
+</body>
+</html>

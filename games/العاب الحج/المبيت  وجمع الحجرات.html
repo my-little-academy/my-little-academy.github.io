@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>المبيت في مزدلفة - رحلة الحاج الصغير</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Cairo', sans-serif;
+      background: radial-gradient(circle at top, #0d47a1, #000);
+      color: white;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    h1 {
+      margin-top: 20px;
+      color: #ffc107;
+    }
+
+    #intro {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background-color: rgba(0, 0, 0, 0.85);
+      color: #fff;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    #intro h2 {
+      color: #ffd54f;
+      margin-bottom: 15px;
+    }
+
+    #intro p {
+      font-size: 1.2em;
+      max-width: 600px;
+      margin-bottom: 30px;
+    }
+
+    #startBtn {
+      padding: 12px 30px;
+      font-size: 1.2em;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    #startBtn:hover {
+      background-color: #2e7d32;
+    }
+
+    #gameArea {
+      position: relative;
+      width: 100%;
+      height: 80vh;
+      background: url('https://i.imgur.com/HwaAd4M.png') no-repeat center bottom;
+      background-size: cover;
+      overflow: hidden;
+    }
+
+    #moon {
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle, #fff9c4, #fdd835);
+      border-radius: 50%;
+      box-shadow: 0 0 30px #fff59d;
+    }
+
+    .stone {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      background-image: url('https://cdn-icons-png.flaticon.com/512/861/861535.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      cursor: pointer;
+      animation: appear 0.5s ease-in;
+      z-index: 10;
+    }
+
+    .stone.clicked {
+      animation: clickEffect 0.4s ease-in-out;
+    }
+
+    @keyframes appear {
+      from { transform: scale(0); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes clickEffect {
+      0% { transform: scale(1); filter: brightness(1); }
+      50% { transform: scale(1.3); filter: brightness(1.5); }
+      100% { transform: scale(1); filter: brightness(1); }
+    }
+
+    #stoneCount {
+      font-size: 1.3em;
+      margin-top: 10px;
+      color: #c8e6c9;
+    }
+
+    #endMsg {
+      font-size: 1.6em;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 20px;
+      border-radius: 20px;
+      width: 80%;
+      margin: 30px auto;
+      display: none;
+      animation: popIn 0.6s ease-in-out;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.5); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; } 
+    }
+      
+      #endMsg {
+  font-size: 1.6em;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 20px;
+  border-radius: 20px;
+  width: 80%;
+  margin: 30px auto;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 0.6s ease;
+  pointer-events: none;
+}
+
+#endMsg.show {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+      
+  </style>
+</head>
+<body>
+
+  <div id="intro">
+    <h2>🌙 فضل المبيت بمزدلفة</h2>
+    <p>
+      المبيت بمزدلفة من شعائر الحج العظيمة. فيها يجتمع الحجاج بعد يوم عرفة، ويقضون الليل في ذكر الله وجمع الحصى لرمي الجمرات.
+      قال الله تعالى: <strong>فَاذْكُرُوا اللَّهَ عِندَ الْمَشْعَرِ الْحَرَامِ</strong> 🌌
+    </p>
+    <button id="startBtn">ابدأ اللعبة</button>
+  </div>
+
+  <h1>🛏️ المبيت في مزدلفة</h1>
+  <p>ساعد الحاج الصغير في جمع 7 حصيات قبل الفجر!</p>
+
+  <div id="gameArea">
+    <div id="moon"></div>
+  </div>
+
+  <div id="stoneCount">عدد الحصى التي جمعتها: <span id="count">0</span> / 7</div>
+  <div id="endMsg"></div>
+
+  <script>
+    const gameArea = document.getElementById('gameArea');
+    const countDisplay = document.getElementById('count');
+    const endMsg = document.getElementById('endMsg');
+    const intro = document.getElementById('intro');
+    const startBtn = document.getElementById('startBtn');
+
+    let count = 0;
+    const totalStones = 7;
+    let gameStarted = false;
+
+    startBtn.onclick = () => {
+      intro.style.display = 'none';
+      gameStarted = true;
+      createStone();
+    };
+
+    function createStone() {
+      if (!gameStarted) return;
+
+      const stone = document.createElement('div');
+      stone.className = 'stone';
+      stone.style.left = Math.random() * (gameArea.clientWidth - 60) + 'px';
+      stone.style.top = Math.random() * (gameArea.clientHeight - 120) + 'px';
+
+      stone.onclick = () => {
+        if (stone.classList.contains('clicked')) return;
+        stone.classList.add('clicked');
+        setTimeout(() => stone.remove(), 400);
+        count++;
+        countDisplay.textContent = count;
+        if (count >= totalStones) {
+          finishGame();
+        } else {
+          setTimeout(createStone, 800);
+        }
+      };
+
+      gameArea.appendChild(stone);
+    }
+
+    function finishGame() {
+  gameStarted = false;
+  endMsg.innerHTML = "🎉 <strong>ما شاء الله!</strong> جمعت <span style='color:lightgreen;'>7 حصيات</span> بنجاح!<br> 🌟 استعد لرمي الجمرات غدًا، يا حاجنا البطل!";
+  endMsg.classList.add('show');
+}
+
+  </script>
+
+</body>
+</html>

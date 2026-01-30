@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة المنازل العددية المصغرة</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            text-align: center;
+            padding: 10px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2e8b57;
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+        .place-value {
+            display: flex;
+            justify-content: center;
+            margin: 15px 0;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .box {
+            margin: 5px;
+            text-align: center;
+            flex: 1;
+            min-width: 120px;
+        }
+        .box-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        .shape-container {
+            width: 80px;
+            height: 80px;
+            border: 1px dashed #ccc;
+            border-radius: 4px;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            padding: 3px;
+            background-color: #f9f9f9;
+            justify-content: center;
+            align-items: flex-end;
+            margin: 0 auto;
+        }
+        .cube {
+            width: 12px;
+            height: 12px;
+            margin: 1px;
+            background-color: #ff9999;
+            position: relative;
+        }
+        .cube:after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 2px;
+            width: 8px;
+            height: 2px;
+            background-color: #e68a8a;
+            transform: skewX(45deg);
+        }
+        .cube:before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: -2px;
+            width: 2px;
+            height: 8px;
+            background-color: #cc7a7a;
+            transform: skewY(45deg);
+        }
+        .rod {
+            width: 12px;
+            height: 120px;
+            background-color: #99ff99;
+            margin: 0 2px;
+            position: relative;
+            display: inline-flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .rod .cube {
+            margin: 0 auto;
+        }
+        .flat {
+            width: 80px;
+            height: 12px;
+            background-color: #9999ff;
+            margin: 3px 0;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+        }
+        .flat .rod {
+            height: 12px;
+            width: 12px;
+            margin: 0;
+            transform: rotate(90deg);
+        }
+        .big-cube {
+            width: 40px;
+            height: 40px;
+            background-color: #ffff99;
+            position: relative;
+            margin: 0 auto;
+        }
+        .big-cube:after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: 4px;
+            width: 32px;
+            height: 4px;
+            background-color: #e6e68a;
+            transform: skewX(45deg);
+        }
+        .big-cube:before {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: -4px;
+            width: 4px;
+            height: 32px;
+            background-color: #cccc7a;
+            transform: skewY(45deg);
+        }
+        .controls {
+            margin: 15px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        button {
+            padding: 8px 12px;
+            margin: 0 3px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            flex: 1;
+            min-width: 100px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        input {
+            padding: 8px;
+            width: 80px;
+            font-size: 14px;
+            text-align: center;
+            flex: 1;
+            min-width: 80px;
+            max-width: 120px;
+        }
+        .result {
+            font-size: 18px;
+            margin: 15px 0;
+            min-height: 30px;
+            color: #2e8b57;
+            font-weight: bold;
+        }
+        .explanation {
+            background-color: #e6f7ff;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 15px;
+            text-align: right;
+            font-size: 13px;
+        }
+        .visual-container {
+            min-height: 130px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 5px;
+            padding: 10px;
+            border: 1px dashed #ddd;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .value-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>لعبة المنازل العددية المصغرة</h1>
+        <p>تعلم المنازل العددية باستخدام مكعبات مصغرة</p>
+        
+        <div class="controls">
+            <input type="number" id="numberInput" min="0" max="9999" placeholder="أدخل رقماً">
+            <button onclick="showNumber()">اظهر العدد</button>
+            <button onclick="clearAll()">مسح الكل</button>
+        </div>
+        
+        <div class="result" id="result"></div>
+        
+        <div class="visual-container" id="visualRepresentation">
+            <!-- التمثيل المرئي سيظهر هنا -->
+        </div>
+        
+        <div class="place-value">
+            <div class="box">
+                <div class="box-title">الوحدات</div>
+                <div class="shape-container" id="units">
+                    <!-- المكعبات الصغيرة ستضاف هنا -->
+                </div>
+                <div class="value-label">كل مكعب = 1</div>
+            </div>
+            <div class="box">
+                <div class="box-title">العشرات</div>
+                <div class="shape-container" id="tens">
+                    <!-- القضبان ستضاف هنا -->
+                </div>
+                <div class="value-label">كل قضيب = 10</div>
+            </div>
+            <div class="box">
+                <div class="box-title">المئات</div>
+                <div class="shape-container" id="hundreds">
+                    <!-- الصفائح ستضاف هنا -->
+                </div>
+                <div class="value-label">كل صفيحة = 100</div>
+            </div>
+            <div class="box">
+                <div class="box-title">الآلاف</div>
+                <div class="shape-container" id="thousands">
+                    <!-- المكعبات الكبيرة ستضاف هنا -->
+                </div>
+                <div class="value-label">كل مكعب كبير = 1000</div>
+            </div>
+        </div>
+        
+        <div class="explanation">
+            <h3>كيفية اللعب:</h3>
+            <p>1. أدخل رقماً بين 0 و 9999 ثم اضغط "اظهر العدد"</p>
+            <p>2. شاهد تمثيل العدد بالمكعبات والقضبان والصفائح</p>
+            <p>3. لاحظ العلاقة بين المنازل:</p>
+            <p>- 10 مكعبات = 1 قضيب</p>
+            <p>- 10 قضبان = 1 صفيحة</p>
+            <p>- 10 صفائح = 1 مكعب كبير</p>
+            <p>4. جرب أرقاماً مختلفة لفهم الفكرة</p>
+        </div>
+    </div>
+
+    <script>
+        function showNumber() {
+            const numberInput = document.getElementById('numberInput');
+            const resultDiv = document.getElementById('result');
+            const visualContainer = document.getElementById('visualRepresentation');
+            const number = parseInt(numberInput.value);
+            
+            if (isNaN(number) || number < 0 || number > 9999) {
+                alert("الرجاء إدخال رقم بين 0 و 9999");
+                return;
+            }
+            
+            resultDiv.textContent = "العدد: " + number;
+            visualContainer.innerHTML = '';
+            
+            // تفكيك العدد إلى منازله
+            let remaining = number;
+            
+            const thousands = Math.floor(remaining / 1000);
+            remaining = remaining % 1000;
+            
+            const hundreds = Math.floor(remaining / 100);
+            remaining = remaining % 100;
+            
+            const tens = Math.floor(remaining / 10);
+            const units = remaining % 10;
+            
+            // عرض التمثيل المرئي الكلي
+            createVisualRepresentation(visualContainer, thousands, hundreds, tens, units);
+            
+            // عرض الأشكال في كل قسم
+            displayUnits('units', units);
+            displayTens('tens', tens);
+            displayHundreds('hundreds', hundreds);
+            displayThousands('thousands', thousands);
+        }
+        
+        function createVisualRepresentation(container, thousands, hundreds, tens, units) {
+            // عرض المكعبات الكبيرة (الآلاف)
+            for (let i = 0; i < thousands; i++) {
+                const bigCube = document.createElement('div');
+                bigCube.className = 'big-cube';
+                container.appendChild(bigCube);
+            }
+            
+            // عرض الصفائح (المئات)
+            for (let i = 0; i < hundreds; i++) {
+                const flat = document.createElement('div');
+                flat.className = 'flat';
+                
+                for (let j = 0; j < 5; j++) { // عرض 5 قضبان فقط للتبسيط
+                    const rod = document.createElement('div');
+                    rod.className = 'rod';
+                    rod.style.transform = 'rotate(90deg)';
+                    flat.appendChild(rod);
+                }
+                
+                container.appendChild(flat);
+            }
+            
+            // عرض القضبان (العشرات)
+            for (let i = 0; i < tens; i++) {
+                const rod = document.createElement('div');
+                rod.className = 'rod';
+                
+                for (let j = 0; j < 5; j++) { // عرض 5 مكعبات فقط للتبسيط
+                    const cube = document.createElement('div');
+                    cube.className = 'cube';
+                    rod.appendChild(cube);
+                }
+                
+                container.appendChild(rod);
+            }
+            
+            // عرض المكعبات الصغيرة (الوحدات)
+            for (let i = 0; i < units; i++) {
+                const cube = document.createElement('div');
+                cube.className = 'cube';
+                container.appendChild(cube);
+            }
+        }
+        
+        function displayUnits(containerId, count) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            for (let i = 0; i < Math.min(count, 25); i++) { // حد أقصى 25 مكعب للعرض
+                const cube = document.createElement('div');
+                cube.className = 'cube';
+                container.appendChild(cube);
+            }
+            
+            if (count > 25) {
+                const label = document.createElement('div');
+                label.textContent = `+ ${count-25}`;
+                label.style.fontSize = '10px';
+                label.style.marginTop = '2px';
+                container.appendChild(label);
+            }
+        }
+        
+        function displayTens(containerId, count) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            for (let i = 0; i < Math.min(count, 3); i++) { // حد أقصى 3 قضبان للعرض
+                const rod = document.createElement('div');
+                rod.className = 'rod';
+                
+                for (let j = 0; j < 5; j++) { // عرض 5 مكعبات فقط في كل قضيب
+                    const cube = document.createElement('div');
+                    cube.className = 'cube';
+                    rod.appendChild(cube);
+                }
+                
+                container.appendChild(rod);
+            }
+            
+            if (count > 3) {
+                const label = document.createElement('div');
+                label.textContent = `+ ${count-3}`;
+                label.style.fontSize = '10px';
+                label.style.marginTop = '2px';
+                container.appendChild(label);
+            }
+        }
+        
+        function displayHundreds(containerId, count) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            for (let i = 0; i < Math.min(count, 2); i++) { // حد أقصى 2 صفيحة للعرض
+                const flat = document.createElement('div');
+                flat.className = 'flat';
+                
+                for (let j = 0; j < 5; j++) { // عرض 5 قضبان فقط في كل صفيحة
+                    const rod = document.createElement('div');
+                    rod.className = 'rod';
+                    rod.style.transform = 'rotate(90deg)';
+                    flat.appendChild(rod);
+                }
+                
+                container.appendChild(flat);
+            }
+            
+            if (count > 2) {
+                const label = document.createElement('div');
+                label.textContent = `+ ${count-2}`;
+                label.style.fontSize = '10px';
+                label.style.marginTop = '2px';
+                container.appendChild(label);
+            }
+        }
+        
+        function displayThousands(containerId, count) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            for (let i = 0; i < count; i++) {
+                const bigCube = document.createElement('div');
+                bigCube.className = 'big-cube';
+                container.appendChild(bigCube);
+            }
+        }
+        
+        function clearAll() {
+            document.getElementById('numberInput').value = '';
+            document.getElementById('result').textContent = '';
+            document.getElementById('visualRepresentation').innerHTML = '';
+            document.getElementById('thousands').innerHTML = '';
+            document.getElementById('hundreds').innerHTML = '';
+            document.getElementById('tens').innerHTML = '';
+            document.getElementById('units').innerHTML = '';
+        }
+    </script>
+</body>
+</html>

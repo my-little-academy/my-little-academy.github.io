@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مغامرة المقاطع الصوتية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent: #FFE66D;
+            --dark: #292F36;
+            --light: #F7FFF7;
+        }
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            text-align: center;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            min-height: 100vh;
+            margin: 0;
+        }
+        
+        .container {
+            max-width: 650px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            border: 3px solid var(--accent);
+        }
+        
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 15px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+        }
+        
+        h1 {
+            color: var(--dark);
+            margin-bottom: 30px;
+            font-size: 2.2rem;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+            position: relative;
+            display: inline-block;
+        }
+        
+        h1::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 25%;
+            width: 50%;
+            height: 4px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+        
+        .word-container {
+            background-color: var(--light);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 25px 0;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+            border: 2px dashed var(--secondary);
+            position: relative;
+        }
+        
+        .word-container::before {
+            content: "✏️";
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            font-size: 1.5rem;
+            background: white;
+            padding: 0 10px;
+        }
+        
+        .word {
+            font-size: 3.5rem;
+            margin: 10px 0;
+            color: var(--dark);
+            font-weight: bold;
+            text-shadow: 3px 3px 0px rgba(0,0,0,0.05);
+        }
+        
+        .input-container {
+            margin: 30px 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        input {
+            padding: 12px;
+            font-size: 1.2rem;
+            width: 80px;
+            text-align: center;
+            border: 2px solid var(--secondary);
+            border-radius: 10px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.3);
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            border-radius: 10px;
+            margin: 5px;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 rgba(0,0,0,0.1);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 0 rgba(0,0,0,0.1);
+        }
+        
+        button.secondary {
+            background-color: var(--secondary);
+        }
+        
+        button.accent {
+            background-color: var(--accent);
+            color: var(--dark);
+        }
+        
+        .result {
+            font-size: 1.3rem;
+            margin: 20px 0;
+            min-height: 40px;
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.5s;
+        }
+        
+        .correct {
+            background-color: rgba(46, 204, 113, 0.2);
+            color: #27ae60;
+            border: 2px solid #2ecc71;
+        }
+        
+        .incorrect {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            border: 2px solid #e74c3c;
+        }
+        
+        .syllables {
+            font-size: 1.5rem;
+            margin: 25px 0;
+            color: var(--dark);
+            background-color: rgba(255, 230, 109, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 5px solid var(--accent);
+            animation: fadeIn 0.5s;
+        }
+        
+        .rules {
+            text-align: right;
+            margin-top: 40px;
+            font-size: 1rem;
+            color: var(--dark);
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        
+        .rules h3 {
+            color: var(--primary);
+            margin-top: 0;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .rules h3::before {
+            content: "📝";
+            margin-left: 10px;
+        }
+        
+        .rules ul {
+            padding-right: 20px;
+        }
+        
+        .rules li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+            position: relative;
+        }
+        
+        .rules li::before {
+            content: "•";
+            color: var(--secondary);
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-right: -1em;
+        }
+        
+        .character {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 80px;
+            opacity: 0.8;
+            transition: all 0.3s;
+        }
+        
+        .character:hover {
+            transform: scale(1.1);
+            opacity: 1;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: var(--primary);
+            opacity: 0;
+            z-index: 10;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            width: 0%;
+            transition: width 0.5s;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            .word {
+                font-size: 2.5rem;
+            }
+            
+            button {
+                padding: 10px 15px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>مغامرة المقاطع الصوتية</h1>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        
+        <div class="word-container">
+            <div class="word" id="currentWord"></div>
+        </div>
+        
+        <div class="input-container">
+            <input type="number" id="userAnswer" min="1" max="10" placeholder="عدد المقاطع">
+            <button onclick="checkAnswer()">تحقق من الإجابة</button>
+            <button class="secondary" onclick="showCorrectAnswer()">الحل الكامل</button>
+            <button class="accent" onclick="newWord()">كلمة جديدة</button>
+        </div>
+        
+        <div class="result" id="result"></div>
+        <div class="syllables" id="syllables"></div>
+        
+        <div class="rules">
+            <h3>قواعد التقطيع الصوتي:</h3>
+            <ul>
+                <li>الحرف المشكّل بحركة يعتبر مقطعاً صوتياً واحداً</li>
+                <li>الحرف المنّون (عليه تنوين) يعتبر مقطعاً صوتياً واحداً</li>
+                <li>حرف المد مع الحرف الذي قبله يعتبر مقطعاً صوتياً واحداً</li>
+                <li>الحرف المشدّد يعتبر مقطعين (الحرف مع حركته + الحرف مع السكون)</li>
+                <li>الحرف الساكن مع الحرف الذي قبله يعتبر مقطعاً صوتياً واحداً</li>
+                <li>ال التعريف (الشمسية أو القمرية) تعتبر مقطعاً صوتياً واحداً</li>
+            </ul>
+        </div>
+        
+        <img src="https://i.imgur.com/JQJxZ4a.png" class="character" alt="شخصية كرتونية">
+    </div>
+
+    <script>
+        // قائمة الكلمات مع التقطيع الصوتي الصحيح
+        const words = [
+            {word: "مَدْرَسَة", syllables: 4, analysis: "مَدْ - رَ - سَـ -ـةْ"},
+            {word: "كِتَاب", syllables: 3, analysis: "كِـ - تَا - بْ"},
+            {word: "قَلَمٌ", syllables: 3, analysis: "قَـ - لَ - مُ"},
+            {word: "مُعَلِّم", syllables: 4, analysis: "مُ - عَلْ - لِ - مْ"},
+            {word: "شَجَرَة", syllables: 4, analysis: "شَ - جَ - رَ - ةْ"},
+            {word: "بِنْت", syllables: 2, analysis: "بَيْـ - تْ"},
+            {word: "الْبَيْت", syllables: 3, analysis: "الْ - بَيْـ - تْ"},
+            {word: "الْقَمَر", syllables: 4, analysis: "الْ - قَ - مَـ - رْ"},
+            {word: "مُسْتَشْفَى", syllables: 3, analysis: "مُسْ - تَشْ - فَى"},
+            {word: "يَتَعَلَّم", syllables: 5, analysis: "يَـ - تَ - عَلْ - لَ - مْ"},
+            {word: "سَمَاء", syllables: 3, analysis: "سَ - مَا - ءْ"},
+            {word: "مَاءٌ", syllables: 2, analysis: "ما - ءٌ"},
+            {word: "الْأَسَد", syllables: 4, analysis: "الْ - أَ - سَـ - دْ"},
+            {word: "الْإِنْسَان", syllables: 4, analysis: "الْ - إِنْ - سَا - نْ"},
+            {word: "يَقْرَأ", syllables: 3, analysis: "يَقْ - رَ - أَ"}
+        ];
+
+        let currentWord;
+        let score = 0;
+        let totalAttempts = 0;
+        const maxAttempts = 10;
+
+        // بدء اللعبة بكلمة عشوائية
+        function initGame() {
+            currentWord = words[Math.floor(Math.random() * words.length)];
+            document.getElementById('currentWord').textContent = currentWord.word;
+            document.getElementById('userAnswer').value = '';
+            document.getElementById('result').textContent = '';
+            document.getElementById('result').className = 'result';
+            document.getElementById('syllables').textContent = '';
+            document.getElementById('userAnswer').focus();
+            updateProgress();
+        }
+
+        // التحقق من إجابة المستخدم
+        function checkAnswer() {
+            const userAnswer = parseInt(document.getElementById('userAnswer').value);
+            const resultDiv = document.getElementById('result');
+            const syllablesDiv = document.getElementById('syllables');
+            
+            if (isNaN(userAnswer)) {
+                resultDiv.textContent = 'الرجاء إدخال عدد المقاطع الصوتية';
+                resultDiv.className = 'result incorrect';
+                return;
+            }
+            
+            totalAttempts++;
+            
+            if (userAnswer === currentWord.syllables) {
+                score++;
+                resultDiv.textContent = '🎉 أحسنت! إجابة صحيحة';
+                resultDiv.className = 'result correct';
+                syllablesDiv.textContent = `التقطيع الصوتي: ${currentWord.analysis}`;
+                createConfetti();
+                setTimeout(newWord, 2000);
+            } else {
+                resultDiv.textContent = '❌ حاول مرة أخرى!';
+                resultDiv.className = 'result incorrect';
+            }
+            
+            updateProgress();
+        }
+
+        // عرض الإجابة الصحيحة
+        function showCorrectAnswer() {
+            const resultDiv = document.getElementById('result');
+            const syllablesDiv = document.getElementById('syllables');
+            
+            resultDiv.textContent = `عدد المقاطع الصوتية الصحيح هو: ${currentWord.syllables}`;
+            resultDiv.className = 'result correct';
+            syllablesDiv.textContent = `التقطيع الصوتي: ${currentWord.analysis}`;
+            totalAttempts++;
+            updateProgress();
+        }
+
+        // اختيار كلمة جديدة
+        function newWord() {
+            if (totalAttempts >= maxAttempts) {
+                endGame();
+                return;
+            }
+            initGame();
+        }
+
+        // تحديث شريط التقدم
+        function updateProgress() {
+            const progress = (totalAttempts / maxAttempts) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+        }
+
+        // نهاية اللعبة
+        function endGame() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <h2>🎮 انتهت اللعبة!</h2>
+                <p>إجمالي الإجابات الصحيحة: ${score} من ${maxAttempts}</p>
+                <button onclick="resetGame()" style="margin-top: 15px;">العب مرة أخرى</button>
+            `;
+            resultDiv.className = 'result correct';
+            document.getElementById('syllables').textContent = '';
+            document.getElementById('input-container').style.display = 'none';
+        }
+
+        // إعادة تشغيل اللعبة
+        function resetGame() {
+            score = 0;
+            totalAttempts = 0;
+            document.getElementById('input-container').style.display = '';
+            initGame();
+        }
+
+        // تأثيرات الكونفيتي
+        function createConfetti() {
+            const container = document.querySelector('.container');
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.top = -10 + 'px';
+                confetti.style.backgroundColor = getRandomColor();
+                confetti.style.width = Math.random() * 10 + 5 + 'px';
+                confetti.style.height = Math.random() * 10 + 5 + 'px';
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                
+                container.appendChild(confetti);
+                
+                const animationDuration = Math.random() * 3 + 2;
+                
+                confetti.style.animation = `fall ${animationDuration}s linear forwards`;
+                confetti.style.opacity = '1';
+                
+                setTimeout(() => {
+                    confetti.remove();
+                }, animationDuration * 1000);
+            }
+            
+            // إضافة CSS للحركة
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fall {
+                    to {
+                        transform: translateY(100vh) rotate(360deg);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        function getRandomColor() {
+            const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#292F36', '#F7FFF7'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        // تهيئة اللعبة عند تحميل الصفحة
+        window.onload = initGame;
+    </script>
+</body>
+</html>

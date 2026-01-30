@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8" />
+<title>لعبة السحب والإفلات – تصنيف الأدوات مع مؤثرات وعداد نقاط</title>
+<style>
+  /* تنسيق عام وخلفية جذابة */
+  body {
+    background: linear-gradient(to bottom, #dff9fb, #c7ecee);
+    font-family: 'Cairo', sans-serif;
+    text-align: center;
+    padding: 20px;
+    user-select: none; /* منع تحديد النص أثناء السحب */
+  }
+
+  h1 {
+    color: #6c5ce7;
+  }
+
+  /* الحاوية الرئيسية للعبة */
+  .container {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+  }
+
+  /* عمود العناصر القابلة للسحب والهدف */
+  .items, .targets {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  /* تصفيف العناصر القابلة للسحب */
+  .draggable {
+    background: #fab1a0;
+    padding: 12px 20px;
+    border-radius: 10px;
+    cursor: grab;
+    font-size: 1.2em;
+    border: 2px solid #d63031;
+    transition: box-shadow 0.3s ease;
+  }
+  /* تأثير أثناء السحب */
+  .dragging {
+    opacity: 0.6;
+    box-shadow: 0 0 15px 5px #fd79a8;
+  }
+
+  /* تصفيف مناطق الإفلات */
+  .droppable {
+    background: #ffeaa7;
+    width: 220px;
+    height: 50px;
+    border: 3px dashed #fdcb6e;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1em;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+
+  /* تأثير عند الاقتراب للإفلات */
+  .droppable.hovered {
+    background-color: #f9ca24;
+    border-color: #e1b12c;
+  }
+
+  /* تأثير النجاح */
+  .success {
+    background-color: #55efc4 !important;
+    border-color: #00b894 !important;
+    color: white;
+    font-weight: bold;
+    cursor: default;
+  }
+
+  /* عداد النقاط */
+  #score {
+    font-size: 1.5em;
+    margin-top: 25px;
+    color: #0984e3;
+  }
+
+  /* تأثير النجمات المتطايرة */
+  .star {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    background: gold;
+    clip-path: polygon(
+      50% 0%,
+      61% 35%,
+      98% 35%,
+      68% 57%,
+      79% 91%,
+      50% 70%,
+      21% 91%,
+      32% 57%,
+      2% 35%,
+      39% 35%
+    );
+    animation: flyUp 1s ease forwards;
+    pointer-events: none;
+  }
+  @keyframes flyUp {
+    0% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-50px) scale(2);
+    }
+  }
+</style>
+</head>
+<body>
+
+<h1>🕌 لعبة السحب والإفلات – تصنيف الأدوات</h1>
+<p>اسحب الأداة إلى مكانها الصحيح وتميز بجمع النقاط!</p>
+
+<!-- عداد النقاط -->
+<div id="score">النقاط: 0</div>
+
+<!-- الحاوية الرئيسية -->
+<div class="container">
+
+  <!-- عناصر السحب -->
+  <div class="items" aria-label="عناصر قابلة للسحب">
+    <div class="draggable" draggable="true" data-match="صلاة">سجادة</div>
+    <div class="draggable" draggable="true" data-match="صلاة">مصحف</div>
+    <div class="draggable" draggable="true" data-match="صلاة">مسبحة</div>
+    <div class="draggable" draggable="true" data-match="وضوء">حوض الوضوء</div>
+    <div class="draggable" draggable="true" data-match="وضوء">صابون</div>
+    <div class="draggable" draggable="true" data-match="وضوء">منشفة</div>
+  </div>
+
+  <!-- أماكن الإفلات -->
+  <div class="targets" aria-label="أماكن الإفلات">
+    <div class="droppable" data-match="صلاة">🕌 مكان أدوات الصلاة</div>
+    <div class="droppable" data-match="وضوء">🚰 مكان أدوات الوضوء</div>
+  </div>
+
+</div>
+
+<script>
+  // الحصول على كل العناصر القابلة للسحب
+  const draggables = document.querySelectorAll('.draggable');
+  // الحصول على كل مناطق الإفلات
+  const droppables = document.querySelectorAll('.droppable');
+  // عنصر عرض النقاط
+  const scoreDisplay = document.getElementById('score');
+  let score = 0;
+
+  draggables.forEach(item => {
+    // عند بدء السحب
+    item.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', item.dataset.match + '|' + item.textContent);
+      item.classList.add('dragging');
+    });
+    // عند انتهاء السحب (إما إفلات أو إلغاء)
+    item.addEventListener('dragend', () => {
+      item.classList.remove('dragging');
+    });
+  });
+
+  droppables.forEach(zone => {
+    // عندما يكون العنصر فوق منطقة الإفلات
+    zone.addEventListener('dragover', e => {
+      e.preventDefault(); // السماح بالإفلات
+      zone.classList.add('hovered');
+    });
+
+    // عندما يغادر العنصر المنطقة دون إفلات
+    zone.addEventListener('dragleave', () => {
+      zone.classList.remove('hovered');
+    });
+
+    // عند الإفلات داخل المنطقة
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('hovered');
+
+      // استلام البيانات: نوع الأداة والنص
+      const data = e.dataTransfer.getData('text/plain');
+      const [matchType, text] = data.split('|');
+
+      // إذا كان النوع يطابق منطقة الإفلات
+      if (matchType === zone.dataset.match) {
+        // تغيير مظهر منطقة الإفلات لإظهار النجاح
+        zone.classList.add('success');
+        zone.textContent = `✔️ ${text} في مكانه الصحيح!`;
+
+        // زيادة النقاط
+        score++;
+        scoreDisplay.textContent = `النقاط: ${score}`;
+
+        // إزالة العنصر المسحوب من القائمة
+        const draggedItem = [...draggables].find(d => d.textContent === text);
+        if (draggedItem) draggedItem.style.display = 'none';
+
+        // إضافة تأثير النجوم المتطايرة
+        createStars(e.clientX, e.clientY);
+      } else {
+        // خطأ في الإفلات، تظهر رسالة واهتزاز العنصر
+        alert('❌ خطأ، حاول مرة أخرى!');
+        shakeElement(e.target);
+      }
+    });
+  });
+
+  // دالة لإنشاء نجمات متطايرة عند النجاح
+  function createStars(x, y) {
+    for (let i = 0; i < 8; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      star.style.left = (x + (Math.random() * 60 - 30)) + 'px';
+      star.style.top = (y + (Math.random() * 60 - 30)) + 'px';
+      document.body.appendChild(star);
+      setTimeout(() => star.remove(), 1000);
+    }
+  }
+
+  // دالة اهتزاز العنصر عند الخطأ
+  function shakeElement(element) {
+    element.style.animation = 'shake 0.3s';
+    element.addEventListener('animationend', () => {
+      element.style.animation = '';
+    }, { once: true });
+  }
+
+  // إضافة keyframes لاهتزاز العنصر (CSS داخل JavaScript)
+  const styleSheet = document.createElement("style");
+  styleSheet.type = "text/css";
+  styleSheet.innerText = `
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+  `;
+  document.head.appendChild(styleSheet);
+</script>
+
+</body>
+</html>

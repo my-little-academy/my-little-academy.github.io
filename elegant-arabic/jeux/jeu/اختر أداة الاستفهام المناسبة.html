@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>لعبة أدوات الاستفهام الممتعة</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@600&display=swap');
+
+  body {
+    margin: 0;
+    background: linear-gradient(135deg, #ffd3b6, #ffaaa5);
+    font-family: 'Cairo', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    user-select: none;
+  }
+
+  .container {
+    background: #fff;
+    width: 400px;
+    padding: 30px 25px;
+    border-radius: 25px;
+    box-shadow: 0 12px 25px rgba(255, 115, 90, 0.3);
+    text-align: center;
+    position: relative;
+  }
+
+  h1 {
+    margin-bottom: 20px;
+    color: #ff6f61;
+    text-shadow: 1px 1px 3px #f98e82;
+  }
+
+  .progress-bar {
+    width: 100%;
+    background: #ffe0d5;
+    height: 15px;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 25px;
+    box-shadow: inset 0 2px 5px #ffb7a1;
+  }
+  .progress {
+    height: 100%;
+    background: #ff6f61;
+    width: 0%;
+    transition: width 0.5s ease-in-out;
+  }
+
+  .sentence {
+    font-size: 1.4rem;
+    margin-bottom: 30px;
+    min-height: 80px;
+    color: #333;
+    font-weight: 700;
+  }
+
+  .options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+  }
+
+  button.option-btn {
+    flex: 1 1 45%;
+    padding: 15px 0;
+    border-radius: 15px;
+    border: none;
+    background: #ff6f61;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 5px 10px #ff6f6133;
+    transition: background-color 0.3s ease;
+  }
+  button.option-btn:hover {
+    background: #e95a50;
+  }
+  button.option-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .feedback {
+    margin-top: 25px;
+    font-size: 1.3rem;
+    font-weight: 700;
+    min-height: 40px;
+  }
+
+  .correct {
+    color: #27ae60;
+    animation: pulseGreen 1s infinite;
+  }
+  .incorrect {
+    color: #c0392b;
+    animation: shake 0.6s;
+  }
+
+  @keyframes pulseGreen {
+    0%, 100% { color: #27ae60; text-shadow: 0 0 8px #27ae60; }
+    50% { color: #1e8449; text-shadow: 0 0 15px #1e8449; }
+  }
+
+  @keyframes shake {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-6px); }
+    80% { transform: translateX(6px); }
+    100% { transform: translateX(0); }
+  }
+
+  .restart-btn {
+    margin-top: 20px;
+    padding: 12px 25px;
+    font-size: 1.2rem;
+    border-radius: 20px;
+    border: none;
+    background: #ff6f61;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    display: none;
+    box-shadow: 0 5px 15px #ff6f6133;
+    transition: background-color 0.3s ease;
+  }
+  .restart-btn:hover {
+    background: #e95a50;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="container" role="main" aria-label="لعبة اختيار أداة الاستفهام">
+
+  <h1>اختر أداة الاستفهام المناسبة</h1>
+
+  <div class="progress-bar" aria-hidden="true">
+    <div class="progress" id="progress"></div>
+  </div>
+
+  <div class="sentence" id="sentence" aria-live="polite"></div>
+
+  <div class="options" id="options" role="list"></div>
+
+  <div class="feedback" id="feedback" aria-live="assertive"></div>
+
+  <button class="restart-btn" id="restartBtn" aria-label="إعادة بدء اللعبة">إعادة اللعب</button>
+
+</div>
+
+<script>
+  // بيانات الجمل وأدوات الاستفهام المحتملة مع الإجابة الصحيحة
+  const data = [
+    { sentence: "..... حالك اليوم؟", correct: "كيف", options: ["كيف", "متى", "أين", "لماذا"] },
+    { sentence: "..... في البيتِ أحدٌ؟", correct: "هل", options: ["هل", "ماذا", "كم", "متى"] },
+    { sentence: "أخرج ولم أجهز بعد؟ أداة الاستفهام المناسبة هي (أ) .", correct: "أ", options: ["أ", "هل", "لماذا", "متى"] },
+    { sentence: "..... تصميمٍ أعجبك؟", correct: "أيّ", options: ["ماذا", "أيّ", "كيف", "من"] },
+    { sentence: "..... هو جدّك؟", correct: "من", options: ["من", "كم", "ما", "هل"] },
+    { sentence: "..... أخبار المشروع؟", correct: "ما", options: ["ما", "هل", "أين", "متى"] },
+    { sentence: "..... وجدت في السوق؟", correct: "ماذا", options: ["هل", "ماذا", "من", "كيف"] },
+    { sentence: "..... ستسافر هذا الصيف؟", correct: "أين", options: ["كيف", "أين", "متى", "لماذا"] },
+    { sentence: "..... ينتهي الفصل الدراسيّ؟", correct: "متى", options: ["أين", "متى", "كم", "كيف"] },
+    { sentence: "..... عالمًا أردنيًّا رشّح لجائزة نوبل؟", correct: "كم", options: ["ما", "كم", "متى", "لماذا"] },
+    { sentence: "..... موعد الامتحان النصفيّ؟", correct: "أيّان", options: ["أيّان", "متى", "أين", "كيف"] },
+    { sentence: "..... زرعت في هذا الشهر؟", correct: "ماذا", options: ["متى", "كيف", "ماذا", "أين"] }
+  ];
+
+  let current = 0;
+
+  const sentenceEl = document.getElementById("sentence");
+  const optionsEl = document.getElementById("options");
+  const feedbackEl = document.getElementById("feedback");
+  const progressEl = document.getElementById("progress");
+  const restartBtn = document.getElementById("restartBtn");
+
+  function loadQuestion() {
+    const item = data[current];
+    sentenceEl.textContent = item.sentence;
+    feedbackEl.textContent = "";
+    optionsEl.innerHTML = "";
+
+    // خلط الخيارات عشوائياً
+    const shuffledOptions = item.options
+      .map(opt => ({opt, sort: Math.random()}))
+      .sort((a, b) => a.sort - b.sort)
+      .map(({opt}) => opt);
+
+    // عرض أزرار الخيارات
+    shuffledOptions.forEach(option => {
+      const btn = document.createElement("button");
+      btn.className = "option-btn";
+      btn.textContent = option;
+      btn.setAttribute("role", "listitem");
+      btn.onclick = () => checkAnswer(option);
+      optionsEl.appendChild(btn);
+    });
+
+    // تحديث شريط التقدم
+    progressEl.style.width = `${(current / data.length) * 100}%`;
+  }
+
+  function checkAnswer(selected) {
+    const correct = data[current].correct;
+    const buttons = optionsEl.querySelectorAll("button");
+    buttons.forEach(btn => btn.disabled = true);
+
+    if (selected === correct) {
+      feedbackEl.textContent = "إجابة صحيحة! أحسنت 👏";
+      feedbackEl.className = "feedback correct";
+
+      // تحديث شريط التقدم للأخير في السؤال الحالي
+      progressEl.style.width = `${((current + 1) / data.length) * 100}%`;
+
+      // تأخير ثم الانتقال للسؤال التالي
+      setTimeout(() => {
+        current++;
+        if (current < data.length) {
+          loadQuestion();
+        } else {
+          endGame();
+        }
+      }, 1500);
+    } else {
+      feedbackEl.textContent = "خطأ، حاول مرة أخرى!";
+      feedbackEl.className = "feedback incorrect";
+
+      // إعادة تفعيل الأزرار بعد مؤقت صغير
+      setTimeout(() => {
+        feedbackEl.textContent = "";
+        buttons.forEach(btn => btn.disabled = false);
+      }, 1200);
+    }
+  }
+
+  function endGame() {
+    sentenceEl.textContent = "🎉 تهانينا! لقد أتممت اللعبة بنجاح! 🎉";
+    optionsEl.innerHTML = "";
+    feedbackEl.textContent = "";
+    progressEl.style.width = "100%";
+    restartBtn.style.display = "inline-block";
+  }
+
+  restartBtn.addEventListener("click", () => {
+    current = 0;
+    restartBtn.style.display = "none";
+    loadQuestion();
+  });
+
+  // تحميل السؤال الأول عند بداية اللعبة
+  loadQuestion();
+
+</script>
+
+</body>
+</html>

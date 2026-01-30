@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة تحليل الكلمات صوتيًا</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .word {
+            font-size: 48px;
+            margin: 30px 0;
+            color: #3498db;
+        }
+        .input-container {
+            margin: 20px 0;
+        }
+        input {
+            padding: 10px;
+            font-size: 18px;
+            width: 60px;
+            text-align: center;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .result {
+            font-size: 20px;
+            margin: 20px 0;
+            min-height: 30px;
+        }
+        .correct {
+            color: #27ae60;
+        }
+        .incorrect {
+            color: #e74c3c;
+        }
+        .syllables {
+            font-size: 24px;
+            margin: 20px 0;
+            color: #9b59b6;
+        }
+        .rules {
+            text-align: right;
+            margin-top: 30px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>لعبة تحليل الكلمات صوتيًا</h1>
+        <p>كم عدد المقاطع الصوتية في الكلمة التالية؟</p>
+        
+        <div class="word" id="currentWord"></div>
+        
+        <div class="input-container">
+            <input type="number" id="userAnswer" min="1" max="10">
+            <button onclick="checkAnswer()">تحقق</button>
+            <button onclick="showCorrectAnswer()">اظهر الإجابة</button>
+            <button onclick="newWord()">كلمة جديدة</button>
+        </div>
+        
+        <div class="result" id="result"></div>
+        <div class="syllables" id="syllables"></div>
+        
+        <div class="rules">
+            <h3>قواعد التقطيع الصوتي:</h3>
+            <ul>
+                <li>الحرف المشكّل بحركة: مقطع صوتي واحد</li>
+                <li>الحرف المنّون (عليه تنوين): مقطع صوتي واحد</li>
+                <li>حرف المد مع الحرف الذي قبله: مقطع صوتي واحد</li>
+                <li>الحرف المشدّد مع الحرف الذي قبله: مقطع صوتي واحد</li>
+                <li>الحرف الساكن مع الحرف الذي قبله: مقطع صوتي واحد</li>
+                <li>اللام القمرية مع همزة الوصل التي قبلها: مقطع صوتي واحد</li>
+                <li>الحرف المشدد بعد اللام الشمسية مع همزة الوصل: مقطع صوتي واحد</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // قائمة الكلمات مع عدد المقاطع الصوتية الصحيح لكل كلمة
+        const words = [
+            {word: "مَدْرَسَة", syllables: 3, analysis: "مَدْ - رَ - سَةْ"},
+            {word: "كِتَاب", syllables: 2, analysis: "كِ - تَابْ"},
+            {word: "قَلَمٌ", syllables: 2, analysis: "قَ - لَمٌ"},
+            {word: "مُعَلِّم", syllables: 3, analysis: "مُ - عَلْ - لِمْ"},
+            {word: "شَجَرَة", syllables: 3, analysis: "شَ - جَ - رَةْ"},
+            {word: "بِنْت", syllables: 1, analysis: "بِنْتْ"},
+            {word: "الْبَيْت", syllables: 2, analysis: "الْ - بَيْتْ"},
+            {word: "الْقَمَر", syllables: 3, analysis: "الْ - قَ - مَرْ"},
+            {word: "مُسْتَشْفَى", syllables: 3, analysis: "مُسْ - تَشْ - فَى"},
+            {word: "يَتَعَلَّم", syllables: 4, analysis: "يَ - تَ - عَلْ - لَمْ"},
+            {word: "سَمَاء", syllables: 2, analysis: "سَ - مَاءْ"},
+            {word: "مَاءٌ", syllables: 2, analysis: "مَ - اءٌ"},
+            {word: "الْأَسَد", syllables: 3, analysis: "الْ - أَ - سَدْ"},
+            {word: "الْإِنْسَان", syllables: 4, analysis: "الْ - إِنْ - سَا - نْ"},
+            {word: "يَقْرَأ", syllables: 3, analysis: "يَقْ - رَ - أَ"}
+        ];
+
+        let currentWord;
+
+        // بدء اللعبة بكلمة عشوائية
+        function initGame() {
+            currentWord = words[Math.floor(Math.random() * words.length)];
+            document.getElementById('currentWord').textContent = currentWord.word;
+            document.getElementById('userAnswer').value = '';
+            document.getElementById('result').textContent = '';
+            document.getElementById('syllables').textContent = '';
+        }
+
+        // التحقق من إجابة المستخدم
+        function checkAnswer() {
+            const userAnswer = parseInt(document.getElementById('userAnswer').value);
+            const resultDiv = document.getElementById('result');
+            const syllablesDiv = document.getElementById('syllables');
+            
+            if (isNaN(userAnswer)) {
+                resultDiv.textContent = 'الرجاء إدخال عدد المقاطع الصوتية';
+                resultDiv.className = 'result incorrect';
+                return;
+            }
+            
+            if (userAnswer === currentWord.syllables) {
+                resultDiv.textContent = '✅ إجابة صحيحة!';
+                resultDiv.className = 'result correct';
+                syllablesDiv.textContent = `التقطيع الصوتي: ${currentWord.analysis}`;
+            } else {
+                resultDiv.textContent = `❌ إجابة خاطئة. حاول مرة أخرى!`;
+                resultDiv.className = 'result incorrect';
+            }
+        }
+
+        // عرض الإجابة الصحيحة
+        function showCorrectAnswer() {
+            const resultDiv = document.getElementById('result');
+            const syllablesDiv = document.getElementById('syllables');
+            
+            resultDiv.textContent = `عدد المقاطع الصوتية الصحيح هو: ${currentWord.syllables}`;
+            resultDiv.className = 'result correct';
+            syllablesDiv.textContent = `التقطيع الصوتي: ${currentWord.analysis}`;
+        }
+
+        // اختيار كلمة جديدة
+        function newWord() {
+            initGame();
+        }
+
+        // تهيئة اللعبة عند تحميل الصفحة
+        window.onload = initGame;
+    </script>
+</body>
+</html>

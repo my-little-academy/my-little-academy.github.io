@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مزرعة الرياضيات</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #87CEEB, #5cb85c);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            text-align: center;
+            color: #333;
+        }
+        
+        .game-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .farm {
+            flex-grow: 1;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 10px;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .plot {
+            background-color: #8B4513;
+            border: 3px solid #5D4037;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .plot:hover {
+            transform: scale(0.95);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+        }
+        
+        .plant {
+            width: 80%;
+            height: 80%;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            position: relative;
+            transition: all 0.5s;
+        }
+        
+        .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background-color: #ddd;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: #4CAF50;
+            width: 0%;
+        }
+        
+        .math-problem {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            z-index: 100;
+            display: none;
+        }
+        
+        .math-problem h3 {
+            margin-top: 0;
+            color: #2E7D32;
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .option {
+            padding: 10px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .option:hover {
+            background-color: #0b7dda;
+            transform: scale(1.05);
+        }
+        
+        .resources {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .resource {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+        
+        .resource img {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .store {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background-color: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            display: flex;
+            gap: 10px;
+        }
+        
+        .seed {
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .seed:hover {
+            background-color: #f0f0f0;
+            transform: scale(1.1);
+        }
+        
+        .seed img {
+            width: 30px;
+            height: 30px;
+            margin-bottom: 5px;
+        }
+        
+        .feedback {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 0 5px black;
+            opacity: 0;
+            transition: opacity 0.5s;
+            z-index: 90;
+        }
+        
+        .sun {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: #FFC107;
+            border-radius: 50%;
+            box-shadow: 0 0 20px #FFC107;
+        }
+        
+        .cloud {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <div class="sun"></div>
+            <h1>مزرعة الرياضيات</h1>
+            <div class="resources">
+                <div class="resource">
+                    <span id="money">100</span> <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10' fill='%23FFD700'/><text x='12' y='16' font-family='Arial' font-size='12' text-anchor='middle' fill='black'>$</text></svg>" alt="مال">
+                </div>
+                <div class="resource">
+                    <span id="score">0</span> <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2L15 8H22L16 12L19 18L12 14L5 18L8 12L2 8H9Z' fill='%23FFC107'/></svg>" alt="نقاط">
+                </div>
+            </div>
+        </div>
+        
+        <div class="farm" id="farm">
+            <!-- ستضاف قطع الأرض هنا ديناميكياً -->
+        </div>
+        
+        <div class="store">
+            <div class="seed" data-type="carrot" data-cost="10">
+                <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M16 10L14 8L13 9L15 11L9 17L7 15L8 14L6 12L4 16L8 14L10 16L16 10Z' fill='%23FF9800'/></svg>" alt="جزر">
+                <span>جزر (10)</span>
+            </div>
+            <div class="seed" data-type="wheat" data-cost="15">
+                <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M22 12L18 8L15 11L13 9L12 10L14 12L11 15L9 13L10 12L12 14L8 18L12 22L12 12L22 12Z' fill='%23FFEB3B'/></svg>" alt="قمح">
+                <span>قمح (15)</span>
+            </div>
+            <div class="seed" data-type="tomato" data-cost="20">
+                <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10' fill='%23F44336'/></svg>" alt="طماطم">
+                <span>طماطم (20)</span>
+            </div>
+        </div>
+        
+        <div class="math-problem" id="math-problem">
+            <h3>حل المسألة:</h3>
+            <p id="problem-text">5 + 3 = ؟</p>
+            <div class="options" id="options">
+                <!-- ستضاف الخيارات هنا ديناميكياً -->
+            </div>
+        </div>
+        
+        <div class="feedback" id="feedback"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const farm = document.getElementById('farm');
+            const moneyDisplay = document.getElementById('money');
+            const scoreDisplay = document.getElementById('score');
+            const mathProblem = document.getElementById('math-problem');
+            const problemText = document.getElementById('problem-text');
+            const optionsContainer = document.getElementById('options');
+            const feedback = document.getElementById('feedback');
+            const seeds = document.querySelectorAll('.seed');
+            
+            let money = 100;
+            let score = 0;
+            let selectedSeed = null;
+            let currentPlot = null;
+            let correctAnswer = 0;
+            
+            // إنشاء قطع الأرض
+            for (let i = 0; i < 15; i++) {
+                const plot = document.createElement('div');
+                plot.className = 'plot';
+                plot.dataset.state = 'empty';
+                plot.addEventListener('click', handlePlotClick);
+                farm.appendChild(plot);
+            }
+            
+            // إضافة الغيوم
+            createClouds();
+            
+            // إعداد متجر البذور
+            seeds.forEach(seed => {
+                seed.addEventListener('click', function() {
+                    const cost = parseInt(this.dataset.cost);
+                    if (money >= cost) {
+                        selectedSeed = this.dataset.type;
+                        // إلغاء تحديد الآخرين
+                        seeds.forEach(s => s.style.backgroundColor = 'transparent');
+                        this.style.backgroundColor = '#E3F2FD';
+                    } else {
+                        showFeedback('ليس لديك مال كافي!', '#F44336');
+                    }
+                });
+            });
+            
+            function handlePlotClick(e) {
+                const plot = e.currentTarget;
+                
+                if (plot.dataset.state === 'empty' && selectedSeed) {
+                    currentPlot = plot;
+                    showMathProblem();
+                } else if (plot.dataset.state === 'ready') {
+                    harvestPlot(plot);
+                }
+            }
+            
+            function showMathProblem() {
+                // توليد مسألة رياضية عشوائية
+                const num1 = Math.floor(Math.random() * 10) + 1;
+                const num2 = Math.floor(Math.random() * 10) + 1;
+                const operations = ['+', '-', '×'];
+                const operation = operations[Math.floor(Math.random() * operations.length)];
+                
+                let problem = '';
+                switch(operation) {
+                    case '+':
+                        correctAnswer = num1 + num2;
+                        problem = `${num1} + ${num2} = ؟`;
+                        break;
+                    case '-':
+                        correctAnswer = num1 - num2;
+                        problem = `${num1} - ${num2} = ؟`;
+                        break;
+                    case '×':
+                        correctAnswer = num1 * num2;
+                        problem = `${num1} × ${num2} = ؟`;
+                        break;
+                }
+                
+                problemText.textContent = problem;
+                
+                // توليد خيارات الإجابة
+                optionsContainer.innerHTML = '';
+                const answers = [correctAnswer];
+                
+                // إضافة إجابات خاطئة
+                while (answers.length < 4) {
+                    const wrongAnswer = correctAnswer + (Math.floor(Math.random() * 5) - 2);
+                    if (wrongAnswer !== correctAnswer && !answers.includes(wrongAnswer) && wrongAnswer > 0) {
+                        answers.push(wrongAnswer);
+                    }
+                }
+                
+                // خلط الإجابات
+                answers.sort(() => Math.random() - 0.5);
+                
+                // عرض الخيارات
+                answers.forEach(answer => {
+                    const option = document.createElement('button');
+                    option.className = 'option';
+                    option.textContent = answer;
+                    option.addEventListener('click', function() {
+                        checkAnswer(answer, correctAnswer);
+                    });
+                    optionsContainer.appendChild(option);
+                });
+                
+                mathProblem.style.display = 'block';
+            }
+            
+            function checkAnswer(selected, correct) {
+                if (selected === correct) {
+                    // الإجابة صحيحة - زرع البذرة
+                    plantSeed(currentPlot, selectedSeed);
+                    showFeedback('أحسنت!', '#4CAF50');
+                    score += 10;
+                    scoreDisplay.textContent = score;
+                } else {
+                    // الإجابة خاطئة
+                    showFeedback('حاول مرة أخرى!', '#F44336');
+                }
+                
+                mathProblem.style.display = 'none';
+                selectedSeed = null;
+                seeds.forEach(s => s.style.backgroundColor = 'transparent');
+            }
+            
+            function plantSeed(plot, seedType) {
+                const cost = parseInt(document.querySelector(`.seed[data-type="${seedType}"]`).dataset.cost);
+                money -= cost;
+                moneyDisplay.textContent = money;
+                
+                plot.dataset.state = 'planted';
+                plot.dataset.type = seedType;
+                plot.dataset.progress = '0';
+                
+                const plant = document.createElement('div');
+                plant.className = 'plant';
+                plant.style.backgroundImage = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%234CAF50" d="M12,2L4,22H20L12,2Z"/></svg>')`;
+                
+                const progressBar = document.createElement('div');
+                progressBar.className = 'progress-bar';
+                
+                const progress = document.createElement('div');
+                progress.className = 'progress';
+                progressBar.appendChild(progress);
+                
+                plant.appendChild(progressBar);
+                plot.innerHTML = '';
+                plot.appendChild(plant);
+                
+                // نمو النبات
+                const growthInterval = setInterval(() => {
+                    const currentProgress = parseInt(plot.dataset.progress);
+                    if (currentProgress < 100) {
+                        plot.dataset.progress = currentProgress + 5;
+                        progress.style.width = `${currentProgress + 5}%`;
+                        
+                        // تغيير شكل النبات أثناء النمو
+                        if (currentProgress > 30) {
+                            plant.style.transform = 'scale(1.2)';
+                        }
+                        if (currentProgress > 70) {
+                            plant.style.transform = 'scale(1.5)';
+                        }
+                    } else {
+                        clearInterval(growthInterval);
+                        plot.dataset.state = 'ready';
+                        
+                        // تغيير شكل النبات الناضج
+                        let plantSvg = '';
+                        switch(seedType) {
+                            case 'carrot':
+                                plantSvg = '<path fill="%23FF9800" d="M16,10L14,8L13,9L15,11L9,17L7,15L8,14L6,12L4,16L8,14L10,16L16,10Z"/>';
+                                break;
+                            case 'wheat':
+                                plantSvg = '<path fill="%23FFEB3B" d="M22,12L18,8L15,11L13,9L12,10L14,12L11,15L9,13L10,12L12,14L8,18L12,22L12,12L22,12Z"/>';
+                                break;
+                            case 'tomato':
+                                plantSvg = '<circle cx="12" cy="12" r="10" fill="%23F44336"/>';
+                                break;
+                        }
+                        
+                        plant.style.backgroundImage = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">${plantSvg}</svg>')`;
+                    }
+                }, 500);
+            }
+            
+            function harvestPlot(plot) {
+                const seedType = plot.dataset.type;
+                let earnings = 0;
+                
+                switch(seedType) {
+                    case 'carrot':
+                        earnings = 20;
+                        break;
+                    case 'wheat':
+                        earnings = 30;
+                        break;
+                    case 'tomato':
+                        earnings = 40;
+                        break;
+                }
+                
+                money += earnings;
+                moneyDisplay.textContent = money;
+                
+                plot.dataset.state = 'empty';
+                plot.innerHTML = '';
+                
+                showFeedback(`+${earnings}`, '#FFD700');
+            }
+            
+            function showFeedback(message, color) {
+                feedback.textContent = message;
+                feedback.style.color = color;
+                feedback.style.opacity = 1;
+                
+                setTimeout(() => {
+                    feedback.style.opacity = 0;
+                }, 1000);
+            }
+            
+            function createClouds() {
+                for (let i = 0; i < 5; i++) {
+                    const cloud = document.createElement('div');
+                    cloud.className = 'cloud';
+                    
+                    const size = 50 + Math.random() * 100;
+                    const left = Math.random() * 100;
+                    const top = Math.random() * 30;
+                    const opacity = 0.5 + Math.random() * 0.3;
+                    
+                    cloud.style.width = `${size}px`;
+                    cloud.style.height = `${size/2}px`;
+                    cloud.style.left = `${left}%`;
+                    cloud.style.top = `${top}%`;
+                    cloud.style.opacity = opacity;
+                    
+                    // حركة الغيمة
+                    const duration = 30 + Math.random() * 50;
+                    cloud.style.animation = `move-cloud ${duration}s linear infinite`;
+                    
+                    document.body.appendChild(cloud);
+                }
+            }
+            
+            // تعريف حركة الغيوم
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes move-cloud {
+                    from { transform: translateX(100%); }
+                    to { transform: translateX(-100%); }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html>

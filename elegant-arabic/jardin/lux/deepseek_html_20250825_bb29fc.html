@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>مغامرة أدوات الاستفهام - لعبة تعليمية ممتعة</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #a1eafb 0%, #fccbcb 100%);
+            text-align: center;
+            direction: rtl;
+            padding: 20px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        #game-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 25px;
+            padding: 30px;
+            max-width: 700px;
+            margin: 20px auto;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            position: relative;
+            border: 5px solid #ffcc70;
+            animation: containerBounce 3s infinite alternate;
+        }
+        
+        .character {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 15px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="40" r="30" fill="%23FFD166"/><circle cx="50" cy="40" r="20" fill="%23FFE8A3"/><circle cx="40" cy="35" r="5" fill="%23333"/><circle cx="60" cy="35" r="5" fill="%23333"/><path d="M40 55 Q50 65 60 55" stroke="%23333" stroke-width="2" fill="none"/><circle cx="30" cy="25" r="5" fill="%23FF6B6B"/><circle cx="70" cy="25" r="5" fill="%2348BFE3"/></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+        }
+        
+        h1 {
+            color: #118ab2;
+            font-size: 32px;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 0px #ffd166;
+            position: relative;
+            display: inline-block;
+        }
+        
+        h1::after {
+            content: "";
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #118ab2);
+            border-radius: 4px;
+        }
+        
+        #sentence-container {
+            background-color: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 25px 0;
+            border: 3px dashed #48bfe3;
+            position: relative;
+            animation: float 4s ease-in-out infinite;
+        }
+        
+        #sentence {
+            font-size: 26px;
+            color: #073b4c;
+            font-weight: bold;
+            padding: 10px;
+        }
+        
+        #options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 25px 0;
+        }
+        
+        .option-btn {
+            padding: 15px 25px;
+            font-size: 20px;
+            background: linear-gradient(to bottom, #ffd166, #ffb74d);
+            color: #073b4c;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 0 #e99f2c;
+            font-weight: bold;
+            min-width: 120px;
+        }
+        
+        .option-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 0 #e99f2c;
+            background: linear-gradient(to bottom, #ffd978, #ffc266);
+        }
+        
+        .option-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 3px 0 #e99f2c;
+        }
+        
+        .option-btn.wrong {
+            animation: shake 0.5s ease;
+            background: linear-gradient(to bottom, #ff6b6b, #ef476f);
+            box-shadow: 0 5px 0 #d90429;
+        }
+        
+        .option-btn.correct {
+            background: linear-gradient(to bottom, #06d6a0, #04a577);
+            box-shadow: 0 5px 0 #038c65;
+            animation: celebrate 0.8s ease;
+        }
+        
+        #result {
+            font-size: 24px;
+            margin-top: 20px;
+            font-weight: bold;
+            min-height: 40px;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        
+        .correct-text {
+            color: #06d6a0;
+            animation: popIn 0.5s ease;
+        }
+        
+        .wrong-text {
+            color: #ef476f;
+        }
+        
+        #score {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: #118ab2;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 50px;
+            font-weight: bold;
+            box-shadow: 0 4px 0 #073b4c;
+        }
+        
+        #progress {
+            height: 15px;
+            background: #e9ecef;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        #progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #118ab2);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background-color: #f00;
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        @keyframes containerBounce {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-10px); }
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+        
+        @keyframes celebrate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes confettiFall {
+            0% { 
+                transform: translateY(0) rotate(0); 
+                opacity: 1;
+            }
+            100% { 
+                transform: translateY(100vh) rotate(720deg); 
+                opacity: 0;
+            }
+        }
+        
+        .star {
+            position: absolute;
+            font-size: 24px;
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .celebration-text {
+            font-size: 32px;
+            font-weight: bold;
+            color: #118ab2;
+            text-shadow: 2px 2px 0 #ffd166;
+            animation: popIn 0.5s ease forwards;
+        }
+        
+        .feedback {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-weight: bold;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .positive-feedback {
+            background: linear-gradient(to right, #06d6a0, #4ecdc4);
+            color: white;
+        }
+        
+        .negative-feedback {
+            background: linear-gradient(to right, #ff6b6b, #ef476f);
+            color: white;
+        }
+        
+        @media (max-width: 600px) {
+            #game-container {
+                padding: 20px;
+            }
+            
+            .option-btn {
+                padding: 12px 20px;
+                font-size: 18px;
+                min-width: 100px;
+            }
+            
+            #sentence {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="score">النقاط: <span id="score-value">0</span></div>
+        <div class="character"></div>
+        <h1>مغامرة أدوات الاستفهام</h1>
+        
+        <div id="progress">
+            <div id="progress-bar"></div>
+        </div>
+        
+        <div id="sentence-container">
+            <div id="sentence"></div>
+        </div>
+        
+        <div id="options"></div>
+        
+        <div id="result"></div>
+    </div>
+    
+    <div id="confetti-container"></div>
+    <div id="stars"></div>
+    
+    <div id="feedback" class="feedback"></div>
+
+    <script>
+        const questions = [
+            { text: "..... حالك اليوم؟", answer: "كيف" },
+            { text: "..... في البيتِ أحدٌ؟", answer: "هل" },
+            { text: "..... أخرج ولم أجهز بعد؟", answer: "أ" },
+            { text: "..... تصميمٍ أعجبك؟", answer: "أيّ" },
+            { text: "..... هو جدّك؟", answer: "من" },
+            { text: "..... أخبار المشروع؟", answer: "ما" },
+            { text: "..... وجدت في السوق؟", answer: "ماذا" },
+            { text: "..... ستسافر هذا الصيف؟", answer: "أين" },
+            { text: "..... ينتهي الفصل الدراسيّ؟", answer: "متى" },
+            { text: "..... عالمًا أردنيًّا رشّح لجائزة نوبل؟", answer: "كم" },
+            { text: "..... موعد الامتحان النصفيّ؟", answer: "أيّان" },
+            { text: "..... زرعت في هذا الشهر؟", answer: "ماذا" }
+        ];
+
+        const options = ["ماذا", "من", "ما", "كيف", "هل", "أيّ", "أين", "متى", "كم", "أيّان", "أ"];
+        const positiveMessages = ["أحسنت!", "ممتاز!", "رائع!", "ذهبي!", "عبقري!", "إجابة صحيحة!"];
+        const negativeMessages = ["حاول مرة أخرى!", "لا بأس!", "أنت قريب من الإجابة!", "فكر قليلاً!", "جرّب خياراً آخر!"];
+
+        let current = 0;
+        let score = 0;
+
+        const sentenceEl = document.getElementById("sentence");
+        const optionsEl = document.getElementById("options");
+        const resultEl = document.getElementById("result");
+        const scoreEl = document.getElementById("score-value");
+        const progressBar = document.getElementById("progress-bar");
+        const feedbackEl = document.getElementById("feedback");
+
+        function showQuestion() {
+            resultEl.textContent = "";
+            const q = questions[current];
+            sentenceEl.textContent = q.text;
+            optionsEl.innerHTML = "";
+            
+            // خلط الخيارات عشوائياً
+            const shuffledOptions = [...options].sort(() => Math.random() - 0.5);
+            
+            shuffledOptions.forEach(opt => {
+                const btn = document.createElement("button");
+                btn.className = "option-btn";
+                btn.textContent = opt;
+                btn.onclick = () => checkAnswer(opt, btn);
+                optionsEl.appendChild(btn);
+            });
+            
+            // تحديث شريط التقدم
+            progressBar.style.width = `${(current / questions.length) * 100}%`;
+        }
+
+        function checkAnswer(selected, button) {
+            const correct = questions[current].answer;
+            if (selected === correct) {
+                // إجابة صحيحة
+                button.classList.add("correct");
+                score += 10;
+                scoreEl.textContent = score;
+                resultEl.innerHTML = `<span class="correct-text">${getRandomPositiveMessage()}</span>`;
+                createConfetti();
+                showFeedback(true);
+                
+                current++;
+                if (current < questions.length) {
+                    setTimeout(showQuestion, 1500);
+                } else {
+                    setTimeout(endGame, 1500);
+                }
+            } else {
+                // إجابة خاطئة
+                button.classList.add("wrong");
+                resultEl.innerHTML = `<span class="wrong-text">${getRandomNegativeMessage()}</span>`;
+                showFeedback(false);
+                
+                // خفض النقاط عند الخطأ (ولكن ليس أقل من الصفر)
+                score = Math.max(0, score - 2);
+                scoreEl.textContent = score;
+            }
+        }
+
+        function getRandomPositiveMessage() {
+            return positiveMessages[Math.floor(Math.random() * positiveMessages.length)];
+        }
+
+        function getRandomNegativeMessage() {
+            return negativeMessages[Math.floor(Math.random() * negativeMessages.length)];
+        }
+
+        function showFeedback(isPositive) {
+            feedbackEl.textContent = isPositive ? getRandomPositiveMessage() : getRandomNegativeMessage();
+            feedbackEl.className = isPositive ? "feedback positive-feedback" : "feedback negative-feedback";
+            feedbackEl.style.opacity = "1";
+            
+            setTimeout(() => {
+                feedbackEl.style.opacity = "0";
+            }, 1500);
+        }
+
+        function endGame() {
+            sentenceEl.textContent = "تهانينا! لقد أكملت المغامرة!";
+            optionsEl.innerHTML = "";
+            resultEl.innerHTML = `<div class="celebration-text">نهائياتك: ${score} نقطة!</div>`;
+            progressBar.style.width = "100%";
+            createStarBurst();
+            
+            // إضافة زر لإعادة اللعبة
+            const restartBtn = document.createElement("button");
+            restartBtn.className = "option-btn";
+            restartBtn.textContent = "العب مرة أخرى";
+            restartBtn.onclick = () => {
+                current = 0;
+                score = 0;
+                scoreEl.textContent = "0";
+                showQuestion();
+            };
+            optionsEl.appendChild(restartBtn);
+        }
+
+        function createConfetti() {
+            const confettiContainer = document.getElementById("confetti-container");
+            const colors = ['#ff6b6b', '#4ecdc4', '#118ab2', '#ffd166', '#06d6a0', '#ef476f'];
+            
+            for (let i = 0; i < 30; i++) {
+                const confetti = document.createElement("div");
+                confetti.className = "confetti";
+                confetti.style.left = Math.random() * 100 + "%";
+                confetti.style.top = "0";
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = (10 + Math.random() * 10) + "px";
+                confetti.style.height = (10 + Math.random() * 10) + "px";
+                confetti.style.borderRadius = Math.random() > 0.5 ? "50%" : "0";
+                
+                confettiContainer.appendChild(confetti);
+                
+                // إضافة حركة متقاطعة
+                const animationDuration = 1 + Math.random() * 2;
+                confetti.style.animation = `confettiFall ${animationDuration}s linear forwards`;
+                
+                // إزالة العنصر بعد انتهاء الحركة
+                setTimeout(() => {
+                    confetti.remove();
+                }, animationDuration * 1000);
+            }
+        }
+
+        function createStarBurst() {
+            const starsContainer = document.getElementById("stars");
+            for (let i = 0; i < 20; i++) {
+                const star = document.createElement("div");
+                star.className = "star";
+                star.textContent = "⭐";
+                star.style.position = "absolute";
+                star.style.fontSize = (24 + Math.random() * 20) + "px";
+                star.style.left = Math.random() * window.innerWidth + "px";
+                star.style.top = Math.random() * window.innerHeight + "px";
+                star.style.animation = `starBurst 1.5s ease-out ${i * 0.1}s forwards`;
+                starsContainer.appendChild(star);
+                setTimeout(() => star.remove(), 1500 + (i * 100));
+            }
+        }
+
+        // بدء اللعبة
+        showQuestion();
+        
+        // إضافة حركة متقاطعة مستمرة في الخلفية
+        function addBackgroundAnimation() {
+            setInterval(() => {
+                if (Math.random() > 0.7) {
+                    createConfetti();
+                }
+            }, 3000);
+        }
+        
+        addBackgroundAnimation();
+    </script>
+</body>
+</html>

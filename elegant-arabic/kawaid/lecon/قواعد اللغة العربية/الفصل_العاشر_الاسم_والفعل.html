@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>الفصل الثالث عشر: أدوات الاستفهام</title>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: #e0f7fa;
+      color: #006064;
+      padding: 20px;
+    }
+    .container {
+      max-width: 850px;
+      margin: auto;
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 30px 40px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+    }
+    h1, h2 {
+      color: #006064;
+    }
+    .rule {
+      background: #b2ebf2;
+      border-right: 6px solid #00acc1;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 25px 0;
+    }
+    .exercise {
+      background: #e0f2f1;
+      border-right: 6px solid #4dd0e1;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 25px 0;
+    }
+    .result {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .correct { color: green; }
+    .incorrect { color: red; }
+    select, input[type="text"] {
+      padding: 6px;
+      margin: 6px;
+      border: 2px solid #0097a7;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    button {
+      background-color: #0097a7;
+      color: white;
+      padding: 8px 18px;
+      border-radius: 10px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #007c91;
+    }
+    .question-box {
+      display: inline-block;
+      background: #b2ebf2;
+      padding: 10px 16px;
+      margin: 5px;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .drop-target {
+      display: inline-block;
+      min-width: 80px;
+      border: 2px dashed #4dd0e1;
+      padding: 10px;
+      margin: 5px;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🗣️ الفصل الثالث عشر: أدوات الاستفهام</h1>
+
+    <div class="rule">
+      <h2>📘 القاعدة:</h2>
+      <p>أدوات الاستفهام تُستخدم لطرح الأسئلة، مثل:</p>
+      <ul>
+        <li><strong>من؟</strong> للسؤال عن العاقل</li>
+        <li><strong>ما؟</strong> للسؤال عن غير العاقل</li>
+        <li><strong>أين؟</strong> للسؤال عن المكان</li>
+        <li><strong>متى؟</strong> للسؤال عن الزمان</li>
+        <li><strong>لماذا؟</strong> للسؤال عن السبب</li>
+        <li><strong>كيف؟</strong> للسؤال عن الحال</li>
+      </ul>
+    </div>
+
+    <div class="exercise">
+      <h2>🎯 تمرين 1: اختر أداة الاستفهام المناسبة</h2>
+      <p>1. ________ تذهب في العطلة؟ <select data-answer="أين"><option value="">اختر</option><option>من</option><option>ما</option><option>أين</option><option>لماذا</option></select></p>
+      <p>2. ________ يأكل التفاحة؟ <select data-answer="من"><option value="">اختر</option><option>من</option><option>ما</option><option>كيف</option><option>متى</option></select></p>
+      <p>3. ________ تأخرت عن المدرسة؟ <select data-answer="لماذا"><option value="">اختر</option><option>من</option><option>متى</option><option>لماذا</option><option>أين</option></select></p>
+      <p>4. ________ تشعر الآن؟ <select data-answer="كيف"><option value="">اختر</option><option>كيف</option><option>من</option><option>ما</option><option>متى</option></select></p>
+      <button onclick="checkSelects()">تحقق من الإجابات</button>
+      <div id="selectResult" class="result"></div>
+    </div>
+
+    <div class="exercise">
+      <h2>🎮 تمرين 2: لعبة السحب والإفلات</h2>
+      <p>اسحب أداة الاستفهام إلى مكانها الصحيح في السؤال:</p>
+      <p>
+        <span class="drop-target" id="q1"></span> تأكل في الفطور؟
+      </p>
+      <p>
+        <span class="drop-target" id="q2"></span> كتب هذا الدرس؟
+      </p>
+      <p>
+        <span class="drop-target" id="q3"></span> موعد الامتحان؟
+      </p>
+      <div>
+        <span class="question-box" draggable="true" ondragstart="drag(event)" id="word1">متى</span>
+        <span class="question-box" draggable="true" ondragstart="drag(event)" id="word2">من</span>
+        <span class="question-box" draggable="true" ondragstart="drag(event)" id="word3">ماذا</span>
+      </div>
+      <button onclick="checkDragDrop()">تحقق من اللعبة</button>
+      <div id="dragResult" class="result"></div>
+    </div>
+  </div>
+
+  <script>
+    function checkSelects() {
+      const selects = document.querySelectorAll('select');
+      let correct = 0;
+      selects.forEach(select => {
+        if (select.value === select.getAttribute('data-answer')) correct++;
+      });
+      const result = document.getElementById('selectResult');
+      result.textContent = correct === selects.length ? '✅ جميع الإجابات صحيحة!' : '❌ تحقق من اختياراتك.';
+      result.className = correct === selects.length ? 'result correct' : 'result incorrect';
+    }
+
+    let draggedId = "";
+    function drag(e) {
+      draggedId = e.target.id;
+    }
+
+    document.querySelectorAll(".drop-target").forEach(target => {
+      target.addEventListener("dragover", e => e.preventDefault());
+      target.addEventListener("drop", e => {
+        e.preventDefault();
+        const draggedElem = document.getElementById(draggedId);
+        e.target.textContent = draggedElem.textContent;
+        e.target.setAttribute("data-word", draggedElem.textContent);
+      });
+    });
+
+    function checkDragDrop() {
+      const q1 = document.getElementById("q1").getAttribute("data-word");
+      const q2 = document.getElementById("q2").getAttribute("data-word");
+      const q3 = document.getElementById("q3").getAttribute("data-word");
+      const result = document.getElementById("dragResult");
+      if (q1 === "ماذا" && q2 === "من" && q3 === "متى") {
+        result.textContent = "✅ ممتاز! لقد وضعت الأدوات في أماكنها الصحيحة!";
+        result.className = "result correct";
+      } else {
+        result.textContent = "❌ بعض الأدوات ليست في مكانها الصحيح، حاول مجددًا.";
+        result.className = "result incorrect";
+      }
+    }
+  </script>
+</body>
+</html>

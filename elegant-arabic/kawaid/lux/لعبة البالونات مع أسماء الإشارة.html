@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة البالونات مع أسماء الإشارة</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+            direction: rtl;
+        }
+        
+        #game-container {
+            position: relative;
+            width: 100%;
+            height: 70vh;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #e6f7ff;
+            margin-bottom: 20px;
+        }
+        
+        .balloon {
+            position: absolute;
+            width: 80px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: inset -5px -5px 10px rgba(0,0,0,0.2);
+        }
+        
+        .balloon:hover {
+            transform: scale(1.1);
+        }
+        
+        #word-display {
+            font-size: 28px;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        #score-display, #time-display {
+            font-size: 24px;
+            margin: 10px;
+            display: inline-block;
+        }
+        
+        #controls {
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 10px;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>لعبة البالونات مع أسماء الإشارة</h1>
+    <p>اضغط على البالون الذي يحمل اسم الإشارة المناسب للكلمة المعروضة</p>
+    
+    <div id="score-display">النقاط: 0</div>
+    <div id="time-display">الوقت المتبقي: 60</div>
+    
+    <div id="game-container"></div>
+    
+    <div id="word-display"></div>
+    
+    <div id="controls">
+        <button id="start-btn">بدء اللعبة</button>
+        <button id="reset-btn">إعادة تشغيل</button>
+    </div>
+
+    <script>
+        // الكلمات (أشخاص، حيوانات، نباتات، أشياء)
+        const words = [
+            "محمد", "أحمد", "فاطمة", "خالد", // أشخاص
+            "أسد", "قطة", "فيل", "عصفور", // حيوانات
+            "شجرة", "وردة", "تفاحة", "قمح", // نباتات
+            "كتاب", "قلم", "سيارة", "منزل" // أشياء
+        ];
+        
+        // أسماء الإشارة
+        const signals = [
+            "هذا", "هذه", "هذان", "هاتان",
+            "هؤلاء", "ذلك", "تلك", "ذانك",
+            "تانك", "أولئك"
+        ];
+        
+        // ألوان البالونات
+        const colors = ['#FF5252', '#FF4081', '#E040FB', '#7C4DFF', '#536DFE', '#448AFF', '#40C4FF', '#18FFFF', '#64FFDA', '#69F0AE', '#B2FF59', '#EEFF41', '#FFFF00', '#FFD740', '#FFAB40', '#FF6E40'];
+        
+        let score = 0;
+        let timeLeft = 60;
+        let gameInterval;
+        let balloons = [];
+        let currentWord = "";
+        let correctSignal = "";
+        
+        const gameContainer = document.getElementById('game-container');
+        const wordDisplay = document.getElementById('word-display');
+        const scoreDisplay = document.getElementById('score-display');
+        const timeDisplay = document.getElementById('time-display');
+        const startBtn = document.getElementById('start-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        
+        // بدء اللعبة
+        startBtn.addEventListener('click', startGame);
+        resetBtn.addEventListener('click', resetGame);
+        
+        function startGame() {
+            score = 0;
+            timeLeft = 60;
+            scoreDisplay.textContent = `النقاط: ${score}`;
+            timeDisplay.textContent = `الوقت المتبقي: ${timeLeft}`;
+            startBtn.disabled = true;
+            
+            // بدء المؤقت
+            gameInterval = setInterval(() => {
+                timeLeft--;
+                timeDisplay.textContent = `الوقت المتبقي: ${timeLeft}`;
+                
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+            
+            // إنشاء بالونات جديدة كل 3 ثواني
+            setInterval(createBalloons, 3000);
+            
+            // عرض كلمة جديدة
+            showNewWord();
+        }
+        
+        function resetGame() {
+            clearInterval(gameInterval);
+            gameContainer.innerHTML = '';
+            wordDisplay.textContent = '';
+            balloons = [];
+            startBtn.disabled = false;
+        }
+        
+        function endGame() {
+            clearInterval(gameInterval);
+            gameContainer.innerHTML = '';
+            wordDisplay.textContent = `انتهى الوقت! نقاطك النهائية: ${score}`;
+            startBtn.disabled = false;
+        }
+        
+        function showNewWord() {
+            currentWord = words[Math.floor(Math.random() * words.length)];
+            
+            // تحديد اسم الإشارة المناسب حسب نوع الكلمة
+            if (currentWord === "محمد" || currentWord === "أحمد" || currentWord === "خالد") {
+                correctSignal = "هذا";
+            } else if (currentWord === "فاطمة") {
+                correctSignal = "هذه";
+            } else if (currentWord === "أسد" || currentWord === "فيل") {
+                correctSignal = "هذا";
+            } else if (currentWord === "قطة" || currentWord === "تفاحة" || currentWord === "وردة") {
+                correctSignal = "هذه";
+            } else if (currentWord === "عصفور") {
+                correctSignal = "هذا";
+            } else if (currentWord === "شجرة" || currentWord === "كتاب" || currentWord === "سيارة") {
+                correctSignal = "هذه";
+            } else if (currentWord === "قلم" || currentWord === "منزل" || currentWord === "قمح") {
+                correctSignal = "هذا";
+            } else {
+                correctSignal = signals[Math.floor(Math.random() * signals.length)];
+            }
+            
+            wordDisplay.textContent = currentWord;
+        }
+        
+        function createBalloons() {
+            // إزالة البالونات القديمة
+            gameContainer.innerHTML = '';
+            balloons = [];
+            
+            // إنشاء 6 بالونات عشوائية
+            for (let i = 0; i < 6; i++) {
+                const balloon = document.createElement('div');
+                balloon.className = 'balloon';
+                
+                // اختيار إشارة عشوائية (واحدة منها صحيحة)
+                let signal;
+                if (i === 0) {
+                    signal = correctSignal;
+                } else {
+                    signal = signals[Math.floor(Math.random() * signals.length)];
+                    // تجنب تكرار الإشارة الصحيحة
+                    while (signal === correctSignal) {
+                        signal = signals[Math.floor(Math.random() * signals.length)];
+                    }
+                }
+                
+                balloon.textContent = signal;
+                balloon.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                // وضع عشوائي
+                const left = Math.random() * (gameContainer.offsetWidth - 80);
+                const top = Math.random() * (gameContainer.offsetHeight - 100);
+                balloon.style.left = `${left}px`;
+                balloon.style.top = `${top}px`;
+                
+                // حركة البالون (تم تقليل السرعة)
+                const speedX = (Math.random() - 0.5) * 0.5; // تقليل السرعة إلى النصف
+                const speedY = (Math.random() - 0.5) * 0.5; // تقليل السرعة إلى النصف
+                
+                balloon.addEventListener('click', () => {
+                    if (balloon.textContent === correctSignal) {
+                        score += 10;
+                        scoreDisplay.textContent = `النقاط: ${score}`;
+                        balloon.style.transform = 'scale(1.5)';
+                        setTimeout(() => {
+                            balloon.remove();
+                            showNewWord();
+                            createBalloons();
+                        }, 300);
+                    } else {
+                        score = Math.max(0, score - 5);
+                        scoreDisplay.textContent = `النقاط: ${score}`;
+                        balloon.style.backgroundColor = '#FF0000';
+                    }
+                });
+                
+                gameContainer.appendChild(balloon);
+                balloons.push({element: balloon, speedX, speedY});
+            }
+            
+            // تحريك البالونات
+            moveBalloons();
+        }
+        
+        function moveBalloons() {
+            function animate() {
+                balloons.forEach(balloonObj => {
+                    const balloon = balloonObj.element;
+                    let left = parseFloat(balloon.style.left);
+                    let top = parseFloat(balloon.style.top);
+                    
+                    left += balloonObj.speedX;
+                    top += balloonObj.speedY;
+                    
+                    // ارتداد من الحواف
+                    if (left <= 0 || left >= gameContainer.offsetWidth - 80) {
+                        balloonObj.speedX *= -1;
+                    }
+                    
+                    if (top <= 0 || top >= gameContainer.offsetHeight - 100) {
+                        balloonObj.speedY *= -1;
+                    }
+                    
+                    balloon.style.left = `${left}px`;
+                    balloon.style.top = `${top}px`;
+                });
+                
+                if (balloons.length > 0) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            
+            animate();
+        }
+    </script>
+</body>
+</html>

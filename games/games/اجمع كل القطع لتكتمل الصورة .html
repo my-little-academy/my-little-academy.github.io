@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>كنز المعرفة: اكتشف الإيمان!</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-treasure: #FFD700; /* ذهبي للكنز */
+            --secondary-treasure: #28B463; /* أخضر للنمو والإنجاز */
+            --background-treasure: #FDFEFE; /* أبيض ناصع مع تدرج خفيف */
+            --text-color-treasure: #34495E; /* رمادي غامق للنصوص */
+            --card-bg-treasure: rgba(255, 255, 255, 0.98);
+            --shadow-treasure: 0 15px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, var(--background-treasure) 0%, #D6EAF8 100%); /* تدرج أزرق سماوي فاتح جداً */
+            color: var(--text-color-treasure);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 1200px;
+            background: var(--card-bg-treasure);
+            border-radius: 35px;
+            padding: 40px;
+            box-shadow: var(--shadow-treasure);
+            text-align: center;
+            animation: fadeInScale 1s ease-out;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Header */
+        h1 {
+            font-size: 3.8rem;
+            color: var(--primary-treasure);
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
+            animation: bounceInDown 1.2s ease-out;
+        }
+
+        .game-description-text {
+            font-size: 1.7rem;
+            color: #5D6D7E;
+            margin-bottom: 30px;
+            line-height: 1.7;
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        /* Game Layout */
+        .game-layout {
+            display: flex;
+            flex-direction: row;
+            gap: 40px;
+            justify-content: center;
+            align-items: flex-start; /* Align items to the top */
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+        }
+
+        /* Treasure Map Area */
+        .treasure-map-area {
+            flex: 1;
+            min-width: 400px;
+            max-width: 550px;
+            background-color: #EBF5FB; /* لون خفيف لخريطة الكنز */
+            border: 4px solid var(--secondary-treasure);
+            border-radius: 25px;
+            padding: 20px;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.05);
+            animation: zoomIn 1s ease-out 0.8s;
+            position: relative;
+        }
+
+        .treasure-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3x3 grid for the treasure */
+            grid-template-rows: repeat(3, 1fr);
+            gap: 5px;
+            width: 100%;
+            padding-bottom: 100%; /* Makes height equal to width for perfect square grid */
+            position: relative;
+        }
+
+        .treasure-grid img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Ensure the image fits */
+            border-radius: 20px;
+            opacity: 0; /* Hidden by default */
+            transition: opacity 1s ease-out;
+        }
+
+        /* Hidden overlay for treasure pieces */
+        .treasure-piece-cover {
+            position: absolute;
+            background-color: #90A4AE; /* لون رمادي لقطع اللغز المخفية */
+            border: 1px solid rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: bold;
+            transition: opacity 0.8s ease-out;
+            opacity: 1;
+            cursor: default;
+            user-select: none;
+            border-radius: 5px;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.1);
+        }
+
+        /* Grid specific positioning for covers */
+        .treasure-piece-cover:nth-child(1) { top: 0; left: 0; width: calc(33.33% - 3.33px); height: calc(33.33% - 3.33px); }
+        .treasure-piece-cover:nth-child(2) { top: 0; left: calc(33.33% + 1.67px); width: calc(33.33% - 3.33px); height: calc(33.33% - 3.33px); }
+        .treasure-piece-cover:nth-child(3) { top: 0; left: calc(66.66% + 3.34px); width: calc(33.33% - 3.33px); height: calc(33.33% - 3.33px); }
+        .treasure-piece-cover:nth-child(4) { top: calc(33.33% + 1.67px); left: 0; width: calc(33.33% - 3.33px); height: calc(33.33% - 3.33px); }
+        .treasure-piece-cover:nth-child(5) { top: calc(33.33% + 1.67px); left: calc(33.33% + 1.67px); width: calc(33.33% - 3.33px); height: calc(33.33% - 3.33px); }
+        .treasure-piece-cover:nth-child(6) { top: calc(33.33% + 1.67px); left: calc(66.66% + 3.34px); width: calc(33.33% - 3.33px); height: calc(33.33% - 3.33px); }
+        .treasure-piece-cover:nth-child(7) { top: calc(66.66% + 3.34px); left: 0; width: calc(33.33% - 3.33px); height: calc(33.33% - 3.33px); }
+        .treasure-piece-cover:nth-child(8) { top: calc(66.66% + 3.34px); left: calc(33.33% + 1.67px); width: calc(33.33% - 3.33px); height: calc(33.33% - 3.33px); }
+        .treasure-piece-cover:nth-child(9) { top: calc(66.66% + 3.34px); left: calc(66.66% + 3.34px); width: calc(33.33% - 3.33px); height: calc(33.33% - 3.33px); }
+
+
+        .treasure-piece-cover.revealed {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Question & Feedback Area */
+        .question-feedback-area {
+            flex: 1;
+            min-width: 400px;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .current-question-info {
+            font-size: 1.5rem;
+            color: var(--text-color-treasure);
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .question-box {
+            background-color: #F8F9F9;
+            border: 2px solid #D6DBDF;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            min-height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            animation: zoomIn 0.8s ease-out;
+        }
+
+        .question-box .icon {
+            font-size: 3.5rem;
+            color: var(--primary-treasure);
+            margin-bottom: 20px;
+        }
+
+        .question-box p {
+            font-size: 2.1rem;
+            font-weight: bold;
+            line-height: 1.6;
+        }
+
+        .answer-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .answer-button {
+            background-color: var(--secondary-treasure);
+            color: white;
+            padding: 18px 25px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .answer-button:hover:not(.correct):not(.incorrect):not(.disabled) {
+            background-color: #2ECC71; /* أخضر أغمق قليلاً */
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .answer-button.correct {
+            background-color: var(--primary-treasure);
+            animation: pulse 0.6s 2;
+            pointer-events: none;
+            color: var(--text-color-treasure); /* Text color for correct button */
+        }
+        .answer-button.correct i {
+            color: var(--secondary-treasure);
+        }
+
+        .answer-button.incorrect {
+            background-color: #E74C3C; /* أحمر */
+            animation: shake 0.5s;
+            pointer-events: none;
+        }
+
+        .answer-button.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .feedback-message {
+            min-height: 60px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-top: 20px;
+            animation: fadeIn 0.8s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .feedback-message.correct { color: var(--primary-treasure); }
+        .feedback-message.incorrect { color: #E74C3C; }
+
+        .navigation-buttons {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+        }
+
+        .next-button, .restart-button, .home-button-small {
+            background-color: #3498DB; /* أزرق متوسط */
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.6rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .next-button:hover, .restart-button:hover, .home-button-small:hover {
+            background-color: #2980B9;
+            transform: translateY(-3px);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* End Screen */
+        .end-screen {
+            text-align: center;
+            animation: zoomIn 1s ease-out;
+        }
+
+        .end-screen h2 {
+            font-size: 3.8rem;
+            color: var(--primary-treasure);
+            margin-bottom: 25px;
+            text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
+            animation: bounce 1s 3; /* A bit more lively */
+        }
+
+        .end-screen p {
+            font-size: 2.2rem;
+            color: var(--text-color-treasure);
+            margin-bottom: 40px;
+        }
+        
+        .animated-confetti {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background-color: var(--primary-treasure);
+            opacity: 0;
+            border-radius: 50%;
+            animation: fallAndFade 3s forwards ease-out;
+        }
+
+        @keyframes fallAndFade {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Top Home Button */
+        .top-home-button {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            background-color: var(--secondary-treasure);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 15px;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .top-home-button:hover {
+            background-color: #2ECC71;
+            transform: translateY(-3px);
+        }
+
+        .top-home-button i {
+            font-size: 1.5rem;
+        }
+
+        /* Media Queries for Responsiveness */
+        @media (max-width: 992px) {
+            .game-layout {
+                flex-direction: column;
+                align-items: center;
+                gap: 30px;
+            }
+            .treasure-map-area, .question-feedback-area {
+                min-width: unset;
+                width: 90%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.8rem; }
+            .game-description-text { font-size: 1.4rem; }
+            .container { padding: 30px; border-radius: 25px; }
+            .question-box p { font-size: 1.8rem; }
+            .answer-button { font-size: 1.3rem; padding: 15px 20px; }
+            .feedback-message { font-size: 1.2rem; }
+            .next-button, .restart-button, .home-button-small { font-size: 1.4rem; padding: 12px 25px; }
+            .end-screen h2 { font-size: 2.8rem; }
+            .end-screen p { font-size: 1.8rem; }
+            .treasure-map-area { min-width: 300px; }
+            .treasure-grid { padding-bottom: 100%; }
+            .treasure-piece-cover { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="animated-confetti" id="confetti-container"></div>
+
+    <a href="games_page.html" class="top-home-button animate__animated animate__bounceInRight">
+        <i class="fas fa-home"></i>
+        <span>العودة للألعاب</span>
+    </a>
+
+    <div class="container">
+        <h1 class="animate__animated animate__flipInX">كنز المعرفة: اكتشف الإيمان!</h1>
+        <p class="game-description-text">
+            يا بطل! أجب عن الأسئلة واكشف عن قطع الكنز المخفية. اجمع كل القطع لتكتمل الصورة وتكون أنت الفائز بالكنز!
+        </p>
+
+        <div class="game-layout">
+            <div class="treasure-map-area">
+                <div class="treasure-grid" id="treasureGrid">
+                    <img id="fullTreasureImage" src="treasure_image.jpg" alt="صورة الكنز">
+                    </div>
+                <p class="current-question-info">القطع المكتشفة: <span id="revealedPiecesCount">0</span> من <span id="totalPiecesCount">9</span></p>
+            </div>
+
+            <div class="question-feedback-area" id="questionArea">
+                <div class="question-box animate__animated animate__zoomIn">
+                    <div class="icon" id="questionIcon"><i class="fas fa-question-circle"></i></div>
+                    <p id="questionText">من هو خالق الكون ومدبره؟</p>
+                </div>
+
+                <div class="answer-options" id="answerOptions">
+                    </div>
+
+                <div class="feedback-message" id="feedbackMessage">
+                    </div>
+
+                <div class="navigation-buttons">
+                    <button class="next-button hidden" id="nextQuestionButton">السؤال التالي <i class="fas fa-arrow-left"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div id="end-screen" class="end-screen hidden">
+            <h2 class="animate__animated animate__heartBeat">يا له من إنجاز! لقد اكتشفت الكنز!</h2>
+            <p class="animate__animated animate__fadeIn">أنت بطل حقيقي في المعرفة والإيمان!</p>
+            <div class="navigation-buttons">
+                <button class="restart-button" id="restartButton"><i class="fas fa-redo"></i> ابدأ من جديد</button>
+                <a href="games_page.html" class="home-button-small"><i class="fas fa-gamepad"></i> العودة لقائمة الألعاب</a>
+            </div>
+        </div>
+    </div>
+
+    <audio id="correctAudio" src="correct.mp3" preload="auto"></audio>
+    <audio id="incorrectAudio" src="incorrect.mp3" preload="auto"></audio>
+    <audio id="revealAudio" src="reveal_piece.mp3" preload="auto"></audio>
+    <audio id="treasureCompleteAudio" src="treasure_complete.mp3" preload="auto"></audio>
+
+    <script>
+        const treasureQuestions = [
+            {
+                question: "ما هو الركن الأول من أركان الإيمان؟",
+                icon: "fas fa-star",
+                options: ["الصلاة", "الزكاة", "الإيمان بالله", "الصوم"],
+                answer: 2,
+                explanation: "الإيمان بالله تعالى هو أول وأعظم أركان الإيمان."
+            },
+            {
+                question: "كم عدد أركان الإيمان؟",
+                icon: "fas fa-list-ol",
+                options: ["خمسة", "ستة", "سبعة", "أربعة"],
+                answer: 1,
+                explanation: "أركان الإيمان ستة: الإيمان بالله، وملائكته، وكتبه، ورسله، واليوم الآخر، وبالقدر خيره وشره."
+            },
+            {
+                question: "من هم الذين خلقهم الله من نور؟",
+                icon: "fas fa-lightbulb",
+                options: ["البشر", "الجن", "الملائكة", "الشياطين"],
+                answer: 2,
+                explanation: "الملائكة خلقهم الله من نور وهم لا يعصون الله ما أمرهم ويفعلون ما يؤمرون."
+            },
+            {
+                question: "ما اسم الكتاب الذي أنزل على سيدنا موسى عليه السلام؟",
+                icon: "fas fa-scroll",
+                options: ["الإنجيل", "الزبور", "القرآن", "التوراة"],
+                answer: 3,
+                explanation: "التوراة هو الكتاب الذي أنزله الله على نبيّه موسى عليه السلام."
+            },
+            {
+                question: "ما هو اليوم الذي يحاسب فيه الناس على أعمالهم؟",
+                icon: "fas fa-balance-scale",
+                options: ["يوم الميلاد", "يوم القيامة", "يوم الجمعة", "يوم العيد"],
+                answer: 1,
+                explanation: "يوم القيامة هو اليوم الذي يبعث الله فيه الناس ويحاسبهم على أعمالهم."
+            },
+            {
+                question: "ما معنى الإيمان بالقدر خيره وشره؟",
+                icon: "fas fa-hand-fist",
+                options: ["أن نفعل ما نريد فقط", "أن كل شيء يحدث بإرادة الله وعلمه", "أن نتبع الآخرين", "أن نكره ما يصيبنا"],
+                answer: 1,
+                explanation: "الإيمان بالقدر يعني أن كل ما يحدث في الكون، من خير وشر، هو بتقدير الله وعلمه المسبق."
+            },
+            {
+                question: "كم عدد الرسل الذين ذكروا في القرآن الكريم؟",
+                icon: "fas fa-user-friends",
+                options: ["20", "25", "30", "15"],
+                answer: 1, // 25 prophet mentioned by name
+                explanation: "ذكر الله تعالى في القرآن الكريم 25 نبياً ورسولاً بأسمائهم."
+            },
+            {
+                question: "ما هو أعظم اسم من أسماء الله الحسنى؟",
+                icon: "fas fa-dharmachakra",
+                options: ["الرحمن", "الرحيم", "الله", "الملك"],
+                answer: 2,
+                explanation: "اسم 'الله' هو الاسم الأعظم لله تعالى."
+            },
+            {
+                question: "ما هي أول كلمة نزلت في القرآن الكريم؟",
+                icon: "fas fa-pen-nib",
+                options: ["الحمد لله", "اقرأ", "بسم الله", "قل هو الله أحد"],
+                answer: 1,
+                explanation: "أول كلمة نزلت في القرآن الكريم هي 'اقرأ' من سورة العلق."
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let revealedPieces = 0;
+        let answeredThisQuestion = false;
+
+        const totalPieces = 9; // For a 3x3 grid
+        const treasureGrid = document.getElementById('treasureGrid');
+        const revealedPiecesCountElem = document.getElementById('revealedPiecesCount');
+        const totalPiecesCountElem = document.getElementById('totalPiecesCount');
+        const questionIconElem = document.getElementById('questionIcon');
+        const questionTextElem = document.getElementById('questionText');
+        const answerOptionsElem = document.getElementById('answerOptions');
+        const feedbackMessageElem = document.getElementById('feedbackMessage');
+        const nextQuestionButton = document.getElementById('nextQuestionButton');
+        const questionArea = document.getElementById('questionArea');
+        const endScreen = document.getElementById('end-screen');
+        const restartButton = document.getElementById('restartButton');
+        const confettiContainer = document.getElementById('confetti-container');
+
+        const correctAudio = document.getElementById('correctAudio');
+        const incorrectAudio = document.getElementById('incorrectAudio');
+        const revealAudio = document.getElementById('revealAudio');
+        const treasureCompleteAudio = document.getElementById('treasureCompleteAudio');
+
+        function initializeTreasureGrid() {
+            treasureGrid.innerHTML = `<img id="fullTreasureImage" src="treasure_image.jpg" alt="صورة الكنز">`; // Add the full image back
+            for (let i = 0; i < totalPieces; i++) {
+                const cover = document.createElement('div');
+                cover.classList.add('treasure-piece-cover');
+                cover.id = `cover-${i}`;
+                cover.textContent = i + 1; // Number on the cover
+                treasureGrid.appendChild(cover);
+            }
+            document.getElementById('fullTreasureImage').style.opacity = 0; // Hide the full image initially
+        }
+
+        function loadQuestion() {
+            answeredThisQuestion = false;
+            if (currentQuestionIndex >= treasureQuestions.length) {
+                // If we run out of questions but haven't revealed all pieces, try to reveal remaining
+                if (revealedPieces < totalPieces) {
+                    revealNextPiece();
+                }
+                if (revealedPieces === totalPieces) {
+                    showEndScreen();
+                } else {
+                    // Fallback if not enough questions for all pieces, might need more questions
+                    feedbackMessageElem.innerHTML = `<p class="feedback-message">لقد أجبت على كل الأسئلة! ولكن لم تكتمل الصورة بعد. هل تريد بدء اللعب من جديد؟</p>`;
+                    nextQuestionButton.classList.remove('hidden'); // Allow user to go to end screen or restart
+                    nextQuestionButton.textContent = 'إنهاء اللعبة';
+                    nextQuestionButton.onclick = showEndScreen;
+                }
+                return;
+            }
+
+            const currentQuestion = treasureQuestions[currentQuestionIndex];
+            
+            questionIconElem.innerHTML = `<i class="${currentQuestion.icon}"></i>`;
+            questionTextElem.textContent = currentQuestion.question;
+            answerOptionsElem.innerHTML = ''; // Clear previous options
+            feedbackMessageElem.innerHTML = ''; // Clear previous feedback
+            nextQuestionButton.classList.add('hidden'); // Hide next button initially
+
+            revealedPiecesCountElem.textContent = revealedPieces;
+            totalPiecesCountElem.textContent = totalPieces;
+
+            currentQuestion.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.classList.add('answer-button', 'animate__animated', 'animate__fadeInUp');
+                button.style.animationDelay = `${index * 0.1}s`; // Stagger animation
+                button.textContent = option;
+                button.dataset.index = index;
+                button.addEventListener('click', selectAnswer);
+                answerOptionsElem.appendChild(button);
+            });
+        }
+
+        function selectAnswer(event) {
+            if (answeredThisQuestion) return;
+            answeredThisQuestion = true;
+
+            const selectedButton = event.target;
+            const selectedAnswerIndex = parseInt(selectedButton.dataset.index);
+            const currentQuestion = treasureQuestions[currentQuestionIndex];
+
+            Array.from(answerOptionsElem.children).forEach(button => {
+                button.classList.add('disabled');
+                button.removeEventListener('click', selectAnswer);
+            });
+
+            if (selectedAnswerIndex === currentQuestion.answer) {
+                selectedButton.classList.add('correct');
+                feedbackMessageElem.innerHTML = `<p class="feedback-message correct animate__animated animate__bounceIn">أحسنت يا بطل! <i class="fas fa-check-circle"></i></p>`;
+                correctAudio.play().catch(e => console.log("Correct audio failed:", e));
+                
+                // Reveal a piece of the treasure
+                setTimeout(() => {
+                    revealNextPiece();
+                }, 800); // Small delay before revealing
+                
+            } else {
+                selectedButton.classList.add('incorrect');
+                const correctAnswerButton = Array.from(answerOptionsElem.children).find(
+                    button => parseInt(button.dataset.index) === currentQuestion.answer
+                );
+                if (correctAnswerButton) {
+                    correctAnswerButton.classList.add('correct', 'animate__animated', 'animate__flash');
+                }
+                feedbackMessageElem.innerHTML = `<p class="feedback-message incorrect animate__animated animate__shakeX">حاول مرة أخرى يا شجاع! <i class="fas fa-times-circle"></i></p>`;
+                incorrectAudio.play().catch(e => console.log("Incorrect audio failed:", e));
+            }
+            nextQuestionButton.classList.remove('hidden');
+        }
+
+        function revealNextPiece() {
+            if (revealedPieces < totalPieces) {
+                const coverToReveal = document.getElementById(`cover-${revealedPieces}`);
+                if (coverToReveal) {
+                    coverToReveal.classList.add('revealed');
+                    revealAudio.play().catch(e => console.log("Reveal audio failed:", e));
+                    revealedPieces++;
+                    revealedPiecesCountElem.textContent = revealedPieces;
+                }
+            }
+
+            if (revealedPieces === totalPieces) {
+                document.getElementById('fullTreasureImage').style.opacity = 1; // Show full image
+                setTimeout(showEndScreen, 1000); // Delay for full image to appear
+            }
+        }
+
+        function showEndScreen() {
+            questionArea.classList.add('hidden');
+            endScreen.classList.remove('hidden');
+            treasureCompleteAudio.play().catch(e => console.log("Treasure complete audio failed:", e));
+            triggerConfetti();
+        }
+
+        function triggerConfetti() {
+            for (let i = 0; i < 50; i++) { // Generate 50 confetti pieces
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti-piece');
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 70%)`; // Random color
+                confetti.style.animationDelay = `${Math.random() * 0.5}s`; // Stagger delay
+                confetti.style.animationDuration = `${Math.random() * 2 + 2}s`; // Vary duration
+                confettiContainer.appendChild(confetti);
+
+                confetti.addEventListener('animationend', () => confetti.remove());
+            }
+        }
+
+        function restartGame() {
+            currentQuestionIndex = 0;
+            revealedPieces = 0;
+            questionArea.classList.remove('hidden');
+            endScreen.classList.add('hidden');
+            initializeTreasureGrid(); // Reset the treasure grid
+            loadQuestion();
+        }
+
+        // Event Listeners
+        nextQuestionButton.addEventListener('click', () => {
+            currentQuestionIndex++;
+            loadQuestion();
+        });
+        restartButton.addEventListener('click', restartGame);
+
+        // Initial Load
+        initializeTreasureGrid();
+        loadQuestion();
+    </script>
+</body>
+</html>

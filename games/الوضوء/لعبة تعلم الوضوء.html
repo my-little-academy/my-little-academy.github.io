@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة تعلم الوضوء - المسلم الصغير</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #f1c40f;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --highlight: #9b59b6;
+            --success: #2ecc71;
+            --warning: #f39c12;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e3f2fd 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header Design */
+        header {
+            background: linear-gradient(90deg, var(--primary) 0%, #2980b9 100%);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            border-radius: 0 0 30px 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
+            transform: rotate(30deg);
+            animation: shine 8s infinite linear;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(30deg); }
+            100% { transform: translateX(100%) rotate(30deg); }
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Game Container */
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            background: #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            height: 20px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--highlight));
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            position: relative;
+            width: 0%;
+        }
+        
+        .progress-bar::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, 
+                          rgba(255,255,255,0.1) 0%, 
+                          rgba(255,255,255,0.3) 50%, 
+                          rgba(255,255,255,0.1) 100%);
+            animation: progressShine 2s infinite linear;
+        }
+        
+        @keyframes progressShine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        /* Step Indicator */
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .step-indicator::before {
+            content: "";
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #e0e0e0;
+            z-index: 1;
+        }
+        
+        .step {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            color: #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            position: relative;
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .step.completed {
+            background: var(--success);
+            color: white;
+        }
+        
+        /* Game Content */
+        .game-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .step-title {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+        
+        .step-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 20px;
+            object-fit: cover;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .step-image:hover {
+            transform: scale(1.05);
+        }
+        
+        .step-description {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            color: #555;
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 5px 15px rgba(52,152,219,0.3);
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(52,152,219,0.4);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background: rgba(52,152,219,0.1);
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        /* Actions */
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        /* Feedback */
+        .feedback {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .feedback.success {
+            background: rgba(46,204,113,0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+            display: block;
+        }
+        
+        .feedback.error {
+            background: rgba(231,76,60,0.2);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            display: block;
+        }
+        
+        /* Quiz Options */
+        .quiz-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 30px;
+        }
+        
+        .option {
+            padding: 15px;
+            border-radius: 10px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: right;
+            font-size: 1.1rem;
+        }
+        
+        .option:hover {
+            border-color: var(--primary);
+            transform: translateX(-5px);
+        }
+        
+        .option.selected {
+            border-color: var(--primary);
+            background: rgba(52,152,219,0.1);
+        }
+        
+        .option.correct {
+            border-color: var(--success);
+            background: rgba(46,204,113,0.1);
+        }
+        
+        .option.wrong {
+            border-color: var(--accent);
+            background: rgba(231,76,60,0.1);
+        }
+        
+        /* Wudu Animation */
+        .wudu-animation {
+            width: 300px;
+            height: 300px;
+            position: relative;
+            margin: 0 auto 30px;
+        }
+        
+        .wudu-character {
+            width: 100%;
+            height: 100%;
+            background: url('https://i.postimg.cc/8zq7JZJk/wudu-character.png') center/contain no-repeat;
+        }
+        
+        .wudu-highlight {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(52,152,219,0.3);
+            border: 2px dashed var(--primary);
+            animation: pulse 1.5s infinite;
+            display: none;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.7; }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .game-container {
+                padding: 20px;
+            }
+            
+            .step-title {
+                font-size: 1.5rem;
+            }
+            
+            .step-image {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .wudu-animation {
+                width: 200px;
+                height: 200px;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="animate__animated animate__fadeInDown">
+        <div class="container">
+            <h1>لعبة تعلم الوضوء</h1>
+            <p style="color: rgba(255,255,255,0.9);">تعلم خطوات الوضوء الصحيح بطريقة تفاعلية</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="game-container animate__animated animate__zoomIn">
+            <!-- Progress Bar -->
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            
+            <!-- Step Indicator -->
+            <div class="step-indicator">
+                <div class="step completed" data-step="1">1</div>
+                <div class="step active" data-step="2">2</div>
+                <div class="step" data-step="3">3</div>
+                <div class="step" data-step="4">4</div>
+                <div class="step" data-step="5">5</div>
+                <div class="step" data-step="6">6</div>
+                <div class="step" data-step="7">7</div>
+                <div class="step" data-step="8">8</div>
+            </div>
+            
+            <!-- Feedback -->
+            <div class="feedback" id="feedback"></div>
+            
+            <!-- Game Content -->
+            <div class="game-content">
+                <!-- Step 1: Introduction -->
+                <div class="step-content" id="step1" style="display: block;">
+                    <h2 class="step-title">مرحباً في لعبة تعلم الوضوء</h2>
+                    <img src="https://i.postimg.cc/8zq7JZJk/wudu-intro.jpg" alt="تعلم الوضوء" class="step-image">
+                    <p class="step-description">
+                        سوف نتعلم معاً خطوات الوضوء الصحيح كما علمنا رسول الله ﷺ.<br>
+                        ستكون رحلتنا ممتعة مع الصور التوضيحية والأسئلة التفاعلية.
+                    </p>
+                    <button class="btn btn-primary" onclick="nextStep()">
+                        <i class="fas fa-play"></i> ابدأ التعلم
+                    </button>
+                </div>
+                
+                <!-- Step 2: Niyyah -->
+                <div class="step-content" id="step2" style="display: none;">
+                    <h2 class="step-title">النية</h2>
+                    <div class="wudu-animation">
+                        <div class="wudu-character"></div>
+                        <div class="wudu-highlight" style="top: 20px; left: 120px; display: block;"></div>
+                    </div>
+                    <p class="step-description">
+                        النية محلها القلب، وتكون قبل البدء بالوضوء.<br>
+                        ينوي المسلم رفع الحدث أو استباحة الصلاة أو التبرد وغير ذلك من الأسباب.
+                    </p>
+                    <div class="actions">
+                        <button class="btn btn-outline" onclick="prevStep()">
+                            <i class="fas fa-arrow-left"></i> السابق
+                        </button>
+                        <button class="btn btn-primary" onclick="nextStep()">
+                            التالي <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Tasmiyah -->
+                <div class="step-content" id="step3" style="display: none;">
+                    <h2 class="step-title">التسمية</h2>
+                    <img src="https://i.postimg.cc/8zq7JZJk/wudu-mouth.jpg" alt="التسمية" class="step-image">
+                    <p class="step-description">
+                        يقول: "بسم الله" عند بدء الوضوء.<br>
+                        وهي سنة مؤكدة، وإذا نسيها فلا شيء عليه.
+                    </p>
+                    <div class="quiz-options">
+                        <h3 style="margin-bottom: 15px; color: var(--primary);">ماذا تقول عند بدء الوضوء؟</h3>
+                        <div class="option" onclick="selectOption(this)">بسم الله الرحمن الرحيم</div>
+                        <div class="option" onclick="selectOption(this)">استغفر الله العظيم</div>
+                        <div class="option correct" onclick="selectOption(this)">بسم الله</div>
+                        <div class="option" onclick="selectOption(this)">الحمد لله</div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn btn-outline" onclick="prevStep()">
+                            <i class="fas fa-arrow-left"></i> السابق
+                        </button>
+                        <button class="btn btn-primary" onclick="checkAnswer()">
+                            تحقق <i class="fas fa-check"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 4: Hands -->
+                <div class="step-content" id="step4" style="display: none;">
+                    <h2 class="step-title">غسل الكفين</h2>
+                    <div class="wudu-animation">
+                        <div class="wudu-character"></div>
+                        <div class="wudu-highlight" style="top: 150px; left: 80px; display: block;"></div>
+                        <div class="wudu-highlight" style="top: 150px; right: 80px; display: block;"></div>
+                    </div>
+                    <p class="step-description">
+                        يغسل كفيه ثلاث مرات.<br>
+                        وهذا مستحب عند الجمهور، وواجب عند البعض إذا كانت اليد غير نظيفة.
+                    </p>
+                    <div class="actions">
+                        <button class="btn btn-outline" onclick="prevStep()">
+                            <i class="fas fa-arrow-left"></i> السابق
+                        </button>
+                        <button class="btn btn-primary" onclick="nextStep()">
+                            التالي <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 5: Mouth -->
+                <div class="step-content" id="step5" style="display: none;">
+                    <h2 class="step-title">المضمضة والاستنشاق</h2>
+                    <img src="https://i.postimg.cc/8zq7JZJk/wudu-mouth-nose.jpg" alt="المضمضة والاستنشاق" class="step-image">
+                    <p class="step-description">
+                        يتمضمض ويستنشق ثلاث مرات.<br>
+                        المضمضة: إدخال الماء في الفم وتحريكه ثم إخراجه.<br>
+                        الاستنشاق: جذب الماء بالأنف ثم الاستنثار (إخراجه).
+                    </p>
+                    <div class="quiz-options">
+                        <h3 style="margin-bottom: 15px; color: var(--primary);">كم مرة نكرر المضمضة والاستنشاق؟</h3>
+                        <div class="option" onclick="selectOption(this)">مرة واحدة</div>
+                        <div class="option correct" onclick="selectOption(this)">ثلاث مرات</div>
+                        <div class="option" onclick="selectOption(this)">خمس مرات</div>
+                        <div class="option" onclick="selectOption(this)">سبع مرات</div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn btn-outline" onclick="prevStep()">
+                            <i class="fas fa-arrow-left"></i> السابق
+                        </button>
+                        <button class="btn btn-primary" onclick="checkAnswer()">
+                            تحقق <i class="fas fa-check"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 6: Face -->
+                <div class="step-content" id="step6" style="display: none;">
+                    <h2 class="step-title">غسل الوجه</h2>
+                    <div class="wudu-animation">
+                        <div class="wudu-character"></div>
+                        <div class="wudu-highlight" style="top: 50px; left: 100px; width: 100px; height: 120px; border-radius: 50% 50% 0 0; display: block;"></div>
+                    </div>
+                    <p class="step-description">
+                        يغسل وجهه ثلاث مرات من منبت الشعر إلى الذقن، ومن الأذن إلى الأذن.<br>
+                        ويجب إيصال الماء إلى جميع أجزاء الوجه بما فيها ما تحت الشفتين واللحية.
+                    </p>
+                    <div class="actions">
+                        <button class="btn btn-outline" onclick="prevStep()">
+                            <i class="fas fa-arrow-left"></i> السابق
+                        </button>
+                        <button class="btn btn-primary" onclick="nextStep()">
+                            التالي <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 7: Arms -->
+                <div class="step-content" id="step7" style="display: none;">
+                    <h2 class="step-title">غسل اليدين</h2>
+                    <img src="https://i.postimg.cc/8zq7JZJk/wudu-arms.jpg" alt="غسل اليدين" class="step-image">
+                    <p class="step-description">
+                        يغسل يديه إلى المرفقين ثلاث مرات.<br>
+                        يبدأ باليد اليمنى ثم اليسرى.<br>
+                        يجب تعميم الماء على جميع أجزاء اليد بما فيها بين الأصابع.
+                    </p>
+                    <div class="quiz-options">
+                        <h3 style="margin-bottom: 15px; color: var(--primary);">بأي يد نبدأ في غسل اليدين؟</h3>
+                        <div class="option correct" onclick="selectOption(this)">اليد اليمنى</div>
+                        <div class="option" onclick="selectOption(this)">اليد اليسرى</div>
+                        <div class="option" onclick="selectOption(this)">الأقرب إلى الماء</div>
+                        <div class="option" onclick="selectOption(this)">لا فرق</div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn btn-outline" onclick="prevStep()">
+                            <i class="fas fa-arrow-left"></i> السابق
+                        </button>
+                        <button class="btn btn-primary" onclick="checkAnswer()">
+                            تحقق <i class="fas fa-check"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 8: Head -->
+                <div class="step-content" id="step8" style="display: none;">
+                    <h2 class="step-title">مسح الرأس</h2>
+                    <div class="wudu-animation">
+                        <div class="wudu-character"></div>
+                        <div class="wudu-highlight" style="top: 30px; left: 100px; width: 100px; height: 80px; border-radius: 50%; display: block;"></div>
+                    </div>
+                    <p class="step-description">
+                        يمسح رأسه مرة واحدة.<br>
+                        يكون المسح من مقدمة الرأس إلى مؤخرته ثم يعود إلى المقدمة.<br>
+                        ويمسح أذنيه مرة واحدة ببقية ماء الرأس.
+                    </p>
+                    <div class="actions">
+                        <button class="btn btn-outline" onclick="prevStep()">
+                            <i class="fas fa-arrow-left"></i> السابق
+                        </button>
+                        <button class="btn btn-primary" onclick="nextStep()">
+                            التالي <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 9: Feet -->
+                <div class="step-content" id="step9" style="display: none;">
+                    <h2 class="step-title">غسل الرجلين</h2>
+                    <img src="https://i.postimg.cc/8zq7JZJk/wudu-feet.jpg" alt="غسل الرجلين" class="step-image">
+                    <p class="step-description">
+                        يغسل رجليه إلى الكعبين ثلاث مرات.<br>
+                        يبدأ بالرجل اليمنى ثم اليسرى.<br>
+                        يجب تعميم الماء على جميع أجزاء الرجل بما فيها بين الأصابع.
+                    </p>
+                    <div class="quiz-options">
+                        <h3 style="margin-bottom: 15px; color: var(--primary);">إلى أين يجب أن يصل الغسل في الرجل؟</h3>
+                        <div class="option" onclick="selectOption(this)">إلى منتصف الساق</div>
+                        <div class="option" onclick="selectOption(this)">إلى الركبة</div>
+                        <div class="option correct" onclick="selectOption(this)">إلى الكعبين</div>
+                        <div class="option" onclick="selectOption(this)">إلى أصابع القدم فقط</div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn btn-outline" onclick="prevStep()">
+                            <i class="fas fa-arrow-left"></i> السابق
+                        </button>
+                        <button class="btn btn-primary" onclick="checkAnswer()">
+                            تحقق <i class="fas fa-check"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 10: Completion -->
+                <div class="step-content" id="step10" style="display: none;">
+                    <h2 class="step-title">أحسنت! لقد أكملت الوضوء</h2>
+                    <img src="https://i.postimg.cc/8zq7JZJk/wudu-complete.jpg" alt="إكمال الوضوء" class="step-image">
+                    <p class="step-description">
+                        بعد الانتهاء من الوضوء يقول:<br>
+                        "أشهد أن لا إله إلا الله وحده لا شريك له، وأشهد أن محمداً عبده ورسوله، اللهم اجعلني من التوابين واجعلني من المتطهرين"
+                    </p>
+                    <div class="feedback success">
+                        مبروك! لقد تعلمت خطوات الوضوء الصحيح بنجاح.
+                    </div>
+                    <button class="btn btn-primary" onclick="restartGame()">
+                        <i class="fas fa-redo"></i> كرر اللعبة
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentStep = 1;
+        const totalSteps = 10;
+        let correctAnswers = 0;
+        let selectedOption = null;
+        
+        // Initialize game
+        function initGame() {
+            updateProgressBar();
+            updateStepIndicator();
+        }
+        
+        // Next step
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                document.getElementById(`step${currentStep}`).style.display = 'none';
+                currentStep++;
+                document.getElementById(`step${currentStep}`).style.display = 'block';
+                updateProgressBar();
+                updateStepIndicator();
+                
+                // Reset feedback
+                document.getElementById('feedback').className = 'feedback';
+                document.getElementById('feedback').style.display = 'none';
+            }
+        }
+        
+        // Previous step
+        function prevStep() {
+            if (currentStep > 1) {
+                document.getElementById(`step${currentStep}`).style.display = 'none';
+                currentStep--;
+                document.getElementById(`step${currentStep}`).style.display = 'block';
+                updateProgressBar();
+                updateStepIndicator();
+                
+                // Reset feedback
+                document.getElementById('feedback').className = 'feedback';
+                document.getElementById('feedback').style.display = 'none';
+            }
+        }
+        
+        // Update progress bar
+        function updateProgressBar() {
+            const progressPercentage = (currentStep / totalSteps) * 100;
+            document.getElementById('progressBar').style.width = `${progressPercentage}%`;
+        }
+        
+        // Update step indicator
+        function updateStepIndicator() {
+            const steps = document.querySelectorAll('.step');
+            steps.forEach(step => {
+                const stepNum = parseInt(step.dataset.step);
+                step.classList.remove('active', 'completed');
+                
+                if (stepNum < currentStep) {
+                    step.classList.add('completed');
+                } else if (stepNum === Math.ceil(currentStep / 1.25)) { // Adjust for intro and completion steps
+                    step.classList.add('active');
+                }
+            });
+        }
+        
+        // Select quiz option
+        function selectOption(option) {
+            const options = document.querySelectorAll('.option');
+            options.forEach(opt => opt.classList.remove('selected'));
+            
+            option.classList.add('selected');
+            selectedOption = option;
+        }
+        
+        // Check answer
+        function checkAnswer() {
+            if (!selectedOption) {
+                showFeedback('error', 'الرجاء اختيار إجابة قبل المتابعة');
+                return;
+            }
+            
+            const feedback = document.getElementById('feedback');
+            
+            if (selectedOption.classList.contains('correct')) {
+                selectedOption.classList.add('correct');
+                correctAnswers++;
+                showFeedback('success', 'إجابة صحيحة! أحسنت');
+                setTimeout(nextStep, 1500);
+            } else {
+                selectedOption.classList.add('wrong');
+                // Highlight correct answer
+                document.querySelector('.option.correct').classList.add('correct');
+                showFeedback('error', 'إجابة خاطئة، حاول مرة أخرى');
+            }
+        }
+        
+        // Show feedback
+        function showFeedback(type, message) {
+            const feedback = document.getElementById('feedback');
+            feedback.className = `feedback ${type}`;
+            feedback.textContent = message;
+            feedback.style.display = 'block';
+        }
+        
+        // Restart game
+        function restartGame() {
+            currentStep = 1;
+            correctAnswers = 0;
+            
+            // Hide all steps
+            document.querySelectorAll('.step-content').forEach(step => {
+                step.style.display = 'none';
+            });
+            
+            // Show first step
+            document.getElementById('step1').style.display = 'block';
+            
+            // Reset progress
+            updateProgressBar();
+            updateStepIndicator();
+            
+            // Reset quiz options
+            document.querySelectorAll('.option').forEach(option => {
+                option.classList.remove('selected', 'correct', 'wrong');
+            });
+            
+            // Reset feedback
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('feedback').style.display = 'none';
+        }
+        
+        // Initialize game on load
+        window.onload = initGame;
+    </script>
+</body>
+</html>

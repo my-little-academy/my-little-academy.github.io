@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أركان الإسلام: رحلة الإيمان!</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #00BCD4; /* أزرق سماوي */
+            --secondary-color: #80DEEA; /* أزرق سماوي فاتح */
+            --accent-color: #FFC107; /* أصفر ذهبي */
+            --background-light: #E0F7FA; /* أزرق فاتح جداً */
+            --text-color: #37474F; /* رمادي أزرق غامق */
+            --card-bg: #FFFFFF;
+            --modal-bg: rgba(255, 255, 255, 0.95);
+            --correct-answer-color: #4CAF50; /* أخضر */
+            --wrong-answer-color: #F44336; /* أحمر */
+            --shadow-color: rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, var(--background-light) 0%, #B2EBF2 100%); /* تدرج أزرق */
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden; /* Prevent scrollbar from animated elements */
+            position: relative;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 1000px;
+            background: var(--card-bg);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 15px 40px var(--shadow-color);
+            text-align: center;
+            animation: fadeInScale 1s ease-out;
+            position: relative;
+            z-index: 2; /* Above background elements */
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Animated Background Elements */
+        .animated-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0; /* Ensures it stays behind content */
+        }
+
+        .bg-shape {
+            position: absolute;
+            background: rgba(0, 188, 212, 0.1); /* Transparent primary color */
+            border-radius: 50%;
+            animation: floatAndFade 25s infinite linear;
+            filter: blur(10px);
+        }
+
+        .bg-shape:nth-child(1) { width: 120px; height: 120px; top: 10%; left: -5%; animation-duration: 22s; }
+        .bg-shape:nth-child(2) { width: 90px; height: 90px; top: 70%; left: 10%; animation-duration: 18s; transform: rotate(30deg); }
+        .bg-shape:nth-child(3) { width: 150px; height: 150px; top: 20%; right: -5%; animation-duration: 25s; transform: rotate(-45deg); }
+        .bg-shape:nth-child(4) { width: 110px; height: 110px; top: 85%; right: 15%; animation-duration: 20s; }
+        .bg-shape:nth-child(5) { width: 100px; height: 100px; top: 5%; left: 40%; animation-duration: 23s; }
+        .bg-shape:nth-child(6) { width: 70px; height: 70px; top: 50%; left: -3%; animation-duration: 28s; }
+        .bg-shape:nth-child(7) { width: 130px; height: 130px; top: 30%; right: -8%; animation-duration: 26s; }
+
+        @keyframes floatAndFade {
+            0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0.3; }
+            50% { transform: translateY(-70px) translateX(30px) rotate(180deg); opacity: 0.5; }
+            100% { transform: translateY(0) translateX(0) rotate(360deg); opacity: 0.3; }
+        }
+
+        /* Header */
+        h1 {
+            font-size: 4rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.1);
+            animation: bounceInDown 1s ease-out;
+        }
+
+        .game-description-text {
+            font-size: 1.8rem;
+            color: #546E7A;
+            margin-bottom: 40px;
+            line-height: 1.7;
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        /* Pillars Grid */
+        .pillars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            justify-content: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+
+        .pillar-card {
+            background-color: var(--secondary-color);
+            border-radius: 20px;
+            padding: 30px 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            position: relative; /* For pulsing effect */
+            animation: fadeInUp 0.8s ease-out;
+            border: 3px solid transparent; /* For selected border */
+        }
+
+        .pillar-card:hover {
+            transform: translateY(-10px) scale(1.03);
+            background-color: #4DD0E1; /* أزرق أغمق قليلا */
+        }
+
+        .pillar-card.completed {
+            background-color: var(--correct-answer-color);
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            border-color: #2E7D32;
+            pointer-events: none; /* Disable click after completion */
+            animation: tada 1s; /* Celebration effect */
+        }
+        
+        .pillar-card.completed i, .pillar-card.completed h3 {
+            color: white !important; /* Override icon/text color */
+        }
+
+        .pillar-card i {
+            font-size: 4.5rem;
+            color: var(--card-bg);
+            margin-bottom: 15px;
+            filter: drop-shadow(2px 2px 5px rgba(0, 0, 0, 0.1));
+        }
+
+        .pillar-card h3 {
+            font-size: 2rem;
+            color: var(--card-bg);
+            font-weight: 800;
+        }
+
+        /* Progress Bar */
+        .progress-bar-container {
+            width: 80%;
+            height: 25px;
+            background-color: #CFD8DC;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 30px auto;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background-color: var(--primary-color);
+            border-radius: 12px;
+            transition: width 0.5s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .progress-text {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-color);
+            font-weight: bold;
+            font-size: 1.2rem;
+            z-index: 1;
+        }
+
+        /* Modal / Popup */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: var(--modal-bg);
+            padding: 40px;
+            border-radius: 25px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 600px;
+            animation: zoomIn 0.4s ease-out;
+            position: relative;
+        }
+
+        .modal-close-button {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: none;
+            border: none;
+            font-size: 2.5rem;
+            color: #78909C;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .modal-close-button:hover {
+            color: var(--wrong-answer-color);
+        }
+
+        .modal-content h2 {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+        }
+
+        .modal-content p.description {
+            font-size: 1.6rem;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        .modal-content p.question {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--text-color);
+            margin-bottom: 25px;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .option-button {
+            background-color: #E0F7FA;
+            color: var(--text-color);
+            padding: 18px 25px;
+            border: 2px solid var(--secondary-color);
+            border-radius: 15px;
+            font-size: 1.6rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, border-color 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            font-weight: 600;
+        }
+
+        .option-button:hover:not(:disabled) {
+            background-color: #B2EBF2;
+            transform: translateY(-3px);
+            border-color: var(--primary-color);
+        }
+
+        .option-button.correct {
+            background-color: var(--correct-answer-color);
+            color: white;
+            border-color: var(--correct-answer-color);
+            animation: pulse 0.5s 2;
+        }
+
+        .option-button.wrong {
+            background-color: var(--wrong-answer-color);
+            color: white;
+            border-color: var(--wrong-answer-color);
+            animation: shake 0.5s;
+        }
+        
+        .option-button:disabled {
+            cursor: default;
+            opacity: 0.7;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+
+        .feedback-message {
+            font-size: 1.5rem;
+            font-weight: bold;
+            min-height: 30px; /* Prevent layout shift */
+            margin-top: 10px;
+            animation: fadeIn 0.5s ease-out;
+        }
+        .feedback-message.correct { color: var(--correct-answer-color); }
+        .feedback-message.wrong { color: var(--wrong-answer-color); }
+
+        /* End Screen */
+        .end-screen {
+            text-align: center;
+            animation: zoomIn 1s ease-out;
+            padding: 40px;
+        }
+
+        .end-screen h2 {
+            font-size: 4rem;
+            color: var(--correct-answer-color);
+            margin-bottom: 25px;
+            text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
+            animation: tada 1s ease-out;
+        }
+
+        .end-screen p {
+            font-size: 2rem;
+            color: var(--text-color);
+            margin-bottom: 30px;
+        }
+
+        .navigation-buttons {
+            margin-top: 30px;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap; /* Allow buttons to wrap on small screens */
+        }
+
+        .game-button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.6rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-decoration: none; /* For anchor tags */
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .game-button:hover {
+            background-color: #00838F; /* أغمق قليلاً */
+            transform: translateY(-3px);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Top Home Button */
+        .top-home-button {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            padding: 10px 18px;
+            border-radius: 15px;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .top-home-button:hover {
+            background-color: #4DD0E1;
+            transform: translateY(-3px);
+        }
+
+        .top-home-button i {
+            font-size: 1.5rem;
+            color: var(--text-color);
+        }
+
+        /* Music Toggle Button */
+        .music-toggle-button {
+            position: fixed; 
+            bottom: 20px; 
+            left: 20px; 
+            z-index: 100; 
+            background: var(--accent-color); 
+            color: white; 
+            border: none; 
+            border-radius: 50%; 
+            width: 50px; 
+            height: 50px; 
+            font-size: 1.8rem; 
+            cursor: pointer; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .music-toggle-button:hover {
+            background-color: #F57C00;
+            transform: translateY(-3px);
+        }
+
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 { font-size: 3rem; margin-bottom: 10px; }
+            .game-description-text { font-size: 1.4rem; margin-bottom: 30px; }
+            .container { padding: 25px; border-radius: 20px; }
+            .pillars-grid { gap: 20px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+            .pillar-card { padding: 20px 15px; }
+            .pillar-card i { font-size: 3.5rem; margin-bottom: 10px; }
+            .pillar-card h3 { font-size: 1.6rem; }
+            .progress-bar-container { width: 90%; height: 20px; }
+            .progress-bar-fill, .progress-text { font-size: 1rem; }
+
+            .modal-content { padding: 30px; }
+            .modal-content h2 { font-size: 2.5rem; margin-bottom: 20px; }
+            .modal-content p.description { font-size: 1.4rem; margin-bottom: 25px; }
+            .modal-content p.question { font-size: 1.6rem; margin-bottom: 20px; }
+            .option-button { padding: 15px 20px; font-size: 1.4rem; }
+            .feedback-message { font-size: 1.2rem; }
+            .game-button { padding: 12px 25px; font-size: 1.4rem; }
+            .end-screen h2 { font-size: 3rem; }
+            .end-screen p { font-size: 1.6rem; }
+            .top-home-button { top: 15px; right: 15px; padding: 8px 15px; font-size: 1rem; }
+            .top-home-button i { font-size: 1.2rem; }
+            .music-toggle-button { width: 45px; height: 45px; font-size: 1.6rem; bottom: 15px; left: 15px; }
+        }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 2.5rem; }
+            .game-description-text { font-size: 1.2rem; }
+            .pillar-card { padding: 15px 10px; }
+            .pillar-card i { font-size: 3rem; }
+            .pillar-card h3 { font-size: 1.4rem; }
+            .modal-content { padding: 20px; }
+            .modal-close-button { font-size: 2rem; }
+            .modal-content h2 { font-size: 2rem; }
+            .modal-content p.description { font-size: 1.2rem; }
+            .modal-content p.question { font-size: 1.4rem; }
+            .option-button { padding: 12px 15px; font-size: 1.2rem; }
+            .game-button { padding: 10px 20px; font-size: 1.2rem; }
+            .music-toggle-button { width: 40px; height: 40px; font-size: 1.4rem; bottom: 10px; left: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="animated-bg">
+        <div class="bg-shape"></div>
+        <div class="bg-shape"></div>
+        <div class="bg-shape"></div>
+        <div class="bg-shape"></div>
+        <div class="bg-shape"></div>
+        <div class="bg-shape"></div>
+        <div class="bg-shape"></div>
+    </div>
+
+    <a href="games_page.html" class="top-home-button animate__animated animate__bounceInRight">
+        <i class="fas fa-home"></i>
+        <span>العودة للألعاب</span>
+    </a>
+
+    <div class="container">
+        <h1 class="animate__animated animate__flipInX">أركان الإسلام: رحلة الإيمان!</h1>
+        <p class="game-description-text animate__animated animate__fadeIn">
+            اضغط على كل ركن لتعرف المزيد عنه وأجب عن السؤال! هيا بنا ننطلق في رحلة المعرفة!
+        </p>
+
+        <div class="pillars-grid" id="pillarsGrid">
+            </div>
+
+        <div class="progress-bar-container">
+            <div class="progress-bar-fill" id="progressBarFill"></div>
+            <div class="progress-text" id="progressText">0 / 5 أركان</div>
+        </div>
+    </div>
+
+    <div id="pillarModal" class="modal">
+        <div class="modal-content animate__animated">
+            <button class="modal-close-button" id="modalCloseButton"><i class="fas fa-times-circle"></i></button>
+            <h2 id="modalTitle"></h2>
+            <p class="description" id="modalDescription"></p>
+            <p class="question" id="modalQuestion"></p>
+            <div class="options-container" id="modalOptions">
+                </div>
+            <div class="feedback-message" id="modalFeedback"></div>
+        </div>
+    </div>
+
+    <div id="endScreen" class="end-screen hidden">
+        <h2 class="animate__animated animate__tada">مبارك! لقد أتممت أركان الإسلام!</h2>
+        <p class="animate__animated animate__fadeIn">أنت بطل حقيقي في تعلم ديننا!</p>
+        <div class="navigation-buttons">
+            <button class="game-button" id="restartGameButton"><i class="fas fa-redo"></i> ابدأ من جديد</button>
+            <a href="games_page.html" class="game-button"><i class="fas fa-gamepad"></i> العودة لقائمة الألعاب</a>
+        </div>
+    </div>
+
+    <audio id="clickSound" src="sounds/click_sound.mp3" preload="auto"></audio>
+    <audio id="correctSound" src="sounds/correct_answer.mp3" preload="auto"></audio>
+    <audio id="wrongSound" src="sounds/wrong_answer.mp3" preload="auto"></audio>
+    <audio id="completionSound" src="sounds/game_complete.mp3" preload="auto"></audio>
+    <audio id="backgroundMusic" src="sounds/background_music.mp3" loop preload="auto"></audio>
+    
+    <button id="musicToggleButton" class="music-toggle-button">
+        <i class="fas fa-music"></i>
+    </button>
+
+    <script>
+        const pillarsData = [
+            {
+                id: 'shahada',
+                name: 'الشهادتان',
+                icon: 'fa-mosque', // Font Awesome icon class
+                description: 'الإيمان بالله واحدًا لا شريك له، وأن محمدًا رسول الله.',
+                question: 'ما معنى "لا إله إلا الله"؟',
+                options: ['لا معبود بحق إلا الله', 'لا يوجد إله إلا الله', 'الله هو الإله الأكبر'],
+                correctAnswer: 'لا معبود بحق إلا الله',
+                completed: false
+            },
+            {
+                id: 'salat',
+                name: 'إقام الصلاة',
+                icon: 'fa-hands-praying',
+                description: 'أداء الصلوات الخمس في أوقاتها المحددة بخشوع وطمأنينة.',
+                question: 'كم عدد الصلوات المفروضة في اليوم والليلة؟',
+                options: ['ثلاث صلوات', 'خمس صلوات', 'سبع صلوات'],
+                correctAnswer: 'خمس صلوات',
+                completed: false
+            },
+            {
+                id: 'zakat',
+                name: 'إيتاء الزكاة',
+                icon: 'fa-hand-holding-usd', // Changed to usd for clarity
+                description: 'إخراج جزء من المال للمستحقين من الفقراء والمحتاجين.',
+                question: 'الزكاة حق من حقوق من؟',
+                options: ['الأغنياء', 'الفقراء والمساكين', 'العلماء'],
+                correctAnswer: 'الفقراء والمساكين',
+                completed: false
+            },
+            {
+                id: 'sawm',
+                name: 'صوم رمضان',
+                icon: 'fa-moon', // Changed to moon for Ramadan
+                description: 'الامتناع عن الطعام والشراب وسائر المفطرات من الفجر حتى المغرب في شهر رمضان.',
+                question: 'في أي شهر يصوم المسلمون؟',
+                options: ['شوال', 'رمضان', 'ذي الحجة'],
+                correctAnswer: 'رمضان',
+                completed: false
+            },
+            {
+                id: 'hajj',
+                name: 'حج البيت',
+                icon: 'fa-kaaba', // Added new icon
+                description: 'زيارة بيت الله الحرام في مكة المكرمة لأداء المناسك، لمن استطاع إليه سبيلاً.',
+                question: 'أين يقع بيت الله الحرام الذي يحج إليه المسلمون؟',
+                options: ['المدينة المنورة', 'القدس', 'مكة المكرمة'],
+                correctAnswer: 'مكة المكرمة',
+                completed: false
+            }
+        ];
+
+        const pillarsGrid = document.getElementById('pillarsGrid');
+        const pillarModal = document.getElementById('pillarModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalDescription = document.getElementById('modalDescription');
+        const modalQuestion = document.getElementById('modalQuestion');
+        const modalOptions = document.getElementById('modalOptions');
+        const modalFeedback = document.getElementById('modalFeedback');
+        const modalCloseButton = document.getElementById('modalCloseButton');
+        const endScreen = document.getElementById('endScreen');
+        const restartGameButton = document.getElementById('restartGameButton');
+        const progressBarFill = document.getElementById('progressBarFill');
+        const progressText = document.getElementById('progressText');
+
+        // Audio elements
+        const clickSound = document.getElementById('clickSound');
+        const correctSound = document.getElementById('correctSound');
+        const wrongSound = document.getElementById('wrongSound');
+        const completionSound = document.getElementById('completionSound');
+        const backgroundMusic = document.getElementById('backgroundMusic');
+        const musicToggleButton = document.getElementById('musicToggleButton');
+        let isMusicPlaying = false; 
+
+        let currentPillarId = null;
+        let completedPillarsCount = 0;
+
+        // Function to play sound safely
+        function playSound(audioElement) {
+            audioElement.currentTime = 0; // Reset to start
+            audioElement.play().catch(e => console.error("Error playing sound:", e));
+        }
+
+        function loadPillars() {
+            pillarsGrid.innerHTML = ''; // Clear existing pillars to prevent duplicates on restart
+            completedPillarsCount = pillarsData.filter(p => p.completed).length;
+            updateProgressBar();
+
+            pillarsData.forEach(pillar => {
+                const card = document.createElement('div');
+                card.classList.add('pillar-card');
+                card.id = `pillar-${pillar.id}`;
+                if (pillar.completed) {
+                    card.classList.add('completed');
+                }
+                card.innerHTML = `
+                    <i class="fas ${pillar.icon}"></i>
+                    <h3>${pillar.name}</h3>
+                `;
+                // Only add click listener if not completed
+                if (!pillar.completed) {
+                    card.addEventListener('click', () => openPillarModal(pillar.id));
+                } else {
+                    // For already completed pillars, add a visual hint if desired (e.g., specific cursor)
+                    card.style.cursor = 'default';
+                }
+                pillarsGrid.appendChild(card);
+            });
+            // Auto-play background music on initial load if not already playing
+            // This needs user interaction to work in modern browsers,
+            // so it's often triggered by the first click or a dedicated play button.
+            // For now, it tries to play, but might be blocked until user interaction.
+            if (!isMusicPlaying) {
+                 backgroundMusic.play().then(() => {
+                    isMusicPlaying = true;
+                    musicToggleButton.innerHTML = '<i class="fas fa-music"></i>';
+                }).catch(e => {
+                    console.warn("Background music autoplay blocked. User interaction needed:", e);
+                    musicToggleButton.innerHTML = '<i class="fas fa-volume-mute"></i>'; // Show muted state
+                });
+            }
+        }
+
+        function openPillarModal(id) {
+            playSound(clickSound);
+            const pillar = pillarsData.find(p => p.id === id);
+            if (!pillar || pillar.completed) return; 
+
+            currentPillarId = id;
+            modalTitle.textContent = pillar.name;
+            modalDescription.textContent = pillar.description;
+            modalQuestion.textContent = pillar.question;
+            modalFeedback.innerHTML = '';
+            modalOptions.innerHTML = ''; // Clear previous options
+
+            // Populate options and set up click handlers
+            pillar.options.forEach(option => {
+                const button = document.createElement('button');
+                button.classList.add('option-button');
+                button.textContent = option;
+                button.addEventListener('click', () => checkAnswer(button, option, pillar.correctAnswer));
+                modalOptions.appendChild(button);
+            });
+
+            pillarModal.classList.add('active');
+            // Re-apply zoomIn animation to ensure it plays
+            const modalModalContent = pillarModal.querySelector('.modal-content');
+            modalModalContent.classList.remove('animate__zoomOut'); // Remove previous exit anim
+            modalModalContent.classList.add('animate__zoomIn'); // Add entry anim
+        }
+
+        function checkAnswer(selectedButton, selectedAnswer, correctAnswer) {
+            // Disable all options after one is selected
+            Array.from(modalOptions.children).forEach(button => {
+                button.disabled = true;
+            });
+
+            if (selectedAnswer === correctAnswer) {
+                playSound(correctSound);
+                selectedButton.classList.add('correct');
+                modalFeedback.innerHTML = `<p class="feedback-message correct animate__animated animate__fadeIn">أحسنت! إجابة صحيحة! ✨</p>`;
+                
+                const pillar = pillarsData.find(p => p.id === currentPillarId);
+                if (pillar && !pillar.completed) {
+                    pillar.completed = true;
+                    completedPillarsCount++;
+                    // Add 'completed' class to the card in the main grid and disable further clicks
+                    const pillarCard = document.getElementById(`pillar-${currentPillarId}`);
+                    if (pillarCard) {
+                        pillarCard.classList.add('completed');
+                        // Crucially remove the event listener for this specific card
+                        // To avoid re-opening the modal for completed pillars
+                        const oldListener = pillarCard.onclick; // Store old listener if any
+                        pillarCard.onclick = null; // Remove it
+                        pillarCard.replaceWith(pillarCard.cloneNode(true)); // Replaces element to remove listeners
+                        // Re-fetch the new element and ensure it's still marked completed
+                        const newPillarCard = document.getElementById(`pillar-${currentPillarId}`);
+                        if (newPillarCard) newPillarCard.classList.add('completed');
+                    }
+                    updateProgressBar();
+                }
+                setTimeout(() => {
+                    closeModal();
+                    checkGameCompletion();
+                }, 1500); 
+            } else {
+                playSound(wrongSound);
+                selectedButton.classList.add('wrong');
+                modalFeedback.innerHTML = `<p class="feedback-message wrong animate__animated animate__fadeIn">خطأ، حاول مرة أخرى! 😔</p>`;
+                // Highlight correct answer
+                Array.from(modalOptions.children).forEach(button => {
+                    if (button.textContent === correctAnswer) {
+                        // Temporarily highlight correct one for visual learning
+                        button.classList.add('correct'); 
+                    }
+                });
+                // Re-enable options after a short delay for wrong answer, and reset styles
+                setTimeout(() => {
+                    Array.from(modalOptions.children).forEach(button => {
+                        button.disabled = false; 
+                        button.classList.remove('wrong', 'correct'); // Remove visual feedback classes
+                    });
+                    modalFeedback.innerHTML = ''; // Clear feedback
+                }, 1500);
+            }
+        }
+
+        function closeModal() {
+            const modalModalContent = pillarModal.querySelector('.modal-content');
+            modalModalContent.classList.remove('animate__zoomIn');
+            modalModalContent.classList.add('animate__zoomOut');
+            
+            setTimeout(() => {
+                pillarModal.classList.remove('active');
+                modalModalContent.classList.remove('animate__zoomOut'); // Clean up animation class
+            }, 400); 
+        }
+
+        function updateProgressBar() {
+            const totalPillars = pillarsData.length;
+            const percentage = (completedPillarsCount / totalPillars) * 100;
+            progressBarFill.style.width = `${percentage}%`;
+            progressText.textContent = `${completedPillarsCount} / ${totalPillars} أركان`;
+
+            if (percentage === 100) {
+                progressBarFill.style.backgroundColor = var(--correct-answer-color);
+            } else {
+                progressBarFill.style.backgroundColor = 'var(--primary-color)'; // Use var for CSS variable
+            }
+        }
+
+        function checkGameCompletion() {
+            if (completedPillarsCount === pillarsData.length) {
+                // Short delay to ensure modal closes before showing end screen
+                setTimeout(() => {
+                    document.querySelector('.container').classList.add('hidden');
+                    endScreen.classList.remove('hidden');
+                    playSound(completionSound);
+                }, 500); 
+            }
+        }
+
+        function restartGame() {
+            pillarsData.forEach(p => p.completed = false); // Reset all pillars to incomplete
+            completedPillarsCount = 0;
+            document.querySelector('.container').classList.remove('hidden'); // Show main game area
+            endScreen.classList.add('hidden'); // Hide end screen
+            loadPillars(); // Reload pillars to reflect reset state
+        }
+
+        function toggleBackgroundMusic() {
+            if (isMusicPlaying) {
+                backgroundMusic.pause();
+                musicToggleButton.innerHTML = '<i class="fas fa-volume-mute"></i>';
+            } else {
+                backgroundMusic.play().then(() => {
+                    // Only set isMusicPlaying to true if play() succeeds
+                    isMusicPlaying = true;
+                    musicToggleButton.innerHTML = '<i class="fas fa-music"></i>';
+                }).catch(e => {
+                    console.error("Background music play failed:", e);
+                    // If autoplay blocked, ensure the button shows muted icon
+                    musicToggleButton.innerHTML = '<i class="fas fa-volume-mute"></i>'; 
+                    isMusicPlaying = false; // Still considered not playing effectively
+                });
+            }
+        }
+
+        // Event Listeners
+        modalCloseButton.addEventListener('click', closeModal);
+        restartGameButton.addEventListener('click', restartGame);
+        musicToggleButton.addEventListener('click', toggleBackgroundMusic);
+
+        // Initial load of the game
+        // Ensure DOM is fully loaded before running script
+        document.addEventListener('DOMContentLoaded', loadPillars); 
+    </script>
+</body>
+</html>

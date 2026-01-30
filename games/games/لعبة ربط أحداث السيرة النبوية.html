@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة السيرة النبوية - ترتيب الأحداث</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .game-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .events-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .event {
+            background-color: #e1f5fe;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: grab;
+            border: 1px dashed #0288d1;
+        }
+        .event.dragging {
+            opacity: 0.5;
+        }
+        .check-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .check-btn:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .correct {
+            color: #4CAF50;
+        }
+        .incorrect {
+            color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>لعبة ترتيب أحداث السيرة النبوية</h1>
+        <p>اسحب الأحداث وضَعها بالترتيب الصحيح من الأقدم إلى الأحدث!</p>
+        
+        <div class="events-container" id="events-container">
+            <!-- الأحداث تُضاف هنا بالجافاسكريبت -->
+        </div>
+        
+        <button class="check-btn" id="check-btn">تحقق من الإجابة</button>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        // الأحداث وأترتيبها الصحيح
+        const events = [
+            { text: "ولادة النبي ﷺ (عام الفيل)", order: 1 },
+            { text: "البعثة النبوية (نزول الوحي)", order: 2 },
+            { text: "الهجرة إلى المدينة", order: 3 },
+            { text: "غزوة بدر", order: 4 },
+            { text: "فتح مكة", order: 5 }
+        ];
+
+        const eventsContainer = document.getElementById('events-container');
+        const checkBtn = document.getElementById('check-btn');
+        const resultDiv = document.getElementById('result');
+
+        // عرض الأحداث عشوائيًا عند بدء اللعبة
+        function shuffleEvents() {
+            const shuffled = [...events].sort(() => Math.random() - 0.5);
+            eventsContainer.innerHTML = '';
+            shuffled.forEach(event => {
+                const eventElement = document.createElement('div');
+                eventElement.className = 'event';
+                eventElement.textContent = event.text;
+                eventElement.setAttribute('data-order', event.order);
+                eventElement.draggable = true;
+                
+                // إضافة إمكانية السحب والإسقاط
+                eventElement.addEventListener('dragstart', dragStart);
+                eventElement.addEventListener('dragover', dragOver);
+                eventElement.addEventListener('drop', drop);
+                
+                eventsContainer.appendChild(eventElement);
+            });
+        }
+
+        // منطق السحب والإسقاط
+        let draggedItem = null;
+
+        function dragStart(e) {
+            draggedItem = this;
+            setTimeout(() => this.classList.add('dragging'), 0);
+        }
+
+        function dragOver(e) {
+            e.preventDefault();
+        }
+
+        function drop(e) {
+            e.preventDefault();
+            if (this !== draggedItem) {
+                const allEvents = Array.from(document.querySelectorAll('.event'));
+                const thisIndex = allEvents.indexOf(this);
+                const draggedIndex = allEvents.indexOf(draggedItem);
+                
+                if (draggedIndex < thisIndex) {
+                    eventsContainer.insertBefore(draggedItem, this.nextSibling);
+                } else {
+                    eventsContainer.insertBefore(draggedItem, this);
+                }
+            }
+            this.classList.remove('dragging');
+        }
+
+        // التحقق من الإجابة
+        function checkAnswer() {
+            const userOrder = Array.from(document.querySelectorAll('.event')).map(item => parseInt(item.getAttribute('data-order')));
+            const isCorrect = userOrder.every((order, index) => order === index + 1);
+            
+            if (isCorrect) {
+                resultDiv.textContent = "أحسنت! الترتيب صحيح ✅";
+                resultDiv.className = "result correct";
+            } else {
+                resultDiv.textContent = "ترتيب غير صحيح، حاول مرة أخرى! ❌";
+                resultDiv.className = "result incorrect";
+            }
+        }
+
+        // تهيئة اللعبة
+        shuffleEvents();
+        checkBtn.addEventListener('click', checkAnswer);
+    </script>
+</body>
+</html>

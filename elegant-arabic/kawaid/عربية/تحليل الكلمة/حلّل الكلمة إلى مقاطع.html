@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>لعبة تحليل الكلمة</title>
+  <style>
+    body {
+      background: linear-gradient(#fff0f5, #e0f7fa);
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+      padding: 50px;
+      overflow: hidden;
+    }
+
+    .card {
+      display: inline-block;
+      background: white;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      border-radius: 20px;
+      padding: 40px;
+      font-size: 48px;
+      transform: perspective(600px) rotateY(0deg);
+      transition: transform 0.5s;
+    }
+
+    .card:hover {
+      transform: perspective(600px) rotateY(10deg);
+    }
+
+    .choices {
+      margin-top: 30px;
+    }
+
+    .option {
+      display: inline-block;
+      margin: 10px;
+      padding: 15px 25px;
+      background-color: #f8bbd0;
+      border-radius: 15px;
+      cursor: pointer;
+      font-size: 24px;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    .option:hover {
+      background-color: #f48fb1;
+      transform: scale(1.1);
+    }
+
+    .correct {
+      background-color: #c8e6c9 !important;
+    }
+
+    .wrong {
+      background-color: #ffcdd2 !important;
+    }
+
+    .confetti {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      width: 100%;
+      height: 100%;
+      z-index: 9999;
+    }
+  </style>
+</head>
+<body>
+  <h1>حلّل الكلمة إلى مقاطع</h1>
+  <div class="card" id="wordCard">كلمة</div>
+  <div class="choices" id="choicesContainer"></div>
+  <canvas class="confetti" id="confettiCanvas"></canvas>
+
+  <script>
+    const words = [
+      { word: "ذَهَبَ", correct: "ذَ / هـَ / ـبَ", options: ["ذَ / هـَ / ـبَ", "ذَهَ / بَ", "ذَ / هـَبَ"] },
+      { word: "قَدِمَ", correct: "قَـ / ـدِ / مَ", options: ["قَـ / ـدِ / مَ", "قَـ / دِمَ", "قَ / دِ / مَ"] },
+      { word: "كَتَبَ", correct: "كـَ / ـتَ / ـبَ", options: ["كـَ / ـتَ / ـبَ", "كَ / تَ / بَ", "كَـ / ـتَبَ"] },
+      { word: "كتابًا", correct: "كِـ / ـتَا / بـًا", options: ["كِـ / ـتَا / بـًا", "كِ / تَا / بً", "كِـ / تَا / بـًا"] },
+      { word: "قلمًا", correct: "قَـ / ـلَـ / ـمًا", options: ["قَـ / ـلَـ / ـمًا", "قَـ / لَـمَ", "قَلَ / مًا"] },
+      { word: "حقيبةً", correct: "حَـ / ـقِـيـ / ـبَـ / ـةً", options: ["حَـ / ـقِـيـ / ـبَـ / ـةً", "حَ / قِـيـ / بَـةً", "حَـ / ـقِـ / يـبَـةً"] },
+      { word: "ملجآنِ", correct: "مَلـْ / ـجَـ / ـأَاْ / نِ", options: ["مَلـْ / ـجَـ / ـأَاْ / نِ", "مَلْ / جَأَ / نِ", "مَـ / لْـ / جَآنِ"] },
+      { word: "آكُلُ", correct: "أَأْ / كُــ / ــلُ", options: ["أَأْ / كُــ / ــلُ", "آ / كُـ / لُ", "أَكُ / لُ"] },
+      { word: "يقرأانِ", correct: "يَقْـ / ـرَ / أَاْ / نِ", options: ["يَقْـ / ـرَ / أَاْ / نِ", "يَقْـ / ـرَا / نِ", "يَـ / قْرَأَانِ"] },
+      { word: "عطايا", correct: "عَـ / ـطا / يا", options: ["عَـ / ـطا / يا", "عَ / طَا / يَا", "عَطَـ / ـايَا"] },
+      { word: "البيتُ", correct: "اَلـ / ـبَيْـ / ـتُ", options: ["اَلـ / ـبَيْـ / ـتُ", "اَلْ / بَيْ / تُ", "الـ / ـبَيْتُ"] },
+      { word: "الصَّباحُ", correct: "اَلـصْـ / ـصَـ / ـبَا / حُ", options: ["اَلـصْـ / ـصَـ / ـبَا / حُ", "الصَـ / بَاحُ", "اَلصْ / صَـبَاحُ"] }
+    ];
+
+    const wordCard = document.getElementById("wordCard");
+    const choicesContainer = document.getElementById("choicesContainer");
+    const confettiCanvas = document.getElementById("confettiCanvas");
+    const ctx = confettiCanvas.getContext("2d");
+    let W = window.innerWidth;
+    let H = window.innerHeight;
+    confettiCanvas.width = W;
+    confettiCanvas.height = H;
+
+    let confettis = [];
+    for (let i = 0; i < 150; i++) {
+      confettis.push({
+        x: Math.random() * W,
+        y: Math.random() * H - H,
+        r: Math.random() * 6 + 4,
+        d: Math.random() * 10 + 5,
+        color: `hsl(${Math.random()*360},100%,70%)`,
+        tilt: Math.random() * 10 - 10
+      });
+    }
+
+    function drawConfetti() {
+      ctx.clearRect(0, 0, W, H);
+      confettis.forEach(c => {
+        ctx.beginPath();
+        ctx.fillStyle = c.color;
+        ctx.fillRect(c.x + c.tilt, c.y, c.r, c.r);
+      });
+      moveConfetti();
+    }
+
+    function moveConfetti() {
+      confettis.forEach(c => {
+        c.y += c.d;
+        c.tilt += Math.random() * 0.5;
+        if (c.y > H) {
+          c.y = -10;
+          c.x = Math.random() * W;
+        }
+      });
+    }
+
+    function startConfetti() {
+      let interval = setInterval(drawConfetti, 20);
+      setTimeout(() => clearInterval(interval), 2000);
+    }
+
+    function loadNewWord() {
+      const item = words[Math.floor(Math.random() * words.length)];
+      wordCard.textContent = item.word;
+      choicesContainer.innerHTML = "";
+      shuffle(item.options).forEach(opt => {
+        const btn = document.createElement("div");
+        btn.className = "option";
+        btn.textContent = opt;
+        btn.onclick = () => {
+          if (opt === item.correct) {
+            btn.classList.add("correct");
+            startConfetti();
+            setTimeout(loadNewWord, 2000);
+          } else {
+            btn.classList.add("wrong");
+          }
+        };
+        choicesContainer.appendChild(btn);
+      });
+    }
+
+    function shuffle(array) {
+      return array.sort(() => Math.random() - 0.5);
+    }
+
+    loadNewWord();
+  </script>
+</body>
+</html>

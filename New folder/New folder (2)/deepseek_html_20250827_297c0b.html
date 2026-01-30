@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مسابقة حفظ سورة الأعلى</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+        
+        :root {
+            --primary-color: #2c5e50;
+            --secondary-color: #f8b400;
+            --accent-color: #e74c3c;
+            --light-color: #f9f9f9;
+            --dark-color: #333;
+        }
+        
+        body {
+            font-family: 'Amiri', serif;
+            background-color: #f5f5f0;
+            color: var(--dark-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .game-container {
+            width: 90%;
+            max-width: 800px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-size: 2rem;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .instructions {
+            background: #f0f7f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-right: 4px solid var(--secondary-color);
+        }
+        
+        .mode-selection {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .mode-btn {
+            background: white;
+            border: 2px solid var(--primary-color);
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 150px;
+            text-align: center;
+        }
+        
+        .mode-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .mode-btn i {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        .recitation-area {
+            background: #f9f9f9;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border: 2px solid #eee;
+        }
+        
+        .verse-display {
+            font-size: 1.6rem;
+            line-height: 2;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .input-area {
+            margin: 20px 0;
+        }
+        
+        .verse-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-family: 'Amiri', serif;
+            font-size: 1.2rem;
+            text-align: center;
+            resize: none;
+            min-height: 100px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .verse-input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 10px rgba(248, 180, 0, 0.3);
+        }
+        
+        .verse-input.correct {
+            border-color: #4caf50;
+            background: #e8f5e9;
+        }
+        
+        .verse-input.incorrect {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            background: var(--secondary-color);
+            color: var(--dark-color);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-family: 'Amiri', serif;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .btn:hover {
+            background: #e6a800;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        
+        .btn-check {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-next {
+            background: var(--accent-color);
+            color: white;
+        }
+        
+        .btn-hint {
+            background: #9c27b0;
+            color: white;
+        }
+        
+        .btn-audio {
+            background: #2196f3;
+            color: white;
+        }
+        
+        .result-message {
+            font-size: 1.3rem;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-right: 4px solid #4caf50;
+        }
+        
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            border-right: 4px solid #f44336;
+        }
+        
+        .progress-container {
+            width: 100%;
+            background: #f0f0f0;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            height: 15px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, var(--secondary-color), var(--primary-color));
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+        
+        .score-container {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .completion-message {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 10px;
+            background: #f0f7f5;
+            display: none;
+        }
+        
+        .recitation-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .audio-btn {
+            background: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+        
+        .audio-btn:hover {
+            background: #0b7dda;
+            transform: scale(1.1);
+        }
+        
+        .hint-text {
+            font-size: 1.1rem;
+            color: #666;
+            margin-top: 10px;
+            font-style: italic;
+        }
+        
+        @media (max-width: 600px) {
+            .verse-display {
+                font-size: 1.3rem;
+            }
+            
+            .verse-input {
+                font-size: 1rem;
+            }
+            
+            .mode-selection {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .mode-btn {
+                width: 100%;
+                max-width: 250px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="game-container">
+        <h1>مسابقة حفظ سورة الأعلى</h1>
+        
+        <div class="instructions">
+            <p>اختر نمط الحفظ واختبر نفسك في حفظ سورة الأعلى</p>
+        </div>
+        
+        <div class="mode-selection" id="modeSelection">
+            <div class="mode-btn" data-mode="wordByWord">
+                <i class="fas fa-font"></i>
+                <h3>كلمة بكلمة</h3>
+                <p>حفظ تدريجي من البداية</p>
+            </div>
+            <div class="mode-btn" data-mode="verseByVerse">
+                <i class="fas fa-align-justify"></i>
+                <h3>آية بآية</h3>
+                <p>حفظ كل آية على حدة</p>
+            </div>
+            <div class="mode-btn" data-mode="fullSurah">
+                <i class="fas fa-book"></i>
+                <h3>السورة كاملة</h3>
+                <p>اختبار الحفظ الكامل</p>
+            </div>
+        </div>
+        
+        <div id="gameArea" style="display: none;">
+            <div class="score-container" id="scoreContainer">النقاط: 0</div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            
+            <div class="recitation-area">
+                <div class="verse-display" id="verseDisplay">
+                    <!-- الآية ستظهر هنا -->
+                </div>
+                
+                <div class="recitation-controls">
+                    <button class="audio-btn" id="playBtn">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <button class="audio-btn" id="repeatBtn">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                </div>
+                
+                <div class="input-area">
+                    <textarea class="verse-input" id="verseInput" placeholder="اكتب الآية هنا..."></textarea>
+                </div>
+                
+                <div class="hint-text" id="hintText"></div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn btn-check" id="checkBtn">تحقق</button>
+                <button class="btn btn-next" id="nextBtn" style="display: none;">التالي</button>
+                <button class="btn btn-hint" id="hintBtn">تلميح</button>
+            </div>
+            
+            <div class="result-message" id="resultMessage"></div>
+            
+            <div class="completion-message" id="completionMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const verses = [
+                "سَبِّحِ اسْمَ رَبِّكَ الْأَعْلَى",
+                "الَّذِي خَلَقَ فَسَوَّى",
+                "وَالَّذِي قَدَّرَ فَهَدَى",
+                "وَالَّذِي أَخْرَجَ الْمَرْعَى",
+                "فَجَعَلَهُ غُثَاءً أَحْوَى",
+                "سَنُقْرِئُكَ فَلَا تَنْسَى",
+                "إِلَّا مَا شَاءَ اللَّهُ إِنَّهُ يَعْلَمُ الْجَهْرَ وَمَا يَخْفَى",
+                "وَنُيَسِّرُكَ لِلْيُسْرَى",
+                "فَذَكِّرْ إِن نَفَعَتِ الذِّكْرَى",
+                "سَيَذَّكَّرُ مَنْ يَخْشَى",
+                "وَيَتَجَنَّبُهَا الْأَشْقَى",
+                "الَّذِي يَصْلَى النَّارَ الْكُبْرَى",
+                "ثُمَّ لَا يَمُوتُ فِيهَا وَلَا يَحْيَا",
+                "قَدْ أَفْلَحَ مَنْ تَزَكَّى",
+                "وَذَكَرَ اسْمَ رَبِّهِ فَصَلَّى",
+                "بَلْ تُؤْثِرُونَ الْحَيَاةَ الدُّنْيَا",
+                "وَالْآخِرَةُ خَيْرٌ وَأَبْقَى",
+                "إِنَّ هَذَا لَفِي الصُّحُفِ الْأُولَى",
+                "صُحُفِ إِبْرَاهِيمَ وَمُوسَى"
+            ];
+            
+            let currentMode = '';
+            let currentVerseIndex = 0;
+            let currentWordIndex = 0;
+            let score = 0;
+            let audio = null;
+            
+            const modeSelection = document.getElementById('modeSelection');
+            const gameArea = document.getElementById('gameArea');
+            const verseDisplay = document.getElementById('verseDisplay');
+            const verseInput = document.getElementById('verseInput');
+            const checkBtn = document.getElementById('checkBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const hintBtn = document.getElementById('hintBtn');
+            const resultMessage = document.getElementById('resultMessage');
+            const scoreContainer = document.getElementById('scoreContainer');
+            const progressBar = document.getElementById('progressBar');
+            const completionMessage = document.getElementById('completionMessage');
+            const hintText = document.getElementById('hintText');
+            const playBtn = document.getElementById('playBtn');
+            const repeatBtn = document.getElementById('repeatBtn');
+            
+            // أحداث اختيار النمط
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    currentMode = this.dataset.mode;
+                    startGame();
+                });
+            });
+            
+            function startGame() {
+                modeSelection.style.display = 'none';
+                gameArea.style.display = 'block';
+                
+                currentVerseIndex = 0;
+                currentWordIndex = 0;
+                score = 0;
+                updateScore();
+                
+                loadContent();
+            }
+            
+            function loadContent() {
+                verseInput.value = '';
+                verseInput.classList.remove('correct', 'incorrect');
+                resultMessage.style.display = 'none';
+                nextBtn.style.display = 'none';
+                hintText.textContent = '';
+                
+                if (currentMode === 'wordByWord') {
+                    loadWordByWord();
+                } else if (currentMode === 'verseByVerse') {
+                    loadVerseByVerse();
+                } else if (currentMode === 'fullSurah') {
+                    loadFullSurah();
+                }
+                
+                updateProgress();
+            }
+            
+            function loadWordByWord() {
+                const currentVerse = verses[currentVerseIndex];
+                const words = currentVerse.split(' ');
+                
+                if (currentWordIndex < words.length) {
+                    // عرض الكلمات حتى النقطة الحالية مع إخفاء الباقي
+                    let displayText = '';
+                    for (let i = 0; i < words.length; i++) {
+                        if (i <= currentWordIndex) {
+                            displayText += words[i] + ' ';
+                        } else {
+                            displayText += '_____ ';
+                        }
+                    }
+                    
+                    verseDisplay.textContent = displayText;
+                    verseInput.placeholder = 'اكتب الكلمة التالية...';
+                } else {
+                    // الانتقال إلى الآية التالية
+                    currentVerseIndex++;
+                    currentWordIndex = 0;
+                    
+                    if (currentVerseIndex < verses.length) {
+                        loadWordByWord();
+                    } else {
+                        showCompletion();
+                    }
+                }
+            }
+            
+            function loadVerseByVerse() {
+                verseDisplay.textContent = verses[currentVerseIndex];
+                verseInput.placeholder = 'اكتب الآية كاملة...';
+            }
+            
+            function loadFullSurah() {
+                verseDisplay.textContent = 'سورة الأعلى';
+                verseInput.placeholder = 'اكتب السورة كاملة...';
+                hintText.textContent = `عدد الآيات: ${verses.length}`;
+            }
+            
+            function checkAnswer() {
+                let isCorrect = false;
+                let userInput = verseInput.value.trim();
+                
+                if (currentMode === 'wordByWord') {
+                    const currentVerse = verses[currentVerseIndex];
+                    const words = currentVerse.split(' ');
+                    const correctWord = words[currentWordIndex];
+                    
+                    isCorrect = userInput === correctWord;
+                    
+                    if (isCorrect) {
+                        currentWordIndex++;
+                        score += 5;
+                    }
+                } else if (currentMode === 'verseByVerse') {
+                    isCorrect = userInput === verses[currentVerseIndex];
+                    
+                    if (isCorrect) {
+                        currentVerseIndex++;
+                        score += 20;
+                    }
+                } else if (currentMode === 'fullSurah') {
+                    // مقارنة مع السورة كاملة (متساهلة قليلاً)
+                    const userVerses = userInput.split('\n').filter(v => v.trim() !== '');
+                    let correctCount = 0;
+                    
+                    for (let i = 0; i < Math.min(userVerses.length, verses.length); i++) {
+                        if (userVerses[i].trim() === verses[i]) {
+                            correctCount++;
+                        }
+                    }
+                    
+                    isCorrect = correctCount === verses.length;
+                    
+                    if (isCorrect) {
+                        score += 100;
+                    } else {
+                        resultMessage.textContent = `لقد كتبت ${correctCount} من أصل ${verses.length} آية بشكل صحيح.`;
+                    }
+                }
+                
+                if (isCorrect) {
+                    verseInput.classList.add('correct');
+                    verseInput.classList.remove('incorrect');
+                    
+                    resultMessage.textContent = 'أحسنت! الإجابة صحيحة.';
+                    resultMessage.className = 'result-message success';
+                    resultMessage.style.display = 'block';
+                    
+                    // تشغيل صوت النجاح
+                    playSuccessSound();
+                    
+                    if (currentMode === 'fullSurah' && isCorrect) {
+                        showCompletion();
+                    } else {
+                        nextBtn.style.display = 'inline-block';
+                        checkBtn.style.display = 'none';
+                    }
+                } else {
+                    verseInput.classList.add('incorrect');
+                    verseInput.classList.remove('correct');
+                    
+                    resultMessage.textContent = 'الإجابة غير صحيحة، حاول مرة أخرى!';
+                    resultMessage.className = 'result-message error';
+                    resultMessage.style.display = 'block';
+                    
+                    // تشغيل صوت الخطأ
+                    playErrorSound();
+                }
+                
+                updateScore();
+                updateProgress();
+            }
+            
+            function nextContent() {
+                if (currentMode === 'wordByWord') {
+                    loadWordByWord();
+                } else if (currentMode === 'verseByVerse') {
+                    if (currentVerseIndex < verses.length) {
+                        loadVerseByVerse();
+                    } else {
+                        showCompletion();
+                    }
+                }
+                
+                checkBtn.style.display = 'inline-block';
+                nextBtn.style.display = 'none';
+            }
+            
+            function giveHint() {
+                let hint = '';
+                
+                if (currentMode === 'wordByWord') {
+                    const currentVerse = verses[currentVerseIndex];
+                    const words = currentVerse.split(' ');
+                    const correctWord = words[currentWordIndex];
+                    
+                    // إظهار أول حرفين من الكلمة
+                    hint = correctWord.substring(0, 2) + '...';
+                } else if (currentMode === 'verseByVerse') {
+                    const currentVerse = verses[currentVerseIndex];
+                    
+                    // إظهار أول كلمتين من الآية
+                    const words = currentVerse.split(' ');
+                    hint = words.slice(0, 2).join(' ') + '...';
+                } else if (currentMode === 'fullSurah') {
+                    // إظهار عدد الكلمات في الآية الأولى
+                    hint = `الآية الأولى: ${verses[0].split(' ').length} كلمة`;
+                }
+                
+                hintText.textContent = `تلميح: ${hint}`;
+                
+                // خصم نقاط عند استخدام التلميح
+                score = Math.max(0, score - 2);
+                updateScore();
+            }
+            
+            function playVerseAudio() {
+                // هذا مكان لإضافة تشغيل audio للآية
+                // في التطبيق الحقيقي، سيتم استدعاء ملفات صوتية حقيقية
+                
+                if (audio) {
+                    audio.pause();
+                }
+                
+                // إنشاء صوت اصطناعي للتوضيح
+                audio = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ==');
+                
+                // بدلاً من ذلك، يمكن استخدام رسالة توضيحية
+                resultMessage.textContent = 'جاري تشغيل تلاوة الآية...';
+                resultMessage.className = 'result-message';
+                resultMessage.style.display = 'block';
+                
+                setTimeout(() => {
+                    resultMessage.style.display = 'none';
+                }, 2000);
+            }
+            
+            function repeatVerseAudio() {
+                if (audio) {
+                    audio.currentTime = 0;
+                    audio.play();
+                    
+                    resultMessage.textContent = 'جاري إعادة تلاوة الآية...';
+                    resultMessage.className = 'result-message';
+                    resultMessage.style.display = 'block';
+                    
+                    setTimeout(() => {
+                        resultMessage.style.display = 'none';
+                    }, 2000);
+                } else {
+                    playVerseAudio();
+                }
+            }
+            
+            function playSuccessSound() {
+                // صوت النجاح
+                const successAudio = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ==');
+                successAudio.play();
+            }
+            
+            function playErrorSound() {
+                // صوت الخطأ
+                const errorAudio = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ==');
+                errorAudio.play();
+            }
+            
+            function updateScore() {
+                scoreContainer.textContent = `النقاط: ${score}`;
+            }
+            
+            function updateProgress() {
+                let progress = 0;
+                
+                if (currentMode === 'wordByWord') {
+                    const totalWords = verses.reduce((acc, verse) => acc + verse.split(' ').length, 0);
+                    const completedWords = verses.slice(0, currentVerseIndex).reduce((acc, verse) => acc + verse.split(' ').length, 0) + currentWordIndex;
+                    progress = (completedWords / totalWords) * 100;
+                } else if (currentMode === 'verseByVerse') {
+                    progress = (currentVerseIndex / verses.length) * 100;
+                } else if (currentMode === 'fullSurah') {
+                    progress = 0; // يتم تحديثه عند الانتهاء فقط
+                }
+                
+                progressBar.style.width = `${progress}%`;
+            }
+            
+            function showCompletion() {
+                verseDisplay.style.display = 'none';
+                verseInput.style.display = 'none';
+                checkBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+                hintBtn.style.display = 'none';
+                resultMessage.style.display = 'none';
+                
+                completionMessage.textContent = `مبروك! لقد أكملت ${getModeName()} بنجاح. نقاطك النهائية: ${score}`;
+                completionMessage.style.display = 'block';
+                
+                progressBar.style.width = '100%';
+                
+                // تأثيرات الإكمال
+                celebrateCompletion();
+            }
+            
+            function getModeName() {
+                switch(currentMode) {
+                    case 'wordByWord': return 'نمط كلمة بكلمة';
+                    case 'verseByVerse': return 'نمط آية بآية';
+                    case 'fullSurah': return 'نمط السورة كاملة';
+                    default: return 'اللعبة';
+                }
+            }
+            
+            function celebrateCompletion() {
+                const colors = ['#f8b400', '#2c5e50', '#e74c3c', '#4a8c7c'];
+                
+                for (let i = 0; i < 50; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.style.position = 'fixed';
+                    confetti.style.width = '10px';
+                    confetti.style.height = '10px';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.borderRadius = '50%';
+                    confetti.style.left = `${Math.random() * 100}%`;
+                    confetti.style.top = '-10px';
+                    confetti.style.zIndex = '1000';
+                    document.body.appendChild(confetti);
+                    
+                    const animationDuration = 2 + Math.random() * 3;
+                    
+                    confetti.style.transition = `all ${animationDuration}s ease-out`;
+                    
+                    setTimeout(() => {
+                        confetti.style.top = `${100 + Math.random() * 10}%`;
+                        confetti.style.left = `${parseFloat(confetti.style.left) + (Math.random() - 0.5) * 20}%`;
+                        confetti.style.opacity = '0';
+                    }, 10);
+                    
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, animationDuration * 1000);
+                }
+            }
+            
+            // أحداث الأزرار
+            checkBtn.addEventListener('click', checkAnswer);
+            nextBtn.addEventListener('click', nextContent);
+            hintBtn.addEventListener('click', giveHint);
+            playBtn.addEventListener('click', playVerseAudio);
+            repeatBtn.addEventListener('click', repeatVerseAudio);
+            
+            // دعم الإدخال بالضغط على Enter
+            verseInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && currentMode !== 'fullSurah') {
+                    e.preventDefault();
+                    checkAnswer();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

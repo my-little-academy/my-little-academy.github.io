@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>روضة الإيمان: لعبة وصل الكلمات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* الأنماط الأساسية للصفحة */
+        body {
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom, #d1eeff 0%, #e8f9d8 100%);
+            color: #333;
+            text-align: center;
+            direction: rtl;
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+            perspective: 1000px;
+        }
+        .decoration-bubble {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            filter: blur(15px);
+            opacity: 0.7;
+            animation: floatBubble 15s infinite ease-in-out alternate;
+            z-index: 0;
+        }
+        .bubble-1 { top: 5%; left: 10%; width: 100px; height: 100px; animation-delay: 0s; }
+        .bubble-2 { top: 20%; right: 15%; width: 150px; height: 150px; background-color: rgba(255, 240, 100, 0.25); animation-delay: 5s; }
+        .bubble-3 { bottom: 10%; left: 20%; width: 80px; height: 80px; background-color: rgba(150, 250, 150, 0.2); animation-delay: 10s; }
+        .bubble-4 { top: 40%; left: 40%; width: 120px; height: 120px; background-color: rgba(250, 150, 250, 0.2); animation-delay: 2s; }
+        @keyframes floatBubble {
+            0% { transform: translateY(0px) scale(1); opacity: 0.7; }
+            50% { transform: translateY(-20px) scale(1.05); opacity: 0.9; }
+            100% { transform: translateY(0px) scale(1); opacity: 0.7; }
+        }
+        header {
+            background: linear-gradient(to right, #87ceeb, #a2d2f0, #e6ffe6, #ffdb58, #ffb6c1);
+            padding: 40px 0;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            border-bottom-left-radius: 60% 40px;
+            border-bottom-right-radius: 60% 40px;
+            margin-bottom: 40px;
+            animation: headerEntrance 1.2s forwards cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        @keyframes headerEntrance {
+            from { transform: translateY(-100px) scale(0.8); opacity: 0; }
+            to { transform: translateY(0px) scale(1); opacity: 1; }
+        }
+        header h1 {
+            color: #fff;
+            font-family: 'Cairo', sans-serif;
+            font-size: 4.8em;
+            margin: 0;
+            text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 2;
+            letter-spacing: 3px;
+            font-weight: 900;
+        }
+        header p {
+            color: #ffe066;
+            font-family: 'Amiri', serif;
+            font-size: 1.8em;
+            margin-top: 15px;
+            position: relative;
+            z-index: 2;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50% / 50% 50% 0 0;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
+            animation-duration: 30s;
+            animation-iteration-count: infinite;
+            animation-timing-function: linear;
+            z-index: 1;
+            opacity: 0.9;
+        }
+        .cloud-1 { width: 180px; height: 90px; top: 10px; left: -180px; animation-name: moveCloudsLeft; animation-delay: 0s; }
+        .cloud-2 { width: 140px; height: 75px; bottom: 20px; right: -140px; animation-name: moveCloudsRight; animation-delay: 15s; }
+        @keyframes moveCloudsLeft { from { transform: translateX(0); } to { transform: translateX(calc(100vw + 200px)); } }
+        @keyframes moveCloudsRight { from { transform: translateX(0); } to { transform: translateX(calc(-100vw - 200px)); } }
+
+        .container {
+            max-width: 1000px;
+            margin: 50px auto;
+            padding: 25px;
+            position: relative;
+            z-index: 1;
+        }
+        .game-section {
+            background-color: #fff;
+            border-radius: 30px;
+            padding: 40px;
+            margin-bottom: 60px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+            border: 5px solid #ffcc00; /* إطار أصفر للعبة وصل الكلمات */
+            animation: sectionFadeIn 1.5s forwards ease-out;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+        }
+        @keyframes sectionFadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .game-section:hover {
+            transform: translateY(-5px) scale(1.01);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+        }
+        .game-section h2 {
+            color: #ff9800; /* برتقالي للعبة وصل الكلمات */
+            font-size: 3.2em;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 5px dashed #ffcc00;
+            display: inline-block;
+            font-weight: 900;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        }
+        .game-section p {
+            font-size: 1.6em;
+            line-height: 1.9;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        /* حاوية الجملة المجمعة */
+        .assembled-sentence-container {
+            background-color: #e0f2f7; /* لون أزرق فاتح */
+            border: 2px solid #81d4fa; /* إطار أزرق */
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 80px; /* لضمان وجود مساحة كافية */
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+        .assembled-word {
+            background-color: #a7d9f7; /* لون أزرق متوسط */
+            color: #2196f3; /* أزرق داكن */
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 1.8em;
+            font-weight: bold;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .assembled-word:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+        }
+
+
+        /* أنماط لعبة وصل الكلمات */
+        .matching-area {
+            display: flex;
+            flex-wrap: wrap; /* للسماح للكلمات بالانتقال لسطر جديد */
+            justify-content: center;
+            gap: 20px;
+            background-color: #fffaf0; /* خلفية فاتحة لمنطقة اللعبة */
+            border: 3px dashed #ff9800;
+            border-radius: 15px;
+            padding: 30px;
+            min-height: 400px; /* لضمان مساحة كافية للكلمات */
+            align-items: center;
+        }
+
+        .word-box {
+            background-color: #ffe0b2; /* لون برتقالي فاتح لمربعات الكلمات */
+            color: #d35400; /* لون نص برتقالي داكن */
+            padding: 18px 25px;
+            border-radius: 12px;
+            font-size: 2.2em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            border: 2px solid #ffbb77;
+            user-select: none; /* منع تحديد النص */
+        }
+        .word-box:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            background-color: #ffcc80;
+        }
+        /* لا تستخدم .selected هنا، لأن الكلمة ستنتقل، وليس فقط تُحدد */
+        .word-box.used { /* الكلمة المختارة ستصبح مخفية بدلاً من تحديدها */
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.8);
+        }
+        .word-box.correct { /* عندما تكون الكلمة في مكانها الصحيح بعد التحقق */
+            background-color: #28a745; /* أخضر عند الإجابة الصحيحة */
+            border-color: #218838;
+            color: #fff;
+            transform: scale(1.05);
+            cursor: default;
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.3);
+            animation: correctPop 0.3s ease-out forwards;
+        }
+        @keyframes correctPop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1.05); }
+        }
+        .word-box.incorrect { /* الكلمة التي كانت ضمن إجابة خاطئة */
+            background-color: #dc3545; /* أحمر عند الإجابة الخاطئة */
+            border-color: #c82333;
+            color: #fff;
+            transform: scale(0.95);
+            animation: shake 0.4s ease-in-out;
+        }
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        /* الأزرار */
+        .button {
+            display: inline-block;
+            background: linear-gradient(to right, #ff9800, #ffb64d);
+            color: white;
+            padding: 20px 40px;
+            margin: 20px 15px;
+            border-radius: 40px;
+            text-decoration: none;
+            font-size: 1.6em;
+            font-weight: 900;
+            transition: all 0.4s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            border: none;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            transform: translateZ(0);
+        }
+        .button::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 70%);
+            transform: rotate(45deg);
+            transition: all 0.5s ease-out;
+            opacity: 0;
+        }
+        .button:hover {
+            background: linear-gradient(to right, #f57c00, #ffa000);
+            transform: translateY(-10px) scale(1.08) translateZ(10px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+        }
+        .button:hover::before {
+            opacity: 1;
+            transform: rotate(45deg) translate(20%, 20%);
+        }
+
+        /* نمط زر التحقق */
+        .check-button {
+            background: linear-gradient(to right, #4CAF50, #8BC34A); /* أخضر */
+            color: white;
+            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
+        }
+        .check-button:hover {
+            background: linear-gradient(to right, #388E3C, #689F38);
+            transform: translateY(-5px) scale(1.05) translateZ(5px);
+        }
+
+        /* نمط زر التراجع */
+        .undo-button {
+            background: linear-gradient(to right, #ffeb3b, #ffc107); /* أصفر */
+            color: #333;
+            box-shadow: 0 8px 20px rgba(255, 235, 59, 0.3);
+        }
+        .undo-button:hover {
+            background: linear-gradient(to right, #ffc107, #ffb300);
+            transform: translateY(-5px) scale(1.05) translateZ(5px);
+        }
+
+
+        /* تذييل الصفحة */
+        footer {
+            background: linear-gradient(to right, #87ceeb, #a2d2f0, #e6ffe6);
+            color: white;
+            padding: 35px 0;
+            margin-top: 70px;
+            font-size: 1.3em;
+            box-shadow: 0 -8px 18px rgba(0, 0, 0, 0.2);
+            border-top-left-radius: 60% 40px;
+            border-top-right-radius: 60% 40px;
+        }
+        footer p {
+            margin: 8px 0;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        /* أنماط الكونفيتي */
+        #confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* السماح بالتفاعل مع العناصر خلفها */
+            z-index: 1000; /* التأكد من ظهورها فوق كل شيء */
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 15px;
+            background-color: #fce18a; /* أصفر */
+            top: -20px;
+            border-radius: 5px;
+            opacity: 0;
+            animation: confettiFall 5s forwards, confettiRotate 3s infinite linear;
+        }
+
+        .confetti:nth-child(even) {
+            background-color: #ff726d; /* أحمر */
+        }
+
+        .confetti:nth-child(odd) {
+            background-color: #f4306d; /* وردي */
+        }
+
+        @keyframes confettiFall {
+            to {
+                transform: translateY(calc(100vh + 30px)) rotateX(360deg);
+                opacity: 1;
+            }
+        }
+
+        @keyframes confettiRotate {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* استجابة التصميم */
+        @media (max-width: 768px) {
+            header h1 { font-size: 3.5em; }
+            header p { font-size: 1.5em; }
+            .game-section { padding: 30px; margin-bottom: 40px; }
+            .game-section h2 { font-size: 2.5em; }
+            .button { padding: 16px 30px; font-size: 1.4em; }
+            .word-box { font-size: 1.8em; padding: 15px 20px;}
+            .assembled-word { font-size: 1.8em; }
+        }
+        @media (max-width: 480px) {
+            header h1 { font-size: 2.8em; letter-spacing: 1px;}
+            header p { font-size: 1.2em; }
+            .game-section { padding: 20px; margin-bottom: 30px; border-radius: 20px; }
+            .game-section h2 { font-size: 2em; padding-bottom: 15px; }
+            .button { padding: 12px 25px; font-size: 1.2em; border-radius: 30px; margin: 15px 8px;}
+            .word-box { font-size: 1.5em; padding: 12px 18px;}
+            .assembled-word { font-size: 1.4em; padding: 8px 12px;}
+        }
+    </style>
+</head>
+<body>
+
+    <div class="decoration-bubble bubble-1"></div>
+    <div class="decoration-bubble bubble-2"></div>
+    <div class="decoration-bubble bubble-3"></div>
+    <div class="decoration-bubble bubble-4"></div>
+
+    <header>
+        <div class="cloud cloud-1"></div>
+        <div class="cloud cloud-2"></div>
+        <h1>روضة الإيمان</h1>
+        <p>مرحباً بكم في روضة الإيمان، حيث يتعلم أطفالنا قيم الإسلام وأساسياته بطرق ممتعة ومبتكرة.</p>
+    </header>
+
+    <div class="container">
+        <section class="game-section">
+            <h2>وصل كلمات الشهادة! <span style="font-size:0.6em; color:#ffcc00;">🧩</span></h2>
+            <p>انقر على الكلمات بالترتيب الصحيح لتكوين الشهادة في الأسفل، ثم اضغط "تحقق"!</p>
+
+            <div class="assembled-sentence-container" id="assembledSentence">
+                </div>
+
+            <div class="matching-area" id="matchingGame">
+                <div class="word-box" data-word="أَشْهَدُ">أَشْهَدُ</div>
+                <div class="word-box" data-word="أَنْ">أَنْ</div>
+                <div class="word-box" data-word="لَا">لَا</div>
+                <div class="word-box" data-word="إِلَٰهَ">إِلَٰهَ</div>
+                <div class="word-box" data-word="إِلَّا">إِلَّا</div>
+                <div class="word-box" data-word="ٱللَّهُ">ٱللَّهُ</div>
+                <div class="word-box" data-word="وَأَشْهَدُ">وَأَشْهَدُ</div>
+                <div class="word-box" data-word="أَنَّ">أَنَّ</div>
+                <div class="word-box" data-word="مُحَمَّدًا">مُحَمَّدًا</div>
+                <div class="word-box" data-word="رَسُولُ">رَسُولُ</div>
+                <div class="word-box" data-word="ٱللَّهِ">ٱللَّهِ</div>
+            </div>
+
+            <button class="button check-button" onclick="verifySentence()">تحقق</button>
+            <button class="button undo-button" onclick="undoLastWord()">تراجع</button>
+            <button class="button" onclick="resetGame()">إعادة اللعبة</button>
+            <a href="index.html" class="button">العودة للصفحة الرئيسية</a>
+        </section>
+    </div>
+
+    <footer>
+        <p>© 2025 روضة الإيمان. جميع الحقوق محفوظة.</p>
+        <p>صُمم بحب وإبداع لأطفالنا الأعزاء، ليزهر الإيمان في قلوبهم ويضيء دروبهم بنور الإسلام.</p>
+    </footer>
+
+    <div id="confetti-container"></div> <script>
+        const assembledSentenceContainer = document.getElementById('assembledSentence');
+        // تعريف الجملة الصحيحة الكاملة
+        const correctSentence = "أَشْهَدُ أَنْ لَا إِلَٰهَ إِلَّا ٱللَّهُ وَأَشْهَدُ أَنَّ مُحَمَّدًا رَسُولُ ٱللَّهِ";
+        
+        // مصفوفة لتخزين الكلمات المختارة وعناصرها الأصلية في منطقة اللعب
+        let assembledWords = []; 
+        let currentWordBoxes = []; // لتخزين الكلمات الحالية في منطقة اللعب
+
+        // دالة لخلط عناصر مصفوفة (Fisher-Yates shuffle)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array; // أعد المصفوفة المختلطة
+        }
+
+        // تهيئة اللعبة عند التحميل
+        document.addEventListener('DOMContentLoaded', () => {
+            const matchingArea = document.getElementById('matchingGame');
+            // جمع جميع مربعات الكلمات الموجودة في HTML (للتلاعب بها مباشرة)
+            currentWordBoxes = Array.from(matchingArea.querySelectorAll('.word-box'));
+
+            // إزالة الكلمات من matchingArea لإعادة إضافتها بعد الخلط
+            matchingArea.innerHTML = ''; 
+
+            const shuffledBoxes = shuffleArray(currentWordBoxes); // نخلط الكلمات الأصلية مباشرة
+
+            shuffledBoxes.forEach(box => {
+                // التأكد من أن الكلمة تبدأ بحالة نظيفة
+                box.classList.remove('used', 'correct', 'incorrect');
+                box.style.opacity = '1';
+                box.style.pointerEvents = 'auto'; 
+                
+                box.addEventListener('click', () => {
+                    if (box.classList.contains('used')) { // منع النقر على الكلمات المستخدمة
+                        return;
+                    }
+                    addWordToSentence(box);
+                });
+                matchingArea.appendChild(box); // نعيد إضافة الكلمة (المختلطة) إلى منطقة اللعب
+            });
+        });
+
+        // إضافة كلمة إلى حاوية الجملة المجمعة
+        function addWordToSentence(wordBox) {
+            const wordText = wordBox.dataset.word;
+            const assembledWordSpan = document.createElement('span');
+            assembledWordSpan.classList.add('assembled-word');
+            assembledWordSpan.textContent = wordText;
+            
+            assembledSentenceContainer.appendChild(assembledWordSpan);
+            assembledWords.push({ element: wordBox, text: wordText }); // تخزين العنصر والنص
+            wordBox.classList.add('used'); // وضع علامة على الكلمة بأنها استخدمت
+            wordBox.style.opacity = '0'; // إخفاء الكلمة من منطقة اللعب
+            wordBox.style.pointerEvents = 'none'; // منع النقر عليها مرة أخرى
+        }
+
+        // التراجع عن آخر كلمة مختارة
+        function undoLastWord() {
+            if (assembledWords.length > 0) {
+                const lastWord = assembledWords.pop(); // إزالة آخر كلمة من المصفوفة
+                assembledSentenceContainer.removeChild(assembledSentenceContainer.lastChild); // إزالة العنصر من الواجهة (حاوية التجميع)
+                
+                lastWord.element.classList.remove('used'); // إزالة علامة الاستخدام
+                lastWord.element.style.opacity = '1'; // إعادة إظهار الكلمة في منطقة اللعب
+                lastWord.element.style.pointerEvents = 'auto'; // إعادة تفعيل النقر عليها
+            }
+        }
+
+        // وظيفة التحقق من الجملة المجمعة
+        function verifySentence() {
+            const currentSentence = assembledWords.map(word => word.text).join(' '); // جمع الكلمات بفراغ
+            
+            if (currentSentence === correctSentence) {
+                alert('أحسنت! لقد أكملت الشهادة بنجاح!');
+                playSuccessSound();
+                startConfetti();
+                // وضع علامة "صحيح" على جميع الكلمات في منطقة اللعب وتعطيلها بشكل دائم
+                assembledWords.forEach(wordObj => {
+                    wordObj.element.classList.add('correct');
+                    wordObj.element.style.pointerEvents = 'none'; // منع النقر بعد الحل الصحيح
+                    wordObj.element.style.opacity = '1'; // التأكد من أنها مرئية إذا كانت مخفية
+                });
+                // تعطيل الأزرار لمنع المزيد من التفاعل بعد الحل
+                document.querySelector('.check-button').disabled = true;
+                document.querySelector('.undo-button').disabled = true;
+
+            } else {
+                alert('حاول مرة أخرى! الجملة ليست صحيحة بعد.');
+                playFailSound();
+                // وضع علامة "غير صحيح" على جميع الكلمات ثم إعادتها لمنطقة اللعب
+                assembledWords.forEach(wordObj => {
+                    wordObj.element.classList.add('incorrect'); // إشارة للخطأ
+                    wordObj.element.style.opacity = '1'; // إظهارها مرة أخرى
+                    wordObj.element.style.pointerEvents = 'auto'; // تفعيل النقر
+                    wordObj.element.classList.remove('used'); // إزالة علامة الاستخدام
+                    // إزالة علامة الخطأ بعد فترة قصيرة
+                    setTimeout(() => {
+                        wordObj.element.classList.remove('incorrect');
+                    }, 800);
+                });
+                assembledWords = []; // تفريغ الجملة المجمعة
+                assembledSentenceContainer.innerHTML = ''; // مسح الحاوية المرئية
+            }
+        }
+
+        // وظيفة لإعادة تعيين اللعبة بالكامل
+        function resetGame() {
+            location.reload(); // أسهل طريقة لإعادة ترتيب الكلمات بشكل عشوائي
+        }
+
+        // وظائف تشغيل الأصوات
+        function playSuccessSound() {
+            const audio = new Audio('audio/success.mp3'); 
+            audio.play().catch(e => console.error("Error playing success sound:", e));
+        }
+        function playFailSound() {
+            const audio = new Audio('audio/fail.mp3'); 
+            audio.play().catch(e => console.error("Error playing fail sound:", e));
+        }
+        function playGameCompleteSound() {
+            const audio = new Audio('audio/game_complete.mp3'); 
+            audio.play().catch(e => console.error("Error playing game complete sound:", e));
+        }
+
+        // وظيفة تشغيل الكونفيتي
+        function startConfetti() {
+            const container = document.getElementById('confetti-container');
+            container.innerHTML = ''; // مسح الكونفيتي السابق
+
+            const confettiCount = 100; // عدد أوراق الكونفيتي
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.animationDelay = `${Math.random() * 3}s`;
+                confetti.style.width = `${Math.random() * 10 + 8}px`;
+                confetti.style.height = `${Math.random() * 15 + 12}px`;
+                confetti.style.rotate = `${Math.random() * 360}deg`;
+                container.appendChild(confetti);
+            }
+
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
+        }
+    </script>
+
+</body>
+</html>

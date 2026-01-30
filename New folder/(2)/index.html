@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contes Magiques de la Grammaire Française</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Creepster&family=Griffy:wght@400&family=Kalam:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Kalam', cursive;
+            background: linear-gradient(-45deg, #1a0033, #2d1b69, #0f3460, #16537e);
+            background-size: 400% 400%;
+            animation: magicGradient 15s ease infinite;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Étoiles magiques */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            color: #ffd700;
+            animation: sparkle 3s infinite ease-in-out;
+        }
+
+        /* Lune magique */
+        .moon {
+            position: fixed;
+            top: 5%;
+            right: 10%;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+            border-radius: 50%;
+            box-shadow: 0 0 50px rgba(255, 234, 167, 0.6);
+            z-index: 2;
+            animation: moonGlow 4s ease-in-out infinite alternate;
+        }
+
+        .moon::before {
+            content: '🌙';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 60px;
+        }
+
+        /* Nuages flottants */
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 100px;
+            animation: float 20s infinite linear;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: enchantedEntrance 2s ease-out;
+        }
+
+        .header h1 {
+            font-family: 'Creepster', cursive;
+            font-size: 4rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #feca57, #ff9ff3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+            margin-bottom: 20px;
+            animation: textGlow 3s ease-in-out infinite alternate;
+        }
+
+        .header p {
+            font-size: 1.4rem;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            border-radius: 30px;
+            display: inline-block;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .stories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .story-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border-radius: 25px;
+            padding: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            transition: all 0.5s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .story-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.8s;
+        }
+
+        .story-card:hover::before {
+            left: 100%;
+        }
+
+        .story-card:hover {
+            transform: translateY(-15px) scale(1.03);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .story-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 25px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            animation: magicPulse 4s ease-in-out infinite;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .story-title {
+            font-family: 'Griffy', cursive;
+            font-size: 1.8rem;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .story-description {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.7;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+        }
+
+        .story-preview {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #4ecdc4;
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.95);
+            text-align: left;
+        }
+
+        .read-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            width: 100%;
+            text-transform: uppercase;
+            font-family: 'Griffy', cursive;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .read-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .read-btn:hover::before {
+            left: 100%;
+        }
+
+        .read-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .difficulty-gem {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+            animation: gemSparkle 2s infinite ease-in-out;
+        }
+
+        .facile {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+        }
+
+        .moyen {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+        }
+
+        .difficile {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a0033, #2d1b69);
+            margin: 3% auto;
+            padding: 40px;
+            border-radius: 25px;
+            width: 90%;
+            max-width: 800px;
+            position: relative;
+            animation: magicAppear 0.8s ease;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            position: absolute;
+            right: 25px;
+            top: 20px;
+            font-size: 35px;
+            cursor: pointer;
+            color: #ff6b6b;
+            transition: all 0.3s ease;
+            z-index: 1001;
+        }
+
+        .close:hover {
+            color: #ff5252;
+            transform: scale(1.2) rotate(90deg);
+        }
+
+        .story-content {
+            color: #fff;
+            line-height: 1.8;
+            font-size: 1.2rem;
+        }
+
+        .story-content h2 {
+            font-family: 'Griffy', cursive;
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #4ecdc4, #45b7d1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .story-section {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border-left: 4px solid #4ecdc4;
+        }
+
+        .grammar-highlight {
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .magic-sparkles {
+            position: absolute;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .sparkle {
+            position: absolute;
+            color: #ffd700;
+            font-size: 20px;
+            animation: sparkleFloat 3s infinite ease-in-out;
+        }
+
+        /* Animations */
+        @keyframes magicGradient {
+            0%, 100% { background-position: 0% 50%; }
+            25% { background-position: 100% 50%; }
+            50% { background-position: 50% 100%; }
+            75% { background-position: 50% 0%; }
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0.3; transform: scale(1) rotate(0deg); }
+            50% { opacity: 1; transform: scale(1.2) rotate(180deg); }
+        }
+
+        @keyframes moonGlow {
+            0% { box-shadow: 0 0 50px rgba(255, 234, 167, 0.6); }
+            100% { box-shadow: 0 0 100px rgba(255, 234, 167, 0.9); }
+        }
+
+        @keyframes float {
+            0% { transform: translateX(-100px) translateY(0px); }
+            100% { transform: translateX(calc(100vw + 100px)) translateY(-20px); }
+        }
+
+        @keyframes enchantedEntrance {
+            0% {
+                opacity: 0;
+                transform: translateY(-100px) scale(0.5);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes textGlow {
+            0% { text-shadow: 0 0 30px rgba(255, 255, 255, 0.5); }
+            100% { text-shadow: 0 0 60px rgba(255, 255, 255, 0.8); }
+        }
+
+        @keyframes magicPulse {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.05) rotate(2deg); }
+            50% { transform: scale(1.1) rotate(0deg); }
+            75% { transform: scale(1.05) rotate(-2deg); }
+        }
+
+        @keyframes gemSparkle {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(180deg); }
+        }
+
+        @keyframes magicAppear {
+            0% {
+                opacity: 0;
+                transform: scale(0.3) rotate(10deg);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        @keyframes sparkleFloat {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0.7;
+            }
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .stories-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .modal-content {
+                margin: 5% auto;
+                padding: 25px;
+            }
+            
+            .story-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Étoiles magiques -->
+    <div class="stars"></div>
+    
+    <!-- Lune magique -->
+    <div class="moon"></div>
+    
+    <!-- Nuages flottants -->
+    <div class="cloud" style="top: 15%; width: 100px; height: 40px; animation-duration: 25s;"></div>
+    <div class="cloud" style="top: 35%; width: 80px; height: 30px; animation-duration: 30s; animation-delay: 5s;"></div>
+    <div class="cloud" style="top: 60%; width: 120px; height: 50px; animation-duration: 35s; animation-delay: 10s;"></div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🧙‍♀️ Contes Magiques de la Grammaire 🧙‍♂️</h1>
+            <p>✨ Découvre les secrets de la langue française à travers des aventures enchantées! ✨</p>
+        </div>
+
+        <div class="stories-grid">
+            <div class="story-card" onclick="openStory('dragonStory')">
+                <div class="difficulty-gem facile">⭐</div>
+                <div class="story-icon">🐉</div>
+                <h3 class="story-title">Le Dragon des Verbes en -ER</h3>
+                <p class="story-description">
+                    Dans un royaume lointain, un gentil dragon enseigne aux villageois comment conjuguer les verbes magiques qui finissent par -ER...
+                </p>
+                <div class="story-preview">
+                    "Je parle, tu parles, il parle..." murmura le dragon d'une voix douce. "Regardez comme ces mots dansent ensemble!"
+                </div>
+                <button class="read-btn">📖 Lire l'Histoire</button>
+            </div>
+
+            <div class="story-card" onclick="openStory('fairyStory')">
+                <div class="difficulty-gem facile">⭐</div>
+                <div class="story-icon">🧚‍♀️</div>
+                <h3 class="story-title">La Fée des Articles Magiques</h3>
+                <p class="story-description">
+                    Une fée bienveillante possède des baguettes magiques appelées "le", "la", "un", "une"... Chacune a un pouvoir spécial!
+                </p>
+                <div class="story-preview">
+                    "Le soleil brille, la lune scintille, un oiseau chante, une étoile danse..." La fée agitait ses baguettes avec grâce.
+                </div>
+                <button class="read-btn">📖 Lire l'Histoire</button>
+            </div>
+
+            <div class="story-card" onclick="openStory('wizardStory')">
+                <div class="difficulty-gem moyen">🔥</div>
+                <div class="story-icon">🧙‍♂️</div>
+                <h3 class="story-title">Le Sorcier des Adjectifs Changeants</h3>
+                <p class="story-description">
+                    Un vieux sorcier découvre que ses potions changent de couleur selon les mots qu'elles décrivent. Un mystère grammatical à résoudre!
+                </p>
+                <div class="story-preview">
+                    "Étrange... ma potion devient 'petite' près d'une souris, mais 'petit' près d'un chat!" s'exclama le sorcier perplexe.
+                </div>
+                <button class="read-btn">📖 Lire l'Histoire</button>
+            </div>
+
+            <div class="story-card" onclick="openStory('princessStory')">
+                <div class="difficulty-gem moyen">🔥</div>
+                <div class="story-icon">👸</div>
+                <h3 class="story-title">La Princesse et les Pronoms Mystérieux</h3>
+                <p class="story-description">
+                    Une princesse curieuse rencontre des créatures magiques qui se cachent derrière des mots comme "je", "tu", "il", "elle"...
+                </p>
+                <div class="story-preview">
+                    "Qui es-tu, petit être invisible?" demanda la princesse. "Je suis JE!" répondit une voix. "Et moi, je suis TU!"
+                </div>
+                <button class="read-btn">📖 Lire l'Histoire</button>
+            </div>
+
+            <div class="story-card" onclick="openStory('unicornStory')">
+                <div class="difficulty-gem difficile">💎</div>
+                <div class="story-icon">🦄</div>
+                <h3 class="story-title">La Licorne du Subjonctif Enchanté</h3>
+                <p class="story-description">
+                    Une licorne magique ne peut apparaître que quand on exprime ses émotions et désirs avec des mots très spéciaux...
+                </p>
+                <div class="story-preview">
+                    "Il faut que tu viennes!" cria l'enfant. Soudain, une lumière dorée apparut... La licorne était là!
+                </div>
+                <button class="read-btn">📖 Lire l'Histoire</button>
+            </div>
+
+            <div class="story-card" onclick="openStory('phoenixStory')">
+                <div class="difficulty-gem difficile">💎</div>
+                <div class="story-icon">🔥</div>
+                <h3 class="story-title">Le Phoenix des Rêves Conditionnels</h3>
+                <p class="story-description">
+                    Un phoenix légendaire réalise les rêves de ceux qui savent utiliser les mots du conditionnel pour exprimer leurs souhaits...
+                </p>
+                <div class="story-preview">
+                    "Si j'avais des ailes, je volerais jusqu'aux étoiles!" Le phoenix sourit... "Ton rêve peut se réaliser!"
+                </div>
+                <button class="read-btn">📖 Lire l'Histoire</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Particules magiques -->
+    <div class="magic-sparkles"></div>
+
+    <!-- Modal pour l'histoire du dragon -->
+    <div id="dragonStory" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('dragonStory')">&times;</span>
+            <div class="story-content">
+                <h2>🐉 Le Dragon des Verbes en -ER</h2>
+                
+                <div class="story-section">
+                    <p>Il était une fois, dans un royaume enchanté, un gentil dragon nommé <strong>Conjugo</strong>. Contrairement aux autres dragons qui crachaient du feu, Conjugo crachait des mots magiques!</p>
+                </div>
+
+                <div class="story-section">
+                    <p>Chaque matin, les villageois venaient le voir avec leurs <span class="grammar-highlight">verbes en -ER</span> tout emmêlés. "Aidez-nous, dragon Conjugo!" suppliaient-ils.</p>
+                    
+                    <p>Le dragon souriait de ses grandes dents brillantes et commençait sa leçon magique:</p>
+                </div>
+
+                <div class="story-section">
+                    <h3>🎭 La Danse des Terminaisons</h3>
+                    <p>"Regardez bien, mes chers amis," disait Conjugo en agitant sa queue. "Tous les verbes en -ER dansent la même danse!"</p>
+                    
+                    <p>Il prit le verbe <strong>"CHANTER"</strong> et commença à le transformer:</p>
+                    
+                    <ul style="font-size: 1.1em; margin: 20px 0; line-height: 2;">
+                        <li>👦 <span class="grammar-highlight">Je chant-E</span> (comme un petit oiseau)</li>
+                        <li>🧒 <span class="grammar-highlight">Tu chant-ES</span> (avec ton ami)</li>
+                        <li>👨 <span class="grammar-highlight">Il/Elle chant-E</span> (tout seul)</li>
+                        <li>👥 <span class="grammar-highlight">Nous chant-ONS</span> (en chœur)</li>
+                        <li>👫 <span class="grammar-highlight">Vous chant-EZ</span> (poliment)</li>
+                        <li>👬 <span class="grammar-highlight">Ils/Elles chant-ENT</span> (en groupe)</li>
+                    </ul>
+                </div>
+
+                <div class="story-section">
+                    <h3>✨ La Magie se Répand</h3>
+                    <p>"Maintenant," continua le dragon, "essayez avec <strong>JOUER</strong>, <strong>DANSER</strong>, ou <strong>VOLER</strong>! La magie fonctionne avec tous les verbes en -ER!"</p>
+                    
+                    <p>Les villageois s'exercèrent: "Je joue, tu danses, il vole!" Et comme par magie, leurs phrases devinrent parfaites!</p>
+                </div>
+
+                <div class="story-section">
+                    <p>Depuis ce jour, tous les enfants du royaume savaient conjuguer les verbes en -ER grâce au gentil dragon Conjugo. Et ils vécurent heureux... en parlant français correctement!</p>
+                    
+                    <p style="text-align: center; font-style: italic; color: #4ecdc4; margin-top: 20px;">
+                        "Et toi, petit lecteur, sauras-tu continuer la magie des verbes en -ER?" 🌟
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal pour l'histoire de la fée -->
+    <div id="fairyStory" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('fairyStory')">&times;</span>
+            <div class="story-content">
+                <h2>🧚‍♀️ La Fée des Articles Magiques</h2>
+                
+                <div class="story-section">
+                    <p>Au cœur de la Forêt Enchantée vivait <strong>Articula</strong>, une fée aux cheveux dorés qui possédait les baguettes magiques les plus puissantes du royaume!</p>
+                </div>
+
+                <div class="story-section">
+                    <p>Ses quatre baguettes principales avaient chacune un pouvoir spécial:</p>
+                    
+                    <ul style="font-size: 1.1em; margin: 20px 0; line-height: 2;">
+                        <li>🪄 <span class="grammar-highlight">LA baguette dorée</span> - pour les mots-filles précis</li>
+                        <li>⚡ <span class="grammar-highlight">LE bâton argenté</span> - pour les mots-garçons précis</li>
+                        <li>✨ <span class="grammar-highlight">UNE étoile rose</span> - pour une mot-fille en général</li>
+                        <li>🌟 <span class="grammar-highlight">UN cristal bleu</span> - pour un mot-garçon en général</li>
+                    </ul>
+                </div>
+
+                <div class="story-section">
+                    <h3>🎪 Le Grand Spectacle</h3>
+                    <p>Un jour, Articula organisa un spectacle magique pour enseigner aux enfants du village:</p>
+                    
+                    <p>"Regardez!" dit-elle en agitant SA baguette dorée. <span class="grammar-highlight">"LA lune"</span> apparut, brillante et précise dans le ciel.</p>
+                    
+                    <p>Puis avec SON bâton argenté: <span class="grammar-highlight">"LE soleil"</span> se leva, majestueux et éclatant.</p>
+                    
+                    <p>"Maintenant, pour créer quelque chose de nouveau..." Elle brandit SON étoile rose et <span class="grammar-highlight">"UNE fleur"</span> poussa du sol.</p>
+                    
+                    <p>Enfin, avec SON cristal bleu: <span class="grammar-highlight">"UN papillon"</span> voltigea autour de la fleur!</p>
+                </div>
+
+                <div class="story-section">
+                    <h3>🌈 Le Secret Révélé</h3>
+                    <p>"Le secret," murmura Articula aux enfants émerveillés, "c'est de savoir si votre mot est un garçon ou une fille, et s'il est précis ou général!"</p>
+                    
+                    <p>"<span class="grammar-highlight">LE et LA</span> sont pour les choses qu'on connaît déjà, comme THE en anglais."</p>
+                    <p>"<span class="grammar-highlight">UN et UNE</span> sont pour les choses nouvelles, comme A en anglais."</p>
+                </div>
+
+                <div class="story-section">
+                    <p>Les enfants apprirent rapidement et purent eux aussi créer de la magie avec les articles. La fée Articula était si fière qu'elle leur offrit à chacun une petite baguette magique!</p>
+                    
+                    <p style="text-align: center; font-style: italic; color: #4ecdc4; margin-top: 20px;">
+                        "Et toi, veux-tu apprendre la magie des articles?" ✨
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal pour l'histoire du sorcier -->
+    <div id="wizardStory" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('wizardStory')">&times;</span>
+            <div class="story-content">
+                <h2>🧙‍♂️ Le Sorcier des Adjectifs Changeants</h2>
+                <div class="story-section">
+                    <p>Dans sa tour de pierre, le vieux sorcier <strong>Adjectivus</strong> préparait des potions... mais quelque chose n'allait pas! Ses potions changeaient de forme et de couleur en fonction des mots magiques qu'il prononçait.</p>
+                </div>
+                <div class="story-section">
+                    <h3>🧪 La Magie des Accords</h3>
+                    <p>Le sorcier découvrit que ses potions obéissaient aux <span class="grammar-highlight">adjectifs</span>! Si l'adjectif s'accordait avec un objet féminin, la potion devenait belle et rose. Si l'objet était masculin, elle restait bleue et forte.</p>
+                    <ul>
+                        <li><span class="grammar-highlight">Le</span> château est <span class="grammar-highlight">beau</span>.</li>
+                        <li><span class="grammar-highlight">La</span> tour est <span class="grammar-highlight">belle</span>.</li>
+                        <li><span class="grammar-highlight">Les</span> châteaux sont <span class="grammar-highlight">beaux</span>.</li>
+                        <li><span class="grammar-highlight">Les</span> tours sont <span class="grammar-highlight">belles</span>.</li>
+                    </ul>
+                </div>
+                <div class="story-section">
+                    <p>Adjectivus comprit le secret: les adjectifs doivent s'accorder en genre (masculin/féminin) et en nombre (singulier/pluriel) avec les noms qu'ils décrivent. Il créa alors la potion de l'accord parfait!</p>
+                    <p style="text-align: center; font-style: italic; color: #4ecdc4; margin-top: 20px;">
+                        "Sauras-tu trouver le bon accord pour chaque nom?" 🔮
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal pour l'histoire de la princesse -->
+    <div id="princessStory" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('princessStory')">&times;</span>
+            <div class="story-content">
+                <h2>👸 La Princesse et les Pronoms Mystérieux</h2>
+                <div class="story-section">
+                    <p>La princesse <strong>Pronomia</strong> s'ennuyait. Son père, le roi, avait toujours le même discours: "Le roi est fatigué. Le roi veut se reposer." C'était répétitif! Elle décida de chercher de l'aide auprès de créatures mystérieuses.</p>
+                </div>
+                <div class="story-section">
+                    <h3>🤝 Les Hôtes de la Phrase</h3>
+                    <p>Elle rencontra des êtres magiques, les <span class="grammar-highlight">pronoms</span>. Ils avaient le pouvoir de remplacer les noms pour que les phrases soient plus fluides et variées.</p>
+                    <p>"Au lieu de dire 'Le roi est fatigué', dis 'Il est fatigué'," expliqua un petit être appelé 'il'.</p>
+                    <p>"Et quand tu parles de moi, la princesse, dis 'elle'," ajouta un autre, 'elle'.</p>
+                    <p>Pronomia essaya: <span class="grammar-highlight">"Je"</span> suis Pronomia. <span class="grammar-highlight">"Tu"</span> es mon ami. <span class="grammar-highlight">"Il"</span> est le roi.</p>
+                </div>
+                <div class="story-section">
+                    <p>Grâce aux pronoms, la princesse put parler plus facilement et plus joliment. Le roi fut si content qu'il n'utilisa plus jamais son propre nom!</p>
+                    <p style="text-align: center; font-style: italic; color: #4ecdc4; margin-top: 20px;">
+                        "Peux-tu trouver le bon pronom pour remplacer chaque nom?" 👑
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal pour l'histoire de la licorne -->
+    <div id="unicornStory" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('unicornStory')">&times;</span>
+            <div class="story-content">
+                <h2>🦄 La Licorne du Subjonctif Enchanté</h2>
+                <div class="story-section">
+                    <p>Dans le Bois des Rêves, une licorne magique nommée <strong>Subjunctiva</strong> ne pouvait être vue que lorsque quelqu'un exprimait un souhait, un désir, une incertitude ou un sentiment, mais avec une magie spéciale...</p>
+                </div>
+                <div class="story-section">
+                    <h3>🌟 Le Pouvoir des Désirs</h3>
+                    <p>L'enfant comprit qu'il fallait utiliser le <span class="grammar-highlight">subjonctif</span> pour faire apparaître la licorne. La formule magique commençait toujours par "Il faut que..." ou "Je souhaite que...".</p>
+                    <ul>
+                        <li>Il faut <span class="grammar-highlight">que je sois</span> sage.</li>
+                        <li>Je souhaite <span class="grammar-highlight">que tu viennes</span> avec moi.</li>
+                        <li>Il est important <span class="grammar-highlight">qu'il parte</span> tôt.</li>
+                    </ul>
+                    <p>Le subjonctif permettait d'exprimer ce qui n'était pas encore une certitude, mais un espoir. À chaque fois qu'il était utilisé, la licorne devenait un peu plus visible.</p>
+                </div>
+                <div class="story-section">
+                    <p>Le jour où l'enfant exprima son plus grand désir, la licorne apparut, brillante et radieuse, pour le remercier d'avoir compris le secret de la magie du subjonctif.</p>
+                    <p style="text-align: center; font-style: italic; color: #4ecdc4; margin-top: 20px;">
+                        "Quelle est la phrase magique qui fera apparaître ta propre licorne?" ✨
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal pour l'histoire du phoenix -->
+    <div id="phoenixStory" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('phoenixStory')">&times;</span>
+            <div class="story-content">
+                <h2>🔥 Le Phoenix des Rêves Conditionnels</h2>
+                <div class="story-section">
+                    <p>Un phoenix légendaire, <strong>Conditionalis</strong>, vivait au sommet d'une montagne. Il avait le pouvoir d'exaucer les rêves, mais seulement s'ils étaient exprimés avec le langage du <span class="grammar-highlight">conditionnel</span>.</p>
+                </div>
+                <div class="story-section">
+                    <h3>💫 Si j'avais...</h3>
+                    <p>Le phoenix expliqua que pour que les rêves se réalisent, il fallait d'abord exprimer la condition. La formule magique commençait toujours par "si...".</p>
+                    <ul>
+                        <li>Si j'avais de la magie, <span class="grammar-highlight">je construirais</span> un château.</li>
+                        <li>Si tu pouvais, <span class="grammar-highlight">tu viendrais</span>?</li>
+                        <li>Si elle chantait, <span class="grammar-highlight">elle nous enchanterait</span>.</li>
+                    </ul>
+                    <p>Le conditionnel permet de parler de ce qui pourrait arriver ou de formuler des souhaits, des hypothèses et des politesses.</p>
+                </div>
+                <div class="story-section">
+                    <p>Grâce à Conditionalis, les enfants du royaume apprirent à formuler leurs souhaits avec précision et élégance, et purent ainsi voir leurs rêves les plus fous prendre vie sous leurs yeux.</p>
+                    <p style="text-align: center; font-style: italic; color: #4ecdc4; margin-top: 20px;">
+                        "Si tu avais un pouvoir, lequel <span class="grammar-highlight">tu choisirais</span>?" 🔥
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fonction pour إنشاء النجوم
+        function createStars() {
+            const starsContainer = document.querySelector('.stars');
+            const starSymbols = ['✨', '⭐', '🌟', '💫', '⚡'];
+            
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.textContent = starSymbols[Math.floor(Math.random() * starSymbols.length)];
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.fontSize = (Math.random() * 10 + 15) + 'px';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Fonction pour إنشاء الجزيئات السحرية
+        function createSparkles(event) {
+            const sparklesContainer = document.querySelector('.magic-sparkles');
+            const sparkleSymbols = ['✨', '🌟', '💫', '⚡'];
+
+            for (let i = 0; i < 10; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                sparkle.textContent = sparkleSymbols[Math.floor(Math.random() * sparkleSymbols.length)];
+                sparkle.style.left = `${event.clientX + (Math.random() - 0.5) * 50}px`;
+                sparkle.style.top = `${event.clientY + (Math.random() - 0.5) * 50}px`;
+                sparkle.style.animationDuration = `${Math.random() * 2 + 1}s`;
+                sparkle.style.animationDelay = `${Math.random() * 0.5}s`;
+                sparkle.style.opacity = '0';
+                sparklesContainer.appendChild(sparkle);
+
+                // إزالة الجزيئات بعد انتهاء حركتها
+                sparkle.addEventListener('animationend', () => {
+                    sparkle.remove();
+                });
+            }
+        }
+        
+        // فتح النافذة المنبثقة
+        function openStory(storyId) {
+            const modal = document.getElementById(storyId);
+            if (modal) {
+                modal.style.display = 'block';
+            }
+        }
+        
+        // إغلاق النافذة المنبثقة
+        function closeModal(storyId) {
+            const modal = document.getElementById(storyId);
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // إغلاق النافذة عند النقر خارج المحتوى
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        };
+
+        // إضافة مستمع للأحداث عند النقر لإنشاء جزيئات
+        window.addEventListener('click', createSparkles);
+        
+        // إعداد الصفحة عند التحميل
+        window.onload = function() {
+            createStars();
+        };
+
+        // إضافة مستمعي الأحداث لأزرار "Lire l'Histoire"
+        document.addEventListener('DOMContentLoaded', () => {
+            const readButtons = document.querySelectorAll('.read-btn');
+            readButtons.forEach(button => {
+                const storyCard = button.closest('.story-card');
+                const storyId = storyCard.onclick.toString().match(/openStory\('(.+?)'\)/)[1];
+                button.onclick = () => openStory(storyId);
+            });
+        });
+    </script>
+</body>
+</html>

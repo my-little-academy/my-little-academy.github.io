@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>لعبة العمليات العمودية</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      background: linear-gradient(to bottom right, #e0f7fa, #b2ebf2);
+      text-align: center;
+      padding: 40px;
+    }
+    h1 {
+      color: #00695c;
+    }
+    .problem {
+      display: inline-block;
+      text-align: right;
+      margin: 20px auto;
+      padding: 10px;
+      border: 2px solid #00695c;
+      background-color: white;
+      border-radius: 10px;
+      position: relative;
+    }
+    .number-row {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+    .operator {
+      position: absolute;
+      left: -40px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 28px;
+      color: #d81b60;
+    }
+    .answer-row input {
+      width: 50px;
+      height: 40px;
+      font-size: 24px;
+      text-align: center;
+      margin-left: 10px;
+      border: 2px solid #00695c;
+      border-radius: 5px;
+    }
+    button {
+      font-size: 18px;
+      padding: 10px 20px;
+      margin-top: 20px;
+      cursor: pointer;
+      background-color: #00acc1;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    button:hover {
+      background-color: #00838f;
+    }
+    #feedback {
+      font-size: 24px;
+      margin-top: 20px;
+    }
+    .correct {
+      color: green;
+    }
+    .wrong {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>لعبة العمليات العمودية 🧮</h1>
+  <p>أدخل الناتج في الخانات الفارغة:</p>
+
+  <div class="problem" id="mathProblem">
+    <!-- سيتم توليد المسألة هنا -->
+  </div>
+
+  <button onclick="checkAnswer()">✅ تحقق من الإجابة</button>
+  <button onclick="generateProblem()" style="background-color: #ff7043;">🔄 سؤال جديد</button>
+
+  <div id="feedback"></div>
+
+  <script>
+    let num1, num2, operation, correctAnswer;
+
+    function splitDigits(number) {
+      const str = String(number).padStart(3, '0');
+      return [parseInt(str[0]), parseInt(str[1]), parseInt(str[2])]; // hundreds, tens, units
+    }
+
+    function generateProblem() {
+      num1 = Math.floor(Math.random() * 999) + 1; // 1 إلى 999
+      num2 = Math.floor(Math.random() * 999) + 1; // 1 إلى 999
+      operation = Math.random() > 0.5 ? '+' : '-';
+
+      if (operation === '-') {
+        if (num1 < num2) {
+          let temp = num1;
+          num1 = num2;
+          num2 = temp;
+        }
+      }
+
+      correctAnswer = operation === '+' ? num1 + num2 : num1 - num2;
+
+      const n1 = splitDigits(num1);
+      const n2 = splitDigits(num2);
+      const problemHTML = `
+        <div class="number-row">${n1[0]}${n1[1]}${n1[2]}</div>
+        <div class="operator">${operation}</div>
+        <div class="number-row">${n2[0]}${n2[1]}${n2[2]}</div>
+        <div class="answer-row" style="margin-top:10px;">
+          <input type="text" maxlength="1" id="hundreds" />
+          <input type="text" maxlength="1" id="tens" />
+          <input type="text" maxlength="1" id="units" />
+        </div>
+      `;
+
+      document.getElementById("mathProblem").innerHTML = problemHTML;
+      document.getElementById("feedback").textContent = "";
+    }
+
+    function checkAnswer() {
+      const hundreds = parseInt(document.getElementById("hundreds").value) || 0;
+      const tens = parseInt(document.getElementById("tens").value) || 0;
+      const units = parseInt(document.getElementById("units").value) || 0;
+
+      const userAnswer = hundreds * 100 + tens * 10 + units;
+
+      const feedbackDiv = document.getElementById("feedback");
+
+      if (userAnswer === correctAnswer) {
+        feedbackDiv.textContent = "🎉 إجابة صحيحة!";
+        feedbackDiv.className = "correct";
+      } else {
+        feedbackDiv.textContent = `❌ خطأ! الإجابة الصحيحة هي: ${correctAnswer}`;
+        feedbackDiv.className = "wrong";
+      }
+    }
+
+    window.onload = generateProblem;
+  </script>
+
+</body>
+</html>

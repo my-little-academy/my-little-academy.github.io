@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 لعبة الرسم والتلوين للأطفال</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 5px solid #ff6b9d;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ff6b9d, #c44569);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .game-area {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tools-panel {
+            flex: 1;
+            min-width: 250px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .canvas-container {
+            flex: 3;
+            min-width: 300px;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .canvas-wrapper {
+            border: 3px dashed #ff6b9d;
+            border-radius: 10px;
+            background: #f9f9f9;
+            position: relative;
+            width: 100%;
+            height: 500px;
+        }
+
+        #drawingCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            cursor: crosshair;
+        }
+
+        #templateCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        .tools-section {
+            margin-bottom: 20px;
+        }
+
+        .tools-title {
+            color: white;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .color-btn {
+            width: 50px;
+            height: 50px;
+            border: 3px solid white;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .color-btn.active {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px white;
+        }
+
+        .brush-sizes {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .brush-size {
+            width: 40px;
+            height: 40px;
+            border: 2px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background: white;
+        }
+
+        .brush-size::after {
+            content: '';
+            background: #333;
+            border-radius: 50%;
+        }
+
+        .brush-size.small::after {
+            width: 8px;
+            height: 8px;
+        }
+
+        .brush-size.medium::after {
+            width: 16px;
+            height: 16px;
+        }
+
+        .brush-size.large::after {
+            width: 24px;
+            height: 24px;
+        }
+
+        .brush-size.active {
+            border-color: #ff6b9d;
+            background: #ffe0ec;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-eraser {
+            background: linear-gradient(45deg, #ffa726, #ff7043);
+        }
+
+        .btn-clear {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+        }
+
+        .btn-save {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+
+        .coloring-pages {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .coloring-page {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border: 3px solid white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .coloring-page.active {
+            border-color: #ff6b9d;
+            background: #ffe0ec;
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+            .game-area {
+                flex-direction: column;
+            }
+            
+            .canvas-container {
+                order: -1;
+            }
+            
+            .canvas-wrapper {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🎨 لعبة الرسم والتلوين</h1>
+            <p>ارسم وألون واستمتع بالإبداع!</p>
+        </div>
+
+        <div class="game-area">
+            <div class="canvas-container">
+                <div class="canvas-wrapper">
+                    <canvas id="drawingCanvas"></canvas>
+                    <canvas id="templateCanvas"></canvas>
+                </div>
+            </div>
+
+            <div class="tools-panel">
+                <div class="tools-section">
+                    <h3 class="tools-title">🎨 اختر اللون</h3>
+                    <div class="color-palette">
+                        <div class="color-btn active" style="background: #ff6b9d" data-color="#ff6b9d"></div>
+                        <div class="color-btn" style="background: #4ecdc4" data-color="#4ecdc4"></div>
+                        <div class="color-btn" style="background: #45b7d1" data-color="#45b7d1"></div>
+                        <div class="color-btn" style="background: #f9ca24" data-color="#f9ca24"></div>
+                        <div class="color-btn" style="background: #6c5ce7" data-color="#6c5ce7"></div>
+                        <div class="color-btn" style="background: #a29bfe" data-color="#a29bfe"></div>
+                        <div class="color-btn" style="background: #fd79a8" data-color="#fd79a8"></div>
+                        <div class="color-btn" style="background: #00b894" data-color="#00b894"></div>
+                    </div>
+                </div>
+
+                <div class="tools-section">
+                    <h3 class="tools-title">🖌️ حجم الفرشاة</h3>
+                    <div class="brush-sizes">
+                        <div class="brush-size small active" data-size="5"></div>
+                        <div class="brush-size medium" data-size="15"></div>
+                        <div class="brush-size large" data-size="25"></div>
+                    </div>
+                </div>
+
+                <div class="tools-section">
+                    <h3 class="tools-title">🔧 الأدوات</h3>
+                    <div class="action-buttons">
+                        <button class="btn btn-eraser" id="eraserBtn">🧹 ممحاة</button>
+                        <button class="btn btn-clear" id="clearBtn">🗑️ مسح الكل</button>
+                        <button class="btn btn-save" id="saveBtn">💾 حفظ الرسمة</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // العناصر الرئيسية
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        const templateCanvas = document.getElementById('templateCanvas');
+        const templateCtx = templateCanvas.getContext('2d');
+        
+        // متغيرات الرسم
+        let isDrawing = false;
+        let currentColor = '#ff6b9d';
+        let currentSize = 5;
+        let isErasing = false;
+        let lastX = 0;
+        let lastY = 0;
+
+        // تهيئة الكانفاس
+        function initCanvas() {
+            const container = document.querySelector('.canvas-wrapper');
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            templateCanvas.width = container.clientWidth;
+            templateCanvas.height = container.clientHeight;
+            
+            // إعدادات الرسم الأساسية
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = currentColor;
+            ctx.lineWidth = currentSize;
+            ctx.fillStyle = currentColor;
+            
+            // إعداد قالب الرسم
+            drawTemplate();
+        }
+
+        // وظائف الرسم
+        function startDrawing(e) {
+            isDrawing = true;
+            [lastX, lastY] = getPosition(e);
+            
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            
+            // رسم نقطة أولية للضغطات السريعة
+            ctx.arc(lastX, lastY, currentSize/2, 0, Math.PI*2);
+            ctx.fill();
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            
+            const [x, y] = getPosition(e);
+            
+            ctx.globalCompositeOperation = isErasing ? 'destination-out' : 'source-over';
+            ctx.strokeStyle = isErasing ? 'rgba(0,0,0,1)' : currentColor;
+            ctx.lineWidth = currentSize;
+            
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            
+            [lastX, lastY] = [x, y];
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        // الحصول على موضع المؤشر
+        function getPosition(e) {
+            const rect = canvas.getBoundingClientRect();
+            return [
+                e.clientX - rect.left,
+                e.clientY - rect.top
+            ];
+        }
+
+        // مسح الكانفاس
+        function clearCanvas() {
+            if (confirm('هل تريد مسح الرسمة بالكامل؟')) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                drawTemplate();
+            }
+        }
+
+        // حفظ الرسمة
+        function saveDrawing() {
+            const link = document.createElement('a');
+            link.download = 'رسمتي-' + new Date().toLocaleDateString() + '.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            
+            // إظهار رسالة نجاح
+            alert('تم حفظ الرسمة بنجاح!');
+        }
+
+        // تبديل وضع الممحاة
+        function toggleEraser() {
+            isErasing = !isErasing;
+            const eraserBtn = document.getElementById('eraserBtn');
+            
+            if (isErasing) {
+                eraserBtn.textContent = '🖌️ فرشاة';
+                eraserBtn.style.background = 'linear-gradient(45deg, #666, #333)';
+            } else {
+                eraserBtn.textContent = '🧹 ممحاة';
+                eraserBtn.style.background = 'linear-gradient(45deg, #ffa726, #ff7043)';
+            }
+        }
+
+        // رسم قالب (يمكن تطويره لرسم أشكال مختلفة)
+        function drawTemplate() {
+            templateCtx.clearRect(0, 0, templateCanvas.width, templateCanvas.height);
+            templateCtx.strokeStyle = '#ddd';
+            templateCtx.lineWidth = 2;
+            
+            // هنا يمكنك إضافة أشكال مختلفة للرسم عليها
+            templateCtx.strokeRect(50, 50, templateCanvas.width-100, templateCanvas.height-100);
+        }
+
+        // إعداد مستمعي الأحداث
+        function setupEventListeners() {
+            // أحداث الماوس
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+            
+            // أحداث الأزرار
+            document.getElementById('clearBtn').addEventListener('click', clearCanvas);
+            document.getElementById('saveBtn').addEventListener('click', saveDrawing);
+            document.getElementById('eraserBtn').addEventListener('click', toggleEraser);
+            
+            // تغيير الألوان
+            document.querySelectorAll('.color-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentColor = this.dataset.color;
+                    isErasing = false;
+                    document.getElementById('eraserBtn').textContent = '🧹 ممحاة';
+                    document.getElementById('eraserBtn').style.background = 'linear-gradient(45deg, #ffa726, #ff7043)';
+                });
+            });
+            
+            // تغيير حجم الفرشاة
+            document.querySelectorAll('.brush-size').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.brush-size').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentSize = parseInt(this.dataset.size);
+                });
+            });
+        }
+
+        // بدء التطبيق
+        window.addEventListener('load', () => {
+            initCanvas();
+            setupEventListeners();
+        });
+
+        window.addEventListener('resize', initCanvas);
+    </script>
+</body>
+</html>

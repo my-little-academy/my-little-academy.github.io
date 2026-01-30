@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة عالم الحيوانات</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        
+        .animal-card {
+            background-color: #e8f4f8;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .animal-image {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: block;
+            border: 4px solid #3498db;
+        }
+        
+        .animal-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .question {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .question-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #3498db;
+        }
+        
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .option {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .option:hover {
+            background-color: #2980b9;
+            transform: scale(1.05);
+        }
+        
+        .option.selected {
+            background-color: #2ecc71;
+        }
+        
+        .option.wrong {
+            background-color: #e74c3c;
+        }
+        
+        .feedback {
+            margin-top: 10px;
+            font-weight: bold;
+            min-height: 20px;
+        }
+        
+        .correct-feedback {
+            color: #2ecc71;
+        }
+        
+        .wrong-feedback {
+            color: #e74c3c;
+        }
+        
+        .next-btn {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto 0;
+            transition: all 0.3s;
+        }
+        
+        .next-btn:hover {
+            background-color: #27ae60;
+            transform: scale(1.05);
+        }
+        
+        .score {
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #ecf0f1;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: #3498db;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        
+        .completion-message {
+            text-align: center;
+            font-size: 24px;
+            color: #2ecc71;
+            font-weight: bold;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .animal-image {
+                width: 120px;
+                height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>لعبة عالم الحيوانات الرائع 🐾</h1>
+        
+        <div class="score">النقاط: <span id="points">0</span></div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        
+        <div id="game-area">
+            <div class="animal-card">
+                <img src="https://via.placeholder.com/150" alt="حيوان" class="animal-image" id="animal-img">
+                <div class="animal-name" id="animal-name">...</div>
+            </div>
+            
+            <div class="question">
+                <div class="question-title">ما اسم الذكر لهذا الحيوان؟</div>
+                <div class="options" id="male-options"></div>
+                <div class="feedback" id="male-feedback"></div>
+            </div>
+            
+            <div class="question">
+                <div class="question-title">ما اسم الأنثى لهذا الحيوان؟</div>
+                <div class="options" id="female-options"></div>
+                <div class="feedback" id="female-feedback"></div>
+            </div>
+            
+            <div class="question">
+                <div class="question-title">ما اسم صغير هذا الحيوان؟</div>
+                <div class="options" id="baby-options"></div>
+                <div class="feedback" id="baby-feedback"></div>
+            </div>
+            
+            <div class="question">
+                <div class="question-title">ما اسم مأوى هذا الحيوان؟</div>
+                <div class="options" id="home-options"></div>
+                <div class="feedback" id="home-feedback"></div>
+            </div>
+            
+            <button class="next-btn" id="next-btn" disabled>التالي</button>
+        </div>
+        
+        <div class="completion-message" id="completion-message">
+            أحسنت! لقد أكملت جميع الحيوانات بنجاح 🎇
+        </div>
+    </div>
+
+    <script>
+        // بيانات الحيوانات
+        const animals = [
+            {
+                name: "الأسد",
+                image: "https://cdn.pixabay.com/photo/2017/10/25/16/54/lion-2888519_640.jpg",
+                male: "الأسد",
+                female: "اللبؤة",
+                baby: "الشبل",
+                home: "العرين"
+            },
+            {
+                name: "الفيل",
+                image: "https://cdn.pixabay.com/photo/2016/11/14/04/45/elephant-1822636_640.jpg",
+                male: "الفيل",
+                female: "الفيلة",
+                baby: "الدغفل",
+                home: "القطيع"
+            },
+            {
+                name: "النمر",
+                image: "https://cdn.pixabay.com/photo/2017/07/24/19/57/tiger-2535888_640.jpg",
+                male: "النمر",
+                female: "النمرة",
+                baby: "الهرماس",
+                home: "الوكر"
+            },
+            {
+                name: "الحصان",
+                image: "https://cdn.pixabay.com/photo/2017/11/26/19/50/horse-2979797_640.jpg",
+                male: "الحصان",
+                female: "الفرس",
+                baby: "المهر",
+                home: "الإسطبل"
+            },
+            {
+                name: "البقرة",
+                image: "https://cdn.pixabay.com/photo/2016/11/29/08/21/cow-1868993_640.jpg",
+                male: "الثور",
+                female: "البقرة",
+                baby: "العجل",
+                home: "الحظيرة"
+            },
+            {
+                name: "الخروف",
+                image: "https://cdn.pixabay.com/photo/2018/04/18/18/12/sheep-3331027_640.jpg",
+                male: "الكبش",
+                female: "النعجة",
+                baby: "الحمل",
+                home: "الحظيرة"
+            },
+            {
+                name: "الدجاجة",
+                image: "https://cdn.pixabay.com/photo/2017/06/09/17/39/hen-2387534_640.jpg",
+                male: "الديك",
+                female: "الدجاجة",
+                baby: "الصوص",
+                home: "القن"
+            },
+            {
+                name: "البط",
+                image: "https://cdn.pixabay.com/photo/2016/12/12/17/59/duck-1902120_640.jpg",
+                male: "العلجوم",
+                female: "البطة",
+                baby: "الفرخ",
+                home: "البريكة"
+            },
+            {
+                name: "الذئب",
+                image: "https://cdn.pixabay.com/photo/2017/01/06/23/21/soap-bubble-1959327_640.jpg",
+                male: "الذئب",
+                female: "الذئبة",
+                baby: "الجرو",
+                home: "الوجار"
+            },
+            {
+                name: "الزرافة",
+                image: "https://cdn.pixabay.com/photo/2017/04/11/21/34/giraffe-2222908_640.jpg",
+                male: "الزراف",
+                female: "الزرافة",
+                baby: "الخيلف",
+                home: "السافانا"
+            }
+        ];
+
+        // خيارات عشوائية لكل سؤال
+        const maleNames = ["الأسد", "الفيل", "النمر", "الحصان", "الثور", "الكبش", "الديك", "العلجوم", "الذئب", "الزراف"];
+        const femaleNames = ["اللبؤة", "الفيلة", "النمرة", "الفرس", "البقرة", "النعجة", "الدجاجة", "البطة", "الذئبة", "الزرافة"];
+        const babyNames = ["الشبل", "الدغفل", "الهرماس", "المهر", "العجل", "الحمل", "الصوص", "الفرخ", "الجرو", "الخيلف"];
+        const homeNames = ["العرين", "القطيع", "الوكر", "الإسطبل", "الحظيرة", "الحظيرة", "القن", "البريكة", "الوجار", "السافانا"];
+
+        // متغيرات اللعبة
+        let currentAnimalIndex = 0;
+        let points = 0;
+        let answeredQuestions = 0;
+        const totalQuestionsPerAnimal = 4;
+
+        // عناصر DOM
+        const animalNameEl = document.getElementById('animal-name');
+        const animalImgEl = document.getElementById('animal-img');
+        const maleOptionsEl = document.getElementById('male-options');
+        const femaleOptionsEl = document.getElementById('female-options');
+        const babyOptionsEl = document.getElementById('baby-options');
+        const homeOptionsEl = document.getElementById('home-options');
+        const maleFeedbackEl = document.getElementById('male-feedback');
+        const femaleFeedbackEl = document.getElementById('female-feedback');
+        const babyFeedbackEl = document.getElementById('baby-feedback');
+        const homeFeedbackEl = document.getElementById('home-feedback');
+        const nextBtn = document.getElementById('next-btn');
+        const pointsEl = document.getElementById('points');
+        const progressEl = document.getElementById('progress');
+        const gameAreaEl = document.getElementById('game-area');
+        const completionMessageEl = document.getElementById('completion-message');
+
+        // تهيئة اللعبة
+        function initGame() {
+            loadAnimal(currentAnimalIndex);
+            updateProgress();
+        }
+
+        // تحميل حيوان جديد
+        function loadAnimal(index) {
+            const animal = animals[index];
+            
+            // إعادة تعيين الأسئلة
+            resetQuestions();
+            
+            // تعيين اسم وصورة الحيوان
+            animalNameEl.textContent = animal.name;
+            animalImgEl.src = animal.image;
+            animalImgEl.alt = animal.name;
+            
+            // إنشاء خيارات عشوائية لكل سؤال
+            createOptions(maleOptionsEl, maleNames, animal.male, 'male');
+            createOptions(femaleOptionsEl, femaleNames, animal.female, 'female');
+            createOptions(babyOptionsEl, babyNames, animal.baby, 'baby');
+            createOptions(homeOptionsEl, homeNames, animal.home, 'home');
+        }
+
+        // إنشاء خيارات عشوائية
+        function createOptions(container, options, correctAnswer, questionType) {
+            container.innerHTML = '';
+            
+            // إنشاء نسخة من الخيارات وإزالة الإجابة الصحيحة مؤقتًا
+            let availableOptions = [...options].filter(opt => opt !== correctAnswer);
+            
+            // اختيار 3 خيارات عشوائية
+            let randomOptions = [];
+            for (let i = 0; i < 3; i++) {
+                const randomIndex = Math.floor(Math.random() * availableOptions.length);
+                randomOptions.push(availableOptions[randomIndex]);
+                availableOptions.splice(randomIndex, 1);
+            }
+            
+            // إضافة الإجابة الصحيحة
+            randomOptions.push(correctAnswer);
+            
+            // خلط الخيارات
+            randomOptions = shuffleArray(randomOptions);
+            
+            // إنشاء أزرار الخيارات
+            randomOptions.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option';
+                button.textContent = option;
+                button.dataset.questionType = questionType;
+                button.addEventListener('click', () => selectOption(button, correctAnswer));
+                container.appendChild(button);
+            });
+        }
+
+        // اختيار خيار
+        function selectOption(button, correctAnswer) {
+            const questionType = button.dataset.questionType;
+            const feedbackEl = document.getElementById(`${questionType}-feedback`);
+            const optionsContainer = document.getElementById(`${questionType}-options`);
+            
+            // إذا كان السؤال قد تمت الإجابة عليه بالفعل
+            if (button.classList.contains('selected') || button.classList.contains('wrong')) {
+                return;
+            }
+            
+            // التحقق من الإجابة
+            if (button.textContent === correctAnswer) {
+                button.classList.add('selected');
+                feedbackEl.textContent = 'إجابة صحيحة! أحسنت!';
+                feedbackEl.className = 'feedback correct-feedback';
+                points += 10;
+                pointsEl.textContent = points;
+            } else {
+                button.classList.add('wrong');
+                feedbackEl.textContent = `إجابة خاطئة. الإجابة الصحيحة هي: ${correctAnswer}`;
+                feedbackEl.className = 'feedback wrong-feedback';
+                
+                // إظهار الإجابة الصحيحة
+                const options = optionsContainer.querySelectorAll('.option');
+                options.forEach(opt => {
+                    if (opt.textContent === correctAnswer) {
+                        opt.classList.add('selected');
+                    }
+                });
+            }
+            
+            // تعطيل جميع الخيارات لهذا السؤال
+            const options = optionsContainer.querySelectorAll('.option');
+            options.forEach(opt => {
+                opt.disabled = true;
+            });
+            
+            // زيادة عدد الأسئلة المجابة
+            answeredQuestions++;
+            
+            // التحقق إذا تمت الإجابة على جميع الأسئلة
+            if (answeredQuestions === totalQuestionsPerAnimal) {
+                nextBtn.disabled = false;
+            }
+        }
+
+        // إعادة تعيين الأسئلة
+        function resetQuestions() {
+            maleFeedbackEl.textContent = '';
+            femaleFeedbackEl.textContent = '';
+            babyFeedbackEl.textContent = '';
+            homeFeedbackEl.textContent = '';
+            
+            maleFeedbackEl.className = 'feedback';
+            femaleFeedbackEl.className = 'feedback';
+            babyFeedbackEl.className = 'feedback';
+            homeFeedbackEl.className = 'feedback';
+            
+            nextBtn.disabled = true;
+            answeredQuestions = 0;
+        }
+
+        // زر التالي
+        nextBtn.addEventListener('click', () => {
+            currentAnimalIndex++;
+            
+            if (currentAnimalIndex < animals.length) {
+                loadAnimal(currentAnimalIndex);
+                updateProgress();
+            } else {
+                // انتهت جميع الحيوانات
+                gameAreaEl.style.display = 'none';
+                completionMessageEl.style.display = 'block';
+                progressEl.style.width = '100%';
+            }
+        });
+
+        // تحديث شريط التقدم
+        function updateProgress() {
+            const progress = ((currentAnimalIndex + 1) / animals.length) * 100;
+            progressEl.style.width = `${progress}%`;
+        }
+
+        // خلط المصفوفة
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // بدء اللعبة
+        initGame();
+    </script>
+</body>
+</html>

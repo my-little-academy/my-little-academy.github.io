@@ -1,0 +1,156 @@
+
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <title>لعبة استخراج أدوات الاستفهام</title>
+  <style>
+    body {
+      font-family: 'Amiri', serif;
+      background: linear-gradient(to right, #b2fefa, #0ed2f7);
+      margin: 0;
+      padding: 20px;
+      direction: rtl;
+      text-align: center;
+    }
+
+    #game-container {
+      background-color: #ffffffee;
+      padding: 30px;
+      margin: auto;
+      border-radius: 20px;
+      max-width: 800px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    }
+
+    h1 {
+      color: #034078;
+      font-size: 26px;
+    }
+
+    .sentence-box {
+      margin: 20px 0;
+      font-size: 20px;
+      font-weight: bold;
+      color: #222;
+      animation: fadeIn 0.6s ease;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    input[type="text"] {
+      padding: 8px;
+      font-size: 16px;
+      width: 80%;
+      border: 2px solid #0ed2f7;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #034078;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #022b57;
+      animation: pulse 0.5s infinite;
+    }
+
+    #result {
+      margin-top: 15px;
+      font-weight: bold;
+      font-size: 18px;
+      color: #333;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <h1>استخرج أداة الاستفهام وبيّن نوعها ودلالتها</h1>
+    <div class="sentence-box" id="sentence"></div>
+
+    <div class="input-group">
+      <input type="text" id="tool" placeholder="أداة الاستفهام" />
+      <input type="text" id="type" placeholder="نوعها (اسم/حرف)" />
+      <input type="text" id="meaning" placeholder="دلالتها" />
+      <button onclick="checkAnswer()">تحقق</button>
+    </div>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const data = [
+      { sentence: "هل كان عمروٌ موجودًا؟", tool: "هل", type: "حرف", meaning: "سؤال عن الجمل المثبتة" },
+      { sentence: "أتلعبُ الكرة؟", tool: "الهمزة", type: "حرف", meaning: "سؤال عن الجمل المثبتة والمنفيّة" },
+      { sentence: "أيّ الطالبين أكثر نبوغًا: محمد أم أحمد؟", tool: "أيّ", type: "اسم", meaning: "بحسب المضاف إليه" },
+      { sentence: "من الذي درّسك مادّة العلوم؟", tool: "من", type: "اسم", meaning: "السؤال عن العاقل" },
+      { sentence: "ما عنوان كتاب حمزة بن سليمان الجديد؟", tool: "ما", type: "اسم", meaning: "السؤال عن غير العاقل" },
+      { sentence: "ماذا كان في الصندوق؟", tool: "ماذا", type: "اسم", meaning: "السؤال عن الأخبار" },
+      { sentence: "أينَ هاجرت الطيور هذه السنة؟", tool: "أين", type: "اسم", meaning: "السؤال عن المكان" },
+      { sentence: "متى ستقلع الطائرة؟", tool: "متى", type: "اسم", meaning: "السؤال عن الزمان" },
+      { sentence: "كيف تجلّدون الكتب القديمة؟", tool: "كيف", type: "اسم", meaning: "السؤال عن الحال" },
+      { sentence: "كم كتابًا تقرأ في الشهر؟", tool: "كم", type: "اسم", meaning: "السؤال عن العدد" },
+      { sentence: "يسألك الناس: أيّان تُقام الصلاة؟", tool: "أيّان", type: "اسم", meaning: "السؤال عن الزمان" }
+    ];
+
+    let current = 0;
+
+    function loadQuestion() {
+      document.getElementById("sentence").textContent = data[current].sentence;
+      document.getElementById("tool").value = "";
+      document.getElementById("type").value = "";
+      document.getElementById("meaning").value = "";
+      document.getElementById("result").textContent = "";
+    }
+
+    function checkAnswer() {
+      const userTool = document.getElementById("tool").value.trim();
+      const userType = document.getElementById("type").value.trim();
+      const userMeaning = document.getElementById("meaning").value.trim();
+
+      const correct = data[current];
+      if (
+        userTool === correct.tool &&
+        userType === correct.type &&
+        userMeaning.includes(correct.meaning.split(" ")[0])
+      ) {
+        document.getElementById("result").textContent = "إجابة صحيحة!";
+        current++;
+        if (current < data.length) {
+          setTimeout(loadQuestion, 1000);
+        } else {
+          document.getElementById("result").textContent = "أحسنت! أنهيت اللعبة!";
+        }
+      } else {
+        document.getElementById("result").textContent = "إجابة غير صحيحة! حاول مجددًا.";
+      }
+    }
+
+    loadQuestion();
+  </script>
+</body>
+</html>

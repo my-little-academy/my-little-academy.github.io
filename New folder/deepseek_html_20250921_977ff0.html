@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الحساب الذهني السريع</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            text-align: center;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border: 3px solid #ff6b6b;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 18px;
+            margin: 5px 0;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            border: 2px solid #4ecdc4;
+        }
+        
+        .stat-item {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .game-area {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .question-box {
+            background: #e9ecef;
+            padding: 25px;
+            border-radius: 15px;
+            font-size: 32px;
+            font-weight: bold;
+            border: 2px dashed #ff6b6b;
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .option {
+            padding: 20px;
+            font-size: 24px;
+            background: #4ecdc4;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            padding: 15px 25px;
+            font-size: 18px;
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            min-width: 160px;
+        }
+        
+        .control-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .control-btn.secondary {
+            background: linear-gradient(135deg, #fd7e14 0%, #fdb750 100%);
+        }
+        
+        .feedback {
+            margin: 20px 0;
+            font-size: 22px;
+            font-weight: bold;
+            padding: 15px;
+            border-radius: 12px;
+            transition: all 0.5s;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .correct {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+            border: 2px solid #c3e6cb;
+            animation: celebrate 0.5s ease-in-out;
+        }
+        
+        .incorrect {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+        
+        .progress-bar {
+            height: 15px;
+            background: #e9ecef;
+            border-radius: 8px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .timer {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 15px 0;
+            color: #6a11cb;
+        }
+        
+        .emoji {
+            font-size: 30px;
+            margin: 0 5px;
+        }
+        
+        .level-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .level-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #dee2e6;
+        }
+        
+        .level-dot.active {
+            background: #4ecdc4;
+            transform: scale(1.2);
+        }
+        
+        @keyframes celebrate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes confetti {
+            0% { transform: translateY(0) rotate(0); opacity: 1; }
+            100% { transform: translateY(100px) rotate(360deg); opacity: 0; }
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: #ff6b6b;
+            animation: confetti 1s ease-in-out;
+        }
+        
+        @media (max-width: 600px) {
+            .options {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .question-box {
+                font-size: 24px;
+                padding: 15px;
+            }
+            
+            .option {
+                padding: 15px;
+                font-size: 20px;
+            }
+            
+            .control-btn {
+                padding: 12px 20px;
+                font-size: 16px;
+                min-width: 140px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 لعبة الحساب الذهني السريع 🧠</h1>
+            <p>اختبر مهاراتك في الحساب وكن الأسرع في الإجابة!</p>
+            <p>اختر المستوى المناسب لك وابدأ التحدي</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">النقاط: <span id="score">0</span></div>
+            <div class="stat-item">الإجابات الصحيحة: <span id="correctCount">0</span></div>
+            <div class="stat-item">التسجيل: <span id="accuracy">0%</span></div>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        
+        <div class="level-indicator">
+            <div class="level-dot" id="level-1"></div>
+            <div class="level-dot" id="level-2"></div>
+            <div class="level-dot" id="level-3"></div>
+            <div class="level-dot" id="level-4"></div>
+            <div class="level-dot" id="level-5"></div>
+        </div>
+        
+        <div class="timer" id="timer">⏱️ الوقت: <span id="time">30</span> ثانية</div>
+        
+        <div class="game-area">
+            <div class="question-box" id="question">5 + 3 = ?</div>
+            
+            <div class="options">
+                <button class="option" id="option1">8</button>
+                <button class="option" id="option2">7</button>
+                <button class="option" id="option3">9</button>
+                <button class="option" id="option4">6</button>
+            </div>
+        </div>
+        
+        <div class="feedback" id="feedback">اختر الإجابة الصحيحة!</div>
+        
+        <div class="controls">
+            <button class="control-btn" id="startBtn">بدء اللعبة</button>
+            <button class="control-btn secondary" id="resetBtn">إعادة البدء</button>
+            <button class="control-btn" id="hintBtn">تلميح</button>
+        </div>
+    </div>
+
+    <script>
+        // عناصر DOM
+        const questionElement = document.getElementById('question');
+        const optionsElements = [
+            document.getElementById('option1'),
+            document.getElementById('option2'),
+            document.getElementById('option3'),
+            document.getElementById('option4')
+        ];
+        const feedbackElement = document.getElementById('feedback');
+        const scoreElement = document.getElementById('score');
+        const correctCountElement = document.getElementById('correctCount');
+        const accuracyElement = document.getElementById('accuracy');
+        const progressElement = document.getElementById('progress');
+        const timerElement = document.getElementById('time');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const hintBtn = document.getElementById('hintBtn');
+        const levelDots = [
+            document.getElementById('level-1'),
+            document.getElementById('level-2'),
+            document.getElementById('level-3'),
+            document.getElementById('level-4'),
+            document.getElementById('level-5')
+        ];
+
+        // متغيرات اللعبة
+        let score = 0;
+        let correctCount = 0;
+        let totalQuestions = 0;
+        let currentLevel = 1;
+        let timeLeft = 30;
+        let timerInterval;
+        let gameActive = false;
+        let currentAnswer;
+
+        // أنواع الأسئلة
+        const questionTypes = [
+            { type: 'جمع', symbol: '+' },
+            { type: 'طرح', symbol: '-' },
+            { type: 'ضرب', symbol: '×' },
+            { type: 'قسمة', symbol: '÷' }
+        ];
+
+        // بدء اللعبة
+        startBtn.addEventListener('click', startGame);
+        resetBtn.addEventListener('click', resetGame);
+        hintBtn.addEventListener('click', showHint);
+
+        // إضافة مستمعي الأحداث للخيارات
+        optionsElements.forEach(option => {
+            option.addEventListener('click', () => checkAnswer(option));
+        });
+
+        function startGame() {
+            if (gameActive) return;
+            
+            gameActive = true;
+            startBtn.textContent = 'جاري اللعب...';
+            startBtn.disabled = true;
+            resetBtn.disabled = false;
+            
+            // بدء المؤقت
+            startTimer();
+            
+            // توليد السؤال الأول
+            generateQuestion();
+        }
+
+        function resetGame() {
+            clearInterval(timerInterval);
+            gameActive = false;
+            
+            score = 0;
+            correctCount = 0;
+            totalQuestions = 0;
+            currentLevel = 1;
+            timeLeft = 30;
+            
+            scoreElement.textContent = '0';
+            correctCountElement.textContent = '0';
+            accuracyElement.textContent = '0%';
+            progressElement.style.width = '0%';
+            timerElement.textContent = '30';
+            
+            startBtn.textContent = 'بدء اللعبة';
+            startBtn.disabled = false;
+            resetBtn.disabled = true;
+            
+            feedbackElement.textContent = 'اختر الإجابة الصحيحة!';
+            feedbackElement.className = 'feedback';
+            
+            updateLevelIndicator();
+            
+            questionElement.textContent = '5 + 3 = ?';
+            optionsElements[0].textContent = '8';
+            optionsElements[1].textContent = '7';
+            optionsElements[2].textContent = '9';
+            optionsElements[3].textContent = '6';
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timeLeft = 30;
+            timerElement.textContent = timeLeft;
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerElement.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function generateQuestion() {
+            if (!gameActive) return;
+            
+            const questionType = questionTypes[Math.floor(Math.random() * questionTypes.length)];
+            let num1, num2, answer;
+            
+            // تحديد صعوبة السؤال بناء على المستوى
+            let maxNumber = currentLevel * 5 + 5;
+            
+            switch(questionType.type) {
+                case 'جمع':
+                    num1 = Math.floor(Math.random() * maxNumber) + 1;
+                    num2 = Math.floor(Math.random() * maxNumber) + 1;
+                    answer = num1 + num2;
+                    break;
+                    
+                case 'طرح':
+                    num2 = Math.floor(Math.random() * maxNumber) + 1;
+                    num1 = num2 + Math.floor(Math.random() * maxNumber) + 1;
+                    answer = num1 - num2;
+                    break;
+                    
+                case 'ضرب':
+                    num1 = Math.floor(Math.random() * (maxNumber/2)) + 1;
+                    num2 = Math.floor(Math.random() * (maxNumber/4)) + 1;
+                    answer = num1 * num2;
+                    break;
+                    
+                case 'قسمة':
+                    answer = Math.floor(Math.random() * (maxNumber/2)) + 2;
+                    num2 = Math.floor(Math.random() * (maxNumber/4)) + 1;
+                    num1 = answer * num2;
+                    break;
+            }
+            
+            currentAnswer = answer;
+            
+            // عرض السؤال
+            questionElement.textContent = `${num1} ${questionType.symbol} ${num2} = ?`;
+            
+            // توليد خيارات الإجابة
+            let options = [answer];
+            while (options.length < 4) {
+                let randomOption;
+                if (questionType.type === 'ضرب' || questionType.type === 'قسمة') {
+                    randomOption = answer + Math.floor(Math.random() * 10) - 5;
+                } else {
+                    randomOption = answer + Math.floor(Math.random() * 8) - 4;
+                }
+                
+                if (randomOption !== answer && randomOption > 0 && !options.includes(randomOption)) {
+                    options.push(randomOption);
+                }
+            }
+            
+            // خلط الخيارات
+            options = shuffleArray(options);
+            
+            // تعيين الخيارات للأزرار
+            options.forEach((option, index) => {
+                optionsElements[index].textContent = option;
+            });
+            
+            totalQuestions++;
+        }
+
+        function checkAnswer(selectedOption) {
+            if (!gameActive) return;
+            
+            const selectedAnswer = parseInt(selectedOption.textContent);
+            
+            if (selectedAnswer === currentAnswer) {
+                // الإجابة صحيحة
+                score += currentLevel * 10;
+                correctCount++;
+                
+                scoreElement.textContent = score;
+                correctCountElement.textContent = correctCount;
+                
+                const accuracy = Math.round((correctCount / totalQuestions) * 100);
+                accuracyElement.textContent = `${accuracy}%`;
+                
+                progressElement.style.width = `${(correctCount % 5) * 20}%`;
+                
+                feedbackElement.textContent = 'إجابة صحيحة! أحسنت! 🌟';
+                feedbackElement.className = 'feedback correct';
+                
+                selectedOption.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
+                
+                createConfetti();
+                
+                // الانتقال للمستوى التالي إذا أجاب correctly 5 أسئلة
+                if (correctCount % 5 === 0 && currentLevel < 5) {
+                    currentLevel++;
+                    updateLevelIndicator();
+                    feedbackElement.textContent = `مستوى جديد! الآن أنت في المستوى ${currentLevel} 🚀`;
+                }
+                
+                setTimeout(() => {
+                    selectedOption.style.background = '';
+                    generateQuestion();
+                }, 1000);
+            } else {
+                // الإجابة خاطئة
+                feedbackElement.textContent = 'إجابة خاطئة! حاول مرة أخرى 💪';
+                feedbackElement.className = 'feedback incorrect';
+                
+                selectedOption.style.background = 'linear-gradient(135deg, #dc3545 0%, #fd7e14 100%)';
+                
+                setTimeout(() => {
+                    selectedOption.style.background = '';
+                }, 1000);
+            }
+        }
+
+        function showHint() {
+            if (!gameActive) return;
+            
+            // تقديم تلميح بناء على نوع السؤال
+            const questionText = questionElement.textContent;
+            
+            if (questionText.includes('+')) {
+                feedbackElement.textContent = 'تلميح: الجمع هو إضافة عدد إلى عدد آخر';
+            } else if (questionText.includes('-')) {
+                feedbackElement.textContent = 'تلميح: الطرح هو أخذ عدد من عدد آخر';
+            } else if (questionText.includes('×')) {
+                feedbackElement.textContent = 'تلميح: الضرب هو تكرار جمع العدد عدة مرات';
+            } else if (questionText.includes('÷')) {
+                feedbackElement.textContent = 'تلميح: القسمة هي توزيع عدد إلى أجزاء متساوية';
+            }
+            
+            feedbackElement.className = 'feedback';
+            
+            setTimeout(() => {
+                feedbackElement.textContent = 'اختر الإجابة الصحيحة!';
+            }, 3000);
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            gameActive = false;
+            
+            startBtn.textContent = 'ابدأ من جديد';
+            startBtn.disabled = false;
+            
+            feedbackElement.textContent = `انتهى الوقت! لقد جمعت ${score} نقطة 🎉`;
+            feedbackElement.className = 'feedback correct';
+        }
+
+        function updateLevelIndicator() {
+            levelDots.forEach((dot, index) => {
+                if (index < currentLevel) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        }
+
+        function createConfetti() {
+            for (let i = 0; i < 20; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.background = ['#ff6b6b', '#4ecdc4', '#ffd166', '#06d6a0', '#118ab2'][Math.floor(Math.random() * 5)];
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => {
+                    confetti.remove();
+                }, 1000);
+            }
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // تهيئة اللعبة
+        resetGame();
+    </script>
+</body>
+</html>

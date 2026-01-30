@@ -1,0 +1,153 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>🎮 لعبة تحليل العدد</title>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(to right, #E0F7FA, #FFF3E0);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #00796B;
+        }
+        p.intro {
+            background-color: #FFF9C4;
+            border: 2px dashed #FFB300;
+            padding: 15px;
+            border-radius: 15px;
+            margin: 20px auto;
+            width: 90%;
+            font-size: 18px;
+        }
+        table {
+            width: 90%;
+            margin: 10px auto;
+            border-spacing: 10px;
+        }
+        td {
+            font-size: 18px;
+        }
+        input[type="number"] {
+            padding: 8px;
+            width: 100px;
+            font-size: 16px;
+            text-align: center;
+            border-radius: 8px;
+            border: 2px solid #B2DFDB;
+        }
+        button {
+            display: block;
+            margin: 20px auto;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 18px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #388E3C;
+        }
+        .result {
+            text-align: center;
+            font-size: 20px;
+            margin-top: 20px;
+        }
+        .correct {
+            background-color: #C8E6C9;
+        }
+        .wrong {
+            background-color: #FFCDD2;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎮 لعبة تحليل العدد</h1>
+    <p class="intro">
+        أدخل عددًا مكوّنًا من 4 أرقام، ثم حاول اكتشاف <strong>أرقام المنازل</strong> و<strong>أعداد المنازل</strong>!
+        <br>هل تستطيع التفوق في هذا التحدي؟ 💪
+    </p>
+    <div style="text-align:center;">
+        <label>📥 أدخل عددًا من 4 أرقام:</label><br>
+        <input type="number" id="inputNumber" placeholder="مثال: 4321" />
+    </div>
+    <h2>⭐️ أرقام المنازل</h2>
+    <table>
+        <tr><td>رقم الآلاف:</td><td><input type="number" id="digitThousands" /></td></tr>
+        <tr><td>رقم المئات:</td><td><input type="number" id="digitHundreds" /></td></tr>
+        <tr><td>رقم العشرات:</td><td><input type="number" id="digitTens" /></td></tr>
+        <tr><td>رقم الوحدات:</td><td><input type="number" id="digitUnits" /></td></tr>
+    </table>
+    <h2>🔢 أعداد المنازل</h2>
+    <table>
+        <tr><td>عدد الآلاف:</td><td><input type="number" id="numThousands" /></td></tr>
+        <tr><td>عدد المئات:</td><td><input type="number" id="numHundreds" /></td></tr>
+        <tr><td>عدد العشرات:</td><td><input type="number" id="numTens" /></td></tr>
+        <tr><td>عدد الوحدات:</td><td><input type="number" id="numUnits" /></td></tr>
+    </table>
+    <button onclick="checkAnswers()">✅ تحقق من إجاباتك</button>
+    <div id="feedback" class="result"></div>
+
+    <script>
+        function checkAnswers() {
+            const number = document.getElementById('inputNumber').value;
+            const fb = document.getElementById('feedback');
+            if (number.length !== 4) {
+                fb.innerHTML = "<span style='color:red;'>⚠️ يُرجى إدخال عدد مكوّن من 4 أرقام فقط!</span>";
+                return;
+            }
+
+            const digits = number.split('').map(Number);
+            const [d4, d3, d2, d1] = digits; // الآلاف، المئات، العشرات، الوحدات
+            const expected = {
+                digitThousands: d4,
+                digitHundreds: d3,
+                digitTens: d2,
+                digitUnits: d1,
+                numThousands: parseInt(number.slice(0, 1)),
+                numHundreds: parseInt(number.slice(1, 2) + number.slice(2, 3) + number.slice(3, 4)),
+                numTens: parseInt(number.slice(2, 3) + number.slice(3, 4)),
+                numUnits: parseInt(number)
+            };
+
+            let score = 0;
+            let inputs = [
+                'digitThousands', 'digitHundreds', 'digitTens', 'digitUnits',
+                'numThousands', 'numHundreds', 'numTens', 'numUnits'
+            ];
+
+            inputs.forEach(id => {
+                const input = document.getElementById(id);
+                const userVal = parseInt(input.value);
+                if (userVal === expected[id]) {
+                    input.className = 'correct';
+                    score++;
+                } else {
+                    input.className = 'wrong';
+                }
+            });
+
+            let message = "";
+            if (score === 8) {
+                message = "🎉 ممتاز! كل إجاباتك صحيحة! أنت بطل تحليل الأعداد! 🏆";
+            } else if (score >= 6) {
+                message = "🌟 أحسنت! أغلب إجاباتك صحيحة، تابع التمرين!";
+            } else if (score >= 4) {
+                message = "🙂 جيد! لكن يمكنك التحسّن أكثر!";
+            } else {
+                message = "🚀 لا بأس! حاول مرة أخرى وستنجح!";
+            }
+
+            fb.innerHTML = `<strong>${message}</strong><br>نتيجتك: ${score} / 8`;
+        }
+    </script>
+</body>
+</html>

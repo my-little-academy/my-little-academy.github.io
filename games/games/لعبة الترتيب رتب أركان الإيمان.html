@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الترتيب: رتب أركان الإيمان</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-arrange: #673AB7; /* بنفسجي للتميز */
+            --secondary-arrange: #FFEB3B; /* أصفر لامع للتركيز */
+            --background-arrange: #F3E5F5; /* بنفسجي فاتح جداً للخلفية */
+            --text-color: #333;
+            --card-bg-arrange: rgba(255, 255, 255, 0.9);
+            --shadow-arrange: 0 12px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, var(--background-arrange) 0%, #D1C4E9 100%); /* تدرج بنفسجي مريح */
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            background: var(--card-bg-arrange);
+            border-radius: 35px;
+            padding: 45px;
+            box-shadow: var(--shadow-arrange);
+            text-align: center;
+            animation: fadeInScale 1s ease-out;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Header / Title */
+        h1 {
+            font-size: 3.5rem;
+            color: var(--primary-arrange);
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.15);
+            animation: bounceInDown 1s ease-out;
+        }
+
+        .game-description-text {
+            font-size: 1.6rem;
+            color: #555;
+            margin-bottom: 40px;
+            line-height: 1.8;
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        /* Drag & Drop Areas */
+        .drag-drop-area {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+            min-height: 200px; /* To hold initial cards */
+            padding: 30px;
+            border: 3px dashed var(--secondary-arrange);
+            border-radius: 25px;
+            margin-bottom: 40px;
+            background-color: #fcf8e3; /* لون فاتح لتمييز المنطقة */
+            animation: zoomIn 1s ease-out 0.5s;
+        }
+
+        .drop-zone-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3 columns for 6 elements */
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .drop-zone {
+            width: 100%;
+            min-height: 120px;
+            background-color: #E8F5E9; /* لون فاتح للمناطق المستهدفة */
+            border: 2px solid var(--primary-arrange);
+            border-radius: 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: var(--primary-arrange);
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .drop-zone.hovered {
+            background-color: #C8E6C9; /* أخضر أفتح عند التحويم */
+            transform: scale(1.03);
+            border-color: #4CAF50; /* أخضر أكثر حيوية */
+        }
+        
+        .drop-zone.filled {
+             background-color: #DCEDC8; /* لون عند الملء */
+             border-color: var(--primary-arrange);
+        }
+
+        .drop-zone span.order-number {
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--primary-arrange);
+            background-color: var(--secondary-arrange);
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* Draggable Cards */
+        .draggable-card {
+            background-color: #C5CAE9; /* لون افتراضي للبطاقات */
+            color: white;
+            padding: 20px 25px;
+            border-radius: 15px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            cursor: grab;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            pointer-events: auto; /* Ensure it's draggable */
+        }
+        
+        .draggable-card i {
+            font-size: 2.5rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Specific card colors for arkan al-Iman */
+        .card-1 { background-color: #4CAF50; } /* الإيمان بالله */
+        .card-2 { background-color: #2196F3; } /* الإيمان بالملائكة */
+        .card-3 { background-color: #FFC107; color: var(--text-color); } /* الإيمان بالكتب */
+        .card-3 i { color: #FFA000; } /* Icon color for yellow card */
+        .card-4 { background-color: #9C27B0; } /* الإيمان بالرسل */
+        .card-5 { background-color: #F44336; } /* الإيمان باليوم الآخر */
+        .card-6 { background-color: #607D8B; } /* الإيمان بالقدر */
+
+        .draggable-card:active {
+            cursor: grabbing;
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            z-index: 1000; /* Bring to front while dragging */
+        }
+        
+        /* Elements that are being dragged */
+        .dragging {
+            opacity: 0.7;
+            transform: scale(1.05);
+        }
+
+        /* Feedback Area */
+        .feedback-area {
+            min-height: 80px;
+            margin-top: 30px;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .feedback-message {
+            animation: fadeIn 0.8s ease-out;
+            margin-bottom: 15px;
+        }
+        .feedback-correct { color: #4CAF50; }
+        .feedback-incorrect { color: #F44336; }
+
+        .correct-order-display {
+            margin-top: 20px;
+            font-size: 1.5rem;
+            color: #555;
+            animation: zoomIn 0.8s ease-out;
+        }
+
+        /* Navigation Buttons */
+        .navigation-buttons {
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+        }
+
+        .check-button, .restart-button, .home-button-small {
+            background-color: var(--primary-arrange);
+            color: white;
+            padding: 18px 35px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.6rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .check-button:hover, .restart-button:hover, .home-button-small:hover {
+            background-color: #512DA8; /* بنفسجي أغمق */
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Success Screen */
+        .success-screen {
+            text-align: center;
+            animation: zoomIn 1s ease-out;
+        }
+
+        .success-screen h2 {
+            font-size: 3.5rem;
+            color: var(--primary-arrange);
+            margin-bottom: 25px;
+            text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
+            animation: tada 1s ease-out;
+        }
+
+        .success-screen p {
+            font-size: 2rem;
+            color: var(--text-color);
+            margin-bottom: 30px;
+        }
+        
+        /* Animated Background Elements */
+        .animated-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-shape {
+            position: absolute;
+            background: rgba(103, 58, 183, 0.1); /* Transparent primary color */
+            border-radius: 50%;
+            animation: floatAndRotate 25s infinite linear;
+            filter: blur(5px);
+        }
+
+        .bg-shape:nth-child(1) { width: 150px; height: 150px; top: 10%; left: -5%; animation-duration: 20s; }
+        .bg-shape:nth-child(2) { width: 100px; height: 100px; top: 80%; left: 10%; animation-duration: 22s; transform: rotate(45deg); }
+        .bg-shape:nth-child(3) { width: 120px; height: 120px; top: 20%; right: -5%; animation-duration: 18s; transform: rotate(-30deg); }
+        .bg-shape:nth-child(4) { width: 90px; height: 90px; top: 60%; right: 5%; animation-duration: 23s; }
+        .bg-shape:nth-child(5) { width: 70px; height: 70px; top: 5%; left: 30%; animation-duration: 21s; }
+        .bg-shape:nth-child(6) { width: 110px; height: 110px; top: 90%; left: 70%; animation-duration: 24s; transform: rotate(60deg); }
+
+        @keyframes floatAndRotate {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0.5; }
+            25% { transform: translateY(-30px) rotate(90deg); opacity: 0.6; }
+            50% { transform: translateY(0) rotate(180deg); opacity: 0.7; }
+            75% { transform: translateY(30px) rotate(270deg); opacity: 0.6; }
+            100% { transform: translateY(0) rotate(360deg); opacity: 0.5; }
+        }
+
+        /* Top Home Button */
+        .top-home-button {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            background-color: var(--secondary-arrange);
+            color: var(--text-color);
+            padding: 10px 18px;
+            border-radius: 15px;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .top-home-button:hover {
+            background-color: #FFEA00; /* أصفر أكثر إشراقاً */
+            transform: translateY(-3px);
+        }
+
+        .top-home-button i {
+            font-size: 1.5rem;
+            color: #555;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.8rem; margin-bottom: 20px; }
+            .game-description-text { font-size: 1.3rem; margin-bottom: 30px; }
+            .container { padding: 30px; border-radius: 25px; }
+            .drag-drop-area { padding: 20px; gap: 15px; }
+            .drop-zone-container { grid-template-columns: 1fr; gap: 15px; } /* Single column on small screens */
+            .drop-zone { min-height: 100px; font-size: 1rem; }
+            .drop-zone span.order-number { font-size: 1.4rem; width: 30px; height: 30px; top: 8px; left: 10px; }
+            .draggable-card { font-size: 1.5rem; padding: 15px 20px; }
+            .draggable-card i { font-size: 2rem; }
+            .feedback-area { font-size: 1.2rem; margin-top: 20px; }
+            .check-button, .restart-button, .home-button-small { font-size: 1.4rem; padding: 12px 25px; }
+            .success-screen h2 { font-size: 2.8rem; }
+            .success-screen p { font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="animated-bg">
+        <div class="bg-shape"></div>
+        <div class="bg-shape"></div>
+        <div class="bg-shape"></div>
+        <div class="bg-shape"></div>
+        <div class="bg-shape"></div>
+        <div class="bg-shape"></div>
+    </div>
+
+    <a href="games_page.html" class="top-home-button animate__animated animate__bounceInRight">
+        <i class="fas fa-home"></i>
+        <span>العودة للألعاب</span>
+    </a>
+
+    <div class="container">
+        <h1 class="animate__animated animate__flipInX">لعبة الترتيب: رتب أركان الإيمان</h1>
+        <p class="game-description-text">
+            اسحب أركان الإيمان وقم بوضعها في أماكنها الصحيحة بالترتيب!
+        </p>
+
+        <div id="game-area">
+            <div class="drag-drop-area" id="dragZone">
+                </div>
+            
+            <div class="drop-zone-container" id="dropZoneContainer">
+                <div class="drop-zone" data-order="1">
+                    <span class="order-number">1</span>
+                    <p>الإيمان بـ ...</p>
+                </div>
+                <div class="drop-zone" data-order="2">
+                    <span class="order-number">2</span>
+                    <p>الإيمان بـ ...</p>
+                </div>
+                <div class="drop-zone" data-order="3">
+                    <span class="order-number">3</span>
+                    <p>الإيمان بـ ...</p>
+                </div>
+                <div class="drop-zone" data-order="4">
+                    <span class="order-number">4</span>
+                    <p>الإيمان بـ ...</p>
+                </div>
+                <div class="drop-zone" data-order="5">
+                    <span class="order-number">5</span>
+                    <p>الإيمان بـ ...</p>
+                </div>
+                <div class="drop-zone" data-order="6">
+                    <span class="order-number">6</span>
+                    <p>الإيمان بـ ...</p>
+                </div>
+            </div>
+
+            <div class="feedback-area" id="feedbackArea">
+                </div>
+
+            <div class="navigation-buttons">
+                <button class="check-button" id="checkButton"><i class="fas fa-check-circle"></i> تحقق من الترتيب</button>
+            </div>
+        </div>
+
+        <div id="success-screen" class="success-screen hidden">
+            <h2 class="animate__animated animate__heartBeat">مذهل! لقد قمت بترتيبها بنجاح!</h2>
+            <p class="animate__animated animate__fadeIn">أنت بطل حقيقي في العقيدة!</p>
+            <div class="navigation-buttons">
+                <button class="restart-button" id="restartButton"><i class="fas fa-redo"></i> ابدأ من جديد</button>
+                <a href="games_page.html" class="home-button-small"><i class="fas fa-gamepad"></i> العودة لقائمة الألعاب</a>
+            </div>
+        </div>
+    </div>
+
+    <audio id="dragAudio" src="drag_sound.mp3" preload="auto"></audio>
+    <audio id="dropAudio" src="drop_sound.mp3" preload="auto"></audio>
+    <audio id="correctOrderAudio" src="correct_order.mp3" preload="auto"></audio>
+    <audio id="incorrectOrderAudio" src="incorrect_order.mp3" preload="auto"></audio>
+
+    <script>
+        const arkanAlIman = [
+            { id: 'allah', name: "الإيمان بالله", order: 1, icon: "fas fa-hand-holding-heart", colorClass: "card-1" },
+            { id: 'angels', name: "الإيمان بالملائكة", order: 2, icon: "fas fa-cloud", colorClass: "card-2" },
+            { id: 'books', name: "الإيمان بالكتب", order: 3, icon: "fas fa-book-open", colorClass: "card-3" },
+            { id: 'prophets', name: "الإيمان بالرسل", order: 4, icon: "fas fa-user-tie", colorClass: "card-4" },
+            { id: 'dayofjudgement', name: "الإيمان باليوم الآخر", order: 5, icon: "fas fa-fire-extinguisher", colorClass: "card-5" },
+            { id: 'destiny', name: "الإيمان بالقدر خيره وشره", order: 6, icon: "fas fa-dice-d6", colorClass: "card-6" }
+        ];
+
+        let draggedItem = null;
+        const dragZone = document.getElementById('dragZone');
+        const dropZones = document.querySelectorAll('.drop-zone');
+        const checkButton = document.getElementById('checkButton');
+        const feedbackArea = document.getElementById('feedbackArea');
+        const gameArea = document.getElementById('game-area');
+        const successScreen = document.getElementById('success-screen');
+        const restartButton = document.getElementById('restartButton');
+
+        const dragAudio = document.getElementById('dragAudio');
+        const dropAudio = document.getElementById('dropAudio');
+        const correctOrderAudio = document.getElementById('correctOrderAudio');
+        const incorrectOrderAudio = document.getElementById('incorrectOrderAudio');
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function createDraggableCards() {
+            dragZone.innerHTML = ''; // Clear previous cards
+            const shuffledArkan = shuffleArray([...arkanAlIman]); // Shuffle a copy
+
+            shuffledArkan.forEach(arkan => {
+                const card = document.createElement('div');
+                card.classList.add('draggable-card', arkan.colorClass);
+                card.setAttribute('draggable', true);
+                card.dataset.id = arkan.id; // Store original ID
+                card.dataset.order = arkan.order; // Store correct order
+
+                card.innerHTML = `<i class="${arkan.icon}"></i><span>${arkan.name}</span>`;
+                
+                card.addEventListener('dragstart', (e) => {
+                    draggedItem = card;
+                    setTimeout(() => card.classList.add('dragging'), 0);
+                    e.dataTransfer.setData('text/plain', arkan.id); // Set data for drop
+                    dragAudio.play().catch(e => console.log("Drag audio failed:", e));
+                });
+
+                card.addEventListener('dragend', () => {
+                    draggedItem.classList.remove('dragging');
+                    draggedItem = null;
+                });
+
+                dragZone.appendChild(card);
+            });
+        }
+
+        function setupDropZones() {
+            dropZones.forEach(zone => {
+                zone.innerHTML = `<span class="order-number">${zone.dataset.order}</span><p>الإيمان بـ ...</p>`; // Reset content
+                zone.classList.remove('hovered', 'filled');
+
+                zone.addEventListener('dragover', (e) => {
+                    e.preventDefault(); // Allow drop
+                    zone.classList.add('hovered');
+                });
+
+                zone.addEventListener('dragleave', () => {
+                    zone.classList.remove('hovered');
+                });
+
+                zone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    zone.classList.remove('hovered');
+                    const data = e.dataTransfer.getData('text/plain'); // Get ID from drag event
+                    const draggedCard = document.querySelector(`.draggable-card[data-id="${data}"]`);
+
+                    if (draggedCard && !zone.querySelector('.draggable-card')) { // Only drop if zone is empty
+                        zone.appendChild(draggedCard);
+                        zone.classList.add('filled'); // Mark as filled
+                        draggedCard.style.position = 'relative'; // Reset position after drag
+                        draggedCard.style.top = '0';
+                        draggedCard.style.left = '0';
+                        dropAudio.play().catch(e => console.log("Drop audio failed:", e));
+                    }
+                });
+            });
+        }
+
+        function checkOrder() {
+            feedbackArea.innerHTML = '';
+            let isCorrect = true;
+            const currentOrder = [];
+
+            dropZones.forEach(zone => {
+                const card = zone.querySelector('.draggable-card');
+                if (card) {
+                    currentOrder.push({
+                        orderInZone: parseInt(zone.dataset.order),
+                        cardCorrectOrder: parseInt(card.dataset.order)
+                    });
+                } else {
+                    isCorrect = false; // A zone is empty
+                }
+            });
+
+            if (currentOrder.length !== arkanAlIman.length) {
+                isCorrect = false; // Not all cards placed
+            }
+
+            if (isCorrect) {
+                // Sort the current order to check sequence
+                currentOrder.sort((a, b) => a.orderInZone - b.orderInZone);
+                for (let i = 0; i < currentOrder.length; i++) {
+                    if (currentOrder[i].orderInZone !== currentOrder[i].cardCorrectOrder) {
+                        isCorrect = false;
+                        break;
+                    }
+                }
+            }
+            
+            if (isCorrect) {
+                feedbackArea.innerHTML = `<p class="feedback-message feedback-correct animate__animated animate__bounceIn">أحسنت! ترتيب صحيح ومثالي! <i class="fas fa-medal"></i></p>`;
+                correctOrderAudio.play().catch(e => console.log("Correct order audio failed:", e));
+                setTimeout(() => {
+                    gameArea.classList.add('hidden');
+                    successScreen.classList.remove('hidden');
+                }, 1000); // Show success screen after a short delay
+            } else {
+                feedbackArea.innerHTML = `<p class="feedback-message feedback-incorrect animate__animated animate__shakeX">حاول مرة أخرى! راجع الترتيب. <i class="fas fa-exclamation-triangle"></i></p>`;
+                incorrectOrderAudio.play().catch(e => console.log("Incorrect order audio failed:", e));
+            }
+        }
+
+        function startGame() {
+            gameArea.classList.remove('hidden');
+            successScreen.classList.add('hidden');
+            feedbackArea.innerHTML = '';
+            createDraggableCards();
+            setupDropZones();
+        }
+
+        // Event Listeners
+        checkButton.addEventListener('click', checkOrder);
+        restartButton.addEventListener('click', startGame);
+
+        // Initial game setup
+        startGame();
+    </script>
+</body>
+</html>

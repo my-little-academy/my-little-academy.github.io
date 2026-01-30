@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>درس الاستثناء الممتع!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Changa:wght@600&family=Amiri&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #FF6F61; /* لون أساسي مرح */
+            --secondary-color: #6B5B95; /* لون ثانوي جذاب */
+            --accent-color: #88B04B; /* لون تمييز مشرق */
+            --light-bg: #F8F8FF; /* خلفية فاتحة ومبهجة */
+            --card-bg-1: #FFD1DC; /* وردي فاتح */
+            --card-bg-2: #D1FFD1; /* أخضر فاتح */
+            --card-bg-3: #D1E7FF; /* أزرق فاتح */
+            --text-color: #333;
+            --header-color: #4A005B; /* لون عناوين غني */
+        }
+
+        body {
+            font-family: 'Amiri', serif; /* خط عربي تقليدي وجميل */
+            line-height: 1.8;
+            color: var(--text-color);
+            max-width: 950px;
+            margin: 0 auto;
+            padding: 30px;
+            background: linear-gradient(135deg, var(--light-bg) 0%, #E6E6FA 100%); /* تدرج لطيف للخلفية */
+            position: relative;
+            overflow-x: hidden; /* لمنع ظهور شريط التمرير الأفقي بسبب الكونفيتي */
+        }
+
+        h1, h2, h3 {
+            font-family: 'Changa', sans-serif; /* خط مرح للعناوين */
+            color: var(--header-color);
+            text-align: center;
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-top: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px dashed var(--primary-color);
+            display: inline-block;
+            animation: bounceIn 1s ease-out;
+        }
+
+        .section-card {
+            background-color: white;
+            padding: 25px 30px;
+            border-radius: 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 2px solid;
+            position: relative;
+            z-index: 1; /* لضمان ظهور البطاقات فوق الكونفيتي */
+        }
+
+        .section-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.25);
+        }
+
+        .story {
+            border-color: var(--card-bg-1);
+            background: linear-gradient(145deg, var(--card-bg-1) 0%, #FFB6C1 100%);
+        }
+
+        .rules {
+            border-color: var(--card-bg-2);
+            background: linear-gradient(145deg, var(--card-bg-2) 0%, #C1FFC1 100%);
+        }
+
+        .exercises {
+            border-color: var(--card-bg-3);
+            background: linear-gradient(145deg, var(--card-bg-3) 0%, #B1D1FF 100%);
+        }
+
+        .game {
+            border-color: var(--secondary-color);
+            background: linear-gradient(145deg, #E6E6FA 0%, #D8BFD8 100%);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px; /* أزرار دائرية أكثر جمالاً */
+            cursor: pointer;
+            font-size: 1.1em;
+            margin: 10px 8px;
+            transition: all 0.3s ease;
+            font-family: 'Changa', sans-serif;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300%;
+            height: 300%;
+            background: rgba(255,255,255,0.15);
+            transition: all 0.75s ease-out;
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+        }
+
+        button:hover::before {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 0;
+        }
+
+        button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        }
+
+        .highlight {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-weight: bold;
+            box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .correct {
+            color: #27ae60;
+            font-weight: bold;
+            animation: pulseGreen 0.7s ease-in-out;
+        }
+
+        .incorrect {
+            color: #e74c3c;
+            font-weight: bold;
+            animation: shakeRed 0.5s ease-in-out;
+        }
+
+        .rule-box {
+            display: inline-block;
+            width: 30%;
+            margin: 15px 1%;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            vertical-align: top;
+            min-height: 180px;
+            transition: all 0.3s ease;
+            border: 1px solid #eee;
+        }
+
+        .rule-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .feedback {
+            min-height: 60px;
+            padding: 20px;
+            margin-top: 25px;
+            border-radius: 10px;
+            background-color: #f0f8ff; /* لون لطيف للتغذية الراجعة */
+            border: 1px dashed var(--primary-color);
+            animation: fadeIn 0.8s;
+        }
+
+        .draggable {
+            padding: 10px 15px;
+            margin: 8px;
+            background: var(--primary-color);
+            color: white;
+            cursor: grab;
+            border-radius: 25px;
+            display: inline-block;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            font-family: 'Amiri', serif;
+        }
+
+        .draggable:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+        .draggable:active {
+            cursor: grabbing;
+        }
+
+        .dropzone {
+            min-height: 100px;
+            padding: 20px;
+            margin: 15px 0;
+            background: #e9f5ff; /* لون فاتح لمنطقة السحب والإفلات */
+            border-radius: 15px;
+            border: 3px dashed var(--secondary-color);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .dropzone.drag-over {
+            background-color: #dbeaff;
+            border-color: var(--primary-color);
+        }
+
+        #hidden-message {
+            display: none;
+            background-color: #fffacd; /* لون مشرق للمفاجأة */
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 30px;
+            animation: fadeIn 1.5s;
+            border: 2px solid var(--accent-color);
+            text-align: center;
+        }
+
+        #hidden-message h3 {
+            color: var(--primary-color);
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        #culprit {
+            font-size: 2.5em;
+            color: var(--header-color);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        /* Confetti effect */
+        .confetti {
+            position: fixed; /* Fixed position so it doesn't scroll with content */
+            width: 10px;
+            height: 10px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            opacity: 0;
+            z-index: 0;
+            pointer-events: none;
+            transform-origin: center center;
+        }
+        .confetti:nth-child(2n) { background-color: var(--secondary-color); }
+        .confetti:nth-child(3n) { background-color: var(--accent-color); }
+        .confetti:nth-child(4n) { background-color: #FFC0CB; } /* Pink */
+        .confetti:nth-child(5n) { background-color: #FFFF99; } /* Yellow */
+
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes bounceIn {
+            0%, 20%, 40%, 60%, 80%, 100% {
+                -webkit-transition-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+                transition-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+            }
+            0% {
+                opacity: 0;
+                -webkit-transform: scale3d(0.3, 0.3, 0.3);
+                transform: scale3d(0.3, 0.3, 0.3);
+            }
+            20% {
+                -webkit-transform: scale3d(1.1, 1.1, 1.1);
+                transform: scale3d(1.1, 1.1, 1.1);
+            }
+            40% {
+                -webkit-transform: scale3d(0.9, 0.9, 0.9);
+                transform: scale3d(0.9, 0.9, 0.9);
+            }
+            60% {
+                opacity: 1;
+                -webkit-transform: scale3d(1.03, 1.03, 1.03);
+                transform: scale3d(1.03, 1.03, 1.03);
+            }
+            80% {
+                -webkit-transform: scale3d(0.97, 0.97, 0.97);
+                transform: scale3d(0.97, 0.97, 0.97);
+            }
+            100% {
+                opacity: 1;
+                -webkit-transform: scale3d(1, 1, 1);
+                transform: scale3d(1, 1, 1);
+            }
+        }
+
+        @keyframes pulseGreen {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shakeRed {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        @media (max-width: 768px) {
+            .rule-box {
+                width: 100%;
+                display: block;
+                margin-left: 0;
+                margin-right: 0;
+            }
+            body {
+                padding: 15px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const numConfetti = 50; // عدد قصاصات الورق
+            for (let i = 0; i < numConfetti; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                confetti.style.animationDelay = (Math.random() * 2) + 's';
+                confetti.style.animationName = 'confetti-fall'; // إضافة اسم الأنميشن
+                confetti.style.opacity = '1'; // جعلها مرئية من البداية
+                document.body.appendChild(confetti);
+            }
+        });
+    </script>
+
+    <h1>درس الاستثناء في اللغة العربية 🥳</h1>
+    
+    <div class="section-card story">
+        <h2>✨ لغز المكتبة المفقودة ✨</h2>
+        <p>في قرية صغيرة، كان هناك صبيٌ ذكيٌ يدعى ياسر. في يوم من الأيام، دخل إلى مكتبة المدرسة فوجد جميع الكتب على الأرض <span class="highlight">ما عدا كتاباً واحداً</span> كان في مكانه الصحيح. تعجب ياسر وسأل نفسه: "لماذا هذا الكتاب بالذات لم يسقط؟"</p>
+        
+        <p>ذهب إلى المعلم وسأله عن هذه الظاهرة الغريبة. ابتسم المعلم وقال: "لاحظت شيئاً مهماً يا ياسر. لقد استخدمت أداة استثناء دون أن تدري! <span class="highlight">'ما عدا'</span> هي أداة استثناء، والكتاب الذي لم يسقط هو المستثنى."</p>
+        
+        <p>أخذ المعلم يشرح لياسر أن الاستثناء هو <span class="highlight">إخراج ما بعد أداة الاستثناء من حكم ما قبلها</span>. ثم سأله: "إذا قلت: حضر جميع الطلاب إلا خالداً، فمن الذي لم يحضر؟" أجاب ياسر بسرعة: "خالدٌ بالطبع!" فقال المعلم: "أحسنت! لقد فهمت معنى الاستثناء."</p>
+        
+        <p>من ذلك اليوم، أصبح ياسر يبحث عن أدوات الاستثناء في كل ما يقرأ، واكتشف أن هناك أدوات أخرى مثل <span class="highlight">إلا، خلا، عدا، حاشا</span>.</p>
+    </div>
+    
+    <div class="section-card rules">
+        <h2>🌈 قواعد الاستثناء الملونة 🌈</h2>
+        <p>الاستثناء هو إخراج ما بعد أداة الاستثناء من حكم ما قبلها. له ثلاثة أنواع ممتعة:</p>
+        
+        <div style="text-align: center; margin: 20px 0;">
+            <div class="rule-box">
+                <h3>استثناء تام مثبت 💖</h3>
+                <p>حضر الطلاب <span class="highlight">إلا خالداً</span></p>
+                <p>• المستثنى منصوب</p>
+                <p>• يكون الكلام تاماً (ذكر المستثنى منه)</p>
+            </div>
+            
+            <div class="rule-box">
+                <h3>استثناء تام منفي 💜</h3>
+                <p><span class="highlight">ما</span> حضر الطلاب <span class="highlight">إلا خالدٌ</span></p>
+                <p>• المستثنى مرفوع أو منصوب (بدلاً)</p>
+                <p>• يعرب بدلاً أو فاعلاً حسب الأداة</p>
+            </div>
+            
+            <div class="rule-box">
+                <h3>استثناء ناقص 💚</h3>
+                <p><span class="highlight">ما</span> حضر <span class="highlight">إلا خالدٌ</span></p>
+                <p>• المستثنى مرفوع أو حسب موقعه في الجملة</p>
+                <p>• لا يوجد مستثنى منه</p>
+            </div>
+        </div>
+        
+        <h3>أدوات الاستثناء الرائعة ✨</h3>
+        <p>أدوات الاستثناء الرئيسية هي: <span class="highlight">إلا، خلا، عدا، حاشا</span>. ولكل منها استخدام خاص:</p>
+        <ul>
+            <li><strong>إلا</strong>: أشهر أدوات الاستثناء وتستخدم في جميع أنواعه</li>
+            <li><strong>خلا، عدا، حاشا</strong>: تعمل عمل "إلا" إذا كانت أفعالاً جامدة</li>
+        </ul>
+    </div>
+    
+    <div class="section-card exercises">
+        <h2>🎉 تمارين تفاعلية ومرحة 🎉</h2>
+        
+        <h3>التدريب الأول: حدد المستثنى 🎯</h3>
+        <p>اضغط على الكلمة التي تمثل المستثنى في الجمل التالية:</p>
+        
+        <div style="margin: 15px 0;">
+            <button onclick="checkException(this, 'correct')">أحمداً</button> في جملة "حضر الطلاب <u>إلا أحمداً</u>"
+            <button onclick="checkException(this, 'wrong')">الطلاب</button> في نفس الجملة
+        </div>
+        
+        <div style="margin: 15px 0;">
+            <button onclick="checkException(this, 'wrong')">نجح</button> في جملة "<u>ما</u> نجح <u>إلا المجتهدون</u>"
+            <button onclick="checkException(this, 'correct')">المجتهدون</button> في نفس الجملة
+        </div>
+        
+        <h3>التدريب الثاني: أكمل الجمل ✏️</h3>
+        <p>أكمل الجمل التالية باستثناء مناسب:</p>
+        <p>قرأت جميع القصص <input type="text" id="ex1_input" placeholder="أدخل الاستثناء" style="padding: 8px; border-radius: 5px; border: 1px solid #ccc; font-size: 1em;">.</p>
+        <p>ما فاز في المسابقة <input type="text" id="ex2_input" placeholder="أدخل الاستثناء" style="padding: 8px; border-radius: 5px; border: 1px solid #ccc; font-size: 1em;">.</p>
+        <p>لم يأكل من الفاكهة <input type="text" id="ex3_input" placeholder="أدخل الاستثناء" style="padding: 8px; border-radius: 5px; border: 1px solid #ccc; font-size: 1em;">.</p>
+        
+        <button onclick="checkExercise()">تحقق من إجاباتك 🚀</button>
+        <div id="exercise-feedback" class="feedback"></div>
+        
+        <h3>التدريب الثالث: صنّف الجمل 🧩</h3>
+        <p>اسحب كل جملة إلى نوع الاستثناء المناسب:</p>
+        
+        <div id="draggable-items-container" style="margin: 15px 0;">
+            <div class="draggable" draggable="true" ondragstart="drag(event)" id="drag1">حلّ الواجب جميع الطلاب إلا سامياً</div>
+            <div class="draggable" draggable="true" ondragstart="drag(event)" id="drag2">ما قرأت الكتب إلا قصةً</div>
+            <div class="draggable" draggable="true" ondragstart="drag(event)" id="drag3">ما فهمت إلا الدرسَ</div>
+        </div>
+        
+        <div class="dropzone" ondragover="allowDrop(event)" ondrop="drop(event, 'تام مثبت')" id="drop1">
+            <h4>استثناء تام مثبت</h4>
+        </div>
+        
+        <div class="dropzone" ondragover="allowDrop(event)" ondrop="drop(event, 'تام منفي')" id="drop2">
+            <h4>استثناء تام منفي</h4>
+        </div>
+        
+        <div class="dropzone" ondragover="allowDrop(event)" ondrop="drop(event, 'ناقص')" id="drop3">
+            <h4>استثناء ناقص</h4>
+        </div>
+        
+        <button onclick="checkClassification()">تحقق من التصنيف ✔️</button>
+        <div id="classification-feedback" class="feedback"></div>
+    </div>
+    
+    <div class="section-card game">
+        <h2>🕵️‍♀️ لعبة كن محقق الاستثناء! 🕵️‍♂️</h2>
+        <p>لقد حدثت جريمة في المدرسة! جميع الطلاب في الفصل كانوا حاضرين <span class="highlight">ما عدا واحداً</span>. استخدم مهاراتك في الاستثناء لاكتشاف الجاني.</p>
+        
+        <p><strong>القواعد السرية:</strong></p>
+        <ul>
+            <li>هناك 5 أدلة مخفية في الجمل أدناه</li>
+            <li>ابحث عن أدوات الاستثناء والمستثنى في كل جملة</li>
+            <li>كل دليل صحيح يكشف جزءاً من صورة الجاني</li>
+        </ul>
+        
+        <div style="background-color: #f0f4f8; padding: 20px; border-radius: 10px; margin: 25px 0; border: 1px solid #ddeeff;">
+            <p>1. جميع الطلاب أحضروا كتبهم <span class="highlight">عدا عمراً</span>.</p>
+            <p>2. <span class="highlight">ما</span> شارك في الحفل <span class="highlight">إلا ثلاثة طلاب</span>.</p>
+            <p>3. حلّ جميع الطلاب الواجب <span class="highlight">خلا أحمدٍ</span>.</p>
+            <p>4. <span class="highlight">حاشا</span> ليلى <span class="highlight">ما</span> كتبت التقرير.</p>
+            <p>5. <span class="highlight">ما</span> سمعت <span class="highlight">إلا صوتاً غريباً</span>.</p>
+        </div>
+        
+        <button onclick="showClue(1)">اظهر الدليل الأول 🔍</button>
+        <button onclick="showClue(2)">اظهر الدليل الثاني 🔍</button>
+        <button onclick="showClue(3)">اظهر الدليل الثالث 🔍</button>
+        <button onclick="showClue(4)">اظهر الدليل الرابع 🔍</button>
+        <button onclick="showClue(5)">اظهر الدليل الخامس 🔍</button>
+        
+        <div id="hidden-message">
+            <h3>🎉 لقد كشفت اللغز الكبير! 🎉</h3>
+            <p>الجاني هو: <span id="culprit" style="font-weight:bold; color:var(--header-color);">...</span></p>
+            <p>هذه هي الأدلة التي كشفت الجاني:</p>
+            <ol id="evidence-list" style="text-align: right; max-width: 80%; margin: 0 auto; list-style-position: inside;"></ol>
+            <button onclick="resetGame()" style="margin-top: 20px;">العب مرة أخرى! 🔄</button>
+        </div>
+    </div>
+    
+    <script>
+        // Functions for exception checking
+        function checkException(button, correctness) {
+            const originalBg = button.style.backgroundColor;
+            const originalColor = button.style.color;
+
+            if (correctness === "correct") {
+                button.style.backgroundColor = "#2ecc71"; // أخضر للصحيح
+                button.style.color = "white";
+                button.classList.add('correct'); // لإضافة تأثير الأنميشن
+            } else {
+                button.style.backgroundColor = "#e74c3c"; // أحمر للخطأ
+                button.style.color = "white";
+                button.classList.add('incorrect'); // لإضافة تأثير الأنميشن
+            }
+
+            setTimeout(() => {
+                button.style.backgroundColor = originalBg;
+                button.style.color = originalColor;
+                button.classList.remove('correct', 'incorrect');
+            }, 1500); // زيادة المدة لرؤية الأنميشن
+        }
+        
+        function checkExercise() {
+            const ex1 = document.getElementById("ex1_input").value.trim();
+            const ex2 = document.getElementById("ex2_input").value.trim();
+            const ex3 = document.getElementById("ex3_input").value.trim();
+            
+            let feedback = "<h3>تحليل إجاباتك:</h3>";
+            
+            feedback += `<p>"قرأت جميع القصص <u>${ex1 || '...'}</u>" - ${checkExceptionValidation(ex1, 'مثبت')}</p>`;
+            feedback += `<p>"ما فاز في المسابقة <u>${ex2 || '...'}</u>" - ${checkExceptionValidation(ex2, 'منفي')}</p>`;
+            feedback += `<p>"لم يأكل من الفاكهة <u>${ex3 || '...'}</u>" - ${checkExceptionValidation(ex3, 'ناقص')}</p>`;
+            
+            feedback += "<p><strong>ملاحظات مهمة:</strong></p>";
+            feedback += "<ul>";
+            feedback += "<li>في الاستثناء التام المثبت: المستثنى منصوب دائماً (مثل: إلا أحمدَ، عدا خالداً)</li>";
+            feedback += "<li>في الاستثناء التام المنفي: المستثنى يجوز نصبه على الاستثناء أو اتباعه للمستثنى منه على البدلية (مثل: ما حضر الطلاب إلا خالدٌ / خالداً)</li>";
+            feedback += "<li>في الاستثناء الناقص (المفرغ): المستثنى يعرب حسب موقعه في الجملة (مثل: ما حضر إلا خالدٌ - خالد فاعل)</li>";
+            feedback += "</ul>";
+            
+            document.getElementById("exercise-feedback").innerHTML = feedback;
+        }
+        
+        function checkExceptionValidation(exText, type) {
+            if (!exText) return "<span class='incorrect'>لم تدخل استثناء 😔</span>";
+            
+            // تحقق بسيط جداً، يمكن تحسينه بشكل كبير ليغطي كل حالات الإعراب
+            // الهدف هو إعطاء مؤشر مبدئي للمستخدم
+            if (type === 'مثبت') {
+                // نتوقع اسم منصوب (غالباً ينتهي بألف وتنوين أو فتحة ظاهرة)
+                if (exText.includes("إلا ") && (exText.endsWith("اً") || exText.endsWith("ً") || exText.endsWith("َ") || exText.endsWith("ا"))) {
+                    return "<span class='correct'>✓ ممتاز، صيغة منصوبة مناسبة!</span>";
+                } else if ((exText.includes("خلا ") || exText.includes("عدا ") || exText.includes("حاشا ")) && (exText.endsWith("اً") || exText.endsWith("ً") || exText.endsWith("َ") || exText.endsWith("ا") || exText.endsWith("ٍ") || exText.endsWith("ِ"))) {
+                     return "<span class='correct'>✓ ممتاز، صيغة مناسبة لخلا/عدا/حاشا!</span>";
+                }
+                return "<span class='incorrect'>✗ تأكد من أن المستثنى منصوب بعد الأداة!</span>";
+            } else if (type === 'منفي') {
+                // نتوقع اسم مرفوع أو منصوب (ممكن أن يكون بدلاً أو مستثنى منصوب)
+                if (exText.includes("إلا ") && (exText.endsWith("ٌ") || exText.endsWith("ٍ") || exText.endsWith("اً") || exText.endsWith("ً"))) {
+                    return "<span class='correct'>✓ أحسنت، صيغة مناسبة للمنفي!</span>";
+                }
+                return "<span class='incorrect'>✗ تأكد من الإعراب الصحيح في الاستثناء المنفي!</span>";
+            } else if (type === 'naqis') { // Changed from 'ناقص' to 'naqis' to avoid potential encoding issues in JS logic
+                // نتوقع إعراب حسب الموقع (فاعل، مفعول به، إلخ.)
+                if (exText.includes("إلا ")) { // يمكن أن نضيف شروطا أكثر دقة لإعراب الكلمة
+                    return "<span class='correct'>✓ صحيح، يعرب المستثنى حسب موقعه!</span>";
+                }
+                return "<span class='incorrect'>✗ تأكد من الأداة وأن المستثنى يعرب حسب موقعه!</span>";
+            }
+            return "<span class='incorrect'>✗ حاول مرة أخرى.</span>";
+        }
+        
+        // Drag and drop functions
+        function allowDrop(ev) {
+            ev.preventDefault();
+            ev.target.classList.add('drag-over');
+        }
+        
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.id);
+        }
+        
+        function drop(ev, type) {
+            ev.preventDefault();
+            ev.target.classList.remove('drag-over');
+            const data = ev.dataTransfer.getData("text");
+            const draggedElement = document.getElementById(data);
+            
+            // تحقق مما إذا كانت منطقة الإفلات تحتوي بالفعل على هذا العنصر لمنع التكرار
+            if (ev.target.querySelector(`#${draggedElement.id}`)) {
+                return;
+            }
+
+            // إزالة العنصر من مكانه الأصلي لتجنب تكرار العناصر المرئية
+            if (draggedElement.parentNode) {
+                draggedElement.parentNode.removeChild(draggedElement);
+            }
+            
+            const isCorrect = checkDropCorrectness(draggedElement.id, type);
+            
+            const feedbackSpan = document.createElement("span");
+            feedbackSpan.textContent = draggedElement.textContent;
+            feedbackSpan.dataset.originalId = draggedElement.id; // Store original ID for checking
+            feedbackSpan.style.display = "block"; // لجعل كل جملة في سطر جديد
+            feedbackSpan.style.padding = "5px";
+            feedbackSpan.style.margin = "5px 0";
+            feedbackSpan.style.borderRadius = "8px";
+            feedbackSpan.style.backgroundColor = isCorrect ? "#D1FFD1" : "#FFD1DC"; // ألوان فاتحة للنجاح والفشل
+            feedbackSpan.style.color = isCorrect ? "#27ae60" : "#e74c3c";
+            feedbackSpan.style.border = `1px solid ${isCorrect ? '#2ecc71' : '#e74c3c'}`;
+            feedbackSpan.style.fontWeight = "bold";
+            feedbackSpan.style.boxShadow = "0 2px 5px rgba(0,0,0,0.1)";
+            
+            ev.target.appendChild(feedbackSpan);
+        }
+        
+        function checkDropCorrectness(id, type) {
+            const correctPairs = {
+                "drag1": "تام مثبت", // حلّ الواجب جميع الطلاب إلا سامياً
+                "drag2": "تام منفي",  // ما قرأت الكتب إلا قصةً
+                "drag3": "ناقص"     // ما فهمت إلا الدرسَ
+            };
+            
+            return correctPairs[id] === type;
+        }
+        
+        function checkClassification() {
+            const correctMappings = {
+                "drag1": "drop1", // تام مثبت
+                "drag2": "drop2", // تام منفي
+                "drag3": "drop3"  // ناقص
+            };
+            
+            let correctCount = 0;
+            let feedbackHTML = "<h3>نتائج التصنيف:</h3>";
+            
+            // Collect current state of dropzones
+            const currentDropState = {};
+            document.querySelectorAll('.dropzone').forEach(dropzone => {
+                const dropzoneType = dropzone.querySelector('h4').textContent;
+                currentDropState[dropzoneType] = Array.from(dropzone.querySelectorAll('span'))
+                                                        .map(span => span.dataset.originalId);
+            });
+
+            let allCorrect = true;
+
+            for (const [draggableId, correctDropzoneType] of Object.entries(correctMappings)) {
+                let foundInCorrectPlace = false;
+                for (const [dropzoneType, droppedItems] of Object.entries(currentDropState)) {
+                    if (droppedItems.includes(draggableId)) {
+                        if (dropzoneType === correctDropzoneType) {
+                            feedbackHTML += `<p class='correct'>✓ "${document.getElementById(draggableId).textContent}" في المكان الصحيح!</p>`;
+                            correctCount++;
+                            foundInCorrectPlace = true;
+                            break;
+                        } else {
+                            feedbackHTML += `<p class='incorrect'>✗ "${document.getElementById(draggableId).textContent}" في المكان الخطأ.</p>`;
+                            allCorrect = false;
+                            foundInCorrectPlace = true;
+                            break;
+                        }
+                    }
+                }
+                if (!foundInCorrectPlace) {
+                    feedbackHTML += `<p class='incorrect'>✗ "${document.getElementById(draggableId).textContent}" لم يتم تصنيفه بعد.</p>`;
+                    allCorrect = false;
+                }
+            }
+
+            if (allCorrect && Object.keys(currentDropState).every(type => currentDropState[type].length > 0)) { // Ensure all items are dropped
+                feedbackHTML = `<p class='correct'>🎉 رائع! جميع التصنيفات صحيحة! أنت بطل التصنيف!</p>`;
+            } else {
+                feedbackHTML += `<p>لديك ${correctCount} تصنيف${correctCount === 1 ? '' : 'ات'} صحيح${correctCount === 1 ? '' : 'ة'} من ${Object.keys(correctMappings).length}. حاول مرة أخرى لمزيد من المرح!</p>`;
+                feedbackHTML += "<p><strong>الإجابات الصحيحة هي:</strong></p>";
+                feedbackHTML += "<ul>";
+                feedbackHTML += "<li>حلّ الواجب جميع الطلاب إلا سامياً ← استثناء تام مثبت</li>";
+                feedbackHTML += "<li>ما قرأت الكتب إلا قصةً ← استثناء تام منفي</li>";
+                feedbackHTML += "<li>ما فهمت إلا الدرسَ ← استثناء ناقص</li>";
+                feedbackHTML += "</ul>";
+            }
+            
+            document.getElementById("classification-feedback").innerHTML = feedbackHTML;
+        }
+        
+        // Game functions
+        const clues = [
+            { text: "عمر لم يحضر كتابه (المستثنى: عمراً)", culprit: "عمر" },
+            { text: "ثلاثة طلاب فقط شاركوا في الحفل (المستثنى: ثلاثة طلاب)", culprit: "غير محدد" }, // ليس بالضرورة الجاني
+            { text: "أحمد لم يحل الواجب (المستثنى: أحمدٍ)", culprit: "أحمد" },
+            { text: "ليلى لم تكتب التقرير (المستثنى: ليلى)", culprit: "ليلى" },
+            { text: "كان هناك صوت غريب (المستثنى: صوتاً غريباً)", culprit: "غير محدد" } // ليس بالضرورة الجاني
+        ];
+        
+        let foundClues = [];
+        const possibleCulpritsNames = ["عمر", "أحمد", "ليلى", "سارة", "محمد"]; // لتنويع الجاني المحتمل
+
+        function showClue(clueNumber) {
+            const clueIndex = clueNumber - 1;
+            if (!foundClues.includes(clueNumber)) {
+                foundClues.push(clueNumber);
+                
+                const evidenceList = document.getElementById("evidence-list");
+                const newItem = document.createElement("li");
+                newItem.textContent = clues[clueIndex].text;
+                evidenceList.appendChild(newItem);
+                
+                checkCulprit();
+            }
+        }
+        
+        function checkCulprit() {
+            if (foundClues.length >= 3) { // نكشف الجاني بعد 3 أدلة
+                const culpritElement = document.getElementById("culprit");
+                
+                // جمع أسماء الجناة المحتملين من الأدلة المكتشفة
+                let potentialCulprits = clues
+                    .filter((clue, index) => foundClues.includes(index + 1) && clue.culprit !== "غير محدد")
+                    .map(clue => clue.culprit);
+
+                // إذا لم نجد أسماء محددة من الأدلة، نختار عشوائياً
+                if (potentialCulprits.length === 0) {
+                    const randomIndex = Math.floor(Math.random() * possibleCulpritsNames.length);
+                    culpritElement.textContent = possibleCulpritsNames[randomIndex];
+                } else {
+                    // نختار أحد الجناة المحتملين من الأدلة التي تم الكشف عنها
+                    const randomIndex = Math.floor(Math.random() * potentialCulprits.length);
+                    culpritElement.textContent = potentialCulprits[randomIndex];
+                }
+                
+                document.getElementById("hidden-message").style.display = "block";
+                // أضف تأثيرات احتفالية عند الكشف عن الجاني
+                triggerConfettiBurst();
+            }
+        }
+        
+        function resetGame() {
+            foundClues = [];
+            document.getElementById("evidence-list").innerHTML = "";
+            document.getElementById("hidden-message").style.display = "none";
+            document.getElementById("culprit").textContent = "..."; // إعادة تعيين الجاني
+            
+            // إعادة عناصر السحب والإفلات الأصلية
+            document.querySelectorAll('.dropzone span').forEach(span => span.remove());
+            const draggableContainer = document.getElementById('draggable-items-container');
+            draggableContainer.innerHTML = `
+                <div class="draggable" draggable="true" ondragstart="drag(event)" id="drag1">حلّ الواجب جميع الطلاب إلا سامياً</div>
+                <div class="draggable" draggable="true" ondragstart="drag(event)" id="drag2">ما قرأت الكتب إلا قصةً</div>
+                <div class="draggable" draggable="true" ondragstart="drag(event)" id="drag3">ما فهمت إلا الدرسَ</div>
+            `;
+
+            document.getElementById("classification-feedback").innerHTML = ""; // مسح التغذية الراجعة
+            document.getElementById("exercise-feedback").innerHTML = ""; // مسح التغذية الراجعة
+            document.getElementById("ex1_input").value = "";
+            document.getElementById("ex2_input").value = "";
+            document.getElementById("ex3_input").value = "";
+        }
+
+        // Confetti burst on demand
+        function triggerConfettiBurst() {
+            const burstCount = 100;
+            for (let i = 0; i < burstCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = Math.random() * -20 + 'vh'; // يبدأ من أعلى الشاشة بشكل عشوائي
+                confetti.style.animation = `confetti-burst ${Math.random() * 1.5 + 0.5}s ease-out forwards`;
+                confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 70%)`;
+                confetti.style.width = confetti.style.height = `${Math.random() * 8 + 5}px`;
+                document.body.appendChild(confetti);
+
+                // إزالة قصاصة الورق بعد انتهاء الأنميشن
+                confetti.addEventListener('animationend', () => {
+                    confetti.remove();
+                });
+            }
+        }
+        
+        // Define confetti-burst animation dynamically if not already present
+        if (!document.querySelector('style').textContent.includes('@keyframes confetti-burst')) {
+            const styleSheet = document.styleSheets[0];
+            styleSheet.insertRule(`
+                @keyframes confetti-burst {
+                    0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+                    100% { 
+                        transform: translate(calc(var(--rand-x) * 1px), calc(var(--rand-y) * 1px)) rotate(720deg); 
+                        opacity: 0; 
+                    }
+                }
+            `, styleSheet.cssRules.length);
+        }
+
+        // Set random properties for continuous confetti
+        document.querySelectorAll('.confetti').forEach(confetti => {
+            const randX = (Math.random() - 0.5) * 500; // تتحرك عشوائياً بين -250 و 250
+            const randY = (Math.random() - 0.5) * 500;
+            confetti.style.setProperty('--rand-x', randX);
+            confetti.style.setProperty('--rand-y', randY);
+        });
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <title>لعبة أنواع العبادات</title>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(to top right, #e0f7fa, #fff);
+      padding: 20px;
+      direction: rtl;
+      text-align: center;
+    }
+
+    h1 {
+      color: #00796b;
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+
+    .game-container {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    .category {
+      border: 2px dashed #00796b;
+      border-radius: 15px;
+      width: 20%;
+      min-height: 200px;
+      padding: 10px;
+      background-color: #ffffffc2;
+      margin: 10px;
+    }
+
+    .category h2 {
+      color: #004d40;
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+
+    .item {
+      background-color: #ffe082;
+      padding: 10px;
+      margin: 5px;
+      border-radius: 10px;
+      cursor: grab;
+      font-weight: bold;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .item.dragging {
+      opacity: 0.5;
+    }
+
+    .correct {
+      background-color: #aed581;
+    }
+
+    .wrong {
+      background-color: #ef9a9a;
+    }
+
+    #reset-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #00897b;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+
+    #reset-btn:hover {
+      background-color: #00695c;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎯 صنّف العبادة في مكانها الصحيح!</h1>
+  <p>اسحب العمل وضعه في نوع العبادة الصحيح</p>
+
+  <div class="game-container">
+    <!-- صناديق الأنواع -->
+    <div class="category" data-type="بدنية">
+      <h2>🧎‍♂️ عبادات بدنية</h2>
+    </div>
+    <div class="category" data-type="مالية">
+      <h2>💰 عبادات مالية</h2>
+    </div>
+    <div class="category" data-type="قولية">
+      <h2>🗣️ عبادات قولية</h2>
+    </div>
+  </div>
+
+  <!-- العناصر القابلة للسحب -->
+  <div class="game-container" style="margin-top: 40px;">
+    <div class="item" draggable="true" data-type="بدنية">الصلاة</div>
+    <div class="item" draggable="true" data-type="مالية">الزكاة</div>
+    <div class="item" draggable="true" data-type="قولية">التسبيح</div>
+    <div class="item" draggable="true" data-type="بدنية">الصيام</div>
+    <div class="item" draggable="true" data-type="مالية">الصدقة</div>
+    <div class="item" draggable="true" data-type="قولية">الدعاء</div>
+  </div>
+
+  <button id="reset-btn">🔄 إعادة المحاولة</button>
+
+  <script>
+    const items = document.querySelectorAll('.item');
+    const categories = document.querySelectorAll('.category');
+    let draggedItem = null;
+
+    items.forEach(item => {
+      item.addEventListener('dragstart', () => {
+        draggedItem = item;
+        item.classList.add('dragging');
+      });
+
+      item.addEventListener('dragend', () => {
+        draggedItem = null;
+        item.classList.remove('dragging');
+      });
+    });
+
+    categories.forEach(category => {
+      category.addEventListener('dragover', e => {
+        e.preventDefault();
+      });
+
+      category.addEventListener('drop', () => {
+        if (!draggedItem) return;
+        if (draggedItem.dataset.type === category.dataset.type) {
+          draggedItem.classList.add('correct');
+          draggedItem.draggable = false;
+          category.appendChild(draggedItem);
+        } else {
+          draggedItem.classList.add('wrong');
+          setTimeout(() => {
+            draggedItem.classList.remove('wrong');
+          }, 1000);
+        }
+      });
+    });
+
+    document.getElementById('reset-btn').addEventListener('click', () => {
+      const allItems = document.querySelectorAll('.item');
+      const container = document.querySelectorAll('.game-container')[1];
+      allItems.forEach(item => {
+        item.classList.remove('correct', 'wrong');
+        item.draggable = true;
+        container.appendChild(item);
+      });
+    });
+  </script>
+</body>
+</html>

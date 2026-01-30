@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بازل الجبال - اكتشف عظمة الخلق</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: white;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .game-controls {
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            margin: 5px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .info-item {
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .puzzle-container {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .puzzle-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            max-width: 400px;
+            margin: 0 auto;
+            aspect-ratio: 1;
+        }
+
+        .puzzle-piece {
+            aspect-ratio: 1;
+            border: 2px solid #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .puzzle-piece:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255,255,255,0.3);
+        }
+
+        .puzzle-piece.empty {
+            background: rgba(255,255,255,0.2);
+            border-style: dashed;
+        }
+
+        .puzzle-piece.correct {
+            animation: correctPiece 0.5s ease;
+        }
+
+        @keyframes correctPiece {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .victory-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .victory-message h2 {
+            font-size: 2em;
+            margin-bottom: 15px;
+            color: #FFD700;
+        }
+
+        .victory-message p {
+            font-size: 1.2em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 999;
+            display: none;
+        }
+
+        .completed-image {
+            max-width: 300px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .mountain-images {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .mountain-option {
+            width: 120px;
+            height: 80px;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .mountain-option:hover {
+            border-color: #FFD700;
+            transform: scale(1.05);
+        }
+
+        .mountain-option.selected {
+            border-color: #28a745;
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2em;
+            }
+            
+            .puzzle-grid {
+                max-width: 300px;
+            }
+            
+            .game-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🏔️ بازل الجبال 🏔️</h1>
+            <p class="subtitle">رتّب قطع البازل لتكشف عن مناظر طبيعية عظيمة تُظهر جمال الخلق</p>
+        </div>
+
+        <div class="game-controls">
+            <button class="btn" onclick="shufflePuzzle()">🔄 خلط جديد</button>
+            <button class="btn" onclick="solvePuzzle()">💡 حل البازل</button>
+            <button class="btn" onclick="chooseMountain()">🏔️ اختر صورة جديدة</button>
+        </div>
+
+        <div class="game-info">
+            <div class="info-item">الحركات: <span id="moves">0</span></div>
+            <div class="info-item">الوقت: <span id="time">00:00</span></div>
+            <div class="info-item">المستوى: <span id="level">مبتدئ</span></div>
+        </div>
+
+        <div class="puzzle-container">
+            <div class="puzzle-grid" id="puzzleGrid"></div>
+        </div>
+
+        <div id="mountainSelection" style="display: none;">
+            <h3 style="margin-bottom: 20px;">اختر منظر الجبال المفضل لديك:</h3>
+            <div class="mountain-images">
+                <div class="mountain-option" data-mountain="1" style="background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjgwIiB2aWV3Qm94PSIwIDAgMTIwIDgwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZzEiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNGRkY4REMiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM4N0NFRUIiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjgwIiBmaWxsPSJ1cmwoI2cxKSIvPjxwb2x5Z29uIHBvaW50cz0iMjAsODAgNjAsMjAgMTAwLDgwIiBmaWxsPSIjNEE5MEU5Ii8+PHBvbHlnb24gcG9pbnRzPSI0MCw4MCA4MCwzMCAxMjAsODAiIGZpbGw9IiMyNTZCRTYiLz48L3N2Zz4=')"></div>
+                <div class="mountain-option" data-mountain="2" style="background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjgwIiB2aWV3Qm94PSIwIDAgMTIwIDgwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZzIiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNGRkE3MjYiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNGRjYzNDciLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjgwIiBmaWxsPSJ1cmwoI2cyKSIvPjxwb2x5Z29uIHBvaW50cz0iMTAsODAgNTAsMTAgOTAsODAiIGZpbGw9IiNEQzM1NDUiLz48cG9seWdvbiBwb2ludHM9IjMwLDgwIDcwLDI1IDExMCw4MCIgZmlsbD0iI0I5MzE0RiIvPjwvc3ZnPg==')"></div>
+                <div class="mountain-option" data-mountain="3" style="background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjgwIiB2aWV3Qm94PSIwIDAgMTIwIDgwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZzMiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNCRDM0RkUiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM2NzQxRkYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjgwIiBmaWxsPSJ1cmwoI2czKSIvPjxwb2x5Z29uIHBvaW50cz0iMTUsODAgNjAsMTUgMTA1LDgwIiBmaWxsPSIjOEI1Q0Y2Ii8+PHBvbHlnb24gcG9pbnRzPSIzNSw4MCA3NSwyMCAxMTUsODAiIGZpbGw9IiM2NzQxRkYiLz48L3N2Zz4=')"></div>
+            </div>
+            <button class="btn" onclick="selectMountain()">✅ اختيار</button>
+            <button class="btn" onclick="cancelSelection()">❌ إلغاء</button>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+    <div class="victory-message" id="victoryMessage">
+        <h2>🎉 مبروك! 🎉</h2>
+        <div id="completedImageContainer"></div>
+        <p>لقد نجحت في ترتيب قطع البازل وكشفت عن منظر طبيعي رائع!</p>
+        <p style="font-style: italic; color: #FFD700;">
+            "وَفِي الْأَرْضِ آيَاتٌ لِّلْمُوقِنِينَ"
+        </p>
+        <p>تأمل في عظمة هذا الخلق وجمال الطبيعة من حولنا</p>
+        <button class="btn" onclick="closeVictory()">متابعة اللعب</button>
+    </div>
+
+    <script>
+        let currentPuzzle = [];
+        let correctOrder = [];
+        let moves = 0;
+        let startTime;
+        let timerInterval;
+        let selectedMountain = 1;
+
+        const mountainImages = {
+            1: `data:image/svg+xml;base64,${btoa(`
+                <svg width="400" height="400" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="sky1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#FFE5B4"/>
+                            <stop offset="100%" stop-color="#87CEEB"/>
+                        </linearGradient>
+                    </defs>
+                    <rect width="400" height="400" fill="url(#sky1)"/>
+                    <polygon points="50,400 150,100 250,400" fill="#4A90E9"/>
+                    <polygon points="150,400 250,150 350,400" fill="#2E86C1"/>
+                    <polygon points="100,400 200,80 300,400" fill="#3498DB"/>
+                    <polygon points="150,100 170,80 190,100" fill="#FFFFFF"/>
+                    <polygon points="200,80 220,60 240,80" fill="#FFFFFF"/>
+                    <polygon points="250,150 270,130 290,150" fill="#FFFFFF"/>
+                    <circle cx="320" cy="80" r="30" fill="#FFD700" opacity="0.8"/>
+                </svg>
+            `)}`,
+            2: `data:image/svg+xml;base64,${btoa(`
+                <svg width="400" height="400" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="sky2" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#FFA726"/>
+                            <stop offset="100%" stop-color="#FF6347"/>
+                        </linearGradient>
+                    </defs>
+                    <rect width="400" height="400" fill="url(#sky2)"/>
+                    <polygon points="30,400 120,80 210,400" fill="#DC3545"/>
+                    <polygon points="120,400 210,120 300,400" fill="#B91F47"/>
+                    <polygon points="190,400 280,90 370,400" fill="#8B0000"/>
+                    <polygon points="120,80 135,60 150,80" fill="#FFFFFF"/>
+                    <polygon points="210,120 225,100 240,120" fill="#FFFFFF"/>
+                    <polygon points="280,90 295,70 310,90" fill="#FFFFFF"/>
+                    <circle cx="350" cy="60" r="25" fill="#FFD700"/>
+                </svg>
+            `)}`,
+            3: `data:image/svg+xml;base64,${btoa(`
+                <svg width="400" height="400" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="sky3" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#BD34FE"/>
+                            <stop offset="100%" stop-color="#6741FF"/>
+                        </linearGradient>
+                    </defs>
+                    <rect width="400" height="400" fill="url(#sky3)"/>
+                    <polygon points="40,400 140,70 240,400" fill="#8B5CF6"/>
+                    <polygon points="140,400 240,110 340,400" fill="#6741FF"/>
+                    <polygon points="90,400 190,90 290,400" fill="#4C1D95"/>
+                    <polygon points="140,70 155,50 170,70" fill="#FFFFFF"/>
+                    <polygon points="240,110 255,90 270,110" fill="#FFFFFF"/>
+                    <polygon points="190,90 205,70 220,90" fill="#FFFFFF"/>
+                    <circle cx="300" cy="70" r="20" fill="#FBBF24"/>
+                </svg>
+            `)}`
+        };
+
+        function initGame() {
+            correctOrder = Array.from({length: 16}, (_, i) => i);
+            currentPuzzle = [...correctOrder];
+            shufflePuzzle();
+            resetTimer();
+        }
+
+        function createPuzzleGrid() {
+            const grid = document.getElementById('puzzleGrid');
+            grid.innerHTML = '';
+            
+            for (let i = 0; i < 16; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'puzzle-piece';
+                piece.onclick = () => movePiece(i);
+                grid.appendChild(piece);
+            }
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            const pieces = document.querySelectorAll('.puzzle-piece');
+            const image = mountainImages[selectedMountain];
+            
+            pieces.forEach((piece, index) => {
+                const value = currentPuzzle[index];
+                
+                if (value === 15) {
+                    piece.className = 'puzzle-piece empty';
+                    piece.style.backgroundImage = '';
+                    piece.textContent = '';
+                } else {
+                    piece.className = 'puzzle-piece';
+                    const row = Math.floor(value / 4);
+                    const col = value % 4;
+                    piece.style.backgroundImage = `url('${image}')`;
+                    piece.style.backgroundSize = '400% 400%';
+                    piece.style.backgroundPosition = `-${col * 100}% -${row * 100}%`;
+                    piece.textContent = '';
+                    
+                    if (value === index) {
+                        piece.classList.add('correct');
+                    }
+                }
+            });
+        }
+
+        function movePiece(index) {
+            const emptyIndex = currentPuzzle.indexOf(15);
+            const row = Math.floor(index / 4);
+            const col = index % 4;
+            const emptyRow = Math.floor(emptyIndex / 4);
+            const emptyCol = emptyIndex % 4;
+            
+            const isAdjacent = 
+                (Math.abs(row - emptyRow) === 1 && col === emptyCol) ||
+                (Math.abs(col - emptyCol) === 1 && row === emptyRow);
+            
+            if (isAdjacent) {
+                [currentPuzzle[index], currentPuzzle[emptyIndex]] = [currentPuzzle[emptyIndex], currentPuzzle[index]];
+                moves++;
+                document.getElementById('moves').textContent = moves;
+                updateDisplay();
+                
+                if (checkWin()) {
+                    setTimeout(showVictory, 500);
+                }
+            }
+        }
+
+        function shufflePuzzle() {
+            for (let i = 0; i < 1000; i++) {
+                const emptyIndex = currentPuzzle.indexOf(15);
+                const possibleMoves = [];
+                const row = Math.floor(emptyIndex / 4);
+                const col = emptyIndex % 4;
+                
+                if (row > 0) possibleMoves.push(emptyIndex - 4);
+                if (row < 3) possibleMoves.push(emptyIndex + 4);
+                if (col > 0) possibleMoves.push(emptyIndex - 1);
+                if (col < 3) possibleMoves.push(emptyIndex + 1);
+                
+                const randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+                [currentPuzzle[emptyIndex], currentPuzzle[randomMove]] = [currentPuzzle[randomMove], currentPuzzle[emptyIndex]];
+            }
+            
+            moves = 0;
+            document.getElementById('moves').textContent = moves;
+            updateDisplay();
+            resetTimer();
+        }
+
+        function solvePuzzle() {
+            currentPuzzle = [...correctOrder];
+            updateDisplay();
+            setTimeout(showVictory, 500);
+        }
+
+        function checkWin() {
+            return currentPuzzle.every((value, index) => value === index);
+        }
+
+        function showVictory() {
+            clearInterval(timerInterval);
+            const completedImageContainer = document.getElementById('completedImageContainer');
+            completedImageContainer.innerHTML = `<img src="${mountainImages[selectedMountain]}" class="completed-image" alt="منظر الجبال المكتمل">`;
+            
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('victoryMessage').style.display = 'block';
+        }
+
+        function closeVictory() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('victoryMessage').style.display = 'none';
+            shufflePuzzle();
+        }
+
+        function chooseMountain() {
+            document.getElementById('mountainSelection').style.display = 'block';
+            document.querySelectorAll('.mountain-option').forEach(option => {
+                option.classList.remove('selected');
+                if (option.dataset.mountain == selectedMountain) {
+                    option.classList.add('selected');
+                }
+            });
+        }
+
+        function selectMountain() {
+            const selected = document.querySelector('.mountain-option.selected');
+            if (selected) {
+                selectedMountain = selected.dataset.mountain;
+                updateDisplay();
+            }
+            document.getElementById('mountainSelection').style.display = 'none';
+        }
+
+        function cancelSelection() {
+            document.getElementById('mountainSelection').style.display = 'none';
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            startTime = Date.now();
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            document.getElementById('time').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Event listeners for mountain selection
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.mountain-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.mountain-option').forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                });
+            });
+        });
+
+        // Initialize the game
+        initGame();
+        createPuzzleGrid();
+    </script>
+</body>
+</html>

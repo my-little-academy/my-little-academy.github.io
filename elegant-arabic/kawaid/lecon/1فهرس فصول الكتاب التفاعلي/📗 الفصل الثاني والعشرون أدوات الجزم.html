@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>الفصل الثاني والعشرون: أدوات الجزم</title>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: #e3f2fd;
+      color: #0d47a1;
+      padding: 20px;
+    }
+    .container {
+      max-width: 950px;
+      margin: auto;
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 30px 40px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+    h1, h2 {
+      color: #1976d2;
+    }
+    .rule {
+      background: #bbdefb;
+      border-right: 6px solid #64b5f6;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 25px 0;
+    }
+    .exercise {
+      background: #e3f2fd;
+      border-right: 6px solid #90caf9;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 25px 0;
+    }
+    .result {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .correct { color: green; }
+    .incorrect { color: red; }
+    input[type="text"], select {
+      font-size: 16px;
+      padding: 8px;
+      margin: 5px;
+      border: 2px solid #1e88e5;
+      border-radius: 8px;
+    }
+    button {
+      background-color: #1e88e5;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 12px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+    button:hover {
+      background-color: #1565c0;
+    }
+    .drag-option {
+      display: inline-block;
+      background: #bbdefb;
+      padding: 10px 16px;
+      margin: 6px;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .drop-zone {
+      display: inline-block;
+      min-width: 120px;
+      border: 2px dashed #64b5f6;
+      padding: 10px;
+      margin: 6px;
+      border-radius: 10px;
+    }
+    .mcq-option {
+      display: block;
+      margin: 8px 0;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📗 الفصل الثاني والعشرون: أدوات الجزم</h1>
+
+    <div class="rule">
+      <h2>📖 القاعدة:</h2>
+      <p>أدوات الجزم تدخل على الفعل المضارع فتجزمه. من هذه الأدوات:</p>
+      <ul>
+        <li>لم، لا الناهية، لما، لام الأمر</li>
+      </ul>
+      <p><strong>مثال:</strong> لم يلعبْ الطفلُ → الفعل "يلعب" مجزوم بالسكون</p>
+    </div>
+
+    <div class="exercise">
+      <h2>🧠 تمرين 1: لعبة السحب والإفلات</h2>
+      <p>اسحب أداة الجزم إلى مكانها الصحيح:</p>
+      <p><strong><span class="drop-zone" id="dz1"></span> تأكلْ الحلوى كثيرًا.</strong></p>
+      <div>
+        <span class="drag-option" draggable="true" ondragstart="drag(event)" id="drag1">لا</span>
+        <span class="drag-option" draggable="true" ondragstart="drag(event)" id="drag2">لم</span>
+        <span class="drag-option" draggable="true" ondragstart="drag(event)" id="drag3">لن</span>
+      </div>
+      <button onclick="checkDrop()">تحقق من الإجابة</button>
+      <div id="dropResult" class="result"></div>
+    </div>
+
+    <div class="exercise">
+      <h2>🎯 تمرين 2: اختيار بصري</h2>
+      <p>أي من الجمل التالية تحتوي على أداة جزم؟</p>
+      <label class="mcq-option"><input type="radio" name="mcq" value="0"> لن أسافرَ اليوم.</label>
+      <label class="mcq-option"><input type="radio" name="mcq" value="1"> لم أكتبْ الواجب.</label>
+      <label class="mcq-option"><input type="radio" name="mcq" value="0"> سأذهب إلى السوق.</label>
+      <button onclick="checkMCQ()">تحقق من الإجابة</button>
+      <div id="mcqResult" class="result"></div>
+    </div>
+
+    <script>
+      let draggedId = "";
+      function drag(e) {
+        draggedId = e.target.id;
+      }
+
+      document.querySelectorAll(".drop-zone").forEach(zone => {
+        zone.addEventListener("dragover", e => e.preventDefault());
+        zone.addEventListener("drop", e => {
+          e.preventDefault();
+          const elem = document.getElementById(draggedId);
+          e.target.textContent = elem.textContent;
+          e.target.setAttribute("data-word", elem.textContent);
+        });
+      });
+
+      function checkDrop() {
+        const d1 = document.getElementById("dz1").getAttribute("data-word");
+        const result = document.getElementById("dropResult");
+        if (d1 === "لا") {
+          result.textContent = "✅ أحسنت! الإجابة صحيحة.";
+          result.className = "result correct";
+        } else {
+          result.textContent = "❌ جرّب مرة أخرى، وفكر في أداة الجزم المناسبة.";
+          result.className = "result incorrect";
+        }
+      }
+
+      function checkMCQ() {
+        const selected = document.querySelector('input[name="mcq"]:checked');
+        const result = document.getElementById("mcqResult");
+        if (selected && selected.value === "1") {
+          result.textContent = "✅ رائع! هذه جملة تحتوي على أداة جزم.";
+          result.className = "result correct";
+        } else {
+          result.textContent = "❌ ليست هذه الجملة الصحيحة. حاول مرة أخرى.";
+          result.className = "result incorrect";
+        }
+      }
+    </script>
+  </div>
+</body>
+</html>

@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 مغامرة الجمع الممتعة!</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 450px;
+            margin: auto;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 3px solid #ff6b6b;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .vertical-operation {
+            font-size: 24px;
+            margin: 25px auto;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            position: relative;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px dashed #ff6b6b;
+        }
+
+        .number-row {
+            display: flex;
+            justify-content: center;
+            margin: 8px 0;
+            position: relative;
+        }
+
+        .digit-box {
+            width: 45px;
+            height: 45px;
+            border: 2px solid #4ecdc4;
+            margin: 0 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #ffffff;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .operator-box {
+            width: 45px;
+            height: 45px;
+            margin: 0 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 24px;
+            color: #ff6b6b;
+        }
+
+        .empty-box {
+            width: 45px;
+            height: 45px;
+            margin: 0 3px;
+            visibility: hidden;
+        }
+
+        .line {
+            border-top: 3px solid #ff6b6b;
+            margin: 12px auto;
+            width: 180px;
+        }
+
+        .answer-digit {
+            width: 45px;
+            height: 45px;
+            font-size: 20px;
+            text-align: center;
+            margin: 0 3px;
+            border: 2px solid #4ecdc4;
+            border-radius: 8px;
+            background: #fff;
+            font-weight: bold;
+        }
+
+        .answer-digit:focus {
+            border-color: #ff6b6b;
+            outline: none;
+            box-shadow: 0 0 8px rgba(255, 107, 107, 0.3);
+        }
+
+        /* خانات الاحتفاظ */
+        .carry-box {
+            width: 30px;
+            height: 30px;
+            font-size: 16px;
+            text-align: center;
+            margin: 0 2px;
+            border: 2px solid #fd7e14;
+            border-radius: 6px;
+            background-color: #fff3cd;
+            font-weight: bold;
+        }
+
+        .carry-row {
+            display: flex;
+            justify-content: center;
+            margin: 5px 0;
+            position: absolute;
+            top: -35px;
+            left: 0;
+            right: 0;
+        }
+
+        .carry-position {
+            width: 45px;
+            margin: 0 3px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .buttons {
+            margin: 20px 0;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 10px;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .feedback {
+            margin-top: 25px;
+            font-size: 22px;
+            font-weight: bold;
+            min-height: 40px;
+            padding: 15px;
+            border-radius: 15px;
+            transition: all 0.5s ease;
+        }
+
+        .correct {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+            border: 2px solid #c3e6cb;
+            animation: celebrate 0.5s ease-in-out;
+        }
+
+        .incorrect {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .explanation {
+            margin-top: 15px;
+            font-size: 16px;
+            color: #555;
+            text-align: right;
+            direction: rtl;
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 10px;
+            border-right: 4px solid #4ecdc4;
+        }
+
+        .score {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ff6b6b;
+            margin-top: 10px;
+        }
+
+        /* بطاقة الإجابة الصحيحة */
+        .answer-card {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 15px;
+            margin-top: 20px;
+            font-weight: bold;
+            display: none;
+        }
+
+        /* Animations */
+        @keyframes celebrate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes confetti {
+            0% { transform: translateY(0) rotate(0); opacity: 1; }
+            100% { transform: translateY(100px) rotate(360deg); opacity: 0; }
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ff6b6b;
+            animation: confetti 1s ease-in-out;
+        }
+
+        .emoji {
+            font-size: 24px;
+            margin: 0 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 مغامرة الجمع الممتعة! 🧮</h1>
+            <div class="score" id="score">النقاط: 0</div>
+        </div>
+        
+        <div class="vertical-operation">
+            <!-- خانات الاحتفاظ -->
+            <div class="carry-row">
+                <div class="carry-position">
+                    <input type="number" class="carry-box" id="carry-hundreds" min="0" max="1" placeholder="0">
+                </div>
+                <div class="carry-position">
+                    <input type="number" class="carry-box" id="carry-tens" min="0" max="1" placeholder="0" oninput="moveToNext(this, 'carry-units')">
+                </div>
+                <div class="carry-position">
+                    <input type="number" class="carry-box" id="carry-units" min="0" max="1" placeholder="0" oninput="moveToNext(this, 'ans-hundreds')">
+                </div>
+                <div class="carry-position"></div>
+            </div>
+            
+            <!-- العدد الأول -->
+            <div class="number-row">
+                <div class="empty-box"></div>
+                <div class="digit-box" id="num1-hundreds">0</div>
+                <div class="digit-box" id="num1-tens">0</div>
+                <div class="digit-box" id="num1-units">0</div>
+            </div>
+            
+            <!-- العدد الثاني مع علامة الجمع -->
+            <div class="number-row">
+                <div class="operator-box">+</div>
+                <div class="digit-box" id="num2-hundreds">0</div>
+                <div class="digit-box" id="num2-tens">0</div>
+                <div class="digit-box" id="num2-units">0</div>
+            </div>
+            
+            <!-- الخط الفاصل -->
+            <div class="line"></div>
+            
+            <!-- خانات الإجابة -->
+            <div class="number-row">
+                <div class="empty-box"></div>
+                <input type="number" class="answer-digit" id="ans-hundreds" min="0" max="9" oninput="moveToNext(this, 'ans-tens')">
+                <input type="number" class="answer-digit" id="ans-tens" min="0" max="9" oninput="moveToNext(this, 'ans-units')">
+                <input type="number" class="answer-digit" id="ans-units" min="0" max="9">
+            </div>
+        </div>
+        
+        <div class="buttons">
+            <button id="checkBtn">✅ تحقق من الإجابة</button>
+            <button id="generateBtn">🔄 مسألة جديدة</button>
+        </div>
+        
+        <div class="feedback" id="feedback">أدخل الإجابة وانقر على التحقق!</div>
+        
+        <!-- بطاقة الإجابة الصحيحة -->
+        <div class="answer-card" id="answerCard">
+            <span class="emoji">🎯</span>
+            الإجابة الصحيحة: <span id="correctAnswer">0</span>
+            <span class="emoji">🎯</span>
+        </div>
+        
+        <div class="explanation" id="explanation"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const generateBtn = document.getElementById('generateBtn');
+            const checkBtn = document.getElementById('checkBtn');
+            const feedbackEl = document.getElementById('feedback');
+            const explanationEl = document.getElementById('explanation');
+            const scoreEl = document.getElementById('score');
+            const answerCard = document.getElementById('answerCard');
+            const correctAnswerEl = document.getElementById('correctAnswer');
+            
+            // خانات الإجابة والاحتفاظ
+            const ansHundreds = document.getElementById('ans-hundreds');
+            const ansTens = document.getElementById('ans-tens');
+            const ansUnits = document.getElementById('ans-units');
+            const carryHundreds = document.getElementById('carry-hundreds');
+            const carryTens = document.getElementById('carry-tens');
+            const carryUnits = document.getElementById('carry-units');
+            
+            // عناصر الأرقام المفككة
+            const num1Hundreds = document.getElementById('num1-hundreds');
+            const num1Tens = document.getElementById('num1-tens');
+            const num1Units = document.getElementById('num1-units');
+            const num2Hundreds = document.getElementById('num2-hundreds');
+            const num2Tens = document.getElementById('num2-tens');
+            const num2Units = document.getElementById('num2-units');
+            
+            let currentProblem = {};
+            let correctCarryValues = {};
+            let score = 0;
+
+            generateBtn.addEventListener('click', generateProblem);
+            checkBtn.addEventListener('click', checkAnswer);
+
+            function generateProblem() {
+                // توليد أعداد عشوائية مع حمل (لجعلها ممتعة)
+                let num1, num2;
+                do {
+                    num1 = Math.floor(Math.random() * 800) + 100;
+                    num2 = Math.floor(Math.random() * (900 - num1)) + 100;
+                } while (num1 + num2 > 999 || !hasCarry(num1, num2));
+
+                // حساب قيم الاحتفاظ الصحيحة
+                calculateCorrectCarryValues(num1, num2);
+
+                currentProblem = { 
+                    num1, 
+                    num2, 
+                    answer: num1 + num2
+                };
+                
+                displayProblem(num1, num2);
+                clearInputs();
+                clearFeedback();
+                hideAnswerCard();
+                focusFirstInput();
+            }
+
+            function calculateCorrectCarryValues(a, b) {
+                // حساب الاحتفاظ للوحدات
+                const unitsSum = (a % 10) + (b % 10);
+                correctCarryValues.units = Math.floor(unitsSum / 10);
+                
+                // حساب الاحتفاظ للعشرات
+                const tensSum = (Math.floor(a / 10) % 10) + (Math.floor(b / 10) % 10) + correctCarryValues.units;
+                correctCarryValues.tens = Math.floor(tensSum / 10);
+                
+                // حساب الاحتفاظ للمئات
+                const hundredsSum = Math.floor(a / 100) + Math.floor(b / 100) + correctCarryValues.tens;
+                correctCarryValues.hundreds = Math.floor(hundredsSum / 10);
+            }
+
+            function hasCarry(a, b) {
+                // التحقق من وجود حمل
+                const unitsSum = (a % 10) + (b % 10);
+                const tensSum = (Math.floor(a / 10) % 10) + (Math.floor(b / 10) % 10);
+                return unitsSum >= 10 || tensSum >= 10;
+            }
+
+            function displayProblem(num1, num2) {
+                // تفكيك العدد الأول إلى منازل
+                num1Hundreds.textContent = Math.floor(num1 / 100);
+                num1Tens.textContent = Math.floor((num1 % 100) / 10);
+                num1Units.textContent = num1 % 10;
+                
+                // تفكيك العدد الثاني إلى منازل
+                num2Hundreds.textContent = Math.floor(num2 / 100);
+                num2Tens.textContent = Math.floor((num2 % 100) / 10);
+                num2Units.textContent = num2 % 10;
+            }
+
+            function clearInputs() {
+                ansHundreds.value = '';
+                ansTens.value = '';
+                ansUnits.value = '';
+                carryHundreds.value = '';
+                carryTens.value = '';
+                carryUnits.value = '';
+            }
+
+            function clearFeedback() {
+                feedbackEl.textContent = 'أدخل الإجابة وانقر على التحقق!';
+                feedbackEl.className = 'feedback';
+                explanationEl.textContent = '';
+            }
+
+            function hideAnswerCard() {
+                answerCard.style.display = 'none';
+            }
+
+            function showAnswerCard() {
+                correctAnswerEl.textContent = currentProblem.answer;
+                answerCard.style.display = 'block';
+            }
+
+            function focusFirstInput() {
+                carryUnits.focus();
+            }
+
+            function checkAnswer() {
+                const userAnswer = parseInt(ansHundreds.value || 0) * 100 + 
+                                  parseInt(ansTens.value || 0) * 10 + 
+                                  parseInt(ansUnits.value || 0);
+                
+                const userCarryUnits = parseInt(carryUnits.value || 0);
+                const userCarryTens = parseInt(carryTens.value || 0);
+                const userCarryHundreds = parseInt(carryHundreds.value || 0);
+                
+                const isAnswerCorrect = userAnswer === currentProblem.answer;
+                const isCarryCorrect = userCarryUnits === correctCarryValues.units &&
+                                     userCarryTens === correctCarryValues.tens &&
+                                     userCarryHundreds === correctCarryValues.hundreds;
+                
+                if (isAnswerCorrect && isCarryCorrect) {
+                    score += 10;
+                    scoreEl.textContent = `النقاط: ${score}`;
+                    showFeedback('🎉 إجابة صحيحة! أحسنت! 🌟', 'correct');
+                    createConfetti();
+                    explanationEl.textContent = '';
+                    
+                    // توليد مسألة جديدة بعد ثانية
+                    setTimeout(generateProblem, 2000);
+                } else {
+                    showFeedback('❌ الإجابة تحتاج إلى تصحيح', 'incorrect');
+                    showAnswerCard();
+                    showExplanation();
+                }
+            }
+
+            function showFeedback(message, className) {
+                feedbackEl.textContent = message;
+                feedbackEl.className = `feedback ${className}`;
+            }
+
+            function showExplanation() {
+                explanationEl.innerHTML = `
+                    <p>🧮 شرح طريقة الحل:</p>
+                    <p>🔹 الوحدات: ${currentProblem.num1 % 10} + ${currentProblem.num2 % 10} = 
+                    ${(currentProblem.num1 % 10) + (currentProblem.num2 % 10)} → الاحتفاظ = ${correctCarryValues.units}</p>
+                    <p>🔹 العشرات: ${Math.floor((currentProblem.num1 % 100) / 10)} + ${Math.floor((currentProblem.num2 % 100) / 10)} + ${correctCarryValues.units} = 
+                    ${Math.floor((currentProblem.num1 % 100) / 10) + Math.floor((currentProblem.num2 % 100) / 10) + correctCarryValues.units} → الاحتفاظ = ${correctCarryValues.tens}</p>
+                    <p>🔹 المئات: ${Math.floor(currentProblem.num1 / 100)} + ${Math.floor(currentProblem.num2 / 100)} + ${correctCarryValues.tens} = 
+                    ${Math.floor(currentProblem.num1 / 100) + Math.floor(currentProblem.num2 / 100) + correctCarryValues.tens}</p>
+                `;
+            }
+
+            function createConfetti() {
+                for (let i = 0; i < 30; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.background = ['#ff6b6b', '#4ecdc4', '#ffd166', '#06d6a0', '#118ab2'][Math.floor(Math.random() * 5)];
+                    confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 1000);
+                }
+            }
+
+            // توليد مسألة أولية عند تحميل الصفحة
+            generateProblem();
+        });
+
+        // دالة مساعدة للتنقل بين الحقول
+        function moveToNext(current, nextFieldId) {
+            if (current.value.length === current.maxLength) {
+                document.getElementById(nextFieldId).focus();
+            }
+        }
+    </script>
+</body>
+</html>

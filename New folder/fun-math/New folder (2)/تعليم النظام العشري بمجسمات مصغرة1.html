@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تعليم النظام العشري بمجسمات مصغرة</title>
+    <style>
+        /* التصميم العام */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f9fc;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #2c7be5;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+        }
+        
+        .instructions {
+            background-color: #e6f0ff;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-right: 4px solid #2c7be5;
+            font-size: 0.9rem;
+        }
+        
+        /* تصميم الشبكة الرئيسية */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .grid-item {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        
+        .grid-item:hover {
+            transform: translateY(-3px);
+        }
+        
+        .grid-item h2 {
+            color: #2c7be5;
+            margin-top: 0;
+            font-size: 1.1rem;
+        }
+        
+        .grid-item p {
+            font-size: 0.8rem;
+            margin-bottom: 0;
+        }
+        
+        /* تصميم المجسمات المصغرة */
+        /* الوحدة الأساسية 8px */
+        .unit-cube {
+            width: 8px;
+            height: 8px;
+            background-color: #4eacff;
+            margin: 8px auto;
+            border-radius: 1px;
+            cursor: grab;
+            box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .ten-rod {
+            width: 8px;
+            height: 80px; /* 10 وحدات */
+            background: repeating-linear-gradient(
+                to bottom,
+                #3da1ff,
+                #3da1ff 8px,
+                #4eacff 8px,
+                #4eacff 16px
+            );
+            margin: 8px auto;
+            border-radius: 1px;
+            cursor: grab;
+            box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .hundred-flat {
+            width: 80px; /* 10 وحدات */
+            height: 80px; /* 10 وحدات */
+            background: 
+                repeating-linear-gradient(
+                    to right,
+                    #2d96ff,
+                    #2d96ff 8px,
+                    #3da1ff 8px,
+                    #3da1ff 16px
+                ),
+                repeating-linear-gradient(
+                    to bottom,
+                    #2d96ff,
+                    #2d96ff 8px,
+                    #3da1ff 8px,
+                    #3da1ff 16px
+                );
+            background-blend-mode: multiply;
+            margin: 8px auto;
+            border-radius: 2px;
+            cursor: grab;
+            box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .thousand-cube {
+            width: 80px; /* 10 وحدات */
+            height: 80px; /* 10 وحدات */
+            background: 
+                repeating-linear-gradient(
+                    to right,
+                    #1d8bff,
+                    #1d8bff 8px,
+                    #2d96ff 8px,
+                    #2d96ff 16px
+                ),
+                repeating-linear-gradient(
+                    to bottom,
+                    #1d8bff,
+                    #1d8bff 8px,
+                    #2d96ff 8px,
+                    #2d96ff 16px
+                );
+            background-blend-mode: multiply;
+            position: relative;
+            margin: 8px auto;
+            border-radius: 2px;
+            cursor: grab;
+            box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .thousand-cube::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    to right,
+                    rgba(0,0,0,0.1),
+                    rgba(0,0,0,0.1) 8px,
+                    rgba(0,0,0,0.2) 8px,
+                    rgba(0,0,0,0.2) 16px
+                ),
+                repeating-linear-gradient(
+                    to bottom,
+                    rgba(0,0,0,0.1),
+                    rgba(0,0,0,0.1) 8px,
+                    rgba(0,0,0,0.2) 8px,
+                    rgba(0,0,0,0.2) 16px
+                );
+            background-blend-mode: overlay;
+            border-radius: 2px;
+        }
+        
+        /* منطقة الإسقاط */
+        .drop-zone {
+            min-height: 150px;
+            border: 2px dashed #2c7be5;
+            border-radius: 10px;
+            padding: 15px;
+            background-color: rgba(44, 123, 229, 0.05);
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        
+        .drop-zone.highlight {
+            background-color: rgba(44, 123, 229, 0.15);
+        }
+        
+        .drop-zone h2 {
+            color: #2c7be5;
+            margin-top: 0;
+            font-size: 1.1rem;
+        }
+        
+        .drop-zone p {
+            font-size: 0.8rem;
+        }
+        
+        /* تصميم النسخ المسحوبة */
+        .dropped-item {
+            display: inline-block;
+            margin: 5px;
+            position: relative;
+        }
+        
+        /* التجاوب مع أحجام الشاشات المختلفة */
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .hundred-flat, .thousand-cube {
+                width: 60px;
+                height: 60px;
+                background-size: 8px 8px;
+            }
+            
+            .ten-rod {
+                height: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>تعليم النظام العشري بمجسمات مصغرة</h1>
+    
+    <div class="instructions">
+        <p>اسحب المجسمات من الجدول إلى منطقة السحب لتركيب الأعداد</p>
+        <p>كل مكعب صغير يمثل وحدة واحدة (8 بكسل)</p>
+    </div>
+    
+    <div class="grid-container">
+        <div class="grid-item">
+            <h2>الوحدات</h2>
+            <div class="unit-cube" draggable="true" data-type="unit"></div>
+            <p>تمثل الرقم 1 (8 بكسل)</p>
+        </div>
+        
+        <div class="grid-item">
+            <h2>العشرات</h2>
+            <div class="ten-rod" draggable="true" data-type="ten"></div>
+            <p>تمثل الرقم 10 (8×80 بكسل)</p>
+        </div>
+        
+        <div class="grid-item">
+            <h2>المئات</h2>
+            <div class="hundred-flat" draggable="true" data-type="hundred"></div>
+            <p>تمثل الرقم 100 (80×80 بكسل)</p>
+        </div>
+        
+        <div class="grid-item">
+            <h2>الآلاف</h2>
+            <div class="thousand-cube" draggable="true" data-type="thousand"></div>
+            <p>تمثل الرقم 1000 (80×80 بكسل)</p>
+        </div>
+    </div>
+    
+    <div class="drop-zone" id="dropZone">
+        <h2>منطقة تركيب العدد</h2>
+        <p>قم بإسقاط المجسمات هنا لتركيب العدد المطلوب</p>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropZone = document.getElementById('dropZone');
+            const draggableItems = document.querySelectorAll('[draggable="true"]');
+            
+            // إعداد عناصر السحب
+            draggableItems.forEach(item => {
+                item.addEventListener('dragstart', function(e) {
+                    e.dataTransfer.setData('text/plain', this.dataset.type);
+                    e.dataTransfer.effectAllowed = 'copy';
+                });
+            });
+            
+            // أحداث منطقة الإسقاط
+            dropZone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('highlight');
+                e.dataTransfer.dropEffect = 'copy';
+            });
+            
+            dropZone.addEventListener('dragleave', function() {
+                this.classList.remove('highlight');
+            });
+            
+            dropZone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('highlight');
+                
+                const type = e.dataTransfer.getData('text/plain');
+                let newItem;
+                
+                // إنشاء نسخة من العنصر المسحوب
+                switch(type) {
+                    case 'unit':
+                        newItem = document.createElement('div');
+                        newItem.className = 'unit-cube dropped-item';
+                        break;
+                    case 'ten':
+                        newItem = document.createElement('div');
+                        newItem.className = 'ten-rod dropped-item';
+                        break;
+                    case 'hundred':
+                        newItem = document.createElement('div');
+                        newItem.className = 'hundred-flat dropped-item';
+                        break;
+                    case 'thousand':
+                        newItem = document.createElement('div');
+                        newItem.className = 'thousand-cube dropped-item';
+                        break;
+                }
+                
+                // جعل العنصر الجديد قابل للسحب أيضاً
+                newItem.setAttribute('draggable', 'true');
+                newItem.dataset.type = type;
+                
+                // إضافة العنصر لمنطقة الإسقاط
+                this.appendChild(newItem);
+                
+                // إعداد السحب للعنصر الجديد
+                newItem.addEventListener('dragstart', function(e) {
+                    e.dataTransfer.setData('text/plain', this.dataset.type);
+                    e.dataTransfer.effectAllowed = 'copy';
+                });
+            });
+            
+            // السماح بإعادة ترتيب العناصر المسحوبة
+            dropZone.addEventListener('dragover', function(e) {
+                if (e.target.classList.contains('dropped-item')) {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                }
+            });
+            
+            dropZone.addEventListener('drop', function(e) {
+                if (e.target.classList.contains('dropped-item')) {
+                    e.preventDefault();
+                    const type = e.dataTransfer.getData('text/plain');
+                    const draggedItem = document.querySelector(`[draggable="true"][data-type="${type}"]:not(.dropped-item)`);
+                    
+                    if (draggedItem) {
+                        let newItem;
+                        
+                        switch(type) {
+                            case 'unit':
+                                newItem = document.createElement('div');
+                                newItem.className = 'unit-cube dropped-item';
+                                break;
+                            case 'ten':
+                                newItem = document.createElement('div');
+                                newItem.className = 'ten-rod dropped-item';
+                                break;
+                            case 'hundred':
+                                newItem = document.createElement('div');
+                                newItem.className = 'hundred-flat dropped-item';
+                                break;
+                            case 'thousand':
+                                newItem = document.createElement('div');
+                                newItem.className = 'thousand-cube dropped-item';
+                                break;
+                        }
+                        
+                        newItem.setAttribute('draggable', 'true');
+                        newItem.dataset.type = type;
+                        
+                        // إدراج العنصر الجديد قبل العنصر المستهدف
+                        e.target.parentNode.insertBefore(newItem, e.target);
+                        
+                        // إعداد السحب للعنصر الجديد
+                        newItem.addEventListener('dragstart', function(e) {
+                            e.dataTransfer.setData('text/plain', this.dataset.type);
+                            e.dataTransfer.effectAllowed = 'copy';
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

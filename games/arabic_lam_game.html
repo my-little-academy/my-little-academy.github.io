@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة قنص اللام الشمسية والقمرية</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Amiri', serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 30px;
+            position: relative;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            color: #ff6b6b;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+            animation: bounce 2s infinite;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #4ecdc4;
+            margin-bottom: 20px;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #ffd89b 0%, #19547b 100%);
+            padding: 15px;
+            border-radius: 15px;
+            color: white;
+        }
+
+        .score-item {
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .game-area {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .word-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .word-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 15px 25px rgba(0,0,0,0.2);
+        }
+
+        .word-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .word-card:hover::before {
+            left: 100%;
+        }
+
+        .category-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .category-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.3rem;
+            font-family: 'Amiri', serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .sun-btn {
+            background: linear-gradient(45deg, #ff9a56 0%, #ff6b6b 100%);
+            color: white;
+        }
+
+        .moon-btn {
+            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .category-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .feedback {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .correct {
+            background: linear-gradient(45deg, #56ab2f 0%, #a8e6cf 100%);
+            color: white;
+            animation: pulse 0.5s;
+        }
+
+        .incorrect {
+            background: linear-gradient(45deg, #ff416c 0%, #ff4b2b 100%);
+            color: white;
+            animation: shake 0.5s;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #ff9a56 0%, #ff6b6b 100%);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #ff6b6b;
+            animation: confetti-fall 3s linear infinite;
+            z-index: 1000;
+        }
+
+        .reset-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 15px 40px;
+            background: linear-gradient(45deg, #ff6b6b 0%, #ffd89b 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            font-family: 'Amiri', serif;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-20px);
+            }
+            60% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            10%, 30%, 50%, 70%, 90% {
+                transform: translateX(-10px);
+            }
+            20%, 40%, 60%, 80% {
+                transform: translateX(10px);
+            }
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                opacity: 1;
+                transform: translateY(-100vh) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(100vh) rotate(720deg);
+            }
+        }
+
+        .floating-emoji {
+            position: fixed;
+            font-size: 2rem;
+            animation: float 4s ease-in-out infinite;
+            z-index: 999;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2rem;
+            }
+            .word-card {
+                font-size: 1.5rem;
+                padding: 20px;
+            }
+            .category-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1 class="title">🌟 لعبة قنص اللام الشمسية والقمرية 🌙</h1>
+            <p class="subtitle">اختر الكلمات واكتشف نوع اللام فيها!</p>
+        </div>
+
+        <div class="score-board">
+            <div class="score-item">
+                <div>🎯 النقاط</div>
+                <div id="score">0</div>
+            </div>
+            <div class="score-item">
+                <div>✅ صحيح</div>
+                <div id="correct">0</div>
+            </div>
+            <div class="score-item">
+                <div>❌ خطأ</div>
+                <div id="incorrect">0</div>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress"></div>
+        </div>
+
+        <div id="current-word" class="word-card" style="display: none; margin: 20px auto; max-width: 300px;">
+            <div id="word-text"></div>
+        </div>
+
+        <div class="category-buttons" id="category-buttons" style="display: none;">
+            <button class="category-btn sun-btn" onclick="selectCategory('شمسية')">
+                ☀️ لام شمسية
+            </button>
+            <button class="category-btn moon-btn" onclick="selectCategory('قمرية')">
+                🌙 لام قمرية
+            </button>
+        </div>
+
+        <div class="game-area" id="word-selection">
+            <!-- سيتم إدراج الكلمات هنا -->
+        </div>
+
+        <div id="feedback" class="feedback" style="display: none;"></div>
+
+        <button class="reset-btn" onclick="resetGame()">🔄 بدء لعبة جديدة</button>
+    </div>
+
+    <script>
+        const words = [
+            // كلمات بلام شمسية
+            { word: 'الشمس', type: 'شمسية', emoji: '☀️' },
+            { word: 'النور', type: 'شمسية', emoji: '💡' },
+            { word: 'الطائر', type: 'شمسية', emoji: '🐦' },
+            { word: 'السماء', type: 'شمسية', emoji: '🌌' },
+            { word: 'الذهب', type: 'شمسية', emoji: '✨' },
+            { word: 'الزهرة', type: 'شمسية', emoji: '🌸' },
+            { word: 'الصباح', type: 'شمسية', emoji: '🌅' },
+            { word: 'التفاح', type: 'شمسية', emoji: '🍎' },
+            { word: 'الرياح', type: 'شمسية', emoji: '💨' },
+            { word: 'الليل', type: 'شمسية', emoji: '🌃' },
+            
+            // كلمات بلام قمرية
+            { word: 'القمر', type: 'قمرية', emoji: '🌙' },
+            { word: 'الكتاب', type: 'قمرية', emoji: '📚' },
+            { word: 'البيت', type: 'قمرية', emoji: '🏠' },
+            { word: 'الماء', type: 'قمرية', emoji: '💧' },
+            { word: 'الولد', type: 'قمرية', emoji: '👦' },
+            { word: 'الفيل', type: 'قمرية', emoji: '🐘' },
+            { word: 'الحديقة', type: 'قمرية', emoji: '🌳' },
+            { word: 'الجبل', type: 'قمرية', emoji: '🏔️' },
+            { word: 'العصفور', type: 'قمرية', emoji: '🐤' },
+            { word: 'الهدية', type: 'قمرية', emoji: '🎁' }
+        ];
+
+        let currentWord = null;
+        let score = 0;
+        let correct = 0;
+        let incorrect = 0;
+        let gameWords = [];
+        let currentWordIndex = 0;
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function initGame() {
+            gameWords = shuffleArray(words).slice(0, 10);
+            currentWordIndex = 0;
+            displayWordSelection();
+            updateProgress();
+        }
+
+        function displayWordSelection() {
+            const container = document.getElementById('word-selection');
+            const currentWordDiv = document.getElementById('current-word');
+            const categoryButtons = document.getElementById('category-buttons');
+            
+            if (currentWordIndex >= gameWords.length) {
+                endGame();
+                return;
+            }
+
+            currentWord = gameWords[currentWordIndex];
+            
+            // إخفاء اختيار الكلمات وإظهار الكلمة الحالية
+            container.style.display = 'none';
+            currentWordDiv.style.display = 'block';
+            categoryButtons.style.display = 'flex';
+            
+            document.getElementById('word-text').innerHTML = 
+                `${currentWord.emoji}<br>${currentWord.word}`;
+
+            // إضافة تأثيرات عشوائية
+            addFloatingEmojis();
+        }
+
+        function selectCategory(selectedType) {
+            const feedback = document.getElementById('feedback');
+            feedback.style.display = 'block';
+            
+            if (selectedType === currentWord.type) {
+                feedback.textContent = `🎉 أحسنت! "${currentWord.word}" تحتوي على لام ${selectedType}`;
+                feedback.className = 'feedback correct';
+                score += 10;
+                correct++;
+                createConfetti();
+                playSuccessSound();
+            } else {
+                feedback.textContent = `❌ خطأ! "${currentWord.word}" تحتوي على لام ${currentWord.type}`;
+                feedback.className = 'feedback incorrect';
+                score = Math.max(0, score - 5);
+                incorrect++;
+                shakeScreen();
+            }
+            
+            updateScoreBoard();
+            updateProgress();
+            
+            setTimeout(() => {
+                currentWordIndex++;
+                feedback.style.display = 'none';
+                displayWordSelection();
+            }, 2500);
+        }
+
+        function updateScoreBoard() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('correct').textContent = correct;
+            document.getElementById('incorrect').textContent = incorrect;
+        }
+
+        function updateProgress() {
+            const progress = (currentWordIndex / gameWords.length) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+        }
+
+        function createConfetti() {
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7', '#a29bfe'];
+            
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 2 + 's';
+                    confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 4000);
+                }, i * 50);
+            }
+        }
+
+        function addFloatingEmojis() {
+            const emojis = ['🌟', '✨', '💫', '⭐', '🎊', '🎉'];
+            
+            for (let i = 0; i < 5; i++) {
+                const emoji = document.createElement('div');
+                emoji.className = 'floating-emoji';
+                emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                emoji.style.left = Math.random() * 90 + 'vw';
+                emoji.style.top = Math.random() * 90 + 'vh';
+                emoji.style.animationDelay = Math.random() * 2 + 's';
+                
+                document.body.appendChild(emoji);
+                
+                setTimeout(() => {
+                    emoji.remove();
+                }, 4000);
+            }
+        }
+
+        function shakeScreen() {
+            document.body.style.animation = 'shake 0.5s';
+            setTimeout(() => {
+                document.body.style.animation = '';
+            }, 500);
+        }
+
+        function playSuccessSound() {
+            // محاولة تشغيل صوت النجاح (يعمل فقط مع تفاعل المستخدم)
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(520, audioContext.currentTime);
+            oscillator.frequency.setValueAtTime(780, audioContext.currentTime + 0.1);
+            oscillator.frequency.setValueAtTime(1040, audioContext.currentTime + 0.2);
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.3);
+        }
+
+        function endGame() {
+            const container = document.getElementById('word-selection');
+            const currentWordDiv = document.getElementById('current-word');
+            const categoryButtons = document.getElementById('category-buttons');
+            const feedback = document.getElementById('feedback');
+            
+            container.style.display = 'none';
+            currentWordDiv.style.display = 'none';
+            categoryButtons.style.display = 'none';
+            feedback.style.display = 'block';
+            
+            const percentage = Math.round((correct / gameWords.length) * 100);
+            let message = '';
+            let className = '';
+            
+            if (percentage >= 80) {
+                message = `🏆 ممتاز! حصلت على ${percentage}% - أنت محترف في اللام الشمسية والقمرية!`;
+                className = 'correct';
+                createConfetti();
+            } else if (percentage >= 60) {
+                message = `👏 جيد جداً! حصلت على ${percentage}% - تحسن رائع!`;
+                className = 'correct';
+            } else {
+                message = `💪 لا بأس! حصلت على ${percentage}% - مارس أكثر وستتحسن!`;
+                className = 'incorrect';
+            }
+            
+            feedback.textContent = message;
+            feedback.className = 'feedback ' + className;
+        }
+
+        function resetGame() {
+            score = 0;
+            correct = 0;
+            incorrect = 0;
+            currentWordIndex = 0;
+            
+            updateScoreBoard();
+            document.getElementById('progress').style.width = '0%';
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('current-word').style.display = 'none';
+            document.getElementById('category-buttons').style.display = 'none';
+            document.getElementById('word-selection').style.display = 'grid';
+            
+            // إزالة جميع الكونفيتي والرموز التعبيرية العائمة
+            const confetti = document.querySelectorAll('.confetti');
+            const emojis = document.querySelectorAll('.floating-emoji');
+            
+            confetti.forEach(c => c.remove());
+            emojis.forEach(e => e.remove());
+            
+            initGame();
+        }
+
+        // بدء اللعبة عند تحميل الصفحة
+        window.onload = function() {
+            initGame();
+        };
+    </script>
+</body>
+</html>

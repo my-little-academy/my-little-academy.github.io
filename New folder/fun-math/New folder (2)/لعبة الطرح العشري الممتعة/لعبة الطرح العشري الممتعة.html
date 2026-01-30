@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>لعبة الطرح العشري الممتعة</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --purple-color: #9b59b6;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+        }
+        
+        body {
+            background-color: #f9f9f9;
+            font-family: 'Arial Arabic', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: right;
+            background-image: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+        }
+        
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 850px;
+            margin: 30px auto;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .game-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 10px;
+            background: linear-gradient(90deg, var(--secondary-color), var(--primary-color), var(--purple-color));
+        }
+        
+        h1 {
+            color: var(--dark-color);
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 32px;
+            position: relative;
+            padding-bottom: 15px;
+        }
+        
+        h1::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 2px;
+        }
+        
+        .instructions {
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-right: 5px solid var(--primary-color);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        
+        .instructions h3 {
+            color: var(--dark-color);
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .instructions h3::before {
+            content: "📝";
+            margin-left: 10px;
+            font-size: 24px;
+        }
+        
+        .instructions ol {
+            padding-right: 20px;
+            color: #555;
+            line-height: 1.8;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+            position: relative;
+        }
+        
+        .instructions li::before {
+            content: "";
+            position: absolute;
+            right: -20px;
+            top: 10px;
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+        }
+        
+        .card-rows-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            position: relative;
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border: 1px solid #eee;
+        }
+        
+        .divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #7f8c8d, transparent);
+            margin: 15px 0;
+            width: 100%;
+            border: none;
+        }
+        
+        .card-row {
+            display: flex;
+            margin: 8px 0;
+            justify-content: flex-end;
+            align-items: center;
+        }
+        
+        .card {
+            width: 70px;
+            height: 90px;
+            color: white;
+            margin: 0 6px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 28px;
+            cursor: pointer;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            user-select: none;
+            position: relative;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
+        }
+        
+        .place-row .card {
+            background-color: var(--primary-color);
+            font-size: 16px;
+            height: 60px;
+            font-weight: bold;
+            cursor: default;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+        
+        .minuend-row .card {
+            background-color: var(--secondary-color);
+            background-image: linear-gradient(to bottom right, var(--secondary-color), #27ae60);
+        }
+        
+        .subtrahend-row .card {
+            background-color: var(--danger-color);
+            background-image: linear-gradient(to bottom right, var(--danger-color), #c0392b);
+        }
+        
+        .result-row .card {
+            background-color: var(--warning-color);
+            background-image: linear-gradient(to bottom right, var(--warning-color), #e67e22);
+        }
+        
+        .decimal-card {
+            background-color: var(--purple-color) !important;
+            background-image: linear-gradient(to bottom right, var(--purple-color), #8e44ad) !important;
+            font-size: 36px;
+            font-weight: bold;
+        }
+        
+        .empty-card {
+            background-color: var(--light-color) !important;
+            color: var(--dark-color);
+            border: 2px dashed #bdc3c7;
+            background-image: none !important;
+        }
+        
+        .card:hover:not(.place-row .card) {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+        
+        .selected {
+            border: 3px solid #FFD700;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+        
+        .number-pad {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 25px 0;
+            gap: 12px;
+            max-width: 350px;
+        }
+        
+        .number-btn {
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .number-btn:hover {
+            background-color: #2980b9;
+            transform: scale(1.1) translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 25px;
+        }
+        
+        .control-btn {
+            padding: 12px 25px;
+            background-color: var(--dark-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 120px;
+        }
+        
+        .control-btn:hover {
+            background-color: #1a252f;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        
+        #message {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--dark-color);
+            margin: 20px 0;
+            height: 30px;
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: rgba(52, 152, 219, 0.1);
+            border-right: 4px solid var(--primary-color);
+        }
+        
+        .row-label {
+            width: 110px;
+            text-align: center;
+            font-weight: bold;
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            background-color: rgba(0,0,0,0.03);
+            padding: 10px;
+            border-radius: 8px;
+            margin-left: 15px;
+        }
+        
+        .borrow-circle {
+            position: absolute;
+            width: 36px;
+            height: 36px;
+            background-color: #ff4757;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            cursor: pointer;
+            top: -18px;
+            right: 17px;
+            z-index: 10;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+            transition: all 0.2s;
+            font-size: 18px;
+        }
+        
+        .borrow-circle:hover {
+            transform: scale(1.15) translateY(-2px);
+            background-color: #ff6b81;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+        }
+        
+        .borrow-circle::after {
+            content: "استلف";
+            position: absolute;
+            bottom: -25px;
+            right: 50%;
+            transform: translateX(50%);
+            font-size: 12px;
+            color: #ff4757;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .borrow-circle:hover::after {
+            opacity: 1;
+        }
+        
+        .changed-digit {
+            animation: pulse 0.5s 3;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .explanation-box {
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 25px;
+            max-width: 600px;
+            text-align: right;
+            border-right: 5px solid var(--primary-color);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .explanation-box h3 {
+            margin-top: 0;
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+        }
+        
+        .explanation-box h3::before {
+            content: "🔍";
+            margin-left: 10px;
+            font-size: 24px;
+        }
+        
+        .step-explanation {
+            margin-bottom: 12px;
+            padding: 12px;
+            border-right: 4px solid var(--primary-color);
+            background-color: #e8f4fc;
+            border-radius: 8px;
+            line-height: 1.6;
+        }
+        
+        .success-message {
+            color: #27ae60;
+            font-weight: bold;
+            font-size: 22px;
+            text-align: center;
+            margin: 15px 0;
+            animation: bounce 0.5s;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .floating-icon {
+            position: absolute;
+            font-size: 24px;
+            opacity: 0.1;
+            z-index: 0;
+        }
+        
+        .floating-icon:nth-child(1) {
+            top: 20px;
+            left: 20px;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .floating-icon:nth-child(2) {
+            bottom: 40px;
+            right: 30px;
+            animation: float 8s ease-in-out infinite 2s;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+            100% { transform: translateY(0) rotate(0deg); }
+        }
+        
+        /* تصميم متجاوب للشاشات الصغيرة */
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 20px;
+                margin: 15px;
+                border-radius: 15px;
+            }
+            
+            .card {
+                width: 50px;
+                height: 70px;
+                font-size: 22px;
+                margin: 0 4px;
+            }
+            
+            .row-label {
+                width: 80px;
+                font-size: 14px;
+                margin-left: 10px;
+            }
+            
+            .number-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+            
+            .control-btn {
+                padding: 10px 15px;
+                min-width: 100px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="floating-icon">➗</div>
+        <div class="floating-icon">➖</div>
+        
+        <h1>لعبة الطرح العشري الممتعة</h1>
+        
+        <div class="instructions">
+            <h3>تعليمات اللعبة</h3>
+            <ol>
+                <li>الهدف من اللعبة هو حل مسائل الطرح العشري بشكل صحيح</li>
+                <li>ستظهر لك مسألة طرح مع الأرقام في منازل مختلفة (عشرات، آحاد، أعشار، ...)</li>
+                <li>اضغط على خانات النتيجة الفارغة ثم اختر الرقم المناسب من لوحة الأرقام</li>
+                <li>إذا احتجت للاستلاف، اضغط على الدوائر الحمراء فوق الأرقام</li>
+                <li>بعد إدخال جميع الأرقام، اضغط على زر "تحقق" لمعرفة إذا كانت إجابتك صحيحة</li>
+                <li>يمكنك تغيير الأرقام بالضغط على زر "تغيير الأرقام" في أي وقت</li>
+            </ol>
+        </div>
+        
+        <div class="card-rows-container">
+            <!-- صف المنازل -->
+            <div class="card-row place-row">
+                <div class="row-label">المنازل</div>
+                <div class="card">عشرات</div>
+                <div class="card">آحاد</div>
+                <div class="card">فاصلة</div>
+                <div class="card">أعشار</div>
+                <div class="card">أجزاء المئة</div>
+                <div class="card">أجزاء الألف</div>
+            </div>
+            
+            <!-- صف المطروح منه -->
+            <div class="card-row minuend-row">
+                <div class="row-label">المطروح منه</div>
+                <!-- سيتم ملؤها بالجافاسكريبت -->
+            </div>
+            
+            <!-- صف المطروح -->
+            <div class="card-row subtrahend-row">
+                <div class="row-label">المطروح</div>
+                <!-- سيتم ملؤها بالجافاسكريبت -->
+            </div>
+            
+            <!-- خط فاصل -->
+            <div class="divider"></div>
+            
+            <!-- صف النتيجة -->
+            <div class="card-row result-row">
+                <div class="row-label">النتيجة</div>
+                <!-- سيتم ملؤها بالجافاسكريبت -->
+            </div>
+        </div>
+        
+        <!-- لوحة الأرقام -->
+        <div class="number-pad">
+            <button class="number-btn" data-number="0">0</button>
+            <button class="number-btn" data-number="1">1</button>
+            <button class="number-btn" data-number="2">2</button>
+            <button class="number-btn" data-number="3">3</button>
+            <button class="number-btn" data-number="4">4</button>
+            <button class="number-btn" data-number="5">5</button>
+            <button class="number-btn" data-number="6">6</button>
+            <button class="number-btn" data-number="7">7</button>
+            <button class="number-btn" data-number="8">8</button>
+            <button class="number-btn" data-number="9">9</button>
+        </div>
+        
+        <!-- أزرار التحكم -->
+        <div class="control-buttons">
+            <button class="control-btn" id="check-btn">تحقق</button>
+            <button class="control-btn" id="change-btn">تغيير الأرقام</button>
+        </div>
+        
+        <p id="message">اختر أرقام النتيجة من لوحة الأرقام</p>
+        
+        <!-- صندوق الشرح -->
+        <div class="explanation-box" id="explanation-box" style="display: none;">
+            <h3>خطوات الحل مع توضيح الاستلاف:</h3>
+            <div id="explanation-steps"></div>
+        </div>
+    </div>
+
+    <script>
+        // تعريف البطاقات بالترتيب المطلوب: عشرات ← آحاد ← فاصلة ← أعشار ← أجزاء المئة ← أجزاء الألف
+        const places = ["عشرات", "آحاد", "فاصلة", "أعشار", "أجزاء المئة", "أجزاء الألف"];
+        let minuends = [0, 0, '.', 0, 0, 0]; // الفاصلة في الموضع الثالث
+        let subtrahends = [0, 0, '.', 0, 0, 0]; // الفاصلة في الموضع الثالث
+        let results = ['', '', '.', '', '', '']; // فارغة باستثناء الفاصلة
+        
+        // تهيئة اللعبة
+        let selectedCard = null;
+        let decimalPosition = 2; // موقع الفاصلة (الموضع الثالث في المصفوفة)
+        let borrowSteps = [];
+        let currentStep = 0;
+
+        // إنشاء البطاقات
+        function createCards() {
+            const placeRow = document.querySelector('.place-row');
+            const minuendRow = document.querySelector('.minuend-row');
+            const subtrahendRow = document.querySelector('.subtrahend-row');
+            const resultRow = document.querySelector('.result-row');
+            
+            // مسح البطاقات الحالية
+            while (placeRow.children.length > 1) placeRow.removeChild(placeRow.lastChild);
+            while (minuendRow.children.length > 1) minuendRow.removeChild(minuendRow.lastChild);
+            while (subtrahendRow.children.length > 1) subtrahendRow.removeChild(subtrahendRow.lastChild);
+            while (resultRow.children.length > 1) resultRow.removeChild(resultRow.lastChild);
+            
+            // إضافة بطاقات المنازل
+            places.forEach((place, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.textContent = place;
+                placeRow.appendChild(card);
+            });
+            
+            // إضافة بطاقات المطروح منه مع دوائر الاستلاف
+            minuends.forEach((value, index) => {
+                const card = document.createElement('div');
+                card.className = index === decimalPosition ? 'card decimal-card' : 'card';
+                card.textContent = value;
+                card.dataset.type = 'minuend';
+                card.dataset.index = index;
+                
+                // نضيف دائرة استلاف إذا كانت البطاقة ليست الفاصلة وليست أقصى اليسار
+                if (index !== decimalPosition && index > 0) {
+                    const borrowCircle = document.createElement('div');
+                    borrowCircle.className = 'borrow-circle';
+                    borrowCircle.textContent = '↓';
+                    borrowCircle.title = 'اضغط للاستلاف';
+                    borrowCircle.dataset.index = index;
+                    
+                    borrowCircle.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        handleBorrow(this.dataset.index);
+                    });
+                    
+                    card.appendChild(borrowCircle);
+                }
+                
+                minuendRow.appendChild(card);
+            });
+            
+            // إضافة بطاقات المطروح
+            subtrahends.forEach((value, index) => {
+                const card = document.createElement('div');
+                card.className = index === decimalPosition ? 'card decimal-card' : 'card';
+                card.textContent = value;
+                card.dataset.type = 'subtrahend';
+                card.dataset.index = index;
+                subtrahendRow.appendChild(card);
+            });
+            
+            // إضافة بطاقات النتيجة (قابلة للتعديل)
+            results.forEach((value, index) => {
+                const card = document.createElement('div');
+                if (index === decimalPosition) {
+                    card.className = 'card decimal-card';
+                    card.textContent = '.';
+                } else {
+                    card.className = 'card empty-card';
+                    card.textContent = value;
+                    card.dataset.type = 'result';
+                    card.dataset.index = index;
+                    card.addEventListener('click', function() {
+                        selectResultCard(this);
+                    });
+                }
+                resultRow.appendChild(card);
+            });
+        }
+        
+        // توليد أرقام عشوائية مع ضمان أن المطروح منه أكبر من المطروح
+        function generateRandomNumbers() {
+            // توليد المطروح منه
+            minuends = minuends.map((val, index) => 
+                index === decimalPosition ? '.' : Math.floor(Math.random() * 10)
+            );
+            
+            // توليد المطروح مع ضمان أن يكون أصغر من المطروح منه في كل خانة
+            subtrahends = subtrahends.map((val, index) => {
+                if (index === decimalPosition) return '.';
+                const max = parseInt(minuends[index]);
+                return Math.floor(Math.random() * (max + 1));
+            });
+            
+            // نتائج فارغة
+            results = results.map((val, index) => 
+                index === decimalPosition ? '.' : ''
+            );
+            
+            // إذا لم يكن هناك استلاف مطلوب، نخلق حالة استلاف
+            if (calculateBorrowSteps().length === 0) {
+                createBorrowScenario();
+            }
+        }
+        
+        // إنشاء حالة استلاف إذا لم تكن موجودة
+        function createBorrowScenario() {
+            // نختار خانة عشوائية (عدا الفاصلة والخانة الأولى)
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * (minuends.length - 2)) + 1;
+            } while (randomIndex === decimalPosition);
+            
+            // نجعل المطروح في هذه الخانة أكبر من المطروح منه
+            subtrahends[randomIndex] = parseInt(minuends[randomIndex]) + 1;
+            
+            // نقلل المطروح منه في الخانة السابقة لضمان إمكانية الاستلاف
+            const borrowFrom = randomIndex - (randomIndex === decimalPosition + 1 ? 2 : 1);
+            if (borrowFrom >= 0 && borrowFrom !== decimalPosition) {
+                minuends[borrowFrom] = Math.max(1, parseInt(minuends[borrowFrom]));
+            }
+        }
+        
+        // دالة للتعامل مع عملية الاستلاف
+        function handleBorrow(index) {
+            index = parseInt(index);
+            
+            // نتحقق أنه يمكن الاستلاف (الخانة الحالية أقل من المطروح)
+            if (parseInt(minuends[index]) >= parseInt(subtrahends[index])) {
+                alert('لا حاجة للاستلاف هنا، الخانة الحالية أكبر أو تساوي المطروح');
+                return;
+            }
+            
+            // نتحقق أنه يمكن الاستلاف من الخانة التي قبلها
+            const borrowFrom = index - (index === decimalPosition + 1 ? 2 : 1);
+            
+            if (borrowFrom < 0 || parseInt(minuends[borrowFrom]) < 1) {
+                alert('لا يمكن الاستلاف من الخانة السابقة');
+                return;
+            }
+            
+            // نجري عملية الاستلاف
+            minuends[borrowFrom] = parseInt(minuends[borrowFrom]) - 1;
+            minuends[index] = parseInt(minuends[index]) + 10;
+            
+            // نحدث الواجهة
+            updateMinuendDisplay();
+            
+            // نظهر رسالة توضيحية
+            document.getElementById('message').textContent = 
+                `تم الاستلاف: ناقص 1 من ${places[borrowFrom]} و اضيف 10 إلى ${places[index]}`;
+        }
+        
+        // دالة لتحديث عرض المطروح منه
+        function updateMinuendDisplay() {
+            const minuendRow = document.querySelector('.minuend-row');
+            minuendRow.innerHTML = '<div class="row-label">المطروح منه</div>';
+            
+            minuends.forEach((value, index) => {
+                const card = document.createElement('div');
+                card.className = index === decimalPosition ? 'card decimal-card' : 'card';
+                card.textContent = value;
+                card.dataset.type = 'minuend';
+                card.dataset.index = index;
+                
+                if (index !== decimalPosition && index > 0) {
+                    const borrowCircle = document.createElement('div');
+                    borrowCircle.className = 'borrow-circle';
+                    borrowCircle.textContent = '↓';
+                    borrowCircle.title = 'اضغط للاستلاف';
+                    borrowCircle.dataset.index = index;
+                    
+                    borrowCircle.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        handleBorrow(this.dataset.index);
+                    });
+                    
+                    card.appendChild(borrowCircle);
+                }
+                
+                minuendRow.appendChild(card);
+            });
+        }
+        
+        // حساب خطوات الاستلاف
+        function calculateBorrowSteps() {
+            const steps = [];
+            const minuendCopy = [...minuends];
+            const subtrahendCopy = [...subtrahends];
+            
+            // نتحقق من كل خانة من اليمين إلى اليسار (من الأصغر إلى الأكبر)
+            for (let i = minuendCopy.length - 1; i >= 0; i--) {
+                if (i === decimalPosition) continue; // نتجاوز الفاصلة
+                
+                // إذا كان الرقم في المطروح أكبر من المطروح منه
+                if (parseInt(subtrahendCopy[i]) > parseInt(minuendCopy[i])) {
+                    // نبحث عن أقرب خانة يساراً يمكن الاستلاف منها
+                    let borrowFrom = i - 1;
+                    while (borrowFrom >= 0) {
+                        if (borrowFrom === decimalPosition) {
+                            borrowFrom--;
+                            continue;
+                        }
+                        
+                        if (parseInt(minuendCopy[borrowFrom]) > 0) {
+                            // نوجد خطوة الاستلاف
+                            const step = {
+                                from: borrowFrom,
+                                to: i,
+                                amount: 1,
+                                oldValue: minuendCopy[i],
+                                newValue: parseInt(minuendCopy[i]) + 10,
+                                oldFromValue: minuendCopy[borrowFrom],
+                                newFromValue: parseInt(minuendCopy[borrowFrom]) - 1
+                            };
+                            steps.push(step);
+                            
+                            // نحدث القيم
+                            minuendCopy[borrowFrom] = step.newFromValue;
+                            minuendCopy[i] = step.newValue;
+                            break;
+                        }
+                        borrowFrom--;
+                    }
+                }
+            }
+            
+            return steps;
+        }
+        
+        // اختيار بطاقة النتيجة
+        function selectResultCard(card) {
+            if (selectedCard) {
+                selectedCard.classList.remove('selected');
+            }
+            
+            selectedCard = card;
+            selectedCard.classList.add('selected');
+            
+            document.getElementById('message').textContent = 'اختر رقماً من لوحة الأرقام';
+        }
+        
+        // حساب نتيجة اللاعب
+        function calculatePlayerResult() {
+            return (results[0] ? parseInt(results[0]) : 0) * 10 + 
+                   (results[1] ? parseInt(results[1]) : 0) * 1 + 
+                   (results[3] ? parseInt(results[3]) : 0) * 0.1 + 
+                   (results[4] ? parseInt(results[4]) : 0) * 0.01 + 
+                   (results[5] ? parseInt(results[5]) : 0) * 0.001;
+        }
+        
+        // حساب قيمة المطروح منه
+        function calculateMinuendValue() {
+            return minuends[0] * 10 + 
+                   minuends[1] * 1 + 
+                   minuends[3] * 0.1 + 
+                   minuends[4] * 0.01 + 
+                   minuends[5] * 0.001;
+        }
+        
+        // حساب قيمة المطروح
+        function calculateSubtrahendValue() {
+            return subtrahends[0] * 10 + 
+                   subtrahends[1] * 1 + 
+                   subtrahends[3] * 0.1 + 
+                   subtrahends[4] * 0.01 + 
+                   subtrahends[5] * 0.001;
+        }
+        
+        // تلوين بطاقات النتيجة
+        function colorResultCards(isCorrect) {
+            const resultCards = document.querySelectorAll('.result-row .card:not(.decimal-card)');
+            resultCards.forEach(card => {
+                if (isCorrect) {
+                    card.style.backgroundColor = '#2ecc71';
+                    card.style.backgroundImage = 'linear-gradient(to bottom right, #2ecc71, #27ae60)';
+                } else {
+                    card.style.backgroundColor = '#e74c3c';
+                    card.style.backgroundImage = 'linear-gradient(to bottom right, #e74c3c, #c0392b)';
+                }
+                card.classList.remove('empty-card');
+            });
+            
+            if (isCorrect) {
+                const successMsg = document.createElement('div');
+                successMsg.className = 'success-message';
+                successMsg.textContent = 'إجابة صحيحة! أحسنت! 🎉';
+                document.getElementById('message').after(successMsg);
+                
+                setTimeout(() => {
+                    successMsg.style.opacity = '0';
+                    successMsg.style.transform = 'translateY(-20px)';
+                    setTimeout(() => successMsg.remove(), 500);
+                }, 2000);
+            }
+        }
+        
+        // إعادة تعيين اللعبة
+        function resetGame() {
+            generateRandomNumbers();
+            createCards();
+            document.getElementById('message').textContent = 'اختر أرقام النتيجة من لوحة الأرقام';
+            document.getElementById('explanation-box').style.display = 'none';
+            selectedCard = null;
+            
+            // إزالة أي رسائل نجاح سابقة
+            document.querySelectorAll('.success-message').forEach(msg => msg.remove());
+        }
+        
+        // تهيئة الأحداث
+        function initEvents() {
+            document.querySelectorAll('.number-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (selectedCard) {
+                        selectedCard.textContent = this.dataset.number;
+                        results[selectedCard.dataset.index] = this.dataset.number;
+                        selectedCard.classList.remove('selected');
+                        selectedCard.classList.remove('empty-card');
+                        selectedCard = null;
+                    }
+                });
+            });
+            
+            document.getElementById('check-btn').addEventListener('click', checkAnswer);
+            document.getElementById('change-btn').addEventListener('click', resetGame);
+        }
+        
+        // التحقق من الإجابة
+        function checkAnswer() {
+            const playerResultValue = calculatePlayerResult();
+            const minuendValue = calculateMinuendValue();
+            const subtrahendValue = calculateSubtrahendValue();
+            const expectedResult = minuendValue - subtrahendValue;
+            
+            if (Math.abs(expectedResult - playerResultValue) < 0.0001) {
+                document.getElementById('message').textContent = 'إجابة صحيحة! أحسنت!';
+                colorResultCards(true);
+            } else {
+                document.getElementById('message').textContent = 
+                    `إجابة خاطئة! الجواب الصحيح: ${expectedResult.toFixed(3)}`;
+                colorResultCards(false);
+            }
+        }
+        
+        // بدء اللعبة عند تحميل الصفحة
+        window.onload = function() {
+            generateRandomNumbers();
+            createCards();
+            initEvents();
+        };
+    </script>
+</body>
+</html>

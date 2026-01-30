@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لعبة العملات النقدية التفاعلية</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      text-align: center;
+      color: #fff;
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+    
+    header {
+      margin-bottom: 25px;
+    }
+    
+    h1 {
+      font-size: 2.8rem;
+      margin: 15px 0;
+      color: white;
+      text-shadow: 3px 3px 0 #ff9d00;
+    }
+    
+    .subtitle {
+      font-size: 1.4rem;
+      color: #ffeb3b;
+      margin-bottom: 10px;
+    }
+    
+    .instructions {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 15px;
+      border-radius: 15px;
+      margin: 15px 0;
+      font-size: 1.2rem;
+    }
+    
+    .coins-selection {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin: 25px 0;
+      flex-wrap: wrap;
+    }
+    
+    .coin-option {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 20px;
+      border-radius: 15px;
+      width: 200px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .coin-option:hover {
+      transform: translateY(-5px);
+      background: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .coin-option:active {
+      transform: translateY(2px);
+    }
+    
+    .coin-image {
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+      margin-bottom: 15px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .coin-title {
+      font-size: 1.4rem;
+      margin-bottom: 10px;
+      color: #ffeb3b;
+    }
+    
+    .coin-value {
+      font-size: 1.2rem;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 5px 15px;
+      border-radius: 20px;
+    }
+    
+    .coins-container {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 25px;
+      border-radius: 15px;
+      margin: 20px 0;
+      min-height: 200px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+    
+    .coin {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      background: white;
+      border-radius: 10px;
+      padding: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      position: relative;
+      animation: appear 0.3s ease;
+    }
+    
+    .delete-btn {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: #ff5252;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .input-area {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 20px;
+      border-radius: 15px;
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    
+    .input-title {
+      font-size: 1.4rem;
+      margin-bottom: 15px;
+      color: #ffeb3b;
+    }
+    
+    input {
+      padding: 15px;
+      font-size: 1.6rem;
+      border-radius: 15px;
+      border: 3px solid #ff9d00;
+      margin: 10px 0;
+      text-align: center;
+      width: 200px;
+      font-family: 'Cairo', sans-serif;
+      background: rgba(255, 255, 255, 0.9);
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: #ff5500;
+      box-shadow: 0 0 15px rgba(255, 157, 0, 0.6);
+    }
+    
+    .btn {
+      padding: 15px 30px;
+      font-size: 1.3rem;
+      border: none;
+      border-radius: 50px;
+      background: linear-gradient(to right, #00c853, #64dd17);
+      color: white;
+      cursor: pointer;
+      margin: 15px 5px;
+      transition: all 0.3s;
+      font-weight: bold;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .btn:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .btn-check {
+      background: linear-gradient(to right, #00c853, #64dd17);
+    }
+    
+    .btn-clear {
+      background: linear-gradient(to right, #ff5252, #d32f2f);
+    }
+    
+    #message {
+      margin-top: 20px;
+      font-size: 1.8rem;
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      min-height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+    }
+    
+    .success {
+      color: #69f0ae;
+      font-weight: bold;
+    }
+    
+    .error {
+      color: #ff5252;
+    }
+    
+    .coins-counter {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+    
+    .counter-item {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 15px;
+      border-radius: 15px;
+      min-width: 120px;
+    }
+    
+    .counter-value {
+      font-size: 2rem;
+      font-weight: bold;
+      margin: 5px 0;
+    }
+    
+    .counter-label {
+      color: #ffeb3b;
+      font-size: 1.2rem;
+    }
+    
+    footer {
+      margin-top: 30px;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1.1rem;
+    }
+    
+    /* Animations */
+    @keyframes appear {
+      0% { transform: scale(0); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2.2rem;
+      }
+      
+      .subtitle {
+        font-size: 1.2rem;
+      }
+      
+      .coins-selection {
+        gap: 15px;
+      }
+      
+      .coin-option {
+        width: 150px;
+        padding: 15px;
+      }
+      
+      .coin-image {
+        width: 100px;
+        height: 100px;
+      }
+      
+      .coin {
+        width: 70px;
+        height: 70px;
+      }
+      
+      .btn {
+        padding: 12px 25px;
+        font-size: 1.1rem;
+      }
+      
+      input {
+        font-size: 1.4rem;
+        width: 180px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>💰 لعبة العملات النقدية 💰</h1>
+      <p class="subtitle">انقر على العملات ثم اكتب القيمة الإجمالية</p>
+    </header>
+    
+    <div class="instructions">
+      <p>انقر على أي من العملات أدناه لإضافتها إلى منطقة اللعب، ثم اكتب القيمة الإجمالية للعملات</p>
+    </div>
+    
+    <div class="coins-selection">
+      <div class="coin-option" onclick="addCoin('units')">
+        <img src="https://cdn.pixabay.com/photo/2018/05/08/14/43/money-3383600_640.png" class="coin-image" alt="عملة الوحدات">
+        <div class="coin-title">عملة الوحدات</div>
+        <div class="coin-value">1 ريال</div>
+      </div>
+      
+      <div class="coin-option" onclick="addCoin('tens')">
+        <img src="https://cdn.pixabay.com/photo/2018/05/08/14/43/money-3383601_640.png" class="coin-image" alt="عملة العشرات">
+        <div class="coin-title">عملة العشرات</div>
+        <div class="coin-value">10 ريال</div>
+      </div>
+      
+      <div class="coin-option" onclick="addCoin('hundreds')">
+        <img src="https://cdn.pixabay.com/photo/2018/05/08/14/43/money-3383602_640.png" class="coin-image" alt="عملة المئات">
+        <div class="coin-title">عملة المئات</div>
+        <div class="coin-value">100 ريال</div>
+      </div>
+    </div>
+    
+    <div class="coins-counter">
+      <div class="counter-item">
+        <div class="counter-label">المئات</div>
+        <div class="counter-value" id="hundreds-count">0</div>
+        <div class="counter-label">(100)</div>
+      </div>
+      <div class="counter-item">
+        <div class="counter-label">العشرات</div>
+        <div class="counter-value" id="tens-count">0</div>
+        <div class="counter-label">(10)</div>
+      </div>
+      <div class="counter-item">
+        <div class="counter-label">الوحدات</div>
+        <div class="counter-value" id="units-count">0</div>
+        <div class="counter-label">(1)</div>
+      </div>
+    </div>
+    
+    <div class="coins-container" id="coinsContainer">
+      <p>العملات ستظهر هنا عند النقر عليها</p>
+    </div>
+    
+    <div class="input-area">
+      <div class="input-title">ما هو العدد الكلي؟</div>
+      <input type="number" id="answer" placeholder="أدخل العدد هنا">
+      <div>
+        <button class="btn btn-check" id="checkBtn">✅ تحقق</button>
+        <button class="btn btn-clear" id="clearBtn">🗑️ مسح الكل</button>
+      </div>
+    </div>
+    
+    <div id="message">أهلاً! ابدأ بالنقر على العملات لإضافتها</div>
+  </div>
+
+  <footer>
+    <p>صممت بخدمة تعليمية ممتعة للأطفال © 2023</p>
+  </footer>
+
+  <script>
+    // المتغيرات العامة
+    let currentHundreds = 0;
+    let currentTens = 0;
+    let currentUnits = 0;
+    
+    // عناصر DOM
+    const coinsContainer = document.getElementById('coinsContainer');
+    const answerInput = document.getElementById('answer');
+    const checkBtn = document.getElementById('checkBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const messageDiv = document.getElementById('message');
+    const hundredsCount = document.getElementById('hundreds-count');
+    const tensCount = document.getElementById('tens-count');
+    const unitsCount = document.getElementById('units-count');
+    
+    // مصادر الصور للعملات (يمكن استبدالها بصورك الخاصة)
+    const coinImages = {
+      units: "https://cdn.pixabay.com/photo/2018/05/08/14/43/money-3383600_640.png",
+      tens: "https://cdn.pixabay.com/photo/2018/05/08/14/43/money-3383601_640.png",
+      hundreds: "https://cdn.pixabay.com/photo/2018/05/08/14/43/money-3383602_640.png"
+    };
+    
+    // إضافة عملة جديدة
+    function addCoin(type) {
+      // إنصراف العنصر
+      const coin = document.createElement('div');
+      coin.classList.add('coin');
+      
+      // إضافة الصورة المناسبة
+      const img = document.createElement('img');
+      img.src = coinImages[type];
+      img.alt = type === 'units' ? 'عملة 1 ريال' : type === 'tens' ? 'عملة 10 ريال' : 'عملة 100 ريال';
+      coin.appendChild(img);
+      
+      // إضافة زر الحذف
+      const deleteBtn = document.createElement('button');
+      deleteBtn.classList.add('delete-btn');
+      deleteBtn.innerHTML = '×';
+      deleteBtn.onclick = function(e) {
+        e.stopPropagation();
+        coin.remove();
+        updateCounters(type, -1);
+      };
+      coin.appendChild(deleteBtn);
+      
+      // إضافة إلى الحاوية
+      coinsContainer.appendChild(coin);
+      
+      // إزالة النص الافتراضي إذا كان موجودًا
+      if (coinsContainer.querySelector('p')) {
+        coinsContainer.querySelector('p').remove();
+      }
+      
+      // تحديث العدادات
+      updateCounters(type, 1);
+    }
+    
+    // تحديث العدادات
+    function updateCounters(type, change) {
+      if (type === 'units') {
+        currentUnits += change;
+        unitsCount.textContent = currentUnits;
+      } else if (type === 'tens') {
+        currentTens += change;
+        tensCount.textContent = currentTens;
+      } else if (type === 'hundreds') {
+        currentHundreds += change;
+        hundredsCount.textContent = currentHundreds;
+      }
+    }
+    
+    // التحقق من الإجابة
+    function checkAnswer() {
+      const totalValue = (currentHundreds * 100) + (currentTens * 10) + currentUnits;
+      const userAnswer = parseInt(answerInput.value);
+      
+      if (isNaN(userAnswer)) {
+        messageDiv.textContent = '❌ من فضلك أدخل رقماً صحيحاً';
+        messageDiv.className = 'error';
+        return;
+      }
+      
+      if (userAnswer === totalValue) {
+        messageDiv.innerHTML = '🎉 <span class="success">أحسنت! الإجابة صحيحة</span> 🎉';
+        messageDiv.className = 'success';
+      } else {
+        messageDiv.innerHTML = '❌ <span class="error">حاول مرة أخرى</span>';
+        messageDiv.className = 'error';
+        
+        // تلميح للمستخدم
+        setTimeout(() => {
+          if (userAnswer < totalValue) {
+            messageDiv.innerHTML = '🔺 <span class="error">الإجابة التي أدخلتها أقل من القيمة الصحيحة</span>';
+          } else {
+            messageDiv.innerHTML = '🔻 <span class="error">الإجابة التي أدخلتها أكبر من القيمة الصحيحة</span>';
+          }
+        }, 2000);
+      }
+    }
+    
+    // مسح كل العملات
+    function clearAll() {
+      coinsContainer.innerHTML = '<p>العملات ستظهر هنا عند النقر عليها</p>';
+      currentHundreds = 0;
+      currentTens = 0;
+      currentUnits = 0;
+      hundredsCount.textContent = '0';
+      tensCount.textContent = '0';
+      unitsCount.textContent = '0';
+      answerInput.value = '';
+      messageDiv.textContent = 'تم مسح كل العملات';
+      messageDiv.className = '';
+    }
+    
+    // تهيئة الأحداث
+    document.addEventListener('DOMContentLoaded', function() {
+      checkBtn.addEventListener('click', checkAnswer);
+      clearBtn.addEventListener('click', clearAll);
+      
+      // السماح بالتحقق باستخدام زر Enter
+      answerInput.addEventListener('keyup', function(event) {
+        if (event.key === 'Enter') {
+          checkAnswer();
+        }
+      });
+    });
+  </script>
+</body>
+</html>

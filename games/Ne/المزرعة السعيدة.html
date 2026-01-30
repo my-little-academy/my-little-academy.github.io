@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المزرعة السعيدة</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #e8f5e9;
+            margin: 0;
+            padding: 0;
+            color: #2e7d32;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: #4caf50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .game-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .farm {
+            flex: 2;
+            background-color: #a5d6a7;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            min-height: 500px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .farm::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://i.imgur.com/JjQY9yP.png') repeat;
+            opacity: 0.1;
+            z-index: 0;
+        }
+        
+        .controls {
+            flex: 1;
+            background-color: #c8e6c9;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .plot {
+            width: 100px;
+            height: 100px;
+            background-color: #8d6e63;
+            margin: 10px;
+            display: inline-block;
+            position: relative;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 1;
+        }
+        
+        .plot:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+        
+        .crop {
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            top: 10%;
+            left: 10%;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        
+        .btn {
+            background-color: #2e7d32;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .btn:hover {
+            background-color: #1b5e20;
+            transform: translateY(-2px);
+        }
+        
+        .resources {
+            background-color: #81c784;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+        }
+        
+        .shop-item {
+            background-color: #e8f5e9;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .animal {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            z-index: 2;
+        }
+        
+        .barn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 120px;
+            height: 100px;
+            background-color: #5d4037;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+        
+        .weather {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .game-area {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>المزرعة السعيدة</h1>
+            <p>قم ببناء وتوسيع مزرعتك لتصبح الأفضل في المنطقة!</p>
+        </header>
+        
+        <div class="game-area">
+            <div class="farm">
+                <div class="weather">☀️</div>
+                
+                <!-- قطع الأراضي الزراعية -->
+                <div class="plot" onclick="plantCrop(this, 'carrot')">
+                    <div class="crop" style="background-image: url('https://i.imgur.com/JjQY9yP.png'); display: none;"></div>
+                </div>
+                <div class="plot" onclick="plantCrop(this, 'wheat')">
+                    <div class="crop" style="background-image: url('https://i.imgur.com/JjQY9yP.png'); display: none;"></div>
+                </div>
+                <div class="plot" onclick="plantCrop(this, 'tomato')">
+                    <div class="crop" style="background-image: url('https://i.imgur.com/JjQY9yP.png'); display: none;"></div>
+                </div>
+                <div class="plot" onclick="plantCrop(this, 'corn')">
+                    <div class="crop" style="background-image: url('https://i.imgur.com/JjQY9yP.png'); display: none;"></div>
+                </div>
+                
+                <!-- الحيوانات -->
+                <div class="animal" style="background-image: url('https://i.imgur.com/JjQY9yP.png'); top: 200px; left: 50px;"></div>
+                <div class="animal" style="background-image: url('https://i.imgur.com/JjQY9yP.png'); top: 300px; left: 150px;"></div>
+                
+                <!-- الحظيرة -->
+                <div class="barn">الحظيرة</div>
+            </div>
+            
+            <div class="controls">
+                <div class="resources">
+                    <p>الذهب: <span id="gold">100</span> 🪙</p>
+                    <p>المحاصيل: <span id="crops">0</span> 🌾</p>
+                    <p>المنتجات: <span id="products">0</span> �</p>
+                </div>
+                
+                <h2>المتجر</h2>
+                
+                <div class="shop-item">
+                    <span>بذور جزر (10 ذهب)</span>
+                    <button class="btn" onclick="buySeeds('carrot', 10)">شراء</button>
+                </div>
+                
+                <div class="shop-item">
+                    <span>بذور قمح (15 ذهب)</span>
+                    <button class="btn" onclick="buySeeds('wheat', 15)">شراء</button>
+                </div>
+                
+                <div class="shop-item">
+                    <span>بذور طماطم (20 ذهب)</span>
+                    <button class="btn" onclick="buySeeds('tomato', 20)">شراء</button>
+                </div>
+                
+                <div class="shop-item">
+                    <span>بذور ذرة (25 ذهب)</span>
+                    <button class="btn" onclick="buySeeds('corn', 25)">شراء</button>
+                </div>
+                
+                <div class="shop-item">
+                    <span>دجاجة (50 ذهب)</span>
+                    <button class="btn" onclick="buyAnimal('chicken', 50)">شراء</button>
+                </div>
+                
+                <div class="shop-item">
+                    <span>بقرة (100 ذهب)</span>
+                    <button class="btn" onclick="buyAnimal('cow', 100)">شراء</button>
+                </div>
+                
+                <h2>الإنجازات</h2>
+                <div id="achievements">
+                    <p>👩‍🌾 المزارع المبتدئ: زرعت أول محصول لك!</p>
+                    <p>🐔 مربي دواجن: امتلكت أول دجاجة!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let gold = 100;
+        let crops = 0;
+        let products = 0;
+        let selectedSeed = null;
+        
+        function updateResources() {
+            document.getElementById('gold').textContent = gold;
+            document.getElementById('crops').textContent = crops;
+            document.getElementById('products').textContent = products;
+        }
+        
+        function buySeeds(type, cost) {
+            if (gold >= cost) {
+                gold -= cost;
+                selectedSeed = type;
+                alert(`لقد اشتريت بذور ${type}!
+الآن يمكنك زراعتها بالنقر على قطعة أرض فارغة.`);
+                updateResources();
+            } else {
+                alert("ليس لديك ما يكفي من الذهب!");
+            }
+        }
+        
+        function buyAnimal(type, cost) {
+            if (gold >= cost) {
+                gold -= cost;
+                alert(`لقد اشتريت ${type}!
+سيظهر في مزرعتك قريبًا.`);
+                updateResources();
+                
+                // إضافة الحيوان للمزرعة
+                const farm = document.querySelector('.farm');
+                const animal = document.createElement('div');
+                animal.className = 'animal';
+                animal.style.backgroundImage = `url('https://i.imgur.com/JjQY9yP.png')`;
+                animal.style.top = `${Math.random() * 300 + 100}px`;
+                animal.style.left = `${Math.random() * 300 + 50}px`;
+                farm.appendChild(animal);
+            } else {
+                alert("ليس لديك ما يكفي من الذهب!");
+            }
+        }
+        
+        function plantCrop(plot, type) {
+            if (!selectedSeed) {
+                alert("الرجاء اختيار بذور من المتجر أولاً!");
+                return;
+            }
+            
+            const crop = plot.querySelector('.crop');
+            if (crop.style.display !== 'none') {
+                alert("هذه القطعة مزروعة بالفعل!");
+                return;
+            }
+            
+            crop.style.display = 'block';
+            crop.style.backgroundImage = `url('https://i.imgur.com/JjQY9yP.png')`;
+            
+            // نمو المحصول بعد فترة
+            setTimeout(() => {
+                crop.style.transform = 'scale(1.2)';
+                alert(`نما ${selectedSeed} الخاص بك وجاهز للحصاد!`);
+                
+                // إضافة زر الحصاد
+                const harvestBtn = document.createElement('button');
+                harvestBtn.className = 'btn';
+                harvestBtn.textContent = 'حصاد';
+                harvestBtn.style.position = 'absolute';
+                harvestBtn.style.bottom = '0';
+                harvestBtn.style.left = '0';
+                harvestBtn.style.width = '100%';
+                harvestBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    harvestCrop(plot, selectedSeed);
+                    plot.removeChild(harvestBtn);
+                };
+                plot.appendChild(harvestBtn);
+            }, 3000);
+        }
+        
+        function harvestCrop(plot, type) {
+            const crop = plot.querySelector('.crop');
+            crop.style.display = 'none';
+            crop.style.transform = 'scale(1)';
+            
+            // حساب الأرباح بناءً على نوع المحصول
+            let profit = 0;
+            switch(type) {
+                case 'carrot': profit = 20; break;
+                case 'wheat': profit = 30; break;
+                case 'tomato': profit = 40; break;
+                case 'corn': profit = 50; break;
+            }
+            
+            gold += profit;
+            crops += 1;
+            updateResources();
+            
+            alert(`لقد حصدت ${type} وكسبت ${profit} ذهب!`);
+        }
+    </script>
+</body>
+</html>

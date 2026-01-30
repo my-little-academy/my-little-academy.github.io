@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>زهور التاء المربوطة والمبسوطة</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #6a11cb;
+            margin-bottom: 30px;
+        }
+        
+        .game-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 30px;
+        }
+        
+        .word-display {
+            font-size: 2.5em;
+            margin-bottom: 40px;
+            min-height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .word-display span {
+            display: inline-block;
+            margin: 0 5px;
+        }
+        
+        .missing-letter {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border-bottom: 3px dashed #6a11cb;
+            margin: 0 10px;
+            vertical-align: middle;
+        }
+        
+        .flowers-container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .flower {
+            width: 100px;
+            height: 100px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s;
+        }
+        
+        .flower:hover {
+            transform: translateY(-10px);
+        }
+        
+        .flower-center {
+            width: 40px;
+            height: 40px;
+            background: #FFC107;
+            border-radius: 50%;
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            z-index: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8em;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+        
+        .petal {
+            position: absolute;
+            width: 40px;
+            height: 60px;
+            background: #FF6B6B;
+            border-radius: 50% 50% 0 0;
+            transform-origin: bottom center;
+        }
+        
+        .petal:nth-child(2n) {
+            background: #FF8E8E;
+        }
+        
+        .score-board {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin-top: 30px;
+            font-size: 1.2em;
+        }
+        
+        .score, .timer {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: white;
+            padding: 10px 30px;
+            border-radius: 30px;
+            min-width: 100px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .controls {
+            margin-top: 30px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin: 0 15px;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        
+        .feedback {
+            font-size: 1.3em;
+            margin: 20px 0;
+            min-height: 30px;
+            font-weight: bold;
+        }
+        
+        .correct {
+            color: #28a745;
+        }
+        
+        .incorrect {
+            color: #dc3545;
+        }
+        
+        @keyframes bloom {
+            0% { transform: rotate(0deg) scale(0.8); opacity: 0.8; }
+            100% { transform: rotate(360deg) scale(1.2); opacity: 1; }
+        }
+        
+        @keyframes fall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100px) rotate(180deg); opacity: 0; }
+        }
+        
+        .bloom-animation {
+            animation: bloom 0.5s forwards;
+        }
+        
+        .fall-animation {
+            animation: fall 1s forwards;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>زهور التاء المربوطة والمبسوطة</h1>
+        
+        <div class="game-area">
+            <div class="word-display" id="word-display">
+                <!-- الكلمة ستظهر هنا -->
+            </div>
+            
+            <div class="flowers-container" id="flowers-container">
+                <!-- الزهور ستظهر هنا -->
+            </div>
+            
+            <div class="feedback" id="feedback">
+                اختر الزهرة المناسبة لإكمال الكلمة
+            </div>
+            
+            <div class="score-board">
+                <div class="score">النقاط: <span id="score">0</span></div>
+                <div class="timer">الوقت: <span id="timer">60</span> ثانية</div>
+            </div>
+            
+            <div class="controls">
+                <button id="start-btn">بدء اللعبة</button>
+                <button id="reset-btn">إعادة المحاولة</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // بيانات اللعبة
+        const words = [
+            { word: "مدرّسة", missing: "ة", options: ["ة", "ت"], hint: "تاء مربوطة لأنها مؤنث" },
+            { word: "كتاب", missing: "ت", options: ["ة", "ت"], hint: "تاء مبسوطة لأنها ليست مؤنث" },
+            { word: "شجرة", missing: "ة", options: ["ة", "ت"], hint: "تاء مربوطة لأنها مؤنث" },
+            { word: "بيت", missing: "ت", options: ["ة", "ت"], hint: "تاء مبسوطة لأنها ليست مؤنث" },
+            { word: "سيّارة", missing: "ة", options: ["ة", "ت"], hint: "تاء مربوطة لأنها مؤنث" },
+            { word: "قلم", missing: "ت", options: ["ة", "ت"], hint: "تاء مبسوطة لأنها ليست مؤنث" },
+            { word: "وردة", missing: "ة", options: ["ة", "ت"], hint: "تاء مربوطة لأنها مؤنث" },
+            { word: "باب", missing: "ت", options: ["ة", "ت"], hint: "تاء مبسوطة لأنها ليست مؤنث" }
+        ];
+        
+        let score = 0;
+        let timeLeft = 60;
+        let currentWord = {};
+        let timerInterval;
+        const wordDisplay = document.getElementById('word-display');
+        const flowersContainer = document.getElementById('flowers-container');
+        const scoreDisplay = document.getElementById('score');
+        const timerDisplay = document.getElementById('timer');
+        const feedback = document.getElementById('feedback');
+        const startBtn = document.getElementById('start-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        
+        startBtn.addEventListener('click', startGame);
+        resetBtn.addEventListener('click', resetGame);
+        
+        function startGame() {
+            score = 0;
+            timeLeft = 60;
+            scoreDisplay.textContent = score;
+            timerDisplay.textContent = timeLeft;
+            feedback.textContent = 'اختر الزهرة المناسبة لإكمال الكلمة';
+            startBtn.disabled = true;
+            
+            // بدء الموقت
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = timeLeft;
+                
+                if(timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+            
+            // عرض كلمة جديدة
+            showNewWord();
+        }
+        
+        function showNewWord() {
+            flowersContainer.innerHTML = '';
+            
+            // اختيار كلمة عشوائية
+            currentWord = words[Math.floor(Math.random() * words.length)];
+            
+            // عرض الكلمة مع الحرف الناقص
+            const wordParts = currentWord.word.split(currentWord.missing);
+            wordDisplay.innerHTML = `
+                <span>${wordParts[0]}</span>
+                <span class="missing-letter"></span>
+                <span>${wordParts[1]}</span>
+            `;
+            
+            // إنشاء الزهور مع خيارات التاء
+            currentWord.options.forEach((option, index) => {
+                const flower = document.createElement('div');
+                flower.className = 'flower';
+                flower.dataset.option = option;
+                
+                // مركز الزهرة
+                const center = document.createElement('div');
+                center.className = 'flower-center';
+                center.textContent = option;
+                flower.appendChild(center);
+                
+                // بتلات الزهرة (8 بتلات)
+                for(let i = 0; i < 8; i++) {
+                    const petal = document.createElement('div');
+                    petal.className = 'petal';
+                    petal.style.transform = `rotate(${i * 45}deg) translateY(-20px)`;
+                    flower.appendChild(petal);
+                }
+                
+                flower.addEventListener('click', () => handleFlowerClick(flower, option));
+                flowersContainer.appendChild(flower);
+            });
+        }
+        
+        function handleFlowerClick(flower, selectedOption) {
+            if(selectedOption === currentWord.missing) {
+                // الإجابة صحيحة
+                score += 10;
+                scoreDisplay.textContent = score;
+                feedback.textContent = 'أحسنت! إجابة صحيحة - ' + currentWord.hint;
+                feedback.className = 'feedback correct';
+                
+                // تأثير تفتح الزهرة
+                flower.classList.add('bloom-animation');
+                
+                // عرض الكلمة كاملة
+                const wordParts = currentWord.word.split(currentWord.missing);
+                wordDisplay.innerHTML = `
+                    <span>${wordParts[0]}</span>
+                    <span style="color: #28a745; font-weight: bold;">${currentWord.missing}</span>
+                    <span>${wordParts[1]}</span>
+                `;
+                
+                // عرض كلمة جديدة بعد تأخير
+                setTimeout(showNewWord, 1500);
+            } else {
+                // الإجابة خاطئة
+                score = Math.max(0, score - 5);
+                scoreDisplay.textContent = score;
+                feedback.textContent = 'إجابة خاطئة! حاول مرة أخرى - ' + currentWord.hint;
+                feedback.className = 'feedback incorrect';
+                
+                // تأثير تساقط البتلات
+                const petals = flower.querySelectorAll('.petal');
+                petals.forEach((petal, index) => {
+                    setTimeout(() => {
+                        petal.classList.add('fall-animation');
+                    }, index * 100);
+                });
+            }
+        }
+        
+        function endGame() {
+            clearInterval(timerInterval);
+            feedback.textContent = `انتهى الوقت! مجموع نقاطك: ${score}`;
+            startBtn.disabled = false;
+        }
+        
+        function resetGame() {
+            clearInterval(timerInterval);
+            score = 0;
+            timeLeft = 60;
+            scoreDisplay.textContent = score;
+            timerDisplay.textContent = timeLeft;
+            feedback.textContent = 'اضغط على "بدء اللعبة" للبدء';
+            feedback.className = 'feedback';
+            wordDisplay.innerHTML = '';
+            flowersContainer.innerHTML = '';
+            startBtn.disabled = false;
+        }
+    </script>
+</body>
+</html>

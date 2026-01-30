@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة النعت التعليمية</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom, #87CEEB, #E0F7FA);
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            background-image: url('https://img.freepik.com/free-vector/hand-drawn-colorful-floral-background_23-2149057018.jpg?w=1380&t=st=1698765432~exp=1698766032~hmac=...');
+            background-size: cover;
+            transition: background-image 1s ease;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        h1 {
+            color: #FF6B6B;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .sentence-container {
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 30px 0;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            position: relative;
+            transform-style: preserve-3d;
+            background-image: url('https://img.freepik.com/free-vector/watercolor-paper-texture_1194-6500.jpg');
+            background-size: cover;
+        }
+        
+        .sentence {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .blank {
+            display: inline-block;
+            min-width: 100px;
+            height: 40px;
+            border: 2px dashed #FF6B6B;
+            border-radius: 8px;
+            vertical-align: middle;
+            margin: 0 5px;
+            position: relative;
+            background-color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+        }
+        
+        .blank::after {
+            content: "🖐 اسحب هنا";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 14px;
+            color: #FF6B6B;
+        }
+        
+        .options-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .option {
+            background-color: #FFD166;
+            color: #333;
+            padding: 15px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 18px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .option:nth-child(2n) {
+            background-color: #06D6A0;
+            color: white;
+        }
+        
+        .option:nth-child(3n) {
+            background-color: #118AB2;
+            color: white;
+        }
+        
+        .option:nth-child(4n) {
+            background-color: #EF476F;
+            color: white;
+        }
+        
+        .feedback {
+            font-size: 24px;
+            margin: 20px 0;
+            height: 30px;
+        }
+        
+        .next-btn {
+            background-color: #4ECDC4;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            display: none;
+        }
+        
+        .next-btn:hover {
+            background-color: #3DBDB4;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .stars-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            gap: 5px;
+        }
+        
+        .star {
+            font-size: 24px;
+            color: #FFD700;
+            opacity: 0.3;
+        }
+        
+        .star.active {
+            opacity: 1;
+            text-shadow: 0 0 8px rgba(255, 215, 0, 0.7);
+        }
+        
+        .trophy {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: 100px;
+            color: gold;
+            text-align: center;
+            z-index: 100;
+            transition: transform 0.5s ease;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+        }
+        
+        .trophy.show {
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
+        .trophy-message {
+            font-size: 24px;
+            color: #333;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            border-radius: 50%;
+            animation: fall 3s linear infinite;
+        }
+        
+        @keyframes fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .butterfly {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-image: url('https://img.icons8.com/plasticine/100/000000/butterfly.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            animation: float 10s linear infinite;
+            opacity: 0.7;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            25% {
+                transform: translate(50px, 20px) rotate(5deg);
+            }
+            50% {
+                transform: translate(100px, 0) rotate(0deg);
+            }
+            75% {
+                transform: translate(50px, -20px) rotate(-5deg);
+            }
+        }
+        
+        .halo {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.7);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            animation: pulse 0.5s ease-out;
+        }
+        
+        @keyframes pulse {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 0.7;
+            }
+            100% {
+                width: 100px;
+                height: 100px;
+                opacity: 0;
+            }
+        }
+        
+        .shake {
+            animation: shake 0.5s linear;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="butterfly" style="top: 20%; left: 10%;"></div>
+    <div class="butterfly" style="top: 30%; left: 80%; animation-delay: -2s;"></div>
+    <div class="butterfly" style="top: 70%; left: 20%; animation-delay: -5s;"></div>
+    
+    <div class="stars-container">
+        <div class="star">⭐</div>
+        <div class="star">⭐</div>
+        <div class="star">⭐</div>
+        <div class="star">⭐</div>
+        <div class="star">⭐</div>
+    </div>
+    
+    <div class="container">
+        <h1>لعبة النعت التعليمية ✨</h1>
+        
+        <div class="sentence-container">
+            <div class="sentence" id="sentence">الجو اليوم <span class="blank" id="blank"></span> والشمس ساطعة</div>
+        </div>
+        
+        <div class="feedback" id="feedback"></div>
+        
+        <div class="options-container" id="options">
+            <div class="option" data-correct="true">جميل</div>
+            <div class="option" data-correct="false">سريع</div>
+            <div class="option" data-correct="false">كبير</div>
+            <div class="option" data-correct="false">بعيد</div>
+        </div>
+        
+        <button class="next-btn" id="nextBtn">التالي →</button>
+    </div>
+    
+    <div class="trophy" id="trophy">
+        🏆
+        <div class="trophy-message">أحسنت! لقد فزت بكأس النعت الذهبي!</div>
+    </div>
+    
+    <script>
+        const sentences = [
+            {
+                sentence: "الجو اليوم <span class='blank' id='blank'></span> والشمس ساطعة",
+                options: ["كبير", "سريع", "صحو", "بعيد"],
+                correct: "صحو"
+            },
+            {
+                sentence: "قرأت كتابًا <span class='blank' id='blank'></span> في المكتبة",
+                options: ["مفيدا", "سريع", "بارد", "قصير"],
+                correct: "مفيدا"
+            },
+            {
+                sentence: "زرعت شجرة <span class='blank' id='blank'></span> في الحديقة",
+                options: ["سريعة", "صغيرة", "غالية", "قديمة"],
+                correct: "صغيرة"
+            },
+            {
+                sentence: "رأيت طائرًا <span class='blank' id='blank'></span> يغرد على الشجرة",
+                options: ["ملونا", "ثقيل", "ساخن", "قاسي"],
+                correct: "ملونا"
+            },
+            {
+                sentence: "أكلت تفاحة <span class='blank' id='blank'></span> في الصباح",
+                options: ["حمراء", "سريعة", "كبيرة", "بعيدة"],
+                correct: "حمراء"
+            }
+
+            
+        ];
+        
+        const backgrounds = [
+            "linear-gradient(to bottom, #87CEEB, #E0F7FA)",
+            "linear-gradient(to bottom, #FF9A8B, #FF6B6B)",
+            "linear-gradient(to bottom, #A1C4FD, #C2E9FB)",
+            "linear-gradient(to bottom, #84FAB0, #8FD3F4)",
+            "linear-gradient(to bottom, #FFD3B6, #FFAAA5)"
+        ];
+        
+        const sentenceElement = document.getElementById('sentence');
+        const blankElement = document.getElementById('blank');
+        const optionsContainer = document.getElementById('options');
+        const feedbackElement = document.getElementById('feedback');
+        const nextBtn = document.getElementById('nextBtn');
+        const stars = document.querySelectorAll('.star');
+        const trophy = document.getElementById('trophy');
+        const body = document.querySelector('body');
+        
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedOption = null;
+        
+        function loadQuestion(index) {
+            const question = sentences[index];
+            sentenceElement.innerHTML = question.sentence;
+            
+            optionsContainer.innerHTML = '';
+            question.options.forEach(option => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.textContent = option;
+                optionElement.dataset.correct = (option === question.correct).toString();
+                optionElement.addEventListener('click', selectOption);
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            feedbackElement.textContent = '';
+            nextBtn.style.display = 'none';
+            
+            // Change background
+            body.style.background = backgrounds[index % backgrounds.length];
+        }
+        
+        function selectOption(e) {
+            if (nextBtn.style.display !== 'none') return;
+            
+            const option = e.target;
+            selectedOption = option;
+            
+            // Create halo effect
+            const halo = document.createElement('div');
+            halo.className = 'halo';
+            halo.style.left = `${e.clientX}px`;
+            halo.style.top = `${e.clientY}px`;
+            document.body.appendChild(halo);
+            setTimeout(() => halo.remove(), 500);
+            
+            // Check answer
+            const isCorrect = option.dataset.correct === 'true';
+            
+            if (isCorrect) {
+                option.style.backgroundColor = '#4CAF50';
+                option.style.color = 'white';
+                feedbackElement.textContent = 'أحسنت! الإجابة صحيحة ✨';
+                feedbackElement.style.color = '#4CAF50';
+                
+                // Fill the blank
+                blankElement.textContent = option.textContent;
+                blankElement.style.border = '2px solid #4CAF50';
+                blankElement.style.backgroundColor = '#E8F5E9';
+                blankElement.removeAttribute('data-droppable');
+                
+                // Add star
+                if (stars[score].classList.contains('active') === false) {
+                    stars[score].classList.add('active');
+                    score++;
+                }
+                
+                // Check if all questions are answered
+                if (score === 5) {
+                    setTimeout(showTrophy, 1000);
+                }
+            } else {
+                option.style.backgroundColor = '#F44336';
+                option.style.color = 'white';
+                feedbackElement.textContent = 'جرب مرة أخرى!';
+                feedbackElement.style.color = '#F44336';
+                option.classList.add('shake');
+                setTimeout(() => option.classList.remove('shake'), 500);
+            }
+            
+            // Disable all options
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.style.pointerEvents = 'none';
+            });
+            
+            nextBtn.style.display = 'inline-block';
+        }
+        
+        function showTrophy() {
+            trophy.classList.add('show');
+            
+            // Create confetti
+            for (let i = 0; i < 50; i++) {
+                createConfetti();
+            }
+        }
+        
+        function createConfetti() {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = `${Math.random() * 100}vw`;
+            confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+            document.body.appendChild(confetti);
+            
+            setTimeout(() => {
+                confetti.remove();
+            }, 3000);
+        }
+        
+        nextBtn.addEventListener('click', () => {
+            currentQuestion = (currentQuestion + 1) % sentences.length;
+            loadQuestion(currentQuestion);
+            
+            // Reset blank
+            blankElement.textContent = '';
+            blankElement.style.border = '2px dashed #FF6B6B';
+            blankElement.style.backgroundColor = 'rgba(255, 255, 255, 0.5)';
+            
+            // Enable options
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.style.pointerEvents = 'auto';
+                opt.style.backgroundColor = '';
+                opt.style.color = '';
+            });
+        });
+        
+        // Initialize first question
+        loadQuestion(0);
+    </script>
+</body>
+</html>

@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار العقيدة: سؤال وجواب</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-quiz: #4CAF50; /* أخضر للإجابة الصحيحة */
+            --secondary-quiz: #FFC107; /* أصفر للأزرار النشطة */
+            --incorrect-quiz: #F44336; /* أحمر للإجابة الخاطئة */
+            --background-quiz: #E0F7FA; /* أزرق فاتح جداً للخلفية */
+            --text-color: #333;
+            --card-bg-quiz: rgba(255, 255, 255, 0.95);
+            --shadow-quiz: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, var(--background-quiz) 0%, #B2EBF2 100%); /* تدرج أزرق مريح */
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 900px;
+            background: var(--card-bg-quiz);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: var(--shadow-quiz);
+            text-align: center;
+            animation: fadeInScale 1s ease-out;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Header / Title */
+        h1 {
+            font-size: 3.2rem;
+            color: var(--primary-quiz);
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+            animation: bounceInDown 1s ease-out;
+        }
+
+        /* Progress Bar */
+        .progress-bar-container {
+            width: 80%;
+            height: 20px;
+            background-color: #eee;
+            border-radius: 10px;
+            margin: 25px auto;
+            overflow: hidden;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--secondary-quiz);
+            border-radius: 10px;
+            transition: width 0.5s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .question-number {
+            font-size: 1.5rem;
+            color: var(--text-color);
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        /* Question Area */
+        .question-area {
+            background-color: #F8F8F8;
+            border: 2px solid #EEE;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            animation: zoomIn 0.8s ease-out;
+        }
+
+        .question-text {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: var(--text-color);
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .question-icon {
+            font-size: 3rem;
+            color: var(--primary-quiz);
+            margin-bottom: 20px;
+        }
+
+        /* Answer Options */
+        .answer-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .answer-button {
+            background-color: var(--secondary-quiz);
+            color: white;
+            padding: 20px 25px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.6rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .answer-button:hover:not(.correct):not(.incorrect):not(.disabled) {
+            transform: translateY(-5px) scale(1.02);
+            background-color: #FFB300; /* أصفر أغمق قليلاً */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .answer-button.correct {
+            background-color: var(--primary-quiz);
+            animation: pulse 0.6s 2;
+            pointer-events: none; /* Disable after selection */
+        }
+
+        .answer-button.incorrect {
+            background-color: var(--incorrect-quiz);
+            animation: shake 0.5s;
+            pointer-events: none; /* Disable after selection */
+        }
+
+        .answer-button.disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* Feedback Area */
+        .feedback-area {
+            min-height: 80px;
+            margin-top: 25px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .feedback-text {
+            margin-bottom: 10px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .feedback-explanation {
+            font-size: 1.2rem;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Navigation Buttons */
+        .navigation-buttons {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .next-button, .restart-button, .home-button-small {
+            background-color: var(--accent-faith, #2196F3); /* أزرق */
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .next-button:hover, .restart-button:hover, .home-button-small:hover {
+            background-color: #1976D2; /* أزرق أغمق */
+            transform: translateY(-3px);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* End Screen */
+        .end-screen {
+            text-align: center;
+            animation: zoomIn 1s ease-out;
+        }
+
+        .end-screen h2 {
+            font-size: 3rem;
+            color: var(--primary-quiz);
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .end-screen p {
+            font-size: 1.8rem;
+            color: var(--text-color);
+            margin-bottom: 30px;
+        }
+        
+        .end-screen .score {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--secondary-quiz);
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 8px rgba(0,0,0,0.2);
+        }
+
+        /* Background Animated Circles/Shapes */
+        .animated-shapes {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .shape {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            animation: floatShape 20s infinite linear;
+        }
+
+        .shape:nth-child(1) { width: 80px; height: 80px; top: 10%; left: 5%; animation-duration: 18s; }
+        .shape:nth-child(2) { width: 120px; height: 120px; top: 70%; left: 15%; animation-duration: 22s; }
+        .shape:nth-child(3) { width: 60px; height: 60px; top: 20%; left: 80%; animation-duration: 25s; }
+        .shape:nth-child(4) { width: 100px; height: 100px; top: 50%; left: 90%; animation-duration: 19s; }
+        .shape:nth-child(5) { width: 70px; height: 70px; top: 85%; left: 40%; animation-duration: 20s; }
+        .shape:nth-child(6) { width: 90px; height: 90px; top: 5%; left: 50%; animation-duration: 23s; }
+
+
+        @keyframes floatShape {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0.6; }
+            50% { transform: translateY(-50px) rotate(180deg); opacity: 0.8; }
+            100% { transform: translateY(0) rotate(360deg); opacity: 0.6; }
+        }
+
+        /* Home Button at top-right */
+        .top-home-button {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            background-color: var(--secondary-quiz);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 15px;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .top-home-button:hover {
+            background-color: #FFB300;
+            transform: translateY(-3px);
+        }
+
+        .top-home-button i {
+            font-size: 1.5rem;
+        }
+
+        /* Media Queries for Responsiveness */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; margin-bottom: 20px; }
+            .container { padding: 25px; border-radius: 20px; }
+            .question-text { font-size: 1.8rem; }
+            .question-icon { font-size: 2.5rem; }
+            .answer-button { font-size: 1.3rem; padding: 15px 20px; border-radius: 10px; }
+            .feedback-area { font-size: 1.1rem; }
+            .feedback-explanation { font-size: 0.9rem; }
+            .next-button, .restart-button, .home-button-small { font-size: 1.2rem; padding: 12px 20px; }
+            .end-screen h2 { font-size: 2.5rem; }
+            .end-screen p { font-size: 1.5rem; }
+            .end-screen .score { font-size: 3rem; }
+            .question-number { font-size: 1.2rem; }
+            .progress-bar-container { width: 90%; height: 15px; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="animated-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <a href="games_page.html" class="top-home-button animate__animated animate__bounceInRight">
+        <i class="fas fa-home"></i>
+        <span>العودة للألعاب</span>
+    </a>
+
+    <div class="container">
+        <h1 class="animate__animated animate__flipInX">اختبار العقيدة</h1>
+
+        <div id="quiz-screen">
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <p class="question-number" id="questionNumber">السؤال 1 من 5</p>
+
+            <div class="question-area animate__animated animate__zoomIn">
+                <div class="question-icon" id="questionIcon"><i class="fas fa-hand-holding-heart"></i></div>
+                <p class="question-text" id="questionText">من هو خالق الكون ومدبره؟</p>
+            </div>
+
+            <div class="answer-options" id="answerOptions">
+                <button class="answer-button" data-index="0">الملائكة</button>
+                <button class="answer-button" data-index="1">البشر</button>
+                <button class="answer-button" data-index="2">الله تعالى</button>
+                <button class="answer-button" data-index="3">النجوم</button>
+            </div>
+
+            <div class="feedback-area" id="feedbackArea">
+                <p class="feedback-text"></p>
+                <p class="feedback-explanation"></p>
+            </div>
+
+            <div class="navigation-buttons">
+                <button class="next-button hidden" id="nextButton">السؤال التالي <i class="fas fa-arrow-left"></i></button>
+            </div>
+        </div>
+
+        <div id="end-screen" class="end-screen hidden">
+            <h2 class="animate__animated animate__tada">تهانينا يا بطل!</h2>
+            <p class="animate__animated animate__fadeIn">لقد أكملت الاختبار بنجاح!</p>
+            <p class="score animate__animated animate__bounceIn">درجتك: <span id="finalScore">0</span> / <span id="totalQuestions">0</span></p>
+            <div class="navigation-buttons">
+                <button class="restart-button" id="restartButton"><i class="fas fa-redo"></i> ابدأ من جديد</button>
+                <a href="games_page.html" class="home-button-small"><i class="fas fa-gamepad"></i> العودة لقائمة الألعاب</a>
+            </div>
+        </div>
+    </div>
+
+    <audio id="correctAudio" src="correct.mp3" preload="auto"></audio>
+    <audio id="incorrectAudio" src="incorrect.mp3" preload="auto"></audio>
+    <audio id="finishAudio" src="finish.mp3" preload="auto"></audio>
+
+    <script>
+        const questions = [
+            {
+                question: "من هو خالق الكون ومدبره؟",
+                icon: "fas fa-hand-holding-heart",
+                options: ["الملائكة", "البشر", "الله تعالى", "النجوم"],
+                answer: 2,
+                explanation: "الله تعالى هو الخالق الوحيد لكل شيء في الكون."
+            },
+            {
+                question: "ما اسم الكتاب الذي أنزله الله على نبينا محمد صلى الله عليه وسلم؟",
+                icon: "fas fa-book-open",
+                options: ["التوراة", "الإنجيل", "القرآن الكريم", "الزبور"],
+                answer: 2,
+                explanation: "القرآن الكريم هو كلام الله الذي أنزله على سيدنا محمد عليه الصلاة والسلام."
+            },
+            {
+                question: "من هم الذين يبلغون رسالات الله إلى الأنبياء؟",
+                icon: "fas fa-cloud",
+                options: ["البشر", "الجن", "الملائكة", "الرسل"],
+                answer: 2,
+                explanation: "الملائكة هم رسل الله المكلفون بإبلاغ الوحي إلى الأنبياء."
+            },
+            {
+                question: "من هو أول الأنبياء عليهم السلام؟",
+                icon: "fas fa-user-tie",
+                options: ["موسى عليه السلام", "نوح عليه السلام", "آدم عليه السلام", "إبراهيم عليه السلام"],
+                answer: 2,
+                explanation: "آدم عليه السلام هو أول إنسان وأول نبي خلقه الله."
+            },
+            {
+                question: "ما معنى الإيمان باليوم الآخر؟",
+                icon: "fas fa-fire-extinguisher",
+                options: ["أن نؤمن بالماضي فقط", "أن نؤمن بوجود الحياة بعد الموت والحساب", "أن نؤمن بالحاضر فقط", "أن نؤمن بالغد فقط"],
+                answer: 1,
+                explanation: "الإيمان باليوم الآخر يعني الإيمان بالحياة بعد الموت، والبعث، والحساب، والجنة والنار."
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answered = false; // To prevent multiple clicks on answer buttons
+
+        const questionNumberElem = document.getElementById('questionNumber');
+        const questionIconElem = document.getElementById('questionIcon');
+        const questionTextElem = document.getElementById('questionText');
+        const answerOptionsElem = document.getElementById('answerOptions');
+        const feedbackAreaElem = document.getElementById('feedbackArea');
+        const nextButton = document.getElementById('nextButton');
+        const quizScreen = document.getElementById('quiz-screen');
+        const endScreen = document.getElementById('end-screen');
+        const finalScoreElem = document.getElementById('finalScore');
+        const totalQuestionsElem = document.getElementById('totalQuestions');
+        const restartButton = document.getElementById('restartButton');
+        const progressBar = document.getElementById('progressBar');
+
+        const correctAudio = document.getElementById('correctAudio');
+        const incorrectAudio = document.getElementById('incorrectAudio');
+        const finishAudio = document.getElementById('finishAudio');
+
+        function loadQuestion() {
+            answered = false;
+            const currentQuestion = questions[currentQuestionIndex];
+            
+            questionNumberElem.textContent = `السؤال ${currentQuestionIndex + 1} من ${questions.length}`;
+            questionIconElem.innerHTML = `<i class="${currentQuestion.icon}"></i>`;
+            questionTextElem.textContent = currentQuestion.question;
+            answerOptionsElem.innerHTML = ''; // Clear previous options
+            feedbackAreaElem.innerHTML = ''; // Clear previous feedback
+            nextButton.classList.add('hidden'); // Hide next button initially
+
+            // Update progress bar
+            const progress = ((currentQuestionIndex) / questions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            progressBar.textContent = `${Math.round(progress)}%`;
+
+            currentQuestion.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.classList.add('answer-button', 'animate__animated', 'animate__fadeInUp');
+                button.style.animationDelay = `${index * 0.1}s`; // Stagger animation
+                button.textContent = option;
+                button.dataset.index = index;
+                button.addEventListener('click', selectAnswer);
+                answerOptionsElem.appendChild(button);
+            });
+        }
+
+        function selectAnswer(event) {
+            if (answered) return; // Prevent multiple answers
+            answered = true;
+
+            const selectedButton = event.target;
+            const selectedAnswerIndex = parseInt(selectedButton.dataset.index);
+            const currentQuestion = questions[currentQuestionIndex];
+
+            // Disable all buttons after selection
+            Array.from(answerOptionsElem.children).forEach(button => {
+                button.classList.add('disabled');
+                button.removeEventListener('click', selectAnswer);
+            });
+
+            if (selectedAnswerIndex === currentQuestion.answer) {
+                selectedButton.classList.add('correct');
+                score++;
+                feedbackAreaElem.innerHTML = `<p class="feedback-text" style="color: var(--primary-quiz);">أحسنت! إجابة صحيحة <i class="fas fa-check-circle animate__animated animate__bounceIn"></i></p><p class="feedback-explanation">${currentQuestion.explanation}</p>`;
+                correctAudio.play();
+            } else {
+                selectedButton.classList.add('incorrect');
+                const correctAnswerButton = Array.from(answerOptionsElem.children).find(
+                    button => parseInt(button.dataset.index) === currentQuestion.answer
+                );
+                if (correctAnswerButton) {
+                    correctAnswerButton.classList.add('correct', 'animate__animated', 'animate__flash'); // Highlight correct answer
+                }
+                feedbackAreaElem.innerHTML = `<p class="feedback-text" style="color: var(--incorrect-quiz);">للأسف! إجابة خاطئة <i class="fas fa-times-circle animate__animated animate__shakeX"></i></p><p class="feedback-explanation">${currentQuestion.explanation}</p>`;
+                incorrectAudio.play();
+            }
+
+            nextButton.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                showEndScreen();
+            }
+        }
+
+        function showEndScreen() {
+            quizScreen.classList.add('hidden');
+            endScreen.classList.remove('hidden');
+            finalScoreElem.textContent = score;
+            totalQuestionsElem.textContent = questions.length;
+            finishAudio.play(); // Play finish sound
+            
+            // Ensure progress bar is full at the end
+            progressBar.style.width = `100%`;
+            progressBar.textContent = `100%`;
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            quizScreen.classList.remove('hidden');
+            endScreen.classList.add('hidden');
+            loadQuestion();
+        }
+
+        // Event Listeners
+        nextButton.addEventListener('click', nextQuestion);
+        restartButton.addEventListener('click', restartQuiz);
+
+        // Initial Load
+        loadQuestion();
+    </script>
+</body>
+</html>

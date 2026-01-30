@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة تصنيف الكلمات</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 800px;
+            width: 100%;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .header {
+            position: relative;
+            z-index: 1;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 2.5em;
+            color: #4a5568;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .level-selector {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .level-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .level-btn.easy {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            color: white;
+        }
+
+        .level-btn.medium {
+            background: linear-gradient(45deg, #fa709a, #fee140);
+            color: white;
+        }
+
+        .level-btn.hard {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+
+        .level-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .level-btn.active {
+            transform: scale(1.1);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.5);
+            padding: 15px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+        }
+
+        .stat {
+            text-align: center;
+            color: #4a5568;
+            font-weight: bold;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            transform: scale(0.95);
+            animation: cardAppear 0.5s ease forwards;
+        }
+
+        @keyframes cardAppear {
+            to { transform: scale(1); }
+        }
+
+        .question {
+            font-size: 2em;
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .word-display {
+            font-size: 3em;
+            color: #667eea;
+            margin: 20px 0;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .choices {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .choice-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+            min-width: 120px;
+        }
+
+        .choice-btn.noun {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+
+        .choice-btn.verb {
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+        }
+
+        .choice-btn.particle {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+        }
+
+        .choice-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .choice-btn.correct {
+            background: linear-gradient(45deg, #56ab2f, #a8e6cf);
+            animation: correctAnswer 0.6s ease;
+        }
+
+        .choice-btn.incorrect {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            animation: incorrectAnswer 0.6s ease;
+        }
+
+        @keyframes correctAnswer {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes incorrectAnswer {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+            100% { transform: translateX(0); }
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+
+        .feedback.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .feedback.correct {
+            background: linear-gradient(45deg, #56ab2f, #a8e6cf);
+            color: white;
+        }
+
+        .feedback.incorrect {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .final-score {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .final-score h2 {
+            font-size: 2.5em;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .score-details {
+            font-size: 1.2em;
+            color: #4a5568;
+            margin-bottom: 30px;
+        }
+
+        .restart-btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .choices {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .choice-btn {
+                width: 200px;
+            }
+            
+            .level-selector {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1 class="title">🎯 لعبة تصنيف الكلمات</h1>
+            <p style="color: #718096; font-size: 18px;">صنف الكلمات إلى: اسم، فعل، حرف</p>
+        </div>
+
+        <div class="level-selector">
+            <button class="level-btn easy active" onclick="setLevel('easy')">
+                مستوى سهل 🌟
+            </button>
+            <button class="level-btn medium" onclick="setLevel('medium')">
+                مستوى متوسط 🔥
+            </button>
+            <button class="level-btn hard" onclick="setLevel('hard')">
+                مستوى صعب 💪
+            </button>
+        </div>
+
+        <div class="game-stats">
+            <div class="stat">
+                <div class="stat-value" id="score">0</div>
+                <div>النقاط</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="question-number">1</div>
+                <div>السؤال</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="level-display">سهل</div>
+                <div>المستوى</div>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress"></div>
+        </div>
+
+        <div class="question-card" id="question-card">
+            <div class="question">ما نوع هذه الكلمة؟</div>
+            <div class="word-display" id="word-display">كتاب</div>
+            <div class="choices">
+                <button class="choice-btn noun" onclick="selectAnswer('noun')">اسم</button>
+                <button class="choice-btn verb" onclick="selectAnswer('verb')">فعل</button>
+                <button class="choice-btn particle" onclick="selectAnswer('particle')">حرف</button>
+            </div>
+            <div class="feedback" id="feedback"></div>
+        </div>
+
+        <div class="final-score hidden" id="final-score">
+            <h2>🎉 انتهت اللعبة!</h2>
+            <div class="score-details">
+                <p>نقاطك النهائية: <span id="final-points">0</span></p>
+                <p>الإجابات الصحيحة: <span id="correct-answers">0</span> من <span id="total-questions">10</span></p>
+                <p id="performance-message">أداء ممتاز!</p>
+            </div>
+            <button class="restart-btn" onclick="restartGame()">العب مرة أخرى 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        const words = {
+            easy: {
+                nouns: ['كتاب', 'قلم', 'بيت', 'سيارة', 'طالب', 'مدرسة', 'شجرة', 'زهرة', 'قطة', 'كلب'],
+                verbs: ['كتب', 'قرأ', 'لعب', 'أكل', 'شرب', 'نام', 'جلس', 'قام', 'ذهب', 'جاء'],
+                particles: ['في', 'على', 'من', 'إلى', 'عن', 'مع', 'بين', 'تحت', 'فوق', 'أمام']
+            },
+            medium: {
+                nouns: ['مكتبة', 'جامعة', 'مستشفى', 'طائرة', 'حاسوب', 'هاتف', 'معلم', 'طبيب', 'مهندس', 'صحفي'],
+                verbs: ['درس', 'علم', 'بحث', 'كتشف', 'اخترع', 'سافر', 'عمل', 'فهم', 'شرح', 'ساعد'],
+                particles: ['لكن', 'أيضا', 'كذلك', 'حتى', 'بعد', 'قبل', 'أثناء', 'خلال', 'عند', 'لدى']
+            },
+            hard: {
+                nouns: ['الديمقراطية', 'الفلسفة', 'التكنولوجيا', 'الاقتصاد', 'الجغرافيا', 'الرياضيات', 'الفيزياء', 'الكيمياء', 'البيولوجيا', 'التاريخ'],
+                verbs: ['يتطور', 'يتفاعل', 'يتواصل', 'يتعاون', 'يتنافس', 'يستكشف', 'يبتكر', 'يحلل', 'يستنتج', 'يفسر'],
+                particles: ['بالرغم من', 'على الرغم من', 'نظرا لـ', 'بسبب', 'من أجل', 'حسب', 'طبقا لـ', 'تبعا لـ', 'وفقا لـ', 'استنادا إلى']
+            }
+        };
+
+        let currentLevel = 'easy';
+        let currentQuestion = 0;
+        let score = 0;
+        let correctAnswers = 0;
+        let totalQuestions = 10;
+        let gameQuestions = [];
+        let isAnswered = false;
+
+        function setLevel(level) {
+            currentLevel = level;
+            document.querySelectorAll('.level-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.level-btn.${level}`).classList.add('active');
+            
+            const levelDisplay = document.getElementById('level-display');
+            const levelNames = {
+                easy: 'سهل',
+                medium: 'متوسط',
+                hard: 'صعب'
+            };
+            levelDisplay.textContent = levelNames[level];
+            
+            generateQuestions();
+            loadQuestion();
+        }
+
+        function generateQuestions() {
+            gameQuestions = [];
+            const levelWords = words[currentLevel];
+            
+            // خلط جميع الكلمات مع أنواعها
+            const allWords = [
+                ...levelWords.nouns.map(word => ({word, type: 'noun'})),
+                ...levelWords.verbs.map(word => ({word, type: 'verb'})),
+                ...levelWords.particles.map(word => ({word, type: 'particle'}))
+            ];
+            
+            // اختيار عشوائي للأسئلة
+            for (let i = 0; i < totalQuestions; i++) {
+                const randomIndex = Math.floor(Math.random() * allWords.length);
+                gameQuestions.push(allWords[randomIndex]);
+                allWords.splice(randomIndex, 1);
+            }
+            
+            currentQuestion = 0;
+            score = 0;
+            correctAnswers = 0;
+            isAnswered = false;
+        }
+
+        function loadQuestion() {
+            if (currentQuestion >= totalQuestions) {
+                showFinalScore();
+                return;
+            }
+
+            const question = gameQuestions[currentQuestion];
+            document.getElementById('word-display').textContent = question.word;
+            document.getElementById('question-number').textContent = currentQuestion + 1;
+            document.getElementById('score').textContent = score;
+            
+            // تحديث شريط التقدم
+            const progress = ((currentQuestion) / totalQuestions) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+            
+            // إعادة تعيين الأزرار
+            document.querySelectorAll('.choice-btn').forEach(btn => {
+                btn.classList.remove('correct', 'incorrect');
+                btn.disabled = false;
+            });
+            
+            // إخفاء رسالة التغذية الراجعة
+            document.getElementById('feedback').classList.remove('show');
+            
+            isAnswered = false;
+            
+            // تأثير ظهور البطاقة
+            document.getElementById('question-card').style.animation = 'none';
+            setTimeout(() => {
+                document.getElementById('question-card').style.animation = 'cardAppear 0.5s ease forwards';
+            }, 10);
+        }
+
+        function selectAnswer(selectedType) {
+            if (isAnswered) return;
+            
+            isAnswered = true;
+            const question = gameQuestions[currentQuestion];
+            const correctType = question.type;
+            const isCorrect = selectedType === correctType;
+            
+            // تلوين الأزرار
+            document.querySelectorAll('.choice-btn').forEach(btn => {
+                btn.disabled = true;
+                if (btn.classList.contains(correctType)) {
+                    btn.classList.add('correct');
+                } else if (btn.classList.contains(selectedType) && !isCorrect) {
+                    btn.classList.add('incorrect');
+                }
+            });
+            
+            // عرض رسالة التغذية الراجعة
+            const feedback = document.getElementById('feedback');
+            const typeNames = {
+                noun: 'اسم',
+                verb: 'فعل',
+                particle: 'حرف'
+            };
+            
+            if (isCorrect) {
+                feedback.textContent = `✅ إجابة صحيحة! "${question.word}" هو ${typeNames[correctType]}`;
+                feedback.className = 'feedback correct show';
+                score += currentLevel === 'easy' ? 10 : currentLevel === 'medium' ? 15 : 20;
+                correctAnswers++;
+            } else {
+                feedback.textContent = `❌ إجابة خاطئة! "${question.word}" هو ${typeNames[correctType]} وليس ${typeNames[selectedType]}`;
+                feedback.className = 'feedback incorrect show';
+            }
+            
+            // الانتقال للسؤال التالي
+            setTimeout(() => {
+                currentQuestion++;
+                loadQuestion();
+            }, 2500);
+        }
+
+        function showFinalScore() {
+            document.getElementById('question-card').classList.add('hidden');
+            
+            const finalScore = document.getElementById('final-score');
+            document.getElementById('final-points').textContent = score;
+            document.getElementById('correct-answers').textContent = correctAnswers;
+            document.getElementById('total-questions').textContent = totalQuestions;
+            
+            // رسالة الأداء
+            const percentage = (correctAnswers / totalQuestions) * 100;
+            const performanceMessage = document.getElementById('performance-message');
+            
+            if (percentage >= 90) {
+                performanceMessage.textContent = "🌟 ممتاز! أنت خبير في تصنيف الكلمات!";
+                performanceMessage.style.color = "#56ab2f";
+            } else if (percentage >= 70) {
+                performanceMessage.textContent = "👍 جيد جداً! تحسن رائع!";
+                performanceMessage.style.color = "#667eea";
+            } else if (percentage >= 50) {
+                performanceMessage.textContent = "👌 جيد! يمكنك التحسن أكثر!";
+                performanceMessage.style.color = "#fa709a";
+            } else {
+                performanceMessage.textContent = "💪 تحتاج للمزيد من التدريب!";
+                performanceMessage.style.color = "#ff6b6b";
+            }
+            
+            finalScore.classList.remove('hidden');
+        }
+
+        function restartGame() {
+            document.getElementById('final-score').classList.add('hidden');
+            document.getElementById('question-card').classList.remove('hidden');
+            generateQuestions();
+            loadQuestion();
+        }
+
+        // تشغيل اللعبة
+        generateQuestions();
+        loadQuestion();
+    </script>
+</body>
+</html>

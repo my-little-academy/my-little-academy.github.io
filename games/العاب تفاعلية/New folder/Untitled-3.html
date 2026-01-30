@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>بازل الكعبة 🕋</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to bottom, #fef9e7, #fdebd0);
+      font-family: 'Cairo', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    h1 {
+      color: #2d3436;
+      font-size: 2em;
+      margin-top: 20px;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(2, 100px);
+      gap: 6px;
+      margin-top: 20px;
+    }
+
+    .drop-zone {
+      width: 100px;
+      height: 100px;
+      border: 2px dashed #ccc;
+      background-color: #fff;
+      border-radius: 8px;
+    }
+
+    .pieces {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .piece {
+      width: 100px;
+      height: 100px;
+      background-image: url('https://i.imgur.com/6rczU0a.jpg'); /* صورة للكعبة */
+      background-size: 300px 200px;
+      border-radius: 8px;
+      cursor: grab;
+      border: 2px solid #999;
+    }
+
+    #message {
+      margin-top: 20px;
+      font-size: 1.4em;
+      color: #27ae60;
+      font-weight: bold;
+      display: none;
+      animation: fadeIn 2s ease-in-out forwards;
+    }
+
+    @keyframes fadeIn {
+      0% {opacity: 0; transform: translateY(20px);}
+      100% {opacity: 1; transform: translateY(0);}
+    }
+  </style>
+</head>
+<body>
+
+<h1>🕋 ركب صورة الكعبة</h1>
+
+<div class="board" id="board">
+  <div class="drop-zone" data-pos="1"></div>
+  <div class="drop-zone" data-pos="2"></div>
+  <div class="drop-zone" data-pos="3"></div>
+  <div class="drop-zone" data-pos="4"></div>
+  <div class="drop-zone" data-pos="5"></div>
+  <div class="drop-zone" data-pos="6"></div>
+</div>
+
+<div class="pieces">
+  <div class="piece" id="p1" draggable="true" style="background-position: 0px 0px;"></div>
+  <div class="piece" id="p2" draggable="true" style="background-position: -100px 0px;"></div>
+  <div class="piece" id="p3" draggable="true" style="background-position: -200px 0px;"></div>
+  <div class="piece" id="p4" draggable="true" style="background-position: 0px -100px;"></div>
+  <div class="piece" id="p5" draggable="true" style="background-position: -100px -100px;"></div>
+  <div class="piece" id="p6" draggable="true" style="background-position: -200px -100px;"></div>
+</div>
+
+<div id="message">🎉 مبارك! لقد زرت الكعبة بقلوبنا!</div>
+
+<script>
+  const pieces = document.querySelectorAll('.piece');
+  const zones = document.querySelectorAll('.drop-zone');
+
+  pieces.forEach(piece => {
+    piece.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', e.target.id);
+    });
+  });
+
+  zones.forEach((zone, index) => {
+    zone.addEventListener('dragover', e => {
+      e.preventDefault();
+      zone.style.backgroundColor = '#e8f8f5';
+    });
+
+    zone.addEventListener('dragleave', () => {
+      zone.style.backgroundColor = '#fff';
+    });
+
+    zone.addEventListener('drop', e => {
+      const pieceId = e.dataTransfer.getData('text/plain');
+      const piece = document.getElementById(pieceId);
+      if (!zone.hasChildNodes()) {
+        zone.appendChild(piece);
+        zone.style.backgroundColor = '#fff';
+        checkWin();
+      }
+    });
+  });
+
+  function checkWin() {
+    const correctOrder = ['p1', 'p2', 'p3', 'p4', 'p5', 'p6'];
+    const current = [...zones].map(zone => zone.firstChild?.id);
+    if (JSON.stringify(current) === JSON.stringify(correctOrder)) {
+      document.getElementById('message').style.display = 'block';
+    }
+  }
+</script>
+
+</body>
+</html>

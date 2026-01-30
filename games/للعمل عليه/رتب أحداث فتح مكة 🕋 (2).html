@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة ترتيب أحداث فتح مكة 🕋🎉</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-bg: #F9E79F; /* Light Yellow */
+            --header-bg: #D4AC0D; /* Gold */
+            --header-text: white;
+            --container-bg: white;
+            --event-card-bg: #F0F3F4; /* Light Gray */
+            --event-card-border: #ABB2B9; /* Medium Gray */
+            --correct-order-bg: #A9DFBF; /* Light Green */
+            --text-color: #333333;
+            --shadow-light: rgba(0, 0, 0, 0.1);
+            --shadow-strong: rgba(0, 0, 0, 0.25);
+            --border-radius-md: 15px;
+            --border-radius-lg: 30px;
+            --confetti-color1: #fce18a;
+            --confetti-color2: #f7b84b;
+            --confetti-color3: #e18a39;
+            --confetti-color4: #a8eb12;
+            --confetti-color5: #67ed28;
+            --confetti-color6: #28ed67;
+            --confetti-color7: #12eba8;
+            --confetti-color8: #39e1a8;
+            --confetti-color9: #4bdcf7;
+            --confetti-color10: #8ae4fc;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--primary-bg);
+            margin: 0;
+            padding: 0;
+            color: var(--text-color);
+            line-height: 1.8;
+            overflow-x: hidden;
+            direction: rtl;
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            position: relative; /* For confetti */
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--header-bg) 0%, #B8860B 100%); /* Gold to DarkGoldenrod */
+            color: var(--header-text);
+            padding: 40px 20px;
+            text-align: center;
+            width: 100%;
+            border-bottom-left-radius: var(--border-radius-lg);
+            border-bottom-right-radius: var(--border-radius-lg);
+            box-shadow: 0 5px 20px var(--shadow-strong);
+            margin-bottom: 30px;
+            animation: fadeInDown 1.2s ease-out;
+        }
+
+        h1 {
+            font-family: 'Amiri', serif;
+            font-size: 3.5rem;
+            margin: 0;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+            letter-spacing: 1px;
+        }
+
+        .game-container {
+            background-color: var(--container-bg);
+            border-radius: var(--border-radius-lg);
+            box-shadow: 0 8px 25px var(--shadow-strong);
+            padding: 30px;
+            width: 90%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 4px solid var(--header-bg);
+            animation: scaleIn 0.8s ease-out;
+        }
+
+        .game-instruction {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            color: var(--text-color);
+            text-align: center;
+            font-weight: bold;
+        }
+
+        #events-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .event-card {
+            background-color: var(--event-card-bg);
+            border: 1px solid var(--event-card-border);
+            border-radius: var(--border-radius-md);
+            padding: 15px;
+            cursor: grab;
+            user-select: none;
+            font-size: 1.2rem;
+            box-shadow: 2px 2px 5px var(--shadow-light);
+            display: flex;
+            align-items: center;
+        }
+
+        .event-card i {
+            margin-left: 10px;
+            color: #777;
+        }
+
+        #drop-area {
+            background-color: #E0F2F7; /* Light Blue */
+            border: 2px dashed #81D4FA; /* Blue */
+            border-radius: var(--border-radius-md);
+            padding: 20px;
+            margin-bottom: 25px;
+            width: 90%;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: #555;
+        }
+
+        #drop-area.active-drop {
+            background-color: #CCEEFF;
+            border-color: #4FC3F7;
+        }
+
+        #drop-area ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+
+        #drop-area li {
+            background-color: var(--correct-order-bg);
+            border: 1px solid #82E0AA; /* Light Green Border */
+            border-radius: var(--border-radius-md);
+            padding: 15px;
+            font-size: 1.2rem;
+            box-shadow: 2px 2px 5px var(--shadow-light);
+            display: flex;
+            align-items: center;
+        }
+        #drop-area li i {
+            margin-left: 10px;
+            color: #5cb85c; /* Green checkmark */
+        }
+
+        #check-button {
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%); /* Green gradient */
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: var(--border-radius-lg);
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 10px var(--shadow-strong);
+            transition: transform 0.2s ease-in-out;
+        }
+
+        #check-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px var(--shadow-strong);
+        }
+
+        #feedback-message {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-top: 20px;
+            color: var(--text-color);
+            text-align: center;
+            height: 40px; /* Prevent layout shift */
+        }
+
+        .confetti-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden; /* Ensure confetti doesn't cause scrollbars */
+        }
+
+        .confetti {
+            position: absolute;
+            z-index: 10;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            opacity: 0;
+            animation: confetti-fall 5s ease-out forwards,
+                       confetti-rotate 3s ease-in-out infinite;
+        }
+
+        @keyframes confetti-fall {
+            0% { top: -20px; opacity: 1; }
+            100% { top: 100vh; opacity: 0.7; }
+        }
+
+        @keyframes confetti-rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .game-instruction { font-size: 1.2rem; }
+            .event-card { font-size: 1rem; padding: 10px; }
+            #drop-area { padding: 15px; min-height: 120px; }
+            #drop-area li { font-size: 1rem; padding: 10px; }
+            #check-button { font-size: 1.3rem; padding: 12px 30px; }
+            #feedback-message { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>رتب أحداث فتح مكة 🕋</h1>
+    </header>
+
+    <div class="game-container">
+        <p class="game-instruction">اسحب البطاقات لوضع أحداث فتح مكة في الترتيب الصحيح:</p>
+
+        <div id="events-container">
+            <div class="event-card" draggable="true" data-order="3">وصول النبي ﷺ والمسلمين إلى مشارف مكة.</div>
+            <div class="event-card" draggable="true" data-order="1">نقض قريش لصلح الحديبية.</div>
+            <div class="event-card" draggable="true" data-order="5">دخول النبي ﷺ والمسلمين الكعبة وتطهيرها من الأصنام.</div>
+            <div class="event-card" draggable="true" data-order="2">تجهيز النبي ﷺ لجيش كبير للخروج إلى مكة.</div>
+            <div class="event-card" draggable="true" data-order="4">دخول النبي ﷺ مكة المكرمة دون قتال يذكر.</div>
+        </div>
+
+        <div id="drop-area">
+            <p>ضع الأحداث هنا بالترتيب</p>
+            <ul id="ordered-events"></ul>
+        </div>
+
+        <button id="check-button">تحقق من الترتيب <i class="fas fa-check"></i></button>
+        <div id="feedback-message"></div>
+
+        <div class="confetti-container" id="confetti-container"></div>
+    </div>
+
+    <script>
+        const eventsContainer = document.getElementById('events-container');
+        const eventCards = document.querySelectorAll('.event-card');
+        const dropArea = document.getElementById('drop-area');
+        const orderedEventsList = document.getElementById('ordered-events');
+        const checkButton = document.getElementById('check-button');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const confettiContainer = document.getElementById('confetti-container');
+
+        let draggedEvent = null;
+
+        // Shuffle cards initially
+        function shuffleChildren(parent) {
+            let children = Array.from(parent.children);
+            children.sort(() => 0.5 - Math.random());
+            children.forEach(child => parent.appendChild(child));
+        }
+        shuffleChildren(eventsContainer); // Shuffle on load
+
+        // Drag and Drop Functionality
+        eventCards.forEach(card => {
+            card.addEventListener('dragstart', (e) => {
+                draggedEvent = e.target;
+                card.classList.add('dragging');
+                // Store the id of the dragged element in the dataTransfer object
+                e.dataTransfer.setData('text/plain', e.target.id);
+            });
+
+            card.addEventListener('dragend', () => {
+                card.classList.remove('dragging');
+            });
+        });
+
+        dropArea.addEventListener('dragover', (e) => {
+            e.preventDefault(); // Allow drop
+            dropArea.classList.add('active-drop');
+        });
+
+        dropArea.addEventListener('dragleave', () => {
+            dropArea.classList.remove('active-drop');
+        });
+
+        dropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropArea.classList.remove('active-drop');
+            
+            // Check if draggedEvent is still valid (not already dropped)
+            if (draggedEvent && draggedEvent.parentNode === eventsContainer) {
+                const listItem = document.createElement('li');
+                listItem.textContent = draggedEvent.textContent;
+                listItem.dataset.order = draggedEvent.dataset.order;
+                listItem.innerHTML += '<i class="fas fa-arrows-alt-v"></i>'; // Indicating it was dragged
+                orderedEventsList.appendChild(listItem);
+                draggedEvent.style.display = 'none'; // Hide from original list
+                draggedEvent = null; // Clear dragged event
+            }
+            // If the element was dragged from inside the drop area, allow reordering
+            else if (e.dataTransfer.getData('text/plain')) {
+                const id = e.dataTransfer.getData('text/plain');
+                const draggedItem = document.getElementById(id);
+                if (draggedItem && draggedItem.parentNode === orderedEventsList) {
+                    // Simple append for now, more complex logic needed for true reordering
+                    // For this game, we keep it simple by just allowing new drops
+                }
+            }
+            // Hide the initial instruction paragraph if items are dropped
+            const initialParagraph = dropArea.querySelector('p');
+            if (initialParagraph) {
+                initialParagraph.style.display = 'none';
+            }
+        });
+
+        // Check Order Functionality
+        checkButton.addEventListener('click', () => {
+            const droppedEvents = orderedEventsList.querySelectorAll('li');
+            let isCorrect = true;
+            if (droppedEvents.length !== 5) {
+                feedbackMessage.textContent = 'يرجى ترتيب جميع الأحداث الخمسة!';
+                feedbackMessage.style.color = 'orange';
+                return;
+            }
+
+            droppedEvents.forEach((event, index) => {
+                // Dataset order is 1-based, index is 0-based
+                if (parseInt(event.dataset.order) !== (index + 1)) {
+                    isCorrect = false;
+                }
+            });
+
+            if (isCorrect) {
+                feedbackMessage.textContent = 'أحسنت! الترتيب صحيح! فتح مبين! 🎉';
+                feedbackMessage.style.color = 'green';
+                startConfetti();
+            } else {
+                feedbackMessage.textContent = 'هناك خطأ في الترتيب. حاول مرة أخرى!';
+                feedbackMessage.style.color = 'red';
+            }
+        });
+
+        // Confetti Functionality
+        const colors = [
+            '--confetti-color1', '--confetti-color2', '--confetti-color3', '--confetti-color4',
+            '--confetti-color5', '--confetti-color6', '--confetti-color7', '--confetti-color8',
+            '--confetti-color9', '--confetti-color10'
+        ];
+
+        function createConfetti() {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            const colorVar = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue(colorVar).trim();
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.top = Math.random() * -20 + 'vh'; // Start above viewport
+            confetti.style.animationDelay = Math.random() * 2 + 's';
+            confetti.style.animationDuration = Math.random() * 3 + 4 + 's'; // Longer fall duration
+            confetti.style.transform = `scale(${Math.random() * 0.8 + 0.2})`; // Vary size
+            confettiContainer.appendChild(confetti);
+
+            confetti.addEventListener('animationend', () => {
+                confetti.remove();
+            });
+        }
+
+        function startConfetti() {
+            // Clear existing confetti
+            confettiContainer.innerHTML = '';
+            for (let i = 0; i < 150; i++) { // Generate more confetti for a grander celebration
+                setTimeout(createConfetti, 50 * i);
+            }
+        }
+
+        // Add IDs to event cards for proper drag-and-drop
+        eventCards.forEach((card, index) => {
+            card.id = 'event-card-' + index;
+        });
+
+    </script>
+</body>
+</html>

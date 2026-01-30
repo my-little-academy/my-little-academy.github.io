@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ألعاب الهمزة التعليمية</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Changa:wght@302&family=Lemonada:wght@300&display=swap" rel="stylesheet">
+    <style>
+        /* أنماط CSS هنا */
+        body {
+            font-family: 'Changa', sans-serif;
+            background: linear-gradient(to right, #001f3f, #000a1a); /* Dark blue to very dark blue */
+            color: #ecf0f1; /* Light grey text */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden; /* Hide overflow for stars */
+            position: relative;
+        }
+
+        /* النجوم في الخلفية */
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            pointer-events: none; /* Make stars not interfere with clicks */
+            z-index: 0; /* Behind content */
+        }
+
+        .star {
+            position: absolute;
+            background-color: #fff;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle 3s infinite ease-in-out;
+        }
+
+        .star:nth-child(odd) {
+            width: 2px;
+            height: 2px;
+        }
+
+        .star:nth-child(even) {
+            width: 3px;
+            height: 3px;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        .container {
+            background-color: rgba(18, 30, 42, 0.9); /* Slightly lighter dark blue, semi-transparent */
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            padding: 30px;
+            width: 90%;
+            max-width: 900px;
+            text-align: center;
+            position: relative;
+            z-index: 1; /* Above stars */
+            overflow: hidden; /* For game transitions */
+        }
+
+        h1 {
+            color: #bb86fc; /* Purple accent */
+            margin-bottom: 25px;
+            font-family: 'Lemonada', cursive;
+            font-size: 2.5rem;
+            text-shadow: 0 0 10px rgba(187, 134, 252, 0.7);
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+            margin-top: 30px;
+        }
+
+        .game-card {
+            background-color: #003a5c; /* Darker blue for cards */
+            border-radius: 12px;
+            padding: 25px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 180px;
+            border: 2px solid transparent;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), 0 0 15px rgba(187, 134, 252, 0.6);
+            border-color: #bb86fc;
+        }
+
+        .game-card i {
+            font-size: 3rem;
+            color: #03dac6; /* Teal accent */
+            margin-bottom: 15px;
+            text-shadow: 0 0 8px rgba(3, 218, 198, 0.7);
+        }
+
+        .game-card h2 {
+            color: #e0f2f1; /* Lighter teal for card titles */
+            font-size: 1.8rem;
+            margin: 0;
+            font-family: 'Lemonada', cursive;
+        }
+
+        .btn-primary {
+            background-color: #bb86fc; /* Purple */
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin-top: 25px;
+        }
+
+        .btn-primary:hover {
+            background-color: #9c6ccf;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: #03dac6; /* Teal */
+            color: #121e2a; /* Dark text on teal */
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin-top: 15px;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
+        .btn-secondary:hover {
+            background-color: #01a89c;
+            transform: translateY(-2px);
+        }
+
+        /* Game Areas */
+        .game-area {
+            display: none; /* Hidden by default */
+            padding: 20px;
+            background-color: #002a4a; /* Slightly lighter than container for contrast */
+            border-radius: 10px;
+            margin-top: 20px;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.3);
+            min-height: 400px; /* Ensure some height even if content is small */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .game-area.active {
+            display: flex; /* Show when active */
+        }
+
+        .game-area h2 {
+            color: #bb86fc;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        .scoreboard {
+            background-color: #001f3f;
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .score-item {
+            font-size: 1.1rem;
+            margin: 5px 15px;
+            color: #03dac6;
+        }
+
+        .score-item span {
+            font-weight: bold;
+            color: #bb86fc;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: #333;
+            border-radius: 5px;
+            height: 10px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #03dac6;
+            border-radius: 5px;
+            transition: width 0.5s ease-out;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .feedback.show {
+            display: block;
+            opacity: 1;
+        }
+        .feedback.success {
+            background-color: #28a745; /* Green */
+            color: white;
+        }
+        .feedback.error {
+            background-color: #dc3545; /* Red */
+            color: white;
+        }
+
+        /* Quiz Game specific styles */
+        #quizOptions {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        #quizOptions .option {
+            background-color: #004d7a;
+            color: white;
+            border: 1px solid #005a8d;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        #quizOptions .option:hover {
+            background-color: #005a8d;
+        }
+        #quizOptions .option.correct {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+        #quizOptions .option.incorrect {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+        #quizOptions .option:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* Drag and Drop Game specific styles */
+        #draggableWords {
+            background-color: #003a5c;
+            padding: 15px;
+            border-radius: 10px;
+            min-height: 80px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .draggable-word {
+            background-color: #03dac6;
+            color: #121e2a;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: grab;
+            font-weight: bold;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+        .draggable-word.dragging {
+            opacity: 0.6;
+            transform: scale(1.05);
+        }
+        .drop-zones-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .drop-zone {
+            background-color: #004d7a;
+            border: 2px dashed #005a8d;
+            border-radius: 10px;
+            min-height: 120px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            transition: border-color 0.2s ease;
+        }
+        .drop-zone.dragover {
+            border-color: #bb86fc;
+            background-color: #005a8d;
+        }
+        .drop-zone h3 {
+            color: #03dac6;
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+        .drop-zone .draggable-word {
+            cursor: default; /* Not draggable once inside a zone */
+        }
+
+        /* Memory Game specific styles */
+        #memoryGrid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 4 columns */
+            gap: 10px;
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+        }
+        .memory-card {
+            background-color: #003a5c;
+            border: 2px solid #004d7a;
+            border-radius: 8px;
+            aspect-ratio: 1 / 1; /* Make cards square */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            color: transparent; /* Hide text initially */
+            user-select: none; /* Prevent text selection */
+            backface-visibility: hidden; /* For flip animation potential */
+        }
+        .memory-card.flipped, .memory-card.matched {
+            background-color: #03dac6;
+            color: #121e2a;
+            transform: rotateY(180deg);
+        }
+        .memory-card.matched {
+            border-color: #28a745;
+        }
+
+        /* Word Builder Game specific styles */
+        #letterSlots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 25px;
+            min-height: 60px;
+            flex-wrap: wrap;
+        }
+        .letter-slot {
+            background-color: #004d7a;
+            border: 2px dashed #005a8d;
+            border-radius: 8px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .letter-slot.filled {
+            background-color: #005a8d;
+            border-style: solid;
+        }
+        #letterOptions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #003a5c;
+            border-radius: 10px;
+            min-height: 80px;
+        }
+        .letter-option {
+            background-color: #bb86fc;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 1.4rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .letter-option:hover:not(:disabled) {
+            background-color: #9c6ccf;
+        }
+        .letter-option:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .game-card h2 {
+                font-size: 1.5rem;
+            }
+            .game-card i {
+                font-size: 2.5rem;
+            }
+            .game-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+            .game-area h2 {
+                font-size: 1.8rem;
+            }
+            #memoryGrid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+            .game-card {
+                padding: 15px;
+            }
+            .game-card h2 {
+                font-size: 1.3rem;
+            }
+            .game-card i {
+                font-size: 2rem;
+            }
+            .btn-primary, .btn-secondary {
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+            .scoreboard {
+                flex-direction: column;
+                align-items: center;
+            }
+            .score-item {
+                margin: 5px 0;
+            }
+            #quizOptions .option {
+                font-size: 1rem;
+                padding: 10px 15px;
+            }
+            .draggable-word {
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+            .drop-zone h3 {
+                font-size: 1.1rem;
+            }
+            .memory-card {
+                font-size: 1.5rem;
+            }
+            .letter-slot {
+                width: 40px;
+                height: 40px;
+                font-size: 1.5rem;
+            }
+            .letter-option {
+                font-size: 1.2rem;
+                padding: 8px 12px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="stars"></div>
+    <div class="container">
+        <h1>ألعاب الهمزة</h1>
+
+        <div id="gamesGrid" class="game-grid active">
+            <div class="game-card" onclick="startGame('quiz')">
+                <i class="fas fa-question-circle"></i>
+                <h2>اختبار الهمزة</h2>
+            </div>
+            <div class="game-card" onclick="startGame('dragdrop')">
+                <i class="fas fa-hand-rock"></i>
+                <h2>سحب وإسقاط</h2>
+            </div>
+            <div class="game-card" onclick="startGame('memory')">
+                <i class="fas fa-brain"></i>
+                <h2>ذاكرة الهمزة</h2>
+            </div>
+            <div class="game-card" onclick="startGame('builder')">
+                <i class="fas fa-pencil-alt"></i>
+                <h2>بناء الكلمات</h2>
+            </div>
+        </div>
+
+        <div id="quizGame" class="game-area">
+            <h2>اختبار الهمزة</h2>
+            <div class="scoreboard">
+                <div class="score-item">النقاط: <span id="quizScore">0</span></div>
+                <div class="score-item">المستوى: <span id="quizLevel">1</span></div>
+                <div class="score-item">المتتالية: <span id="quizStreak">0</span></div>
+            </div>
+            <div class="progress-bar-container">
+                <div id="quizProgress" class="progress-bar"></div>
+            </div>
+            <p id="quizQuestion" style="font-size: 1.5rem; margin-top: 25px; color: #e0f2f1;"></p>
+            <div id="quizOptions">
+                </div>
+            <div id="quizFeedback" class="feedback"></div>
+            <div style="display: flex; justify-content: center; gap: 15px; margin-top: auto;">
+                <button class="btn-primary" onclick="nextQuizQuestion()">السؤال التالي</button>
+                <button class="btn-secondary" onclick="resetQuiz()">إعادة تعيين</button>
+                <button class="btn-secondary" onclick="backToGames()">العودة للألعاب</button>
+            </div>
+        </div>
+
+        <div id="dragdropGame" class="game-area">
+            <h2>سحب وإسقاط</h2>
+            <div class="scoreboard">
+                <div class="score-item">النقاط: <span id="dragScore">0</span></div>
+                <div class="score-item">صحيحة: <span id="dragCorrect">0</span>/<span id="dragTotal">0</span></div>
+            </div>
+            <p style="font-size: 1.2rem; margin-bottom: 20px; color: #e0f2f1;">اسحب الكلمات إلى الفئة الصحيحة:</p>
+            <div id="draggableWords">
+                </div>
+            <div class="drop-zones-container">
+                <div class="drop-zone" data-type="qat3" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <h3>همزة قطع</h3>
+                </div>
+                <div class="drop-zone" data-type="wasl" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <h3>همزة وصل</h3>
+                </div>
+                <div class="drop-zone" data-type="mutawasita" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <h3>همزة متوسطة</h3>
+                </div>
+                <div class="drop-zone" data-type="mutatarrifa" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <h3>همزة متطرفة</h3>
+                </div>
+            </div>
+            <div id="dragFeedback" class="feedback"></div>
+            <div style="display: flex; justify-content: center; gap: 15px; margin-top: auto;">
+                <button class="btn-primary" onclick="checkDragAnswers()">التحقق من الإجابات</button>
+                <button class="btn-secondary" onclick="resetDragDrop()">إعادة تعيين</button>
+                <button class="btn-secondary" onclick="backToGames()">العودة للألعاب</button>
+            </div>
+        </div>
+
+        <div id="memoryGame" class="game-area">
+            <h2>ذاكرة الهمزة</h2>
+            <div class="scoreboard">
+                <div class="score-item">النقاط: <span id="memoryScore">0</span></div>
+                <div class="score-item">المحاولات: <span id="memoryMoves">0</span></div>
+                <div class="score-item">المطابقات: <span id="memoryMatches">0</span></div>
+            </div>
+            <p style="font-size: 1.2rem; margin-bottom: 20px; color: #e0f2f1;">اكتشف أزواج الهمزات المتطابقة!</p>
+            <div id="memoryGrid">
+                </div>
+            <div id="memoryFeedback" class="feedback"></div>
+            <div style="display: flex; justify-content: center; gap: 15px; margin-top: auto;">
+                <button class="btn-primary" onclick="resetMemory()">إعادة تعيين</button>
+                <button class="btn-secondary" onclick="backToGames()">العودة للألعاب</button>
+            </div>
+        </div>
+
+        <div id="builderGame" class="game-area">
+            <h2>بناء الكلمات</h2>
+            <div class="scoreboard">
+                <div class="score-item">النقاط: <span id="builderScore">0</span></div>
+                <div class="score-item">المستوى: <span id="builderLevel">1</span></div>
+                <div class="score-item">المحاولات: <span id="builderAttempts">0</span></div>
+            </div>
+            <p id="builderQuestion" style="font-size: 1.5rem; margin-top: 25px; color: #e0f2f1;"></p>
+            <div id="letterSlots">
+                </div>
+            <div id="letterOptions">
+                </div>
+            <div id="builderFeedback" class="feedback"></div>
+            <div style="display: flex; justify-content: center; gap: 15px; margin-top: auto;">
+                <button class="btn-primary" onclick="checkBuilderAnswer()">التحقق من الكلمة</button>
+                <button class="btn-secondary" onclick="resetBuilder()">إعادة تعيين</button>
+                <button class="btn-secondary" onclick="backToGames()">العودة للألعاب</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://kit.fontawesome.com/your-kit-code.js" crossorigin="anonymous"></script>
+
+    <script src="script.js">
+    
+    
+    
+    // Function to create stars for the background
+document.addEventListener('DOMContentLoaded', () => {
+    const starsContainer = document.querySelector('.stars');
+    for (let i = 0; i < 100; i++) {
+        const star = document.createElement('div');
+        star.classList.add('star');
+        star.style.top = `${Math.random() * 100}%`;
+        star.style.left = `${Math.random() * 100}%`;
+        star.style.animationDelay = `${Math.random() * 3}s`;
+        starsContainer.appendChild(star);
+    }
+    // Show the game selection grid initially
+    document.getElementById('gamesGrid').classList.add('active');
+});
+
+// --- General Game Control Functions ---
+function startGame(gameType) {
+    document.querySelectorAll('.game-area').forEach(area => {
+        area.classList.remove('active');
+    });
+    document.getElementById('gamesGrid').classList.remove('active'); // Hide game selection
+
+    const gameArea = document.getElementById(gameType + 'Game');
+    if (gameArea) {
+        gameArea.classList.add('active');
+    }
+
+    // Initialize specific game
+    switch (gameType) {
+        case 'quiz':
+            initQuizGame();
+            break;
+        case 'dragdrop':
+            initDragDropGame();
+            break;
+        case 'memory':
+            initMemoryGame();
+            break;
+        case 'builder':
+            initBuilderGame();
+            break;
+    }
+}
+
+function backToGames() {
+    document.querySelectorAll('.game-area').forEach(area => {
+        area.classList.remove('active');
+    });
+    document.getElementById('gamesGrid').classList.add('active'); // Show game selection
+    clearFeedback(); // Clear any existing feedback
+}
+
+function showFeedback(elementId, message, type) {
+    const feedbackElement = document.getElementById(elementId);
+    feedbackElement.textContent = message;
+    feedbackElement.className = `feedback show ${type}`;
+    setTimeout(() => {
+        feedbackElement.classList.remove('show');
+    }, 2000);
+}
+
+function clearFeedback() {
+    document.querySelectorAll('.feedback').forEach(fb => {
+        fb.classList.remove('show', 'success', 'error');
+        fb.textContent = '';
+    });
+}
+
+// --- Quiz Game Logic ---
+let quizQuestions = [
+    {
+        question: "أي الكلمات التالية تحوي همزة قطع؟",
+        options: ["استغفر", "انطلق", "أحمد", "اذهب"],
+        answer: "أحمد"
+    },
+    {
+        question: "أي الكلمات التالية تحوي همزة وصل؟",
+        options: ["إسلام", "إبريق", "اقتصاد", "أكل"],
+        answer: "اقتصاد"
+    },
+    {
+        question: "أي من هذه الكلمات الهمزة فيها متوسطة على الألف؟",
+        options: ["مؤمن", "فَأْس", "سُئِل", "بِئْر"],
+        answer: "فَأْس"
+    },
+    {
+        question: "أي من هذه الكلمات الهمزة فيها متطرفة على السطر؟",
+        options: ["ملجأ", "مبتدئ", "بَدْء", "قارئ"],
+        answer: "بَدْء"
+    },
+    {
+        question: "كلمة 'سماء' همزتها متطرفة لأنها:",
+        options: ["سبقت بحرف ساكن", "سبقت بمد ألف", "سبقت بكسرة", "سبقت بضمة"],
+        answer: "سبقت بمد ألف"
+    }
+];
+
+let currentQuizQuestionIndex = 0;
+let quizScore = 0;
+let quizLevel = 1;
+let quizStreak = 0;
+
+function initQuizGame() {
+    currentQuizQuestionIndex = 0;
+    quizScore = 0;
+    quizLevel = 1;
+    quizStreak = 0;
+    updateQuizScoreBoard();
+    nextQuizQuestion();
+    updateProgressBar('quizProgress', 0);
+    clearFeedback();
+}
+
+function updateQuizScoreBoard() {
+    document.getElementById('quizScore').textContent = quizScore;
+    document.getElementById('quizLevel').textContent = quizLevel;
+    document.getElementById('quizStreak').textContent = quizStreak;
+}
+
+function nextQuizQuestion() {
+    clearFeedback();
+    const optionsContainer = document.getElementById('quizOptions');
+    optionsContainer.innerHTML = ''; // Clear previous options
+
+    if (currentQuizQuestionIndex < quizQuestions.length) {
+        const q = quizQuestions[currentQuizQuestionIndex];
+        document.getElementById('quizQuestion').textContent = q.question;
+
+        // Shuffle options
+        const shuffledOptions = [...q.options].sort(() => Math.random() - 0.5);
+
+        shuffledOptions.forEach(option => {
+            const button = document.createElement('button');
+            button.classList.add('option');
+            button.textContent = option;
+            button.onclick = () => checkQuizAnswer(option, q.answer, button);
+            optionsContainer.appendChild(button);
+        });
+
+        updateProgressBar('quizProgress', (currentQuizQuestionIndex / quizQuestions.length) * 100);
+    } else {
+        document.getElementById('quizQuestion').textContent = "أنهيت جميع الأسئلة!";
+        optionsContainer.innerHTML = '<p style="color:white; font-size: 1.2rem;">أحسنت! لقد أكملت الاختبار.</p>';
+        showFeedback('quizFeedback', `نقاطك النهائية: ${quizScore}`, 'success');
+        updateProgressBar('quizProgress', 100);
+        document.querySelector('#quizGame .btn-primary').style.display = 'none'; // Hide Next button
+    }
+}
+
+function checkQuizAnswer(selectedOption, correctAnswer, buttonElement) {
+    // Disable all options after selection
+    document.querySelectorAll('#quizOptions .option').forEach(btn => btn.disabled = true);
+
+    if (selectedOption === correctAnswer) {
+        quizScore += 10;
+        quizStreak++;
+        buttonElement.classList.add('correct');
+        showFeedback('quizFeedback', "إجابة صحيحة! 🎉", 'success');
+    } else {
+        quizScore = Math.max(0, quizScore - 5); // Deduct points, but not below 0
+        quizStreak = 0; // Reset streak
+        buttonElement.classList.add('incorrect');
+        // Highlight correct answer
+        Array.from(document.querySelectorAll('#quizOptions .option')).find(btn => btn.textContent === correctAnswer).classList.add('correct');
+        showFeedback('quizFeedback', `إجابة خاطئة. الإجابة الصحيحة هي: ${correctAnswer}`, 'error');
+    }
+    updateQuizScoreBoard();
+    currentQuizQuestionIndex++;
+}
+
+function resetQuiz() {
+    document.querySelector('#quizGame .btn-primary').style.display = 'block'; // Show Next button
+    initQuizGame();
+}
+
+function updateProgressBar(id, percentage) {
+    document.getElementById(id).style.width = `${percentage}%`;
+}
+
+// --- Drag and Drop Game Logic ---
+const dragDropWords = [
+    { word: "أحمد", type: "qat3" },
+    { word: "استغفار", type: "wasl" },
+    { word: "سُؤَال", type: "mutawasita" },
+    { word: "شاطئ", type: "mutatarrifa" },
+    { word: "إسلام", type: "qat3" },
+    { word: "انفتاح", type: "wasl" },
+    { word: "فِئَة", type: "mutawasita" },
+    { word: "بَدْء", type: "mutatarrifa" },
+    { word: "أمير", type: "qat3" },
+    { word: "اقتصاد", type: "wasl" },
+    { word: "يقرأون", type: "mutawasita" },
+    { word: "بطيء", type: "mutatarrifa" }
+];
+
+let currentDragScore = 0;
+let currentDragCorrect = 0;
+let draggedItem = null;
+
+function initDragDropGame() {
+    currentDragScore = 0;
+    currentDragCorrect = 0;
+    document.getElementById('dragTotal').textContent = dragDropWords.length;
+    updateDragDropScoreBoard();
+    populateDraggableWords();
+    clearFeedback();
+}
+
+function updateDragDropScoreBoard() {
+    document.getElementById('dragScore').textContent = currentDragScore;
+    document.getElementById('dragCorrect').textContent = currentDragCorrect;
+}
+
+function populateDraggableWords() {
+    const wordsContainer = document.getElementById('draggableWords');
+    wordsContainer.innerHTML = '';
+    const shuffledWords = [...dragDropWords].sort(() => Math.random() - 0.5); // Shuffle for variety
+
+    shuffledWords.forEach(data => {
+        const wordElement = document.createElement('span');
+        wordElement.classList.add('draggable-word');
+        wordElement.textContent = data.word;
+        wordElement.setAttribute('draggable', true);
+        wordElement.dataset.type = data.type; // Store correct type
+        wordElement.id = `word-${data.word}`; // Unique ID for dragging
+        wordElement.addEventListener('dragstart', drag);
+        wordsContainer.appendChild(wordElement);
+    });
+
+    // Clear drop zones
+    document.querySelectorAll('.drop-zone').forEach(zone => {
+        zone.innerHTML = ''; // Remove any previously dropped words
+        // Re-add the heading for the drop zone
+        const heading = document.createElement('h3');
+        heading.textContent = zone.dataset.type === 'qat3' ? 'همزة قطع' :
+                              zone.dataset.type === 'wasl' ? 'همزة وصل' :
+                              zone.dataset.type === 'mutawasita' ? 'همزة متوسطة' :
+                              'همزة متطرفة';
+        zone.appendChild(heading);
+    });
+}
+
+function allowDrop(event) {
+    event.preventDefault(); // Allow drop
+    event.target.classList.add('dragover');
+}
+
+function drag(event) {
+    draggedItem = event.target; // Store the element being dragged
+    event.dataTransfer.setData("text/plain", event.target.id); // Set data for transfer
+    event.target.classList.add('dragging');
+}
+
+function drop(event) {
+    event.preventDefault();
+    event.target.classList.remove('dragover');
+    
+    if (draggedItem) {
+        const dropZone = event.target.closest('.drop-zone'); // Get the actual drop zone
+        if (dropZone) {
+            // Check if the word is already in a drop zone (to prevent double dropping)
+            // This is a simplified check. For full robustness, you might need to track parent explicitly.
+            if (!draggedItem.parentNode.classList.contains('drop-zone')) {
+                dropZone.appendChild(draggedItem);
+                draggedItem.classList.remove('dragging');
+            } else {
+                // If it's being moved between zones
+                dropZone.appendChild(draggedItem);
+                draggedItem.classList.remove('dragging');
+            }
+        }
+    }
+}
+
+function checkDragAnswers() {
+    currentDragScore = 0;
+    currentDragCorrect = 0;
+    let allCorrect = true;
+
+    document.querySelectorAll('.drop-zone').forEach(zone => {
+        const expectedType = zone.dataset.type;
+        // Filter out the <h3> heading from the children
+        const droppedWords = Array.from(zone.children).filter(child => child.classList.contains('draggable-word'));
+
+        droppedWords.forEach(wordElement => {
+            const actualType = wordElement.dataset.type;
+            if (actualType === expectedType) {
+                currentDragScore += 10;
+                currentDragCorrect++;
+                wordElement.style.backgroundColor = '#28a745'; // Green for correct
+            } else {
+                allCorrect = false;
+                wordElement.style.backgroundColor = '#dc3545'; // Red for incorrect
+            }
+        });
+    });
+
+    updateDragDropScoreBoard();
+
+    if (currentDragCorrect === dragDropWords.length) {
+        showFeedback('dragFeedback', "رائع! جميع التصنيفات صحيحة! 🎉", 'success');
+    } else {
+        showFeedback('dragFeedback', `لديك ${currentDragCorrect} إجابة صحيحة من ${dragDropWords.length}. حاول مرة أخرى!`, 'error');
+    }
+}
+
+function resetDragDrop() {
+    initDragDropGame();
+    // Reset background colors
+    document.querySelectorAll('.draggable-word').forEach(word => {
+        word.style.backgroundColor = ''; // Reset to default via CSS
+    });
+}
+
+// --- Memory Game Logic ---
+const memoryPairs = [
+    { word: "قطع", type: "همزة قطع" },
+    { word: "أمر", type: "همزة قطع" },
+    { word: "وصل", type: "همزة وصل" },
+    { word: "ابن", type: "همزة وصل" },
+    { word: "متوسطة", type: "همزة متوسطة" },
+    { word: "سَأَل", type: "همزة متوسطة" },
+    { word: "متطرفة", type: "همزة متطرفة" },
+    { word: "هدوء", type: "همزة متطرفة" }
+];
+
+let memoryCards = [];
+let flippedCards = [];
+let matchedPairs = 0;
+let memoryScore = 0;
+let memoryMoves = 0;
+
+function initMemoryGame() {
+    memoryScore = 0;
+    memoryMoves = 0;
+    matchedPairs = 0;
+    flippedCards = [];
+    updateMemoryScoreBoard();
+    clearFeedback();
+    createMemoryCards();
+}
+
+function updateMemoryScoreBoard() {
+    document.getElementById('memoryScore').textContent = memoryScore;
+    document.getElementById('memoryMoves').textContent = memoryMoves;
+    document.getElementById('memoryMatches').textContent = matchedPairs;
+}
+
+function createMemoryCards() {
+    const grid = document.getElementById('memoryGrid');
+    grid.innerHTML = '';
+    memoryCards = [];
+
+    // Create duplicate pairs for the game
+    const allCardsData = [...memoryPairs, ...memoryPairs];
+
+    // Shuffle the cards
+    allCardsData.sort(() => Math.random() - 0.5);
+
+    allCardsData.forEach((data, index) => {
+        const card = document.createElement('div');
+        card.classList.add('memory-card');
+        card.dataset.type = data.type;
+        card.dataset.word = data.word;
+        card.dataset.index = index; // Unique index for each card
+        card.textContent = "?"; // Initially hidden content
+        card.addEventListener('click', () => flipCard(card));
+        grid.appendChild(card);
+        memoryCards.push(card);
+    });
+}
+
+function flipCard(card) {
+    if (flippedCards.length < 2 && !card.classList.contains('flipped') && !card.classList.contains('matched')) {
+        card.classList.add('flipped');
+        card.textContent = card.dataset.word; // Show the content
+        flippedCards.push(card);
+        memoryMoves++;
+        updateMemoryScoreBoard();
+
+        if (flippedCards.length === 2) {
+            setTimeout(checkForMatch, 1000); // Check for match after a delay
+        }
+    }
+}
+
+function checkForMatch() {
+    const [card1, card2] = flippedCards;
+
+    // A match is when both cards have the same 'type' and their 'word' is different (they are the two halves of a pair)
+    if (card1.dataset.type === card2.dataset.type && card1.dataset.word !== card2.dataset.word) {
+        card1.classList.add('matched');
+        card2.classList.add('matched');
+        memoryScore += 20;
+        matchedPairs++;
+        showFeedback('memoryFeedback', "تطابق! 🎉", 'success');
+    } else {
+        // Not a match, flip back
+        card1.classList.remove('flipped');
+        card2.classList.remove('flipped');
+        card1.textContent = "?";
+        card2.textContent = "?";
+        memoryScore = Math.max(0, memoryScore - 5); // Deduct points
+        showFeedback('memoryFeedback', "لا يوجد تطابق. حاول مرة أخرى.", 'error');
+    }
+
+    flippedCards = []; // Reset flipped cards
+    updateMemoryScoreBoard();
+
+    if (matchedPairs === memoryPairs.length) {
+        showFeedback('memoryFeedback', `أحسنت! أكملت اللعبة في ${memoryMoves} محاولة.`, 'success');
+    }
+}
+
+function resetMemory() {
+    initMemoryGame();
+}
+
+// --- Word Builder Game Logic ---
+const builderWords = [
+    { word: "اقرأ", hint: "همزة وصل في فعل الأمر" },
+    { word: "أخضر", hint: "همزة قطع في اسم اللون" },
+    { word: "سُئِل", hint: "همزة متوسطة على الواو" },
+    { word: "بدء", hint: "همزة متطرفة على السطر" },
+    { word: "فَأْر", hint: "همزة متوسطة على الألف" },
+    { word: "امرأة", hint: "همزة وصل في اسم" }
+];
+
+let currentBuilderWordIndex = 0;
+let builderScore = 0;
+let builderLevel = 1;
+let builderAttempts = 0;
+let currentWordLetters = []; // To store letters of the current word
+let correctWord = "";
+
+function initBuilderGame() {
+    currentBuilderWordIndex = 0;
+    builderScore = 0;
+    builderLevel = 1;
+    builderAttempts = 0;
+    updateBuilderScoreBoard();
+    nextBuilderWord();
+    clearFeedback();
+}
+
+function updateBuilderScoreBoard() {
+    document.getElementById('builderScore').textContent = builderScore;
+    document.getElementById('builderLevel').textContent = builderLevel;
+    document.getElementById('builderAttempts').textContent = builderAttempts;
+}
+
+function nextBuilderWord() {
+    clearFeedback();
+    document.querySelector('#builderGame .btn-primary').style.display = 'block'; // Ensure Check button is visible
+
+    if (currentBuilderWordIndex < builderWords.length) {
+        const wordData = builderWords[currentBuilderWordIndex];
+        correctWord = wordData.word;
+        document.getElementById('builderQuestion').textContent = `كون الكلمة الصحيحة: (${wordData.hint})`;
+
+        currentWordLetters = correctWord.split('');
+        const shuffledLetters = [...currentWordLetters].sort(() => Math.random() - 0.5);
+
+        const letterSlotsContainer = document.getElementById('letterSlots');
+        letterSlotsContainer.innerHTML = '';
+        // Create empty slots for the word
+        for (let i = 0; i < correctWord.length; i++) {
+            const slot = document.createElement('div');
+            slot.classList.add('letter-slot');
+            slot.dataset.index = i; // Store index for order
+            slot.addEventListener('click', removeLetterFromSlot);
+            letterSlotsContainer.appendChild(slot);
+        }
+
+        const letterOptionsContainer = document.getElementById('letterOptions');
+        letterOptionsContainer.innerHTML = '';
+        // Create letter options buttons, with a unique ID for each to re-enable correctly
+        shuffledLetters.forEach((char, idx) => {
+            const button = document.createElement('button');
+            button.classList.add('letter-option');
+            button.textContent = char;
+            button.dataset.char = char;
+            button.id = `option-char-${char}-${idx}`; // Unique ID including index for duplicates
+            button.onclick = () => addLetterToSlot(button);
+            letterOptionsContainer.appendChild(button);
+        });
+
+    } else {
+        document.getElementById('builderQuestion').textContent = "أنهيت جميع الكلمات!";
+        document.getElementById('letterSlots').innerHTML = '<p style="color:white; font-size: 1.2rem;">أحسنت! لقد أكملت اللعبة.</p>';
+        document.getElementById('letterOptions').innerHTML = '';
+        showFeedback('builderFeedback', `نقاطك النهائية: ${builderScore}`, 'success');
+        document.querySelector('#builderGame .btn-primary').style.display = 'none'; // Hide Check button
+    }
+}
+
+function addLetterToSlot(button) {
+    const slots = document.querySelectorAll('#letterSlots .letter-slot');
+    for (const slot of slots) {
+        if (!slot.textContent) { // Find first empty slot
+            slot.textContent = button.textContent;
+            slot.classList.add('filled');
+            button.disabled = true; // Disable the used button
+            button.dataset.usedInSlot = slot.dataset.index; // Mark which slot used this button
+            break;
+        }
+    }
+}
+
+function removeLetterFromSlot(event) {
+    const slot = event.target;
+    if (slot.textContent) {
+        const charToRemove = slot.textContent;
+        const slotIndex = slot.dataset.index;
+
+        slot.textContent = '';
+        slot.classList.remove('filled');
+
+        // Re-enable the exact button that was used for this slot
+        const options = document.querySelectorAll('#letterOptions .letter-option');
+        for (const option of options) {
+            // Find the button that matches the character and was marked as used in this specific slot
+            if (option.textContent === charToRemove && option.disabled && option.dataset.usedInSlot === slotIndex) {
+                option.disabled = false;
+                delete option.dataset.usedInSlot; // Remove the mark
+                break;
+            }
+        }
+    }
+}
+
+
+function getBuiltWord() {
+    const slots = document.querySelectorAll('#letterSlots .letter-slot');
+    let builtWord = '';
+    slots.forEach(slot => {
+        builtWord += slot.textContent || '';
+    });
+    return builtWord;
+}
+
+function checkBuilderAnswer() {
+    builderAttempts++;
+    const builtWord = getBuiltWord();
+
+    if (builtWord === correctWord) {
+        builderScore += 20;
+        showFeedback('builderFeedback', "إجابة صحيحة! 🎉", 'success');
+        currentBuilderWordIndex++;
+        setTimeout(nextBuilderWord, 1500); // Load next word after feedback
+    } else {
+        builderScore = Math.max(0, builderScore - 10);
+        showFeedback('builderFeedback', `إجابة خاطئة. حاول مرة أخرى!`, 'error');
+    }
+    updateBuilderScoreBoard();
+}
+
+function resetBuilder() {
+    document.querySelector('#builderGame .btn-primary').style.display = 'block'; // Show Check button
+    initBuilderGame();
+}
+    
+    
+    
+    
+    </script>
+</body>
+</html>

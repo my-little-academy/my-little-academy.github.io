@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>قصة الشهادتين</title>
+  <style>
+    body {
+      font-family: 'Tajawal', sans-serif;
+      background: linear-gradient(to bottom right, #e6ffe6, #d0f0f0);
+      color: #333;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .story-box {
+      background: #fff;
+      border: 5px dashed #5cb85c;
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 700px;
+      margin: auto;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      animation: fadeIn 1s ease-out;
+      min-height: 350px;
+      position: relative;
+    }
+
+    .story-image {
+      width: 120px;
+      margin-bottom: 20px;
+    }
+
+    .story-text {
+      font-size: 1.4em;
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+
+    .next-btn {
+      padding: 12px 25px;
+      font-size: 1.1em;
+      background-color: #5cb85c;
+      color: white;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .next-btn:hover {
+      background-color: #4cae4c;
+    }
+
+    .question {
+      font-size: 1.3em;
+      font-weight: bold;
+      color: #0b3d0b;
+      margin-top: 20px;
+    }
+
+    .options button {
+      margin: 8px;
+      padding: 12px 20px;
+      font-size: 1em;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .correct { background-color: #28a745; color: white; }
+    .wrong { background-color: #dc3545; color: white; }
+
+    .feedback {
+      margin-top: 15px;
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #28a745;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="story-box" id="storyBox">
+    <img id="storyImage" class="story-image" src="">
+    <div id="storyText" class="story-text"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextScene()">التالي ⏭️</button>
+  </div>
+
+  <script>
+    const scenes = [
+      {
+        text: "كان ياسين الصغير يتأمل النجوم ويسأل نفسه: من خلقني؟ من خلق هذا الجمال؟",
+        img: "https://cdn-icons-png.flaticon.com/512/4142/4142084.png"
+      },
+      {
+        text: "ذهب إلى جدّه وسأله: من خلقني وخلق السماء؟",
+        img: "https://cdn-icons-png.flaticon.com/512/3813/3813921.png"
+      },
+      {
+        text: "ابتسم الجد وقال: الله وحده لا شريك له، هو الخالق لكل شيء.",
+        img: "https://cdn-icons-png.flaticon.com/512/615/615001.png"
+      },
+      {
+        text: "قال ياسين: وكيف أقترب من الله؟ كيف أعرف طريقه؟",
+        img: "https://cdn-icons-png.flaticon.com/512/1872/1872996.png"
+      },
+      {
+        text: "قال الجد: باتباع رسوله محمد ﷺ، ونقول الشهادتين.",
+        img: "https://cdn-icons-png.flaticon.com/512/2305/2305963.png"
+      },
+      {
+        text: "تعلم ياسين أن يقول: أشهد أن لا إله إلا الله وأشهد أن محمدًا رسول الله.",
+        img: "https://cdn-icons-png.flaticon.com/512/3524/3524659.png"
+      },
+      {
+        question: "ماذا تقول عندما تؤمن بالله ورسوله؟",
+        options: [
+          { text: "أشهد أن لا إله إلا الله وأشهد أن محمدًا رسول الله", correct: true },
+          { text: "سبحان الله والحمد لله", correct: false },
+          { text: "اللهم اغفر لي", correct: false }
+        ]
+      }
+    ];
+
+    let currentScene = 0;
+
+    function nextScene() {
+      const box = document.getElementById("storyBox");
+      const text = document.getElementById("storyText");
+      const img = document.getElementById("storyImage");
+      const btn = document.getElementById("nextBtn");
+
+      if (currentScene < scenes.length) {
+        const scene = scenes[currentScene];
+
+        if (scene.question) {
+          // عرض السؤال بدلاً من القصة
+          img.style.display = "none";
+          text.innerHTML = `<div class="question">${scene.question}</div><div class="options">` +
+            scene.options.map(opt => `
+              <button onclick="checkAnswer(${opt.correct})" class="${opt.correct ? 'correct' : 'wrong'}">${opt.text}</button>
+            `).join('') +
+            `</div><div id="feedback" class="feedback"></div>`;
+          btn.style.display = "none";
+        } else {
+          img.src = scene.img;
+          img.style.display = "block";
+          text.textContent = scene.text;
+        }
+
+        currentScene++;
+      }
+    }
+
+    function checkAnswer(correct) {
+      const feedback = document.getElementById("feedback");
+      if (correct) {
+        feedback.textContent = "✅ أحسنت! هذه هي الشهادتان.";
+      } else {
+        feedback.textContent = "❌ حاول مرة أخرى.";
+      }
+    }
+
+    // بدء القصة تلقائيًا
+    nextScene();
+  </script>
+
+</body>
+</html>

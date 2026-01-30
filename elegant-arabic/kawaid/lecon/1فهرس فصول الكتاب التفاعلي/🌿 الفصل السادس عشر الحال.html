@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>الفصل السادس عشر: الحال</title>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: #f1f8e9;
+      color: #33691e;
+      padding: 20px;
+    }
+    .container {
+      max-width: 850px;
+      margin: auto;
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 30px 40px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+    }
+    h1, h2 {
+      color: #558b2f;
+    }
+    .rule {
+      background: #dcedc8;
+      border-right: 6px solid #aed581;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 25px 0;
+    }
+    .exercise {
+      background: #f0f4c3;
+      border-right: 6px solid #c5e1a5;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 25px 0;
+    }
+    .result {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .correct { color: green; }
+    .incorrect { color: red; }
+    input[type="text"], select {
+      font-size: 16px;
+      padding: 8px;
+      margin: 5px;
+      border: 2px solid #558b2f;
+      border-radius: 8px;
+    }
+    button {
+      background-color: #7cb342;
+      color: white;
+      padding: 8px 18px;
+      border-radius: 10px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:hover {
+      background-color: #689f38;
+    }
+    .drag-option {
+      display: inline-block;
+      background: #dcedc8;
+      padding: 10px 16px;
+      margin: 5px;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .drop-zone {
+      display: inline-block;
+      min-width: 100px;
+      border: 2px dashed #aed581;
+      padding: 10px;
+      margin: 5px;
+      border-radius: 10px;
+    }
+    .image-choice {
+      display: inline-block;
+      margin: 10px;
+      border: 4px solid transparent;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+    .image-choice img {
+      width: 120px;
+      height: auto;
+      border-radius: 10px;
+    }
+    .selected {
+      border-color: #7cb342;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌿 الفصل السادس عشر: الحال</h1>
+
+    <div class="rule">
+      <h2>📖 القاعدة:</h2>
+      <p><strong>الحال</strong> هو وصف يبيّن هيئة الفاعل أو المفعول به عند وقوع الفعل.</p>
+      <p class="example">مثال: عاد التلميذُ <strong>مسرورًا</strong>. (مسرورًا: حال يبين كيف عاد التلميذ)</p>
+    </div>
+
+    <div class="exercise">
+      <h2>🎯 تمرين 1: اختر الحال من الجملة</h2>
+      <p>1. دخل الطفلُ باكيًا. الحال هو: 
+        <select data-answer="باكيًا">
+          <option value="">اختر</option>
+          <option>الطفل</option>
+          <option>دخل</option>
+          <option>باكيًا</option>
+        </select>
+      </p>
+      <p>2. استقبلنا الضيفَ ضاحكًا. الحال هو: 
+        <select data-answer="ضاحكًا">
+          <option value="">اختر</option>
+          <option>الضيف</option>
+          <option>استقبلنا</option>
+          <option>ضاحكًا</option>
+        </select>
+      </p>
+      <button onclick="checkSelects()">تحقق من الإجابات</button>
+      <div id="selectResult" class="result"></div>
+    </div>
+
+    <div class="exercise">
+      <h2>🧩 تمرين 2: لعبة السحب والإفلات</h2>
+      <p>اسحب الحال إلى مكانه الصحيح في الجملة:</p>
+      <p>
+        رجع الطالبُ <span class="drop-zone" id="dz1"></span>.
+      </p>
+      <p>
+        جاء الطفلُ <span class="drop-zone" id="dz2"></span>.
+      </p>
+      <div>
+        <span class="drag-option" draggable="true" ondragstart="drag(event)" id="drag1">مسرعًا</span>
+        <span class="drag-option" draggable="true" ondragstart="drag(event)" id="drag2">حافيًا</span>
+      </div>
+      <button onclick="checkDragDrop()">تحقق من اللعبة</button>
+      <div id="dragResult" class="result"></div>
+    </div>
+
+    <div class="exercise">
+      <h2>🖼️ تمرين 3: اختر الصورة التي تعبّر عن الحال</h2>
+      <p>ما الصورة التي تعبّر عن الجملة: "عاد التلميذُ مسرورًا"؟</p>
+      <div>
+        <div class="image-choice" onclick="selectImage(this, 'صحيح')">
+          <img src="https://i.imgur.com/vgC38mH.png" alt="تلميذ مسرور">
+        </div>
+        <div class="image-choice" onclick="selectImage(this, 'خطأ')">
+          <img src="https://i.imgur.com/0oM4fWZ.png" alt="تلميذ غاضب">
+        </div>
+      </div>
+      <button onclick="checkImageChoice()">تحقق من اختيارك</button>
+      <div id="imageResult" class="result"></div>
+    </div>
+  </div>
+
+  <script>
+    function checkSelects() {
+      const selects = document.querySelectorAll('select');
+      let correct = 0;
+      selects.forEach(select => {
+        if (select.value === select.getAttribute('data-answer')) correct++;
+      });
+      const result = document.getElementById('selectResult');
+      result.textContent = correct === selects.length ? '✅ ممتاز! كل الإجابات صحيحة.' : '❌ هناك خطأ، أعد المحاولة.';
+      result.className = correct === selects.length ? 'result correct' : 'result incorrect';
+    }
+
+    let draggedId = "";
+    function drag(e) {
+      draggedId = e.target.id;
+    }
+
+    document.querySelectorAll(".drop-zone").forEach(zone => {
+      zone.addEventListener("dragover", e => e.preventDefault());
+      zone.addEventListener("drop", e => {
+        e.preventDefault();
+        const elem = document.getElementById(draggedId);
+        e.target.textContent = elem.textContent;
+        e.target.setAttribute("data-word", elem.textContent);
+      });
+    });
+
+    function checkDragDrop() {
+      const d1 = document.getElementById("dz1").getAttribute("data-word");
+      const d2 = document.getElementById("dz2").getAttribute("data-word");
+      const result = document.getElementById("dragResult");
+      if (d1 === "مسرعًا" && d2 === "حافيًا") {
+        result.textContent = "✅ ممتاز! الأحوال في أماكنها الصحيحة.";
+        result.className = "result correct";
+      } else {
+        result.textContent = "❌ حاول مرة أخرى وضع كل حال في مكانه.";
+        result.className = "result incorrect";
+      }
+    }
+
+    let selectedImage = null;
+    function selectImage(elem, value) {
+      document.querySelectorAll('.image-choice').forEach(e => e.classList.remove('selected'));
+      elem.classList.add('selected');
+      selectedImage = value;
+    }
+
+    function checkImageChoice() {
+      const result = document.getElementById("imageResult");
+      if (selectedImage === "صحيح") {
+        result.textContent = "✅ أحسنت! اخترتَ الصورة المناسبة.";
+        result.className = "result correct";
+      } else {
+        result.textContent = "❌ هذه ليست الصورة المناسبة للحال.";
+        result.className = "result incorrect";
+      }
+    }
+  </script>
+</body>
+</html>

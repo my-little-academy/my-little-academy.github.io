@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>الفصل العاشر: الاسم والفعل</title>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: #fff3e0;
+      color: #4e342e;
+      padding: 20px;
+    }
+    .container {
+      max-width: 850px;
+      margin: auto;
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 30px 40px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+    }
+    h1, h2 {
+      color: #bf360c;
+    }
+    .rule {
+      background: #ffe0b2;
+      border-right: 6px solid #ff6f00;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 25px 0;
+    }
+    .exercise {
+      background: #fff3e0;
+      border-right: 6px solid #ff9800;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 25px 0;
+    }
+    .dropzone {
+      border: 2px dashed #ff9800;
+      padding: 15px;
+      min-height: 50px;
+      margin: 10px;
+      border-radius: 10px;
+    }
+    .word {
+      display: inline-block;
+      background: #ffe0b2;
+      margin: 5px;
+      padding: 10px;
+      border-radius: 10px;
+      cursor: grab;
+      font-weight: bold;
+    }
+    .table-container {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ffcc80;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #ffb74d;
+    }
+    .result {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .correct { color: green; }
+    .incorrect { color: red; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📘 الفصل العاشر: التمييز بين الاسم والفعل</h1>
+
+    <div class="rule">
+      <h2>📚 القاعدة:</h2>
+      <p><strong>الاسم:</strong> هو ما دلّ على إنسان، أو حيوان، أو نبات، أو جماد، أو أي شيء آخر غير مرتبط بزمن.</p>
+      <p><strong>الفعل:</strong> هو ما دلّ على حدث مرتبط بزمن (ماضٍ، مضارع، أمر).</p>
+    </div>
+
+    <div class="exercise">
+      <h2>🧠 تمرين 1: اسحب الكلمة إلى مكانها المناسب:</h2>
+      <div>
+        <span class="word" draggable="true">ولد</span>
+        <span class="word" draggable="true">يجري</span>
+        <span class="word" draggable="true">شجرة</span>
+        <span class="word" draggable="true">أكل</span>
+        <span class="word" draggable="true">تفاحة</span>
+        <span class="word" draggable="true">اكتب</span>
+      </div>
+
+      <div class="table-container">
+        <div style="width: 48%">
+          <h3>📌 الأسماء:</h3>
+          <div class="dropzone" ondrop="drop(event, 'noun')" ondragover="allowDrop(event)" id="noun-zone"></div>
+        </div>
+        <div style="width: 48%">
+          <h3>📌 الأفعال:</h3>
+          <div class="dropzone" ondrop="drop(event, 'verb')" ondragover="allowDrop(event)" id="verb-zone"></div>
+        </div>
+      </div>
+      <button onclick="checkSort()">تحقق من الإجابة</button>
+      <div id="sortResult" class="result"></div>
+    </div>
+
+    <div class="exercise">
+      <h2>🧩 تمرين 2: جدول فرز الكلمات:</h2>
+      <table>
+        <tr><th>الكلمة</th><th>اسم</th><th>فعل</th></tr>
+        <tr><td>قط</td><td><input type="radio" name="word1" value="noun"></td><td><input type="radio" name="word1" value="verb"></td></tr>
+        <tr><td>يكتب</td><td><input type="radio" name="word2" value="noun"></td><td><input type="radio" name="word2" value="verb"></td></tr>
+        <tr><td>باب</td><td><input type="radio" name="word3" value="noun"></td><td><input type="radio" name="word3" value="verb"></td></tr>
+        <tr><td>قرأ</td><td><input type="radio" name="word4" value="noun"></td><td><input type="radio" name="word4" value="verb"></td></tr>
+      </table>
+      <button onclick="checkTable()">تحقق</button>
+      <div id="tableResult" class="result"></div>
+    </div>
+  </div>
+
+  <script>
+    let dragged;
+    document.querySelectorAll('.word').forEach(word => {
+      word.addEventListener('dragstart', e => {
+        dragged = e.target.textContent;
+        e.dataTransfer.setData("text/plain", dragged);
+      });
+    });
+
+    function allowDrop(e) {
+      e.preventDefault();
+    }
+
+    function drop(e, type) {
+      e.preventDefault();
+      const data = e.dataTransfer.getData("text/plain");
+      const newWord = document.createElement("span");
+      newWord.className = "word";
+      newWord.textContent = data;
+      e.target.appendChild(newWord);
+    }
+
+    function checkSort() {
+      const nounZone = document.getElementById("noun-zone").textContent;
+      const verbZone = document.getElementById("verb-zone").textContent;
+      const nouns = ["ولد", "شجرة", "تفاحة"];
+      const verbs = ["يجري", "أكل", "اكتب"];
+      let correct = 0;
+      nouns.forEach(word => { if (nounZone.includes(word)) correct++; });
+      verbs.forEach(word => { if (verbZone.includes(word)) correct++; });
+      const result = document.getElementById("sortResult");
+      if (correct === 6) {
+        result.textContent = "✅ جميع الإجابات صحيحة! ممتاز!";
+        result.className = "result correct";
+      } else {
+        result.textContent = "❌ بعض الكلمات في غير مكانها، حاول مرة أخرى.";
+        result.className = "result incorrect";
+      }
+    }
+
+    function checkTable() {
+      const answers = ["noun", "verb", "noun", "verb"];
+      let correct = 0;
+      answers.forEach((ans, i) => {
+        const inputs = document.getElementsByName("word" + (i + 1));
+        inputs.forEach(input => {
+          if (input.checked && input.value === ans) correct++;
+        });
+      });
+      const result = document.getElementById("tableResult");
+      if (correct === 4) {
+        result.textContent = "✅ رائع! كل إجاباتك صحيحة.";
+        result.className = "result correct";
+      } else {
+        result.textContent = "❌ تحقق من اختياراتك، هناك بعض الأخطاء.";
+        result.className = "result incorrect";
+      }
+    }
+  </script>
+</body>
+</html>

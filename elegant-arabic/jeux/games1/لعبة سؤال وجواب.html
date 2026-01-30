@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة سؤال وجواب</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .quiz-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .question {
+            font-size: 20px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .option {
+            padding: 10px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .option:hover {
+            background-color: #2980b9;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        .progress {
+            height: 10px;
+            background-color: #ecf0f1;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #2ecc71;
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .result {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 20px 0;
+            min-height: 30px;
+        }
+        .next-btn, .reset-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            display: none;
+        }
+        .next-btn {
+            background-color: #2ecc71;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>لعبة سؤال وجواب</h1>
+    <div class="quiz-container">
+        <div class="stats">
+            <div>السؤال: <span id="currentQuestion">1</span>/<span id="totalQuestions">0</span></div>
+            <div>النقاط: <span id="score">0</span></div>
+        </div>
+        <div class="progress">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="question" id="question"></div>
+        <div class="options" id="options"></div>
+        <div class="result" id="result"></div>
+        <button class="next-btn" id="nextBtn">السؤال التالي</button>
+        <button class="reset-btn" id="resetBtn">إعادة اللعب</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const questionElement = document.getElementById('question');
+            const optionsElement = document.getElementById('options');
+            const resultElement = document.getElementById('result');
+            const nextBtn = document.getElementById('nextBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const currentQuestionElement = document.getElementById('currentQuestion');
+            const totalQuestionsElement = document.getElementById('totalQuestions');
+            const scoreElement = document.getElementById('score');
+            const progressBar = document.getElementById('progressBar');
+            
+            const questions = [
+                {
+                    question: "ما هي عاصمة فرنسا؟",
+                    options: ["لندن", "برلين", "باريس", "مدريد"],
+                    correctAnswer: 2
+                },
+                {
+                    question: "كم عدد كواكب المجموعة الشمسية؟",
+                    options: ["7", "8", "9", "10"],
+                    correctAnswer: 1
+                },
+                {
+                    question: "ما هو أطول نهر في العالم؟",
+                    options: ["النيل", "الأمازون", "الميسيسيبي", "الدانوب"],
+                    correctAnswer: 0
+                },
+                {
+                    question: "في أي عام هبط الإنسان على القمر لأول مرة؟",
+                    options: ["1965", "1969", "1972", "1975"],
+                    correctAnswer: 1
+                },
+                {
+                    question: "ما هي لغة البرازيل الرسمية؟",
+                    options: ["الإسبانية", "الإنجليزية", "البرتغالية", "الفرنسية"],
+                    correctAnswer: 2
+                }
+            ];
+            
+            let currentQuestionIndex = 0;
+            let score = 0;
+            let selectedAnswer = null;
+            let quizCompleted = false;
+            
+            // عرض السؤال
+            function displayQuestion() {
+                const question = questions[currentQuestionIndex];
+                questionElement.textContent = question.question;
+                optionsElement.innerHTML = '';
+                
+                question.options.forEach((option, index) => {
+                    const button = document.createElement('button');
+                    button.classList.add('option');
+                    button.textContent = option;
+                    button.dataset.index = index;
+                    button.addEventListener('click', selectAnswer);
+                    optionsElement.appendChild(button);
+                });
+                
+                currentQuestionElement.textContent = currentQuestionIndex + 1;
+                totalQuestionsElement.textContent = questions.length;
+                resultElement.textContent = '';
+                nextBtn.style.display = 'none';
+                resetBtn.style.display = 'none';
+                
+                // تحديث شريط التقدم
+                progressBar.style.width = `${(currentQuestionIndex / questions.length) * 100}%`;
+            }
+            
+            // اختيار الإجابة
+            function selectAnswer(e) {
+                if (selectedAnswer !== null) return;
+                
+                const selectedButton = e.target;
+                const selectedIndex = parseInt(selectedButton.dataset.index);
+                const question = questions[currentQuestionIndex];
+                
+                // تعطيل جميع الخيارات
+                const options = Array.from(optionsElement.children);
+                options.forEach(option => {
+                    option.disabled = true;
+                    option.style.opacity = '0.7';
+                });
+                
+                // تمييز الإجابة الصحيحة والخاطئة
+                if (selectedIndex === question.correctAnswer) {
+                    selectedButton.style.backgroundColor = '#2ecc71';
+                    score++;
+                    scoreElement.textContent = score;
+                    resultElement.textContent = 'إجابة صحيحة!';
+                } else {
+                    selectedButton.style.backgroundColor = '#e74c3c';
+                    options[question.correctAnswer].style.backgroundColor = '#2ecc71';
+                    resultElement.textContent = 'إجابة خاطئة!';
+                }
+                
+                selectedAnswer = selectedIndex;
+                nextBtn.style.display = 'inline-block';
+                
+                // إذا كانت آخر سؤال، عرض زر إعادة اللعب بدلاً من التالي
+                if (currentQuestionIndex === questions.length - 1) {
+                    nextBtn.style.display = 'none';
+                    resetBtn.style.display = 'inline-block';
+                    quizCompleted = true;
+                }
+            }
+            
+            // الانتقال إلى السؤال التالي
+            function nextQuestion() {
+                currentQuestionIndex++;
+                selectedAnswer = null;
+                displayQuestion();
+            }
+            
+            // إعادة اللعب
+            function resetQuiz() {
+                currentQuestionIndex = 0;
+                score = 0;
+                selectedAnswer = null;
+                quizCompleted = false;
+                scoreElement.textContent = score;
+                displayQuestion();
+            }
+            
+            // أحداث الأزرار
+            nextBtn.addEventListener('click', nextQuestion);
+            resetBtn.addEventListener('click', resetQuiz);
+            
+            // بدء اللعبة
+            displayQuestion();
+        });
+    </script>
+</body>
+</html>

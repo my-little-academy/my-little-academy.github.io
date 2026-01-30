@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مغامرة السيف الذهبي - خالد بن الوليد</title>
+    <style>
+        :root {
+            --gold: #FFD700;
+            --sword-dark: #5a4d3a;
+            --sword-light: #b5a586;
+            --desert: #f5d393;
+            --sky: #87CEEB;
+        }
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--sky);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            background-image: url('https://i.imgur.com/YbJqW3a.png');
+            background-size: 30%;
+            background-blend-mode: overlay;
+        }
+        
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .game-header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .game-title {
+            font-size: 2.5em;
+            color: var(--sword-dark);
+            text-shadow: 3px 3px 0 var(--gold);
+            margin: 0;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .game-title:after {
+            content: "⚔️";
+            position: absolute;
+            left: -40px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5em;
+        }
+        
+        .game-subtitle {
+            color: var(--sword-dark);
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+        
+        .game-scene {
+            background-color: var(--desert);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+            min-height: 300px;
+            border: 5px solid var(--sword-dark);
+        }
+        
+        .scene-image {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            transition: all 0.5s;
+        }
+        
+        .scene-description {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            border: 2px dashed var(--sword-dark);
+        }
+        
+        .choices-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .choice-btn {
+            background: linear-gradient(45deg, var(--sword-dark), var(--sword-light));
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 50px;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .choice-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+        
+        .choice-btn:active {
+            transform: translateY(1px);
+        }
+        
+        .choice-btn:before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255,255,255,0) 45%,
+                rgba(255,255,255,0.8) 50%,
+                rgba(255,255,255,0) 55%
+            );
+            transform: rotate(30deg);
+            transition: all 0.5s;
+        }
+        
+        .choice-btn:hover:before {
+            left: 100%;
+        }
+        
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            background-color: rgba(255, 215, 0, 0.3);
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px solid var(--gold);
+        }
+        
+        .stat {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: var(--sword-dark);
+        }
+        
+        .inventory {
+            background-color: rgba(90, 77, 58, 0.2);
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            min-height: 60px;
+            border: 2px dashed var(--sword-dark);
+        }
+        
+        .inventory-item {
+            background-color: var(--gold);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+        }
+        
+        .inventory-item:before {
+            content: "✨";
+            margin-left: 5px;
+        }
+        
+        /* تأثيرات خاصة */
+        @keyframes swordGlow {
+            0% { filter: drop-shadow(0 0 5px var(--gold)); }
+            50% { filter: drop-shadow(0 0 20px var(--gold)); }
+            100% { filter: drop-shadow(0 0 5px var(--gold)); }
+        }
+        
+        .sword-glow {
+            animation: swordGlow 2s infinite;
+        }
+        
+        /* شخصية خالد */
+        .khalid-character {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 100px;
+            height: 150px;
+            background-image: url('https://i.imgur.com/JR8lQ7W.jpg');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: bottom;
+            transition: all 0.5s;
+            z-index: 10;
+        }
+        
+        /* تصميم متجاوب */
+        @media (max-width: 600px) {
+            .choices-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .game-title {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <h1 class="game-title">مغامرة السيف الذهبي</h1>
+            <p class="game-subtitle">مع خالد بن الوليد - سيف الله المسلول</p>
+        </div>
+        
+        <div class="game-stats">
+            <div class="stat">
+                <div>المرحلة</div>
+                <div class="stat-value" id="stage">1</div>
+            </div>
+            <div class="stat">
+                <div>القوة</div>
+                <div class="stat-value" id="strength">50</div>
+            </div>
+            <div class="stat">
+                <div>الذكاء</div>
+                <div class="stat-value" id="intelligence">50</div>
+            </div>
+        </div>
+        
+        <div class="game-scene">
+            <div class="khalid-character"></div>
+            <div class="scene-image" id="scene-image" style="background-image: url('https://i.imgur.com/vJ5ZgQk.jpg')"></div>
+            <div class="scene-description" id="scene-description">
+                في صباح يوم مشرق، اكتشف خالد بن الوليد أن سيفه الذهبي المبارك قد اختفى! هذا السيف كان هدية من رسول الله ﷺ له. يقف خالد في وسط الصحراء متردداً، أين يمكن أن يكون السيف؟ وماذا يجب أن يفعل؟
+            </div>
+            
+            <div class="choices-container" id="choices-container">
+                <button class="choice-btn" onclick="makeChoice(1)">البحث في خيمة القيادة</button>
+                <button class="choice-btn" onclick="makeChoice(2)">سؤال الحراس عن آخر من رأى السيف</button>
+                <button class="choice-btn" onclick="makeChoice(3)">التوجه إلى الوادي حيث كان يتدرب</button>
+            </div>
+            
+            <div class="inventory" id="inventory">
+                <div class="inventory-item">خريطة المعسكر</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // حالة اللعبة
+        const gameState = {
+            stage: 1,
+            strength: 50,
+            intelligence: 50,
+            inventory: ['خريطة المعسكر'],
+            swordFound: false,
+            clues: 0
+        };
+        
+        // مشاهد اللعبة
+        const scenes = {
+            1: {
+                description: "في صباح يوم مشرق، اكتشف خالد بن الوليد أن سيفه الذهبي المبارك قد اختفى! هذا السيف كان هدية من رسول الله ﷺ له. يقف خالد في وسط الصحراء متردداً، أين يمكن أن يكون السيف؟ وماذا يجب أن يفعل؟",
+                image: "https://i.imgur.com/vJ5ZgQk.jpg",
+                choices: [
+                    { text: "البحث في خيمة القيادة", nextStage: 2, strength: 0, intelligence: 5 },
+                    { text: "سؤال الحراس عن آخر من رأى السيف", nextStage: 3, strength: -5, intelligence: 10 },
+                    { text: "التوجه إلى الوادي حيث كان يتدرب", nextStage: 4, strength: 10, intelligence: 0 }
+                ]
+            },
+            2: {
+                description: "دخل خالد إلى خيمة القيادة وبحث في كل زاوية لكن لم يجد السيف. وجد رسالة غريبة مكتوبة بخط غير واضح. هل يحاول فك شفرتها أم يبحث في مكان آخر؟",
+                image: "https://i.imgur.com/JR8lQ7W.jpg",
+                choices: [
+                    { text: "محاولة فك شفرة الرسالة", nextStage: 5, strength: -10, intelligence: 15 },
+                    { text: "الذهاب إلى مخيم التجار", nextStage: 6, strength: 5, intelligence: 5 },
+                    { text: "استدعاء جميع الجنود للتحقيق", nextStage: 7, strength: 15, intelligence: -5 }
+                ]
+            },
+            3: {
+                description: "أخبره أحد الحراس أنه رأى شخصاً غريباً بالقرب من مكان التدرب ليلاً. الشخص كان يرتدي ملابس سوداء ويحمل شيئاً لامعاً. ماذا سيفعل خالد؟",
+                image: "https://i.imgur.com/YbJqW3a.png",
+                choices: [
+                    { text: "مطاردة الشخص الغريب فوراً", nextStage: 8, strength: 20, intelligence: -10 },
+                    { text: "جمع معلومات أكثر عن الشخص الغريب", nextStage: 9, strength: -5, intelligence: 20 },
+                    { text: "إرسال مجموعة استكشاف لتتبع الأثر", nextStage: 10, strength: 10, intelligence: 10 }
+                ]
+            },
+            4: {
+                description: "في الوادي، وجد خالد آثار أقدام حديثة تؤدي إلى كهف صغير. يبدو أن شخصاً ما كان هنا مؤخراً. الكهف مظلم وخطير. ماذا سيفعل خالد؟",
+                image: "https://i.imgur.com/vJ5ZgQk.jpg",
+                choices: [
+                    { text: "الدخول إلى الكهف بمفرده", nextStage: 11, strength: 25, intelligence: -15 },
+                    { text: "الذهاب لإحضار مصباح ومساعدة", nextStage: 12, strength: -10, intelligence: 15 },
+                    { text: "إشعال نار عند مدخل الكهف لطرد من بداخله", nextStage: 13, strength: 15, intelligence: 10 }
+                ]
+            },
+            // يمكن إضافة المزيد من المراحل هنا
+            20: {
+                description: "بعد رحلة طويلة وشاقة، وجد خالد سيفه الذهبي! لقد كان مع لص حاول بيعه للتجار. بذكاء خالد وشجاعته، استعاد سيفه وعلم اللص درساً في الأخلاق. النصر للشجاعة والحكمة!",
+                image: "https://i.imgur.com/JR8lQ7W.jpg",
+                choices: [
+                    { text: "اللعب مرة أخرى", nextStage: 1, strength: 50, intelligence: 50 }
+                ],
+                specialEffect: function() {
+                    document.getElementById('scene-image').classList.add('sword-glow');
+                    alert('تهانينا! لقد أكملت المغامرة بنجاح واستعدت السيف الذهبي!');
+                }
+            }
+        };
+        
+        // تحديث واجهة اللعبة
+        function updateGame() {
+            const currentScene = scenes[gameState.stage];
+            
+            document.getElementById('stage').textContent = gameState.stage;
+            document.getElementById('strength').textContent = gameState.strength;
+            document.getElementById('intelligence').textContent = gameState.intelligence;
+            document.getElementById('scene-description').textContent = currentScene.description;
+            document.getElementById('scene-image').style.backgroundImage = `url('${currentScene.image}')`;
+            
+            // تحديث الخيارات
+            const choicesContainer = document.getElementById('choices-container');
+            choicesContainer.innerHTML = '';
+            
+            currentScene.choices.forEach(choice => {
+                const button = document.createElement('button');
+                button.className = 'choice-btn';
+                button.textContent = choice.text;
+                button.onclick = function() { makeChoice(choice.nextStage, choice.strength, choice.intelligence); };
+                choicesContainer.appendChild(button);
+            });
+            
+            // تحديث المحفظة
+            const inventoryContainer = document.getElementById('inventory');
+            inventoryContainer.innerHTML = '';
+            
+            gameState.inventory.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'inventory-item';
+                itemElement.textContent = item;
+                inventoryContainer.appendChild(itemElement);
+            });
+            
+            // تأثيرات خاصة
+            if (currentScene.specialEffect) {
+                currentScene.specialEffect();
+            }
+        }
+        
+        // اتخاذ قرار
+        function makeChoice(nextStage, strengthChange = 0, intelligenceChange = 0) {
+            gameState.stage = nextStage;
+            gameState.strength = Math.max(0, Math.min(100, gameState.strength + strengthChange));
+            gameState.intelligence = Math.max(0, Math.min(100, gameState.intelligence + intelligenceChange));
+            
+            // إضافة عناصر للمحفظة في مراحل معينة
+            if (nextStage === 5) {
+                gameState.inventory.push('رسالة غامضة');
+                gameState.clues++;
+            } else if (nextStage === 9) {
+                gameState.inventory.push('وصف الشخص الغريب');
+                gameState.clues++;
+            }
+            
+            // التحقق من فوز اللاعب
+            if (gameState.clues >= 2 && gameState.strength >= 60 && gameState.intelligence >= 60) {
+                gameState.stage = 20; // نهاية اللعبة
+                gameState.swordFound = true;
+            }
+            
+            updateGame();
+        }
+        
+        // بدء اللعبة
+        updateGame();
+    </script>
+</body>
+</html>

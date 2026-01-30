@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>قصة الحركات العربية والمدود الثلاثة - تصميم تفاعلي وجذاب</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Amiri&display=swap');
+
+    /* Reset and base */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+      font-family: 'Cairo', sans-serif;
+      color: #2c3e50;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+      scroll-behavior: smooth;
+    }
+    .container {
+      background: #fff;
+      max-width: 720px;
+      width: 100%;
+      border-radius: 25px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+      padding: 2.5rem 3rem 3rem;
+      overflow-y: auto;
+      max-height: 90vh;
+      position: relative;
+    }
+    h1 {
+      text-align: center;
+      font-size: 3rem;
+      margin-bottom: 1.5rem;
+      color: #34495e;
+      text-shadow: 2px 2px 8px #a29bfe;
+      user-select: none;
+    }
+    p {
+      font-size: 1.25rem;
+      margin-bottom: 1.3rem;
+      line-height: 1.8;
+      user-select: text;
+    }
+
+    /* Character styles */
+    .character {
+      display: inline-block;
+      font-size: 3.5rem;
+      font-weight: 900;
+      margin: 0 0.4rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 14px;
+      color: white;
+      text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+    .character:focus-visible {
+      outline: 3px solid #f39c12;
+      outline-offset: 4px;
+    }
+    .character:hover {
+      transform: scale(1.3) rotate(5deg);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      z-index: 10;
+    }
+
+    /* Colors for each character */
+    .fatha {
+      background: #e74c3c; /* أحمر */
+      box-shadow: 0 0 15px #e74c3caa;
+    }
+    .damma {
+      background: #3498db; /* أزرق */
+      box-shadow: 0 0 15px #3498dbaa;
+    }
+    .kasra {
+      background: #27ae60; /* أخضر */
+      box-shadow: 0 0 15px #27ae60aa;
+    }
+    .sukun {
+      background: #8e44ad; /* بنفسجي */
+      box-shadow: 0 0 15px #8e44adaa;
+    }
+    .madd {
+      background: #f39c12; /* برتقالي */
+      box-shadow: 0 0 15px #f39c12aa;
+    }
+
+    /* Tooltip */
+    .character[data-tooltip]:hover::after,
+    .character[data-tooltip]:focus::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 110%;
+      right: 50%;
+      transform: translateX(50%);
+      background: #34495e;
+      color: white;
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      white-space: nowrap;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      pointer-events: none;
+      opacity: 1;
+      z-index: 20;
+      transition: opacity 0.3s ease;
+    }
+
+    /* Highlighted words */
+    .highlight {
+      font-weight: 700;
+      color: #2c3e50;
+      background: #f1c40f33;
+      border-radius: 8px;
+      padding: 0 6px;
+      cursor: help;
+      transition: background-color 0.3s ease;
+    }
+    .highlight:hover, .highlight:focus {
+      background-color: #f1c40f66;
+      outline: none;
+    }
+
+    /* Audio button */
+    .audio-btn {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 1.5rem;
+      background: #4a90e2;
+      border: none;
+      border-radius: 50%;
+      width: 56px;
+      height: 56px;
+      color: white;
+      font-size: 1.6rem;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(74,144,226,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+      z-index: 100;
+    }
+    .audio-btn:hover, .audio-btn:focus {
+      background-color: #357abd;
+      transform: scale(1.15);
+      outline: none;
+      box-shadow: 0 8px 25px rgba(53,122,189,0.9);
+    }
+
+    /* Section title style */
+    .section-title {
+      font-weight: 700;
+      font-size: 1.6rem;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      color: #34495e;
+      border-bottom: 3px solid #f39c12;
+      padding-bottom: 0.3rem;
+      user-select: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .container {
+        padding: 2rem 1.5rem 2.5rem;
+        max-height: 95vh;
+      }
+      h1 {
+        font-size: 2.4rem;
+      }
+      p {
+        font-size: 1.1rem;
+      }
+      .character {
+        font-size: 3rem;
+        margin: 0 0.25rem;
+        padding: 0.1rem 0.3rem;
+      }
+      .audio-btn {
+        width: 48px;
+        height: 48px;
+        font-size: 1.3rem;
+        bottom: 1rem;
+        left: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <article class="container" role="main" aria-labelledby="story-title">
+    <h1 id="story-title">قصة الحركات العربية والمدود الثلاثة العجيبة</h1>
+
+    <p>
+      في عالم الحروف السحري، كان هناك خمسة أصدقاء مميزين يُدعون 
+      <span tabindex="0" class="character fatha" data-tooltip="الفتحة: صوت مفتوح وسعيد" role="button" aria-pressed="false" aria-label="الفتحة">َ</span>، 
+      <span tabindex="0" class="character damma" data-tooltip="الضمة: صوت محب ودافئ" role="button" aria-pressed="false" aria-label="الضمة">ُ</span>، 
+      <span tabindex="0" class="character kasra" data-tooltip="الكسرة: صوت رقيق وحنون" role="button" aria-pressed="false" aria-label="الكسرة">ِ</span>، 
+      <span tabindex="0" class="character sukun" data-tooltip="السكون: صوت هادئ وساكن" role="button" aria-pressed="false" aria-label="السكون">ْ</span>، و
+      <span tabindex="0" class="character madd" data-tooltip="المد: صوت طويل وممتد" role="button" aria-pressed="false" aria-label="المد">آ</span>.
+    </p>
+    <p>
+      كانوا يعيشون في كتابٍ سحري، حيث كل حرف يحتاجهم ليُصبح كلامًا جميلًا وواضحًا. في يومٍ من الأيام، اجتمعوا جميعًا ليخبروا الحروف كيف يتكلمون بطريقة صحيحة.
+    </p>
+
+    <p>
+      قالت <span class="character fatha" aria-label="الفتحة">َ</span> بابتسامة مشرقة: "أنا أحب أن أفتح فم الحرف وأجعله ينطق بصوت واضح وسعيد، مثل كلمة <span class="highlight" tabindex="0" aria-label="مثال على الفتحة: كلمة بيت">بَيت</span>، حيث أقول: بَ".
+    </p>
+    <p>
+      ردت عليها <span class="character damma" aria-label="الضمة">ُ</span> بحنان: "وأنا أحب أن أضم شفتيّ وأجعل الحرف يصدر صوتًا دافئًا ومحبًا، كما في كلمة <span class="highlight" tabindex="0" aria-label="مثال على الضمة: كلمة كتب">كُتب</span>، حيث أقول: كُ".
+    </p>
+    <p>
+      ضحكت <span class="character kasra" aria-label="الكسرة">ِ</span> وقالت: "أنا صغيرة ورقيقة، أجعل الشفة السفلى تنزل قليلاً، وأجعل الحرف ينطق بصوت ناعم، مثل كلمة <span class="highlight" tabindex="0" aria-label="مثال على الكسرة: كلمة مفتاح">مِفتاح</span>، حيث أقول: مِ".
+    </p>
+    <p>
+      فجأة، جاء <span class="character sukun" aria-label="السكون">ْ</span> بهدوء وقال: "أنا لا أصدر صوتًا، بل أجعل الحرف ساكنًا، كأنني أقول له: توقف! لا تتحرك! مثل كلمة <span class="highlight" tabindex="0" aria-label="مثال على السكون: كلمة بيت ساكنة">بَيتْ</span>، حيث الحرف الأخير ساكن".
+    </p>
+
+    <p class="section-title">والآن تعالوا نتعرف على المدود الثلاثة الجميلة:</p>
+
+    <p>
+      <span class="character madd" aria-label="المد بالألف">آ</span> <strong>المد بالألف:</strong> هو أن يأتي حرف <strong>الألف</strong> ساكنًا بعد حرف مفتوح، فيُطيل الصوت، مثل كلمة <span class="highlight" tabindex="0" aria-label="مثال على المد بالألف: قال">قَال</span>، حيث نمد الصوت بسبب الألف.
+    </p>
+    <p>
+      <span class="character madd" aria-label="المد بالواو">و</span> <strong>المد بالواو:</strong> هو أن يأتي حرف <strong>الواو</strong> ساكنًا بعد حرف مضموم، فيُطيل الصوت، مثل كلمة <span class="highlight" tabindex="0" aria-label="مثال على المد بالواو: يقول">يُقُول</span>، حيث نمد الصوت بسبب الواو.
+    </p>
+    <p>
+      <span class="character madd" aria-label="المد بالياء">ي</span> <strong>المد بالياء:</strong> هو أن يأتي حرف <strong>الياء</strong> ساكنًا بعد حرف مكسور، فيُطيل الصوت، مثل كلمة <span class="highlight" tabindex="0" aria-label="مثال على المد بالياء: قيل">قِيل</span>، حيث نمد الصوت بسبب الياء.
+    </p>
+
+    <p>
+      اتفق الأصدقاء الخمسة أن كل واحد منهم له دوره الخاص، وأنهم معًا يجعلون الكلمات تتراقص وتغني في قلوب الأطفال.
+    </p>
+    <p>
+      ومنذ ذلك اليوم، صارت الحروف تنتظر بفارغ الصبر قدوم 
+      <span class="character fatha">َ</span>، 
+      <span class="character damma">ُ</span>، 
+      <span class="character kasra">ِ</span>، 
+      <span class="character sukun">ْ</span>، و
+      <span class="character madd">آ</span> 
+      ليجعلوا الكلام أجمل وأوضح.
+    </p>
+    <p style="font-weight:700; text-align:center; font-size:1.3rem; margin-top:2rem;">
+      وهكذا تعلم الأطفال كيف تنطق الحروف بالحركات والمدود، وعاشوا مع الحروف قصة لا تُنسى!
+    </p>
+  </article>
+
+  <button class="audio-btn" aria-label="تشغيل نطق الحركات والمدود" title="تشغيل نطق الحركات والمدود">
+    🔊
+  </button>
+
+  <script>
+    // نطق الحركات والمدود عند النقر على كل حركة
+    const characters = document.querySelectorAll('.character');
+    characters.forEach(char => {
+      char.addEventListener('click', () => {
+        speak(char.textContent);
+        togglePressed(char);
+      });
+      char.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          char.click();
+        }
+      });
+    });
+
+    // نطق الحركات والمدود مجتمعة عند الضغط على زر الصوت
+    const audioBtn = document.querySelector('.audio-btn');
+    audioBtn.addEventListener('click', () => {
+      const text = 'الفتحة، الضمة، الكسرة، السكون، والمد بالألف، والمد بالواو، والمد بالياء';
+      speak(text);
+    });
+
+    // دالة النطق باستخدام Web Speech API
+    function speak(text) {
+      if (!('speechSynthesis' in window)) {
+        alert('جهازك لا يدعم خاصية النطق الصوتي.');
+        return;
+      }
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'ar-SA';
+      utterance.rate = 0.9;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // تغيير حالة aria-pressed عند النطق للحركة (للتفاعل)
+    function togglePressed(element) {
+      const pressed = element.getAttribute('aria-pressed') === 'true';
+      element.setAttribute('aria-pressed', !pressed);
+      setTimeout(() => element.setAttribute('aria-pressed', 'false'), 1500);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شبكة الحروف العربية الكاملة</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', 'Noto Sans Arabic', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 20px;
+            color: white;
+        }
+
+        .title {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1em;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .letters-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .letter-group {
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .letter-group:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+
+        .letter-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            border-radius: 15px;
+        }
+
+        .letter-main {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .letter-name {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .syllables-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .syllable-card {
+            padding: 15px 10px;
+            text-align: center;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.8em;
+            font-weight: bold;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid transparent;
+        }
+
+        /* ألوان المقاطع القصيرة */
+        .short-vowel {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        /* ألوان المقاطع الطويلة */
+        .long-vowel {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+        /* ألوان التنوين */
+        .tanween {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+
+        .syllable-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border-color: #fff;
+        }
+
+        .syllable-card.active {
+            animation: glow 1.5s ease-in-out;
+            transform: scale(1.1);
+            border-color: #fff;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 
+                        0 0 60px rgba(255, 255, 255, 0.6),
+                        0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                box-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 
+                           0 0 60px rgba(255, 255, 255, 0.6),
+                           0 15px 35px rgba(0, 0, 0, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 50px rgba(255, 255, 255, 1), 
+                           0 0 80px rgba(255, 255, 255, 0.8),
+                           0 15px 35px rgba(0, 0, 0, 0.3);
+            }
+        }
+
+        .syllable-type {
+            position: absolute;
+            bottom: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7em;
+            opacity: 0.8;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #ecf0f1, #bdc3c7);
+            border-radius: 15px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(155, 89, 182, 0.4);
+        }
+
+        .current-selection {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-size: 2.5em;
+            font-weight: bold;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(46, 204, 113, 0.3);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .letters-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .syllables-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .syllable-card {
+                font-size: 1.5em;
+                padding: 12px 8px;
+            }
+            
+            .letter-main {
+                font-size: 2.5em;
+            }
+            
+            .current-selection {
+                font-size: 2em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .legend {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <h1 class="title">🌟 شبكة الحروف العربية الكاملة 🌟</h1>
+            <p class="subtitle">جميع المقاطع القصيرة والطويلة والتنوين لكل حرف من الحروف الـ28</p>
+            
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(135deg, #e74c3c, #c0392b);"></div>
+                    <span>المقاطع القصيرة</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(135deg, #3498db, #2980b9);"></div>
+                    <span>المقاطع الطويلة</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(135deg, #f39c12, #e67e22);"></div>
+                    <span>التنوين</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="current-selection" id="currentSelection">
+            اضغط على أي مقطع لتراه هنا ✨
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalClicks">0</div>
+                <div class="stat-label">مقطع تم الضغط عليه</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">28</div>
+                <div class="stat-label">حرف عربي</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">280</div>
+                <div class="stat-label">مقطع إجمالي</div>
+            </div>
+        </div>
+
+        <div class="letters-container" id="lettersContainer">
+            <!-- سيتم إنشاء الحروف هنا بواسطة JavaScript -->
+        </div>
+
+        <div class="controls">
+            <button class="btn" onclick="playCurrentSound()">🔊 استمع للمقطع</button>
+            <button class="btn" onclick="randomSelection()">🎲 مقطع عشوائي</button>
+            <button class="btn" onclick="resetStats()">🔄 إعادة تعيين</button>
+            <button class="btn" onclick="showAllActive()">✨ إضاءة الكل</button>
+        </div>
+    </div>
+
+    <script>
+        const arabicLetters = [
+            {letter: 'ا', name: 'ألف'}, {letter: 'ب', name: 'باء'}, {letter: 'ت', name: 'تاء'}, {letter: 'ث', name: 'ثاء'},
+            {letter: 'ج', name: 'جيم'}, {letter: 'ح', name: 'حاء'}, {letter: 'خ', name: 'خاء'}, {letter: 'د', name: 'دال'},
+            {letter: 'ذ', name: 'ذال'}, {letter: 'ر', name: 'راء'}, {letter: 'ز', name: 'زين'}, {letter: 'س', name: 'سين'},
+            {letter: 'ش', name: 'شين'}, {letter: 'ص', name: 'صاد'}, {letter: 'ض', name: 'ضاد'}, {letter: 'ط', name: 'طاء'},
+            {letter: 'ظ', name: 'ظاء'}, {letter: 'ع', name: 'عين'}, {letter: 'غ', name: 'غين'}, {letter: 'ف', name: 'فاء'},
+            {letter: 'ق', name: 'قاف'}, {letter: 'ك', name: 'كاف'}, {letter: 'ل', name: 'لام'}, {letter: 'م', name: 'ميم'},
+            {letter: 'ن', name: 'نون'}, {letter: 'ه', name: 'هاء'}, {letter: 'و', name: 'واو'}, {letter: 'ي', name: 'ياء'}
+        ];
+
+        // تعريف المقاطع
+        const syllableTypes = [
+            // المقاطع القصيرة
+            {vowel: 'َ', name: 'فتحة', type: 'short-vowel', label: 'قصير'},
+            {vowel: 'ُ', name: 'ضمة', type: 'short-vowel', label: 'قصير'},
+            {vowel: 'ِ', name: 'كسرة', type: 'short-vowel', label: 'قصير'},
+            {vowel: 'ْ', name: 'سكون', type: 'short-vowel', label: 'ساكن'},
+            
+            // المقاطع الطويلة
+            {vowel: 'َا', name: 'مد بالألف', type: 'long-vowel', label: 'طويل'},
+            {vowel: 'ُو', name: 'مد بالواو', type: 'long-vowel', label: 'طويل'},
+            {vowel: 'ِي', name: 'مد بالياء', type: 'long-vowel', label: 'طويل'},
+            
+            // التنوين
+            {vowel: 'ً', name: 'تنوين فتح', type: 'tanween', label: 'تنوين'},
+            {vowel: 'ٌ', name: 'تنوين ضم', type: 'tanween', label: 'تنوين'},
+            {vowel: 'ٍ', name: 'تنوين كسر', type: 'tanween', label: 'تنوين'}
+        ];
+
+        let totalClicks = 0;
+        let currentSelectedElement = null;
+
+        function initializeGrid() {
+            const container = document.getElementById('lettersContainer');
+            container.innerHTML = '';
+
+            arabicLetters.forEach(letterObj => {
+                const letterGroup = createLetterGroup(letterObj);
+                container.appendChild(letterGroup);
+            });
+        }
+
+        function createLetterGroup(letterObj) {
+            const group = document.createElement('div');
+            group.className = 'letter-group';
+            
+            const header = document.createElement('div');
+            header.className = 'letter-header';
+            header.innerHTML = `
+                <div class="letter-main">${letterObj.letter}</div>
+                <div class="letter-name">${letterObj.name}</div>
+            `;
+            
+            const syllablesGrid = document.createElement('div');
+            syllablesGrid.className = 'syllables-grid';
+            
+            syllableTypes.forEach(syllableType => {
+                const syllableCard = createSyllableCard(letterObj.letter, syllableType);
+                syllablesGrid.appendChild(syllableCard);
+            });
+            
+            group.appendChild(header);
+            group.appendChild(syllablesGrid);
+            
+            return group;
+        }
+
+        function createSyllableCard(letter, syllableType) {
+            const card = document.createElement('div');
+            card.className = `syllable-card ${syllableType.type}`;
+            
+            const syllableText = letter + syllableType.vowel;
+            
+            card.innerHTML = `
+                ${syllableText}
+                <div class="syllable-type">${syllableType.label}</div>
+            `;
+            
+            card.addEventListener('click', () => selectSyllable(card, syllableText, syllableType.name));
+            
+            return card;
+        }
+
+        function selectSyllable(element, syllableText, syllableName) {
+            // إزالة التحديد السابق
+            if (currentSelectedElement) {
+                currentSelectedElement.classList.remove('active');
+            }
+            
+            // إضافة التحديد الجديد
+            element.classList.add('active');
+            currentSelectedElement = element;
+            
+            // تحديث العرض
+            document.getElementById('currentSelection').textContent = syllableText;
+            
+            // تحديث الإحصائيات
+            totalClicks++;
+            document.getElementById('totalClicks').textContent = totalClicks;
+            
+            // إزالة التأثير بعد ثانيتين
+            setTimeout(() => {
+                if (element.classList.contains('active')) {
+                    element.classList.remove('active');
+                    if (currentSelectedElement === element) {
+                        currentSelectedElement = null;
+                    }
+                }
+            }, 2000);
+            
+            // تشغيل صوت المقطع الحقيقي
+            playArabicSyllable(syllableText);
+        }
+
+        function playArabicSyllable(syllableText) {
+            if ('speechSynthesis' in window) {
+                // إيقاف أي صوت سابق
+                speechSynthesis.cancel();
+                
+                const utterance = new SpeechSynthesisUtterance(syllableText);
+                
+                // إعدادات الصوت العربي
+                utterance.lang = 'ar-SA'; // اللغة العربية السعودية
+                utterance.rate = 0.7; // سرعة أبطأ للوضوح
+                utterance.pitch = 1.2; // نبرة أعلى قليلاً
+                utterance.volume = 0.8; // مستوى صوت مناسب
+                
+                // البحث عن أصوات عربية متاحة
+                const voices = speechSynthesis.getVoices();
+                const arabicVoice = voices.find(voice => 
+                    voice.lang.startsWith('ar') || 
+                    voice.name.includes('Arabic') ||
+                    voice.name.includes('عربي')
+                );
+                
+                if (arabicVoice) {
+                    utterance.voice = arabicVoice;
+                    console.log('استخدام الصوت العربي:', arabicVoice.name);
+                } else {
+                    console.log('لم يتم العثور على صوت عربي، استخدام الصوت الافتراضي');
+                }
+                
+                // معالجة الأخطاء
+                utterance.onerror = function(event) {
+                    console.log('خطأ في تشغيل الصوت:', event.error);
+                    // تشغيل صوت بديل في حالة الخطأ
+                    playFallbackSound();
+                };
+                
+                utterance.onstart = function() {
+                    console.log('بدء تشغيل:', syllableText);
+                };
+                
+                utterance.onend = function() {
+                    console.log('انتهاء تشغيل:', syllableText);
+                };
+                
+                // تشغيل الصوت
+                speechSynthesis.speak(utterance);
+            } else {
+                console.log('المتصفح لا يدعم تحويل النص إلى كلام');
+                playFallbackSound();
+            }
+        }
+
+        // صوت بديل في حالة عدم دعم TTS
+        function playFallbackSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            } catch (e) {
+                console.log('لا يمكن تشغيل أي صوت');
+            }
+        }
+
+        function playCurrentSound() {
+            const currentText = document.getElementById('currentSelection').textContent;
+            if (currentText && currentText !== 'اضغط على أي مقطع لتراه هنا ✨') {
+                playArabicSyllable(currentText);
+            }
+        }
+
+        // تحميل الأصوات المتاحة عند تحميل الصفحة
+        function loadVoices() {
+            const voices = speechSynthesis.getVoices();
+            console.log('الأصوات المتاحة:');
+            voices.forEach(voice => {
+                if (voice.lang.startsWith('ar') || voice.name.includes('Arabic')) {
+                    console.log(`- ${voice.name} (${voice.lang})`);
+                }
+            });
+        }
+
+        function randomSelection() {
+            const allCards = document.querySelectorAll('.syllable-card');
+            const randomIndex = Math.floor(Math.random() * allCards.length);
+            allCards[randomIndex].click();
+        }
+
+        function showAllActive() {
+            const allCards = document.querySelectorAll('.syllable-card');
+            allCards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.add('active');
+                    setTimeout(() => {
+                        card.classList.remove('active');
+                    }, 1000);
+                }, index * 50);
+            });
+        }
+
+        function resetStats() {
+            totalClicks = 0;
+            document.getElementById('totalClicks').textContent = totalClicks;
+            document.getElementById('currentSelection').textContent = 'اضغط على أي مقطع لتراه هنا ✨';
+            
+            if (currentSelectedElement) {
+                currentSelectedElement.classList.remove('active');
+                currentSelectedElement = null;
+            }
+        }
+
+        // تشغيل التطبيق
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeGrid();
+        });
+
+        // إضافة تأثيرات إضافية للتفاعل
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('syllable-card')) {
+                // إضافة تأثير اهتزاز بسيط
+                navigator.vibrate && navigator.vibrate(50);
+            }
+        });
+    </script>
+</body>
+</html>

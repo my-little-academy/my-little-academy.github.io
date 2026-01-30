@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة تعليم الوضوء للأطفال</title>
+    <style>
+        :root {
+            --primary-color: #2c7be5;
+            --secondary-color: #3a9efd;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #e6f7ff, #f0fff0);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--dark-color);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .header h1 {
+            color: var(--primary-color);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #6c757d;
+            font-size: 1.1em;
+        }
+        
+        .game-container {
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+            width: 90%;
+            max-width: 800px;
+            text-align: center;
+        }
+        
+        .question-container {
+            margin-bottom: 30px;
+        }
+        
+        .question {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .options-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 600px) {
+            .options-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .option {
+            background: linear-gradient(145deg, #ffffff, #f0f8ff);
+            border-radius: 15px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .option img {
+            max-width: 100%;
+            max-height: 100px;
+            object-fit: contain;
+        }
+        
+        .option.correct {
+            border-color: var(--success-color);
+            background: linear-gradient(145deg, #e6ffed, #f0fff4);
+            animation: pulse 0.5s;
+        }
+        
+        .option.wrong {
+            border-color: var(--error-color);
+            background: linear-gradient(145deg, #ffebee, #fff0f0);
+            animation: shake 0.5s;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .controls {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: linear-gradient(145deg, var(--secondary-color), var(--primary-color));
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        .progress-container {
+            width: 100%;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            margin: 20px 0;
+            height: 20px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        
+        .score-display {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .feedback {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 15px 0;
+            min-height: 30px;
+        }
+        
+        .feedback.correct {
+            color: var(--success-color);
+        }
+        
+        .feedback.wrong {
+            color: var(--error-color);
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            border-radius: 50%;
+            animation: fall 3s linear forwards;
+        }
+        
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .success-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            z-index: 100;
+            display: none;
+            max-width: 90%;
+        }
+        
+        .success-message h2 {
+            color: var(--success-color);
+            margin-bottom: 20px;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 99;
+            display: none;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .step-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background-color: #dee2e6;
+            transition: all 0.3s ease;
+        }
+        
+        .step-dot.active {
+            background-color: var(--primary-color);
+            transform: scale(1.2);
+        }
+        
+        .step-dot.completed {
+            background-color: var(--success-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>لعبة تعليم الوضوء للأطفال 🌟</h1>
+        <p>اختر الإجابة الصحيحة لكل سؤال لتتعلم الوضوء بطريقة ممتعة</p>
+    </div>
+    
+    <div class="game-container">
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+        </div>
+        
+        <div class="score-display" id="scoreDisplay">النقاط: 0</div>
+        
+        <div class="step-indicator" id="stepIndicator">
+            <!-- سيتم إضافة النقاط هنا بواسطة JavaScript -->
+        </div>
+        
+        <div class="question-container">
+            <div class="question" id="question">السؤال يظهر هنا</div>
+            <div class="feedback" id="feedback"></div>
+            
+            <div class="options-container" id="optionsContainer">
+                <!-- الخيارات سيتم إضافتها بواسطة JavaScript -->
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="nextBtn" disabled>التالي</button>
+            <button id="hintBtn">مساعدة</button>
+            <button id="resetBtn">إعادة اللعبة</button>
+        </div>
+    </div>
+    
+    <div class="overlay" id="overlay"></div>
+    
+    <div class="success-message" id="successMessage">
+        <h2>أحسنت! 🌟</h2>
+        <p id="finalScore">لقد أكملت جميع الأسئلة بنجاح!</p>
+        <button id="playAgainBtn">العب مرة أخرى</button>
+    </div>
+    
+    <script>
+        // أسئلة اللعبة
+        const quizQuestions = [
+            {
+                question: "ماذا ننوي قبل البدء بالوضوء؟",
+                options: [
+                    { text: "اللعب", image: "https://i.imgur.com/JQ6Y0yP.png", correct: false },
+                    { text: "التطهر للصلاة", image: "https://i.imgur.com/5X4wW9j.png", correct: true },
+                    { text: "الأكل", image: "https://i.imgur.com/8mQZb0y.png", correct: false },
+                    { text: "الراحة", image: "https://i.imgur.com/3KvY5xL.png", correct: false }
+                ]
+            },
+            {
+                question: "كم مرة نغسل كل عضو في الوضوء؟",
+                options: [
+                    { text: "مرة واحدة", image: "https://i.imgur.com/7G2Ww9Y.png", correct: false },
+                    { text: "مرتين", image: "https://i.imgur.com/1LtH9fK.png", correct: false },
+                    { text: "ثلاث مرات", image: "https://i.imgur.com/4N6Xy0Z.png", correct: true },
+                    { text: "أربع مرات", image: "https://i.imgur.com/JQ6Y0yP.png", correct: false }
+                ]
+            },
+            {
+                question: "أي جزء نغسله بعد الوجه؟",
+                options: [
+                    { text: "القدمين", image: "https://i.imgur.com/5X4wW9j.png", correct: false },
+                    { text: "اليدين إلى المرفقين", image: "https://i.imgur.com/8mQZb0y.png", correct: true },
+                    { text: "الرأس", image: "https://i.imgur.com/3KvY5xL.png", correct: false },
+                    { text: "الأذنين", image: "https://i.imgur.com/7G2Ww9Y.png", correct: false }
+                ]
+            },
+            {
+                question: "ما هي الخطوة التي تأتي بعد غسل اليدين؟",
+                options: [
+                    { text: "غسل القدمين", image: "https://i.imgur.com/1LtH9fK.png", correct: false },
+                    { text: "المضمضة", image: "https://i.imgur.com/4N6Xy0Z.png", correct: false },
+                    { text: "مسح الرأس", image: "https://i.imgur.com/JQ6Y0yP.png", correct: true },
+                    { text: "غسل الوجه", image: "https://i.imgur.com/5X4wW9j.png", correct: false }
+                ]
+            },
+            {
+                question: "كيف نمسح الرأس في الوضوء؟",
+                options: [
+                    { text: "مسح كامل الرأس بالماء", image: "https://i.imgur.com/8mQZb0y.png", correct: false },
+                    { text: "مسح جزء من الرأس بأيدينا المبللة", image: "https://i.imgur.com/3KvY5xL.png", correct: true },
+                    { text: "غسل الرأس كاملاً", image: "https://i.imgur.com/7G2Ww9Y.png", correct: false },
+                    { text: "عدم مسح الرأس", image: "https://i.imgur.com/1LtH9fK.png", correct: false }
+                ]
+            }
+        ];
+        
+        // عناصر DOM
+        const questionElement = document.getElementById('question');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const feedbackElement = document.getElementById('feedback');
+        const nextBtn = document.getElementById('nextBtn');
+        const hintBtn = document.getElementById('hintBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const progressBar = document.getElementById('progressBar');
+        const stepIndicator = document.getElementById('stepIndicator');
+        const successMessage = document.getElementById('successMessage');
+        const overlay = document.getElementById('overlay');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+        const finalScoreElement = document.getElementById('finalScore');
+        
+        // متغيرات اللعبة
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let quizCompleted = false;
+        
+        // تهيئة اللعبة
+        function initGame() {
+            currentQuestionIndex = 0;
+            score = 0;
+            quizCompleted = false;
+            
+            updateScoreDisplay();
+            updateProgressBar();
+            setupStepIndicator();
+            loadQuestion();
+            
+            nextBtn.disabled = true;
+            feedbackElement.textContent = '';
+            feedbackElement.className = 'feedback';
+            
+            successMessage.style.display = 'none';
+            overlay.style.display = 'none';
+        }
+        
+        // إعداد مؤشر الخطوات
+        function setupStepIndicator() {
+            stepIndicator.innerHTML = '';
+            
+            quizQuestions.forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.className = 'step-dot';
+                dot.dataset.index = index;
+                stepIndicator.appendChild(dot);
+            });
+            
+            updateStepIndicator();
+        }
+        
+        // تحديث مؤشر الخطوات
+        function updateStepIndicator() {
+            const dots = document.querySelectorAll('.step-dot');
+            
+            dots.forEach((dot, index) => {
+                dot.classList.remove('active', 'completed');
+                
+                if (index === currentQuestionIndex) {
+                    dot.classList.add('active');
+                } else if (index < currentQuestionIndex) {
+                    dot.classList.add('completed');
+                }
+            });
+        }
+        
+        // تحميل السؤال الحالي
+        function loadQuestion() {
+            const currentQuestion = quizQuestions[currentQuestionIndex];
+            questionElement.textContent = currentQuestion.question;
+            
+            optionsContainer.innerHTML = '';
+            
+            // خلط الخيارات عشوائياً
+            const shuffledOptions = [...currentQuestion.options].sort(() => Math.random() - 0.5);
+            
+            shuffledOptions.forEach(option => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                
+                if (option.image) {
+                    const img = document.createElement('img');
+                    img.src = option.image;
+                    img.alt = option.text;
+                    optionElement.appendChild(img);
+                } else {
+                    optionElement.textContent = option.text;
+                }
+                
+                optionElement.dataset.correct = option.correct;
+                
+                optionElement.addEventListener('click', () => selectOption(optionElement));
+                
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            updateStepIndicator();
+        }
+        
+        // اختيار إجابة
+        function selectOption(selectedOption) {
+            if (quizCompleted) return;
+            
+            const correct = selectedOption.dataset.correct === 'true';
+            
+            if (correct) {
+                score++;
+                updateScoreDisplay();
+                selectedOption.classList.add('correct');
+                feedbackElement.textContent = 'إجابة صحيحة! أحسنت!';
+                feedbackElement.className = 'feedback correct';
+            } else {
+                selectedOption.classList.add('wrong');
+                feedbackElement.textContent = 'إجابة خاطئة! حاول مرة أخرى.';
+                feedbackElement.className = 'feedback wrong';
+                
+                // إظهار الإجابة الصحيحة
+                const options = document.querySelectorAll('.option');
+                options.forEach(option => {
+                    if (option.dataset.correct === 'true') {
+                        option.classList.add('correct');
+                    }
+                });
+            }
+            
+            // تعطيل جميع الخيارات بعد الاختيار
+            const options = document.querySelectorAll('.option');
+            options.forEach(option => {
+                option.style.pointerEvents = 'none';
+            });
+            
+            nextBtn.disabled = false;
+        }
+        
+        // التالي سؤال
+        function nextQuestion() {
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < quizQuestions.length) {
+                loadQuestion();
+                nextBtn.disabled = true;
+                feedbackElement.textContent = '';
+                feedbackElement.className = 'feedback';
+                updateProgressBar();
+            } else {
+                endQuiz();
+            }
+        }
+        
+        // نهاية اللعبة
+        function endQuiz() {
+            quizCompleted = true;
+            
+            finalScoreElement.textContent = `لقد أكملت جميع الأسئلة بنجاح! نقاطك: ${score} من ${quizQuestions.length}`;
+            
+            overlay.style.display = 'block';
+            successMessage.style.display = 'block';
+            
+            // إضافة تأثيرات الكونفيتي
+            for (let i = 0; i < 100; i++) {
+                createConfetti();
+            }
+        }
+        
+        // إنشاء تأثير الكونفيتي
+        function createConfetti() {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            
+            // ألوان عشوائية
+            const colors = ['#3a9efd', '#28a745', '#ffc107', '#dc3545', '#6f42c1'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            confetti.style.backgroundColor = randomColor;
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.top = -10 + 'px';
+            
+            document.body.appendChild(confetti);
+            
+            // إزالة الكونفيتي بعد انتهاء الحركة
+            setTimeout(() => {
+                confetti.remove();
+            }, 3000);
+        }
+        
+        // تحديث شريط التقدم
+        function updateProgressBar() {
+            const progress = ((currentQuestionIndex + 1) / quizQuestions.length) * 100;
+            progressBar.style.width = progress + '%';
+        }
+        
+        // تحديث عرض النقاط
+        function updateScoreDisplay() {
+            scoreDisplay.textContent = `النقاط: ${score}`;
+        }
+        
+        // مساعدة
+        function showHint() {
+            if (quizCompleted) return;
+            
+            const currentQuestion = quizQuestions[currentQuestionIndex];
+            const correctOptionIndex = currentQuestion.options.findIndex(option => option.correct);
+            
+            const options = document.querySelectorAll('.option');
+            options.forEach((option, index) => {
+                if (index === correctOptionIndex) {
+                    option.style.border = '3px dashed #ffc107';
+                    option.style.boxShadow = '0 0 10px #ffc107';
+                    
+                    setTimeout(() => {
+                        option.style.border = '3px solid transparent';
+                        option.style.boxShadow = '0 5px 15px rgba(0,0,0,0.1)';
+                    }, 2000);
+                }
+            });
+        }
+        
+        // أحداث الأزرار
+        nextBtn.addEventListener('click', nextQuestion);
+        hintBtn.addEventListener('click', showHint);
+        resetBtn.addEventListener('click', initGame);
+        playAgainBtn.addEventListener('click', initGame);
+        
+        // بدء اللعبة عند تحميل الصفحة
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html>

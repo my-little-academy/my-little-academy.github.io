@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>لعبة ترتيب الحروف</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f8ff;
+    color: #034f84;
+    text-align: center;
+    padding: 30px;
+  }
+  h1 {
+    margin-bottom: 20px;
+  }
+  #letters {
+    margin: 20px auto;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+  .letter {
+    background: #68a0b0;
+    color: white;
+    font-size: 2em;
+    padding: 15px 22px;
+    border-radius: 12px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s ease;
+  }
+  .letter:hover {
+    background: #3b6978;
+  }
+  #answer {
+    margin: 30px auto;
+    min-height: 50px;
+    font-size: 2em;
+    border-bottom: 3px solid #034f84;
+    padding: 10px 15px;
+    width: fit-content;
+    min-width: 250px;
+    margin-bottom: 20px;
+  }
+  #btnCheck, #btnReset {
+    background: #034f84;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    margin: 10px 8px;
+    border-radius: 10px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  #btnCheck:hover, #btnReset:hover {
+    background: #022f47;
+  }
+  #result {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-top: 15px;
+    min-height: 30px;
+  }
+</style>
+</head>
+<body>
+
+<h1>لعبة ترتيب الحروف</h1>
+<p>رتب الحروف لتكوين كلمة صحيحة</p>
+
+<div id="letters"></div>
+
+<div id="answer"></div>
+
+<button id="btnCheck">تحقق</button>
+<button id="btnReset">إعادة ترتيب</button>
+
+<div id="result"></div>
+
+<script>
+  const words = [
+    "كتاب",
+    "مدرسة",
+    "قلم",
+    "دفتر",
+    "معلم"
+  ];
+
+  let currentWord = "";
+  let shuffledLetters = [];
+  const lettersDiv = document.getElementById('letters');
+  const answerDiv = document.getElementById('answer');
+  const resultDiv = document.getElementById('result');
+  const btnCheck = document.getElementById('btnCheck');
+  const btnReset = document.getElementById('btnReset');
+
+  function shuffleArray(arr) {
+    // فيشر-يتس shuffle
+    for (let i = arr.length - 1; i > 0; i--) {
+      let j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function startGame() {
+    resultDiv.textContent = "";
+    answerDiv.textContent = "";
+    lettersDiv.innerHTML = "";
+
+    currentWord = words[Math.floor(Math.random() * words.length)];
+    shuffledLetters = shuffleArray(currentWord.split(''));
+
+    // عرض الحروف مبعثرة
+    shuffledLetters.forEach(letter => {
+      const span = document.createElement('span');
+      span.textContent = letter;
+      span.classList.add('letter');
+      span.addEventListener('click', () => {
+        answerDiv.textContent += letter;
+        span.style.visibility = 'hidden';
+      });
+      lettersDiv.appendChild(span);
+    });
+  }
+
+  btnCheck.addEventListener('click', () => {
+    if(answerDiv.textContent === currentWord) {
+      resultDiv.textContent = "ممتاز! أحسنت ترتيب الكلمة 🎉";
+      resultDiv.style.color = "green";
+    } else {
+      resultDiv.textContent = "حاول مرة أخرى 😕";
+      resultDiv.style.color = "red";
+    }
+  });
+
+  btnReset.addEventListener('click', () => {
+    startGame();
+  });
+
+  // عند النقر على إجابة مرتبة لمسحها وإرجاع الحرف
+  answerDiv.addEventListener('click', (e) => {
+    if(e.target && e.target.nodeName === 'SPAN') {
+      const letter = e.target.textContent;
+      // إظهار الحرف المخبأ
+      [...lettersDiv.children].forEach(span => {
+        if(span.textContent === letter && span.style.visibility === 'hidden') {
+          span.style.visibility = 'visible';
+          return;
+        }
+      });
+      // إزالة الحرف من الإجابة
+      e.target.remove();
+    }
+  });
+
+  // لجعل الإجابة قابلة للتعديل بشكل أفضل، نستخدم span لكل حرف في الإجابة
+  function updateAnswerDiv() {
+    const text = answerDiv.textContent;
+    answerDiv.innerHTML = '';
+    for (let char of text) {
+      const span = document.createElement('span');
+      span.textContent = char;
+      span.style.cursor = 'pointer';
+      span.style.margin = '0 5px';
+      span.addEventListener('click', () => {
+        // إرجاع الحرف للوحة الحروف
+        [...lettersDiv.children].forEach(s => {
+          if(s.textContent === char && s.style.visibility === 'hidden') {
+            s.style.visibility = 'visible';
+            return;
+          }
+        });
+        span.remove();
+      });
+      answerDiv.appendChild(span);
+    }
+  }
+
+  // تحديث الإجابة عند كل إضافة حرف
+  lettersDiv.addEventListener('click', e => {
+    if(e.target.classList.contains('letter') && e.target.style.visibility !== 'hidden') {
+      answerDiv.textContent += e.target.textContent;
+      e.target.style.visibility = 'hidden';
+      updateAnswerDiv();
+    }
+  });
+
+  // بداية اللعبة
+  startGame();
+</script>
+
+</body>
+</html>

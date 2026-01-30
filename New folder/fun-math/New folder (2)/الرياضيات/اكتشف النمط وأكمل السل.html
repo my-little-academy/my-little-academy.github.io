@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>اكتشف النمط وأكمل السلسلة</title>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      direction: rtl;
+      background-color: #E0F2F1;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      color: #00695C;
+    }
+    #sequence {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 30px 0;
+    }
+    .card {
+      width: 60px;
+      height: 60px;
+      font-size: 20px;
+      border: 2px solid #009688;
+      border-radius: 10px;
+      background-color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card input {
+      width: 100%;
+      height: 100%;
+      border: none;
+      text-align: center;
+      font-size: 20px;
+      outline: none;
+    }
+    .filled {
+      background-color: #B2DFDB;
+      font-weight: bold;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: #00796B;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 22px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🧠 اكتشف النمط وأكمل السلسلة</h1>
+  <div id="sequence"></div>
+  <button onclick="checkSequence()">تحقق من الإجابة ✅</button>
+  <div class="result" id="resultMsg"></div>
+
+  <script>
+    const sequenceLength = 8;
+    const possibleSteps = [2, 5, 10, 20, 50, 100, 1000];
+    let fullSequence = [];
+
+    function generateSequence() {
+      document.getElementById("resultMsg").textContent = "";
+      const container = document.getElementById("sequence");
+      container.innerHTML = "";
+
+      // اختيار الاتجاه والمقدار
+      const direction = Math.random() > 0.5 ? "up" : "down";
+      const step = possibleSteps[Math.floor(Math.random() * possibleSteps.length)];
+      const base = Math.floor(Math.random() * 10 + 5) * step;
+
+      // توليد السلسلة الكاملة
+      fullSequence = [];
+      for (let i = 0; i < sequenceLength; i++) {
+        fullSequence.push(direction === "up" ? base + i * step : base - i * step);
+      }
+
+      // اختيار موقع الظهور للعددين المتجاورين
+      const visibleIndex = Math.floor(Math.random() * (sequenceLength - 1));
+
+      // إنشاء البطاقات
+      for (let i = 0; i < sequenceLength; i++) {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        if (i === visibleIndex || i === visibleIndex + 1) {
+          card.classList.add("filled");
+          card.textContent = fullSequence[i];
+        } else {
+          const input = document.createElement("input");
+          input.setAttribute("type", "number");
+          input.setAttribute("data-index", i);
+          card.appendChild(input);
+        }
+
+        container.appendChild(card);
+      }
+    }
+
+    function checkSequence() {
+      const inputs = document.querySelectorAll("input");
+      let allCorrect = true;
+
+      inputs.forEach(input => {
+        const index = parseInt(input.getAttribute("data-index"));
+        const value = parseInt(input.value);
+        if (value !== fullSequence[index]) {
+          allCorrect = false;
+        }
+      });
+
+      const result = document.getElementById("resultMsg");
+      if (allCorrect) {
+        result.textContent = "✔️ رائع! لقد أكملت السلسلة بشكل صحيح!";
+        result.style.color = "green";
+      } else {
+        result.textContent = "❌ هناك خطأ... حاول مرة أخرى!";
+        result.style.color = "red";
+      }
+    }
+
+    // إطلاق اللعبة عند الفتح
+    generateSequence();
+  </script>
+
+</body>
+</html>

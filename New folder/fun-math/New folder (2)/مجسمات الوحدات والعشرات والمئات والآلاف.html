@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8" />
+<title>جدول المجسمات مع سحب وإفلات</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    direction: rtl;
+    padding: 20px;
+    background: #f0f0f0;
+  }
+  .grid-container {
+    display: grid;
+    grid-template-columns: repeat(2, 180px);
+    grid-template-rows: repeat(2, 180px);
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+  .cell {
+    background: white;
+    border: 2px solid #00796b;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    user-select: none;
+    cursor: grab;
+  }
+  .cell:active {
+    cursor: grabbing;
+  }
+  .label {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #004d40;
+  }
+  /* مجسمات مبسطة */
+  .unit {
+    width: 30px;
+    height: 30px;
+    background: #004d40;
+    border-radius: 3px;
+  }
+  .rod {
+    width: 30px;
+    height: 150px;
+    background: linear-gradient(#00796b 0%, #004d40 100%);
+    border-radius: 5px;
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .rod .unit {
+    width: 30px;
+    height: 15px;
+    margin: 0;
+    border-radius: 0;
+    border-bottom: 1px solid #00251a;
+  }
+  .plate {
+    width: 150px;
+    height: 150px;
+    background: #004d40;
+    border-radius: 10px;
+    display: grid;
+    grid-template-columns: repeat(10, 15px);
+    grid-template-rows: repeat(10, 15px);
+    gap: 1px;
+  }
+  .plate .unit {
+    width: 15px;
+    height: 15px;
+    border-radius: 2px;
+    background: #00796b;
+  }
+  .thousand {
+    width: 160px;
+    height: 160px;
+    background: #004d40;
+    border-radius: 10px;
+    position: relative;
+  }
+  .thousand .plate {
+    position: absolute;
+    top: 5px; left: 5px;
+  }
+  .thousand .plate:nth-child(2) {
+    top: 20px; left: 20px;
+  }
+
+  /* منطقة الإسقاط */
+  #drop-area {
+    min-height: 200px;
+    border: 3px dashed #00796b;
+    border-radius: 10px;
+    padding: 10px;
+    background: white;
+    color: #004d40;
+    font-weight: bold;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+</style>
+</head>
+<body>
+
+<h2>مجسمات الوحدات والعشرات والمئات والآلاف (يمكن سحبها)</h2>
+
+<div class="grid-container" id="source-grid">
+
+  <div class="cell" draggable="true" data-type="unit">
+    <div class="unit"></div>
+    <div class="label">الوحدات</div>
+  </div>
+
+  <div class="cell" draggable="true" data-type="rod">
+    <div class="rod">
+      <!-- 10 وحدات صغيرة مرتبة عمودياً -->
+      <div class="unit" style="height:15px;"></div>
+      <div class="unit" style="height:15px;"></div>
+      <div class="unit" style="height:15px;"></div>
+      <div class="unit" style="height:15px;"></div>
+      <div class="unit" style="height:15px;"></div>
+      <div class="unit" style="height:15px;"></div>
+      <div class="unit" style="height:15px;"></div>
+      <div class="unit" style="height:15px;"></div>
+      <div class="unit" style="height:15px;"></div>
+      <div class="unit" style="height:15px;"></div>
+    </div>
+    <div class="label">العشرات (قضيب)</div>
+  </div>
+
+  <div class="cell" draggable="true" data-type="plate">
+    <div class="plate">
+      <!-- 100 وحدة -->
+      <script>
+        // سيتم إنشاء المربعات عبر JS لاحقًا
+      </script>
+    </div>
+    <div class="label">المئات (صفيحة)</div>
+  </div>
+
+  <div class="cell" draggable="true" data-type="thousand">
+    <div class="thousand">
+      <div class="plate"></div>
+      <div class="plate"></div>
+    </div>
+    <div class="label">الآلاف</div>
+  </div>
+
+</div>
+
+<h3>اسحب المجسمات هنا:</h3>
+<div id="drop-area" aria-label="منطقة إسقاط المجسمات"></div>
+
+<script>
+  // إنشاء 100 وحدة داخل صفيحة المئات
+  const plateCells = document.querySelectorAll('.plate');
+  plateCells.forEach(plate => {
+    for(let i=0; i<100; i++) {
+      const u = document.createElement('div');
+      u.className = 'unit';
+      plate.appendChild(u);
+    }
+  });
+
+  // سحب وإفلات:
+  const sourceGrid = document.getElementById('source-grid');
+  const dropArea = document.getElementById('drop-area');
+
+  sourceGrid.querySelectorAll('.cell').forEach(cell => {
+    cell.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('type', cell.dataset.type);
+      e.dataTransfer.effectAllowed = 'copy';
+    });
+  });
+
+  dropArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+  });
+
+  dropArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const type = e.dataTransfer.getData('type');
+    let clone;
+
+    switch(type) {
+      case 'unit':
+        clone = document.createElement('div');
+        clone.className = 'unit';
+        clone.style.margin = '5px';
+        break;
+
+      case 'rod':
+        clone = document.createElement('div');
+        clone.className = 'rod';
+        for(let i=0; i<10; i++) {
+          const u = document.createElement('div');
+          u.className = 'unit';
+          u.style.height = '15px';
+          clone.appendChild(u);
+        }
+        clone.style.margin = '5px';
+        break;
+
+      case 'plate':
+        clone = document.createElement('div');
+        clone.className = 'plate';
+        clone.style.margin = '5px';
+        for(let i=0; i<100; i++) {
+          const u = document.createElement('div');
+          u.className = 'unit';
+          clone.appendChild(u);
+        }
+        break;
+
+      case 'thousand':
+        clone = document.createElement('div');
+        clone.className = 'thousand';
+        clone.style.margin = '5px';
+        for(let p=0; p<2; p++) {
+          const pl = document.createElement('div');
+          pl.className = 'plate';
+          for(let i=0; i<100; i++) {
+            const u = document.createElement('div');
+            u.className = 'unit';
+            pl.appendChild(u);
+          }
+          clone.appendChild(pl);
+        }
+        break;
+    }
+    if(clone) dropArea.appendChild(clone);
+  });
+</script>
+
+</body>
+</html>

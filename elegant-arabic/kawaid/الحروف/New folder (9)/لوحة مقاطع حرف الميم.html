@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة مقاطع حرف الميم</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+        
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .category {
+            background-color: white;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .category:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+        
+        .category-title {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .syllables {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .syllable {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            font-size: 2.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .syllable:hover {
+            background-color: #e9ecef;
+            transform: scale(1.05);
+        }
+        
+        .syllable:active {
+            transform: scale(0.98);
+        }
+        
+        .short .syllable {
+            color: #e74c3c;
+        }
+        
+        .long .syllable {
+            color: #3498db;
+        }
+        
+        .tanween .syllable {
+            color: #2ecc71;
+        }
+        
+        .syllable::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: currentColor;
+            opacity: 0.3;
+        }
+        
+        .syllable span {
+            display: block;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            color: #7f8c8d;
+        }
+        
+        .header {
+            grid-column: 1 / -1;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin: 0;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+        }
+        
+        /* نموذج الأمثلة */
+        .examples-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .examples-box {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .examples-title {
+            font-size: 1.8rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .examples-list {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .example-item {
+            font-size: 1.5rem;
+            padding: 10px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            text-align: center;
+        }
+        
+        .example-position {
+            font-size: 1rem;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        .close-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto 0;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+        
+        .close-btn:hover {
+            background: #c0392b;
+        }
+        
+        @media (max-width: 768px) {
+            .board {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="board">
+        <div class="header">
+            <h1>لوحة مقاطع حرف الميم</h1>
+            <p>اضغط على كل مقطع لرؤية أمثلته في الكلمات</p>
+        </div>
+        
+        <div class="category short">
+            <div class="category-title">الحركات القصيرة</div>
+            <div class="syllables">
+                <div class="syllable" onclick="showExamples('مَ', 'فتحة')">
+                    مَ
+                    <span>فتحة</span>
+                </div>
+                <div class="syllable" onclick="showExamples('مُ', 'ضمة')">
+                    مُ
+                    <span>ضمة</span>
+                </div>
+                <div class="syllable" onclick="showExamples('مِ', 'كسرة')">
+                    مِ
+                    <span>كسرة</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="category long">
+            <div class="category-title">الحركات الطويلة (المد)</div>
+            <div class="syllables">
+                <div class="syllable" onclick="showExamples('مَا', 'مد الألف')">
+                    مَا
+                    <span>مد الألف</span>
+                </div>
+                <div class="syllable" onclick="showExamples('مُو', 'مد الواو')">
+                    مُو
+                    <span>مد الواو</span>
+                </div>
+                <div class="syllable" onclick="showExamples('مِي', 'مد الياء')">
+                    مِي
+                    <span>مد الياء</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="category tanween">
+            <div class="category-title">التنوين</div>
+            <div class="syllables">
+                <div class="syllable" onclick="showExamples('مً', 'تنوين فتح')">
+                    مً
+                    <span>تنوين فتح</span>
+                </div>
+                <div class="syllable" onclick="showExamples('مٌ', 'تنوين ضم')">
+                    مٌ
+                    <span>تنوين ضم</span>
+                </div>
+                <div class="syllable" onclick="showExamples('مٍ', 'تنوين كسر')">
+                    مٍ
+                    <span>تنوين كسر</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="examples-container" id="examplesContainer">
+        <div class="examples-box">
+            <div class="examples-title" id="examplesTitle"></div>
+            <div class="examples-list" id="examplesList"></div>
+            <button class="close-btn" onclick="closeExamples()">إغلاق</button>
+        </div>
+    </div>
+    
+    <script>
+        function showExamples(syllable, title) {
+            const examplesData = {
+                "مَ": [
+                    {word: "مَدرسة", position: "أول الكلمة"},
+                    {word: "أمَام", position: "وسط الكلمة"},
+                    {word: "كُلَّمَا", position: "آخر الكلمة"}
+                ],
+                "مُ": [
+                    {word: "مُعلِّم", position: "أول الكلمة"},
+                    {word: "يُمكِن", position: "وسط الكلمة"},
+                    {word: "يَعلَمُ", position: "آخر الكلمة"}
+                ],
+                "مِ": [
+                    {word: "مِفتاح", position: "أول الكلمة"},
+                    {word: "أمِير", position: "وسط الكلمة"},
+                    {word: "رَحِمِ", position: "آخر الكلمة"}
+                ],
+                "مَا": [
+                    {word: "مَاء", position: "أول الكلمة"},
+                    {word: "سَمَاء", position: "وسط الكلمة"},
+                    {word: "عَلَّامَا", position: "آخر الكلمة"}
+                ],
+                "مُو": [
+                    {word: "مُوسَى", position: "أول الكلمة"},
+                    {word: "يُمُوت", position: "وسط الكلمة"},
+                    {word: "يَرحَمُو", position: "آخر الكلمة"}
+                ],
+                "مِي": [
+                    {word: "مِيزَان", position: "أول الكلمة"},
+                    {word: "أمِيرَة", position: "وسط الكلمة"},
+                    {word: "يُسلِّمِي", position: "آخر الكلمة"}
+                ],
+                "مً": [
+                    {word: "مَرًّا", position: "أول الكلمة"},
+                    {word: "كِتَابًا", position: "وسط الكلمة"},
+                    {word: "رَجُلًا", position: "آخر الكلمة"}
+                ],
+                "مٌ": [
+                    {word: "مٌعَافَى", position: "أول الكلمة"},
+                    {word: "عِلْمٌ", position: "وسط الكلمة"},
+                    {word: "حَكَمٌ", position: "آخر الكلمة"}
+                ],
+                "مٍ": [
+                    {word: "مٍنْ", position: "أول الكلمة"},
+                    {word: "عَلَمٍ", position: "وسط الكلمة"},
+                    {word: "يَوْمٍ", position: "آخر الكلمة"}
+                ]
+            };
+            
+            document.getElementById('examplesTitle').textContent = `أمثلة على ${syllable} (${title})`;
+            
+            const examplesList = document.getElementById('examplesList');
+            examplesList.innerHTML = '';
+            
+            examplesData[syllable].forEach(example => {
+                const exampleItem = document.createElement('div');
+                exampleItem.className = 'example-item';
+                exampleItem.innerHTML = `
+                    ${example.word}
+                    <div class="example-position">${example.position}</div>
+                `;
+                examplesList.appendChild(exampleItem);
+            });
+            
+            document.getElementById('examplesContainer').style.display = 'flex';
+        }
+        
+        function closeExamples() {
+            document.getElementById('examplesContainer').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

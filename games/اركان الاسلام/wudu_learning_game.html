@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة تعلم الوضوء التفاعلية</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><radialGradient id="g" cx="50%" cy="50%" r="50%"><stop offset="0%" style="stop-color:rgba(255,255,255,0.1);stop-opacity:1" /><stop offset="100%" style="stop-color:rgba(255,255,255,0);stop-opacity:0" /></radialGradient></defs><circle cx="50" cy="50" r="50" fill="url(%23g)"/></svg>') repeat;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            position: relative;
+            z-index: 1;
+        }
+
+        .progress-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .step-dot {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #6c757d;
+            transition: all 0.3s ease;
+        }
+
+        .step-dot.active {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .step-dot.completed {
+            background: #28a745;
+            color: white;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .step-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .step-title {
+            font-size: 2em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .step-description {
+            font-size: 1.3em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .step-image {
+            width: 200px;
+            height: 200px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 15px;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4em;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .quiz-container {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .quiz-question {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .quiz-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .quiz-option {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .quiz-option:hover {
+            border-color: #4facfe;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .quiz-option.selected {
+            border-color: #4facfe;
+            background: #e7f3ff;
+        }
+
+        .quiz-option.correct {
+            border-color: #28a745;
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .quiz-option.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .feedback {
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 1.2em;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #dc3545;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .completion-screen {
+            text-align: center;
+            padding: 50px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .completion-screen h2 {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .completion-screen p {
+            font-size: 1.5em;
+            margin-bottom: 30px;
+        }
+
+        .score-display {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .celebration {
+            font-size: 4em;
+            margin: 20px 0;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-30px); }
+            60% { transform: translateY(-15px); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .step-title {
+                font-size: 1.5em;
+            }
+            
+            .step-description {
+                font-size: 1.1em;
+            }
+            
+            .quiz-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🕌 لعبة تعلم الوضوء التفاعلية</h1>
+            <p>تعلم الوضوء بطريقة ممتعة وتفاعلية</p>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="step-indicator" id="stepIndicator">
+                <!-- سيتم إنشاء النقاط هنا بواسطة JavaScript -->
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div id="gameContent">
+                <!-- محتوى اللعبة سيظهر هنا -->
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-secondary" id="prevBtn" onclick="previousStep()">السابق</button>
+                <button class="btn btn-success" id="resetBtn" onclick="resetGame()">إعادة البداية</button>
+                <button class="btn btn-primary" id="nextBtn" onclick="nextStep()">التالي</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const wuduSteps = [
+            {
+                title: "النية والتسمية",
+                description: "أنوي الوضوء لله تعالى، وأقول: بسم الله الرحمن الرحيم",
+                icon: "🤲",
+                quiz: {
+                    question: "ما الذي يجب أن نقوله في بداية الوضوء؟",
+                    options: [
+                        "الحمد لله",
+                        "بسم الله الرحمن الرحيم",
+                        "لا إله إلا الله",
+                        "الله أكبر"
+                    ],
+                    correct: 1,
+                    feedback: "صحيح! نبدأ الوضوء بالنية والتسمية: بسم الله الرحمن الرحيم"
+                }
+            },
+            {
+                title: "غسل الكفين",
+                description: "أغسل كفيّ ثلاث مرات، مع تخليل الأصابع",
+                icon: "🙌",
+                quiz: {
+                    question: "كم مرة نغسل الكفين؟",
+                    options: [
+                        "مرة واحدة",
+                        "مرتين",
+                        "ثلاث مرات",
+                        "أربع مرات"
+                    ],
+                    correct: 2,
+                    feedback: "ممتاز! نغسل الكفين ثلاث مرات مع تخليل الأصابع"
+                }
+            },
+            {
+                title: "المضمضة والاستنشاق",
+                description: "أتمضمض ثلاث مرات، وأستنشق الماء ثلاث مرات",
+                icon: "👄",
+                quiz: {
+                    question: "ما هو ترتيب المضمضة والاستنشاق؟",
+                    options: [
+                        "الاستنشاق ثم المضمضة",
+                        "المضمضة ثم الاستنشاق",
+                        "معاً في نفس الوقت",
+                        "لا يهم الترتيب"
+                    ],
+                    correct: 1,
+                    feedback: "صحيح! نبدأ بالمضمضة ثم الاستنشاق، كل منهما ثلاث مرات"
+                }
+            },
+            {
+                title: "غسل الوجه",
+                description: "أغسل وجهي ثلاث مرات من الجبهة إلى الذقن ومن الأذن إلى الأذن",
+                icon: "😊",
+                quiz: {
+                    question: "ما هي حدود غسل الوجه؟",
+                    options: [
+                        "من الجبهة إلى الشفتين",
+                        "من الجبهة إلى الذقن ومن الأذن إلى الأذن",
+                        "الوجه بالكامل فقط",
+                        "العينان والأنف فقط"
+                    ],
+                    correct: 1,
+                    feedback: "ممتاز! نغسل الوجه من الجبهة إلى الذقن ومن الأذن إلى الأذن"
+                }
+            },
+            {
+                title: "غسل اليدين إلى المرفقين",
+                description: "أغسل يدي اليمنى ثم اليسرى إلى المرفقين ثلاث مرات",
+                icon: "🤚",
+                quiz: {
+                    question: "أيهما نغسل أولاً؟",
+                    options: [
+                        "اليد اليسرى",
+                        "اليد اليمنى",
+                        "كلاهما معاً",
+                        "لا يهم"
+                    ],
+                    correct: 1,
+                    feedback: "صحيح! نبدأ باليد اليمنى ثم اليسرى، إلى المرفقين ثلاث مرات"
+                }
+            },
+            {
+                title: "مسح الرأس والأذنين",
+                description: "أمسح رأسي مرة واحدة، وأمسح أذني من الداخل والخارج",
+                icon: "👂",
+                quiz: {
+                    question: "كم مرة نمسح الرأس؟",
+                    options: [
+                        "مرة واحدة",
+                        "مرتين",
+                        "ثلاث مرات",
+                        "حسب الحاجة"
+                    ],
+                    correct: 0,
+                    feedback: "صحيح! نمسح الرأس مرة واحدة، والأذنين من الداخل والخارج"
+                }
+            },
+            {
+                title: "غسل الرجلين إلى الكعبين",
+                description: "أغسل رجلي اليمنى ثم اليسرى إلى الكعبين ثلاث مرات مع تخليل الأصابع",
+                icon: "🦶",
+                quiz: {
+                    question: "إلى أين نغسل الرجلين؟",
+                    options: [
+                        "إلى الأصابع فقط",
+                        "إلى الكعبين",
+                        "إلى نصف الساق",
+                        "إلى الركبة"
+                    ],
+                    correct: 1,
+                    feedback: "ممتاز! نغسل الرجلين إلى الكعبين مع تخليل الأصابع"
+                }
+            },
+            {
+                title: "الدعاء بعد الوضوء",
+                description: "أقول: أشهد أن لا إله إلا الله وحده لا شريك له، وأشهد أن محمداً عبده ورسوله",
+                icon: "🤲",
+                quiz: {
+                    question: "ماذا نقول بعد الانتهاء من الوضوء؟",
+                    options: [
+                        "الحمد لله رب العالمين",
+                        "أشهد أن لا إله إلا الله وأشهد أن محمداً رسول الله",
+                        "بسم الله الرحمن الرحيم",
+                        "لا إله إلا الله"
+                    ],
+                    correct: 1,
+                    feedback: "ممتاز! نقول الشهادتين بعد الانتهاء من الوضوء"
+                }
+            }
+        ];
+
+        let currentStep = 0;
+        let score = 0;
+        let answered = false;
+
+        function initializeGame() {
+            createStepIndicator();
+            showCurrentStep();
+            updateProgress();
+        }
+
+        function createStepIndicator() {
+            const indicator = document.getElementById('stepIndicator');
+            indicator.innerHTML = '';
+            
+            for (let i = 0; i < wuduSteps.length; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'step-dot';
+                dot.textContent = i + 1;
+                dot.id = `step-${i}`;
+                indicator.appendChild(dot);
+            }
+        }
+
+        function showCurrentStep() {
+            const gameContent = document.getElementById('gameContent');
+            const step = wuduSteps[currentStep];
+            
+            gameContent.innerHTML = `
+                <div class="step-card">
+                    <div class="step-image">${step.icon}</div>
+                    <div class="step-title">${step.title}</div>
+                    <div class="step-description">${step.description}</div>
+                </div>
+                
+                <div class="quiz-container">
+                    <div class="quiz-question">${step.quiz.question}</div>
+                    <div class="quiz-options" id="quizOptions">
+                        ${step.quiz.options.map((option, index) => `
+                            <div class="quiz-option" onclick="selectAnswer(${index})">${option}</div>
+                        `).join('')}
+                    </div>
+                    <div id="feedback" class="feedback hidden"></div>
+                </div>
+            `;
+            
+            answered = false;
+            updateStepIndicator();
+            updateProgress();
+        }
+
+        function selectAnswer(selectedIndex) {
+            if (answered) return;
+            
+            const step = wuduSteps[currentStep];
+            const options = document.querySelectorAll('.quiz-option');
+            const feedback = document.getElementById('feedback');
+            
+            answered = true;
+            
+            options.forEach((option, index) => {
+                if (index === step.quiz.correct) {
+                    option.classList.add('correct');
+                } else if (index === selectedIndex && index !== step.quiz.correct) {
+                    option.classList.add('incorrect');
+                }
+            });
+            
+            if (selectedIndex === step.quiz.correct) {
+                score++;
+                feedback.className = 'feedback correct';
+                feedback.textContent = `✅ ${step.quiz.feedback}`;
+            } else {
+                feedback.className = 'feedback incorrect';
+                feedback.textContent = `❌ إجابة خاطئة. ${step.quiz.feedback}`;
+            }
+            
+            feedback.classList.remove('hidden');
+            
+            // تحديث مؤشر الخطوة
+            document.getElementById(`step-${currentStep}`).classList.add('completed');
+        }
+
+        function nextStep() {
+            if (!answered) {
+                alert('يرجى الإجابة على السؤال أولاً!');
+                return;
+            }
+            
+            if (currentStep < wuduSteps.length - 1) {
+                currentStep++;
+                showCurrentStep();
+            } else {
+                showCompletionScreen();
+            }
+        }
+
+        function previousStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                showCurrentStep();
+            }
+        }
+
+        function updateStepIndicator() {
+            const dots = document.querySelectorAll('.step-dot');
+            dots.forEach((dot, index) => {
+                dot.classList.remove('active');
+                if (index === currentStep) {
+                    dot.classList.add('active');
+                }
+            });
+        }
+
+        function updateProgress() {
+            const progressFill = document.getElementById('progressFill');
+            const progress = ((currentStep + 1) / wuduSteps.length) * 100;
+            progressFill.style.width = `${progress}%`;
+        }
+
+        function showCompletionScreen() {
+            const gameContent = document.getElementById('gameContent');
+            const percentage = Math.round((score / wuduSteps.length) * 100);
+            
+            let message = '';
+            let celebration = '';
+            
+            if (percentage >= 90) {
+                message = 'ممتاز! لقد أتقنت تعلم الوضوء بشكل رائع! 🌟';
+                celebration = '🎉🎊🏆';
+            } else if (percentage >= 70) {
+                message = 'جيد جداً! تحسن ملحوظ في تعلم الوضوء! 👏';
+                celebration = '🎉👍';
+            } else {
+                message = 'حاول مرة أخرى! ستتحسن مع المزيد من التدريب! 💪';
+                celebration = '🤗📚';
+            }
+            
+            gameContent.innerHTML = `
+                <div class="completion-screen">
+                    <div class="celebration">${celebration}</div>
+                    <h2>مبروك! لقد أكملت تعلم الوضوء</h2>
+                    <p>${message}</p>
+                    <div class="score-display">
+                        النتيجة: ${score} من ${wuduSteps.length} (${percentage}%)
+                    </div>
+                    <p>الآن أنت تعرف جميع خطوات الوضوء الصحيحة!</p>
+                </div>
+            `;
+            
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('prevBtn').style.display = 'none';
+        }
+
+        function resetGame() {
+            currentStep = 0;
+            score = 0;
+            answered = false;
+            
+            document.getElementById('nextBtn').style.display = 'block';
+            document.getElementById('prevBtn').style.display = 'block';
+            
+            // إعادة تعيين مؤشر الخطوات
+            const dots = document.querySelectorAll('.step-dot');
+            dots.forEach(dot => {
+                dot.classList.remove('active', 'completed');
+            });
+            
+            initializeGame();
+        }
+
+        // تشغيل اللعبة عند تحميل الصفحة
+        window.onload = function() {
+            initializeGame();
+        };
+    </script>
+</body>
+</html>

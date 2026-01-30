@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الحروف النجمية</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* خلفية النجوم */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.3; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #ffd700, #ffeb3b, #fff59d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            margin-bottom: 10px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+            to { text-shadow: 0 0 30px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 215, 0, 0.6); }
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .score-item {
+            color: white;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .score-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .game-area {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
+        }
+
+        .current-letter {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .letter-display {
+            font-size: 4rem;
+            color: #ffd700;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.2), transparent);
+            width: 120px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            border: 3px solid #ffd700;
+            animation: letterPulse 2s ease-in-out infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .letter-display::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes letterPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+            50% { transform: scale(1.05); box-shadow: 0 0 40px rgba(255, 215, 0, 0.8); }
+        }
+
+        .letter-name {
+            font-size: 1.5rem;
+            color: #87ceeb;
+            margin-bottom: 10px;
+        }
+
+        .input-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .letter-input {
+            font-size: 2rem;
+            padding: 15px;
+            border: 3px solid #ffd700;
+            border-radius: 15px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            width: 200px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .letter-input:focus {
+            outline: none;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+            transform: scale(1.05);
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, #ffd700, #ffeb3b);
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 25px;
+            cursor: pointer;
+            color: #1a1a2e;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.6);
+        }
+
+        .next-btn {
+            background: linear-gradient(45deg, #87ceeb, #add8e6);
+        }
+
+        .feedback {
+            text-align: center;
+            font-size: 1.3rem;
+            margin: 20px 0;
+            min-height: 30px;
+            font-weight: bold;
+        }
+
+        .correct {
+            color: #4CAF50;
+            animation: bounce 0.6s ease;
+        }
+
+        .incorrect {
+            color: #f44336;
+            animation: shake 0.6s ease;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% { transform: translate3d(0,0,0); }
+            40%, 43% { transform: translate3d(0, -20px, 0); }
+            70% { transform: translate3d(0, -10px, 0); }
+            90% { transform: translate3d(0, -4px, 0); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .floating-particles {
+            position: fixed;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .particle {
+            position: absolute;
+            background: #ffd700;
+            border-radius: 50%;
+            animation: float 4s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 1; }
+            50% { transform: translateY(-100px) rotate(180deg); opacity: 0.5; }
+        }
+
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .confetti {
+            position: absolute;
+            background: #ffd700;
+            animation: confetti-fall 3s linear infinite;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .title { font-size: 2rem; }
+            .letter-display { font-size: 3rem; width: 100px; height: 100px; }
+            .letter-input { width: 150px; font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    <div class="floating-particles" id="particles"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="title">✨ لعبة الحروف النجمية ✨</h1>
+            <p style="color: #87ceeb; font-size: 1.1rem;">اكتب الحرف بالعربية والإنجليزية</p>
+        </div>
+
+        <div class="score-board">
+            <div class="score-item">
+                <div>النقاط</div>
+                <div class="score-value" id="score">0</div>
+            </div>
+            <div class="score-item">
+                <div>المستوى</div>
+                <div class="score-value" id="level">1</div>
+            </div>
+            <div class="score-item">
+                <div>الصحيح</div>
+                <div class="score-value" id="correct">0</div>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div class="current-letter">
+                <div class="letter-display" id="letterDisplay">أ</div>
+                <div class="letter-name" id="letterName">أَلِف</div>
+            </div>
+
+            <div class="input-section">
+                <div>
+                    <input type="text" class="letter-input" id="arabicInput" placeholder="بالعربية" maxlength="2">
+                </div>
+                <div>
+                    <input type="text" class="letter-input" id="englishInput" placeholder="بالإنجليزية" maxlength="3">
+                </div>
+                <div>
+                    <button class="submit-btn" onclick="checkAnswer()">تحقق ✨</button>
+                    <button class="submit-btn next-btn" onclick="nextLetter()">التالي 🌟</button>
+                </div>
+            </div>
+
+            <div class="feedback" id="feedback"></div>
+        </div>
+    </div>
+
+    <script>
+        const letters = [
+            {arabic: 'أ', name: 'أَلِف', english: 'a'},
+            {arabic: 'ب', name: 'بَاء', english: 'b'},
+            {arabic: 'ت', name: 'تَاء', english: 't'},
+            {arabic: 'ث', name: 'ثَاء', english: 'th'},
+            {arabic: 'ج', name: 'جِيم', english: 'j'},
+            {arabic: 'ح', name: 'حَاء', english: 'h'},
+            {arabic: 'خ', name: 'خَاء', english: 'kh'},
+            {arabic: 'د', name: 'دَال', english: 'd'},
+            {arabic: 'ذ', name: 'ذَال', english: 'th'},
+            {arabic: 'ر', name: 'رَاء', english: 'r'},
+            {arabic: 'ز', name: 'زَاي', english: 'z'},
+            {arabic: 'س', name: 'سِين', english: 's'},
+            {arabic: 'ش', name: 'شِين', english: 'sh'},
+            {arabic: 'ص', name: 'صَاد', english: 's'},
+            {arabic: 'ض', name: 'ضَاد', english: 'd'},
+            {arabic: 'ط', name: 'طَاء', english: 't'},
+            {arabic: 'ظ', name: 'ظَاء', english: 'th'},
+            {arabic: 'ع', name: 'عَين', english: 'a'},
+            {arabic: 'غ', name: 'غَين', english: 'gh'},
+            {arabic: 'ف', name: 'فَاء', english: 'f'},
+            {arabic: 'ق', name: 'قَاف', english: 'q'},
+            {arabic: 'ك', name: 'كَاف', english: 'k'},
+            {arabic: 'ل', name: 'لاَم', english: 'l'},
+            {arabic: 'م', name: 'مِيم', english: 'm'},
+            {arabic: 'ن', name: 'نُون', english: 'n'},
+            {arabic: 'ه', name: 'هَاء', english: 'h'},
+            {arabic: 'و', name: 'وَاو', english: 'w'},
+            {arabic: 'ي', name: 'يَاء', english: 'y'}
+        ];
+
+        let currentLetterIndex = 0;
+        let score = 0;
+        let level = 1;
+        let correctAnswers = 0;
+
+        // إنشاء النجوم
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = star.style.height = Math.random() * 3 + 1 + 'px';
+                star.style.animationDelay = Math.random() * 2 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // إنشاء الجسيمات العائمة
+        function createFloatingParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.width = particle.style.height = Math.random() * 5 + 2 + 'px';
+                particle.style.animationDelay = Math.random() * 4 + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // تحديث عرض الحرف الحالي
+        function updateLetterDisplay() {
+            const currentLetter = letters[currentLetterIndex];
+            document.getElementById('letterDisplay').textContent = currentLetter.arabic;
+            document.getElementById('letterName').textContent = currentLetter.name;
+        }
+
+        // فحص الإجابة
+        function checkAnswer() {
+            const arabicInput = document.getElementById('arabicInput').value.trim();
+            const englishInput = document.getElementById('englishInput').value.toLowerCase().trim();
+            const currentLetter = letters[currentLetterIndex];
+            const feedback = document.getElementById('feedback');
+
+            const arabicCorrect = arabicInput === currentLetter.arabic;
+            const englishCorrect = englishInput === currentLetter.english;
+
+            if (arabicCorrect && englishCorrect) {
+                feedback.textContent = '🎉 رائع! إجابة صحيحة! 🌟';
+                feedback.className = 'feedback correct';
+                score += 10;
+                correctAnswers++;
+                createCelebration();
+            } else {
+                let message = '❌ ';
+                if (!arabicCorrect && !englishCorrect) {
+                    message += 'الإجابتان خاطئتان. ';
+                } else if (!arabicCorrect) {
+                    message += 'الحرف العربي خاطئ. ';
+                } else {
+                    message += 'الحرف الإنجليزي خاطئ. ';
+                }
+                message += `الصحيح: ${currentLetter.arabic} = ${currentLetter.english}`;
+                feedback.textContent = message;
+                feedback.className = 'feedback incorrect';
+            }
+
+            updateScores();
+        }
+
+        // الانتقال للحرف التالي
+        function nextLetter() {
+            currentLetterIndex = (currentLetterIndex + 1) % letters.length;
+            if (currentLetterIndex === 0) {
+                level++;
+            }
+            
+            document.getElementById('arabicInput').value = '';
+            document.getElementById('englishInput').value = '';
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('feedback').className = 'feedback';
+            
+            updateLetterDisplay();
+            updateScores();
+        }
+
+        // تحديث النقاط
+        function updateScores() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('level').textContent = level;
+            document.getElementById('correct').textContent = correctAnswers;
+        }
+
+        // إنشاء احتفال
+        function createCelebration() {
+            const celebration = document.createElement('div');
+            celebration.className = 'celebration';
+            
+            for (let i = 0; i < 20; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 60%)`;
+                confetti.style.width = Math.random() * 10 + 5 + 'px';
+                confetti.style.height = confetti.style.width;
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                celebration.appendChild(confetti);
+            }
+            
+            document.body.appendChild(celebration);
+            
+            setTimeout(() => {
+                document.body.removeChild(celebration);
+            }, 3000);
+        }
+
+        // أحداث لوحة المفاتيح
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+
+        // تهيئة اللعبة
+        function initGame() {
+            createStars();
+            createFloatingParticles();
+            updateLetterDisplay();
+            updateScores();
+        }
+
+        // بدء اللعبة
+        initGame();
+    </script>
+</body>
+</html>

@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حديقة الأفعال</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sky-start: #99B2D8;
+            --sky-end: #C8E3FF;
+            --field-color: #6a9c3c;
+            --cloud-color: #f0f0f0;
+            --petal-color-1: #ffb8d1;
+            --petal-color-2: #ffe0b3;
+            --petal-color-3: #c2e6ff;
+            --leaf-color: #55a02e;
+            --question-card-bg: rgba(255, 255, 255, 0.85);
+            --button-bg: #80c746;
+            --button-hover-bg: #71b43d;
+            --wrong-bg: #ff6666;
+            --correct-bg: #4caf50;
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Scheherazade New', serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(to bottom, var(--sky-start), var(--sky-end));
+            position: relative;
+            user-select: none;
+            color: #333;
+        }
+
+        .animated-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .cloud {
+            position: absolute;
+            background: var(--cloud-color);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: cloud-move linear infinite;
+        }
+
+        .cloud:nth-child(1) {
+            width: 150px;
+            height: 50px;
+            top: 10%;
+            left: -10%;
+            animation-duration: 40s;
+        }
+
+        .cloud:nth-child(2) {
+            width: 200px;
+            height: 70px;
+            top: 25%;
+            left: -20%;
+            animation-duration: 50s;
+        }
+
+        .cloud:nth-child(3) {
+            width: 100px;
+            height: 40px;
+            top: 15%;
+            left: -5%;
+            animation-duration: 60s;
+        }
+
+        @keyframes cloud-move {
+            from { transform: translateX(0); }
+            to { transform: translateX(120vw); }
+        }
+
+        .particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: var(--petal-color-1);
+            border-radius: 50%;
+            animation: particle-float ease-in-out infinite;
+            opacity: 0.8;
+        }
+
+        .particle:nth-child(2n) { background-color: var(--petal-color-2); }
+        .particle:nth-child(3n) { background-color: var(--petal-color-3); }
+
+        @keyframes particle-float {
+            0% { transform: translateY(0) rotate(0); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+
+        .game-container {
+            position: relative;
+            width: 90%;
+            max-width: 800px;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 10;
+        }
+
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            direction: rtl;
+        }
+
+        .hud-item {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .hud-item span {
+            margin-right: 10px;
+        }
+
+        .hud-item img {
+            width: 30px;
+            height: 30px;
+        }
+
+        .question-card {
+            background-color: var(--question-card-bg);
+            padding: 30px;
+            border-radius: 25px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(5px);
+            width: 100%;
+            max-width: 600px;
+            transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+        }
+
+        .question-card h2 {
+            margin-bottom: 20px;
+            font-size: 2rem;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        .options-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .option-button {
+            background-color: var(--button-bg);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-family: inherit;
+        }
+
+        .option-button:hover {
+            background-color: var(--button-hover-bg);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .option-button.wrong {
+            background-color: var(--wrong-bg);
+            animation: shake 0.5s;
+        }
+
+        .option-button.correct {
+            background-color: var(--correct-bg);
+            transform: scale(1.1);
+            animation: none;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+
+        .garden {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            background-color: var(--field-color);
+            border-top: 5px solid #5a8731;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 20px;
+            padding-bottom: 20px;
+            box-sizing: border-box;
+            z-index: 5;
+        }
+
+        .flower-container {
+            position: absolute;
+            bottom: 0;
+            width: 100px; /* Set a fixed width for the container */
+            height: 100px;
+            animation: flower-appear 0.5s ease-out;
+            transform-origin: bottom center;
+            transform: scale(0);
+            opacity: 0;
+        }
+        
+        @keyframes flower-appear {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .flower-svg {
+            width: 100%;
+            height: auto;
+            transform-origin: bottom center;
+            animation: flower-bloom 1.5s forwards ease-out;
+        }
+
+        @keyframes flower-bloom {
+            0% {
+                transform: scaleY(0.1) scaleX(0.1);
+                opacity: 0;
+            }
+            100% {
+                transform: scaleY(1) scaleX(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="animated-background">
+        <div class="cloud"></div>
+        <div class="cloud"></div>
+        <div class="cloud"></div>
+    </div>
+
+    <div id="particles-container" class="animated-background"></div>
+
+    <div class="game-container">
+        <div class="hud">
+            <div class="hud-item">
+                <span id="score-counter">النقاط: 0</span>
+            </div>
+            <div class="hud-item">
+                <span id="flower-counter">الزهور: 0</span>
+            </div>
+        </div>
+        
+        <div id="game-area">
+            <div id="question-card" class="question-card">
+                <h2 id="question-text"></h2>
+                <div id="options-container" class="options-container"></div>
+            </div>
+        </div>
+
+        <div id="garden" class="garden"></div>
+    </div>
+
+<script>
+    // Game variables
+    let score = 0;
+    let flowersPlanted = 0;
+    let currentQuestionIndex = 0;
+    
+    // DOM elements
+    const scoreCounter = document.getElementById('score-counter');
+    const flowerCounter = document.getElementById('flower-counter');
+    const questionCard = document.getElementById('question-card');
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const garden = document.getElementById('garden');
+    const particlesContainer = document.getElementById('particles-container');
+
+    // Array of flower SVGs
+    const flowerSVGs = [
+        `<svg class="flower-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="g1" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#FFD700" /><stop offset="100%" style="stop-color:#FFA500" /></linearGradient></defs>
+            <path d="M50,100 Q45,75 50,50 Q55,75 50,100 Z" fill="#228B22" />
+            <circle cx="50" cy="50" r="15" fill="#FFC300"/>
+            <path d="M50,50 L50,15 A15,15 0 0,1 65,50 Z" fill="url(#g1)" transform="rotate(0, 50, 50)"/>
+            <path d="M50,50 L50,15 A15,15 0 0,1 65,50 Z" fill="url(#g1)" transform="rotate(72, 50, 50)"/>
+            <path d="M50,50 L50,15 A15,15 0 0,1 65,50 Z" fill="url(#g1)" transform="rotate(144, 50, 50)"/>
+            <path d="M50,50 L50,15 A15,15 0 0,1 65,50 Z" fill="url(#g1)" transform="rotate(216, 50, 50)"/>
+            <path d="M50,50 L50,15 A15,15 0 0,1 65,50 Z" fill="url(#g1)" transform="rotate(288, 50, 50)"/>
+        </svg>`,
+        `<svg class="flower-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="g2" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#FF69B4" /><stop offset="100%" style="stop-color:#FF1493" /></linearGradient></defs>
+            <path d="M50,100 Q45,75 50,50 Q55,75 50,100 Z" fill="#32CD32" />
+            <circle cx="50" cy="50" r="10" fill="#FF69B4"/>
+            <path d="M50,50 L50,20 A10,20 0 0,1 60,50 Z" fill="url(#g2)" transform="rotate(0, 50, 50)"/>
+            <path d="M50,50 L50,20 A10,20 0 0,1 60,50 Z" fill="url(#g2)" transform="rotate(60, 50, 50)"/>
+            <path d="M50,50 L50,20 A10,20 0 0,1 60,50 Z" fill="url(#g2)" transform="rotate(120, 50, 50)"/>
+            <path d="M50,50 L50,20 A10,20 0 0,1 60,50 Z" fill="url(#g2)" transform="rotate(180, 50, 50)"/>
+            <path d="M50,50 L50,20 A10,20 0 0,1 60,50 Z" fill="url(#g2)" transform="rotate(240, 50, 50)"/>
+            <path d="M50,50 L50,20 A10,20 0 0,1 60,50 Z" fill="url(#g2)" transform="rotate(300, 50, 50)"/>
+        </svg>`,
+        `<svg class="flower-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="g3" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#9370DB" /><stop offset="100%" style="stop-color:#8A2BE2" /></linearGradient></defs>
+            <path d="M50,100 Q45,75 50,50 Q55,75 50,100 Z" fill="#5F9EA0" />
+            <circle cx="50" cy="50" r="12" fill="#BA55D3"/>
+            <path d="M50,50 L50,10 Q65,40 50,50 Q35,40 50,10 Z" fill="url(#g3)" transform="rotate(0, 50, 50)"/>
+            <path d="M50,50 L50,10 Q65,40 50,50 Q35,40 50,10 Z" fill="url(#g3)" transform="rotate(90, 50, 50)"/>
+            <path d="M50,50 L50,10 Q65,40 50,50 Q35,40 50,10 Z" fill="url(#g3)" transform="rotate(180, 50, 50)"/>
+            <path d="M50,50 L50,10 Q65,40 50,50 Q35,40 50,10 Z" fill="url(#g3)" transform="rotate(270, 50, 50)"/>
+        </svg>`,
+        `<svg class="flower-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="g4" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#00BFFF" /><stop offset="100%" style="stop-color:#1E90FF" /></linearGradient></defs>
+            <path d="M50,100 Q45,75 50,50 Q55,75 50,100 Z" fill="#20B2AA" />
+            <circle cx="50" cy="50" r="13" fill="#87CEFA"/>
+            <path d="M50,50 C60,40 70,20 50,10 C30,20 40,40 50,50 Z" fill="url(#g4)" transform="rotate(0, 50, 50)"/>
+            <path d="M50,50 C60,40 70,20 50,10 C30,20 40,40 50,50 Z" fill="url(#g4)" transform="rotate(45, 50, 50)"/>
+            <path d="M50,50 C60,40 70,20 50,10 C30,20 40,40 50,50 Z" fill="url(#g4)" transform="rotate(90, 50, 50)"/>
+            <path d="M50,50 C60,40 70,20 50,10 C30,20 40,40 50,50 Z" fill="url(#g4)" transform="rotate(135, 50, 50)"/>
+            <path d="M50,50 C60,40 70,20 50,10 C30,20 40,40 50,50 Z" fill="url(#g4)" transform="rotate(180, 50, 50)"/>
+            <path d="M50,50 C60,40 70,20 50,10 C30,20 40,40 50,50 Z" fill="url(#g4)" transform="rotate(225, 50, 50)"/>
+            <path d="M50,50 C60,40 70,20 50,10 C30,20 40,40 50,50 Z" fill="url(#g4)" transform="rotate(270, 50, 50)"/>
+            <path d="M50,50 C60,40 70,20 50,10 C30,20 40,40 50,50 Z" fill="url(#g4)" transform="rotate(315, 50, 50)"/>
+        </svg>`
+    ];
+
+    // Questions array
+    const questions = [
+        {
+            text: "في جملة 'يلعب أحمد بالكرة'، ما هي الكلمة التي تدل على حدث؟",
+            options: ["أحمد", "يلعب", "الكرة"],
+            answer: "يلعب"
+        },
+        {
+            text: "أي من الكلمات التالية هي فعل مضارع؟",
+            options: ["كتب", "يكتب", "مكتوب"],
+            answer: "يكتب"
+        },
+        {
+            text: "أكمل الجملة التالية بفعل مناسب: 'الطيور ____ في السماء'.",
+            options: ["جميلة", "تطير", "غيمة"],
+            answer: "تطير"
+        },
+        {
+            text: "أين يوجد الفعل في جملة 'تشرق الشمس من الشرق'؟",
+            options: ["الشمس", "تشرق", "الشرق"],
+            answer: "تشرق"
+        },
+        {
+            text: "اختر الكلمة التي تدل على فعل:",
+            options: ["بيت", "يقرأ", "باب"],
+            answer: "يقرأ"
+        },
+        {
+            text: "أي من هذه الكلمات هي فعل؟",
+            options: ["سيارة", "كتاب", "تسبح"],
+            answer: "تسبح"
+        },
+        {
+            text: "اكتشف الفعل في الجملة: 'الولد يرسم لوحة جميلة'.",
+            options: ["الولد", "يرسم", "لوحة"],
+            answer: "يرسم"
+        },
+        {
+            text: "اختر الفعل المناسب للجملة: 'القطة ____ الحليب'.",
+            options: ["يشرب", "شربت", "طعام"],
+            answer: "شربت"
+        }
+    ];
+
+    // Initialize game
+    document.addEventListener('DOMContentLoaded', () => {
+        setupGame();
+        startParticleEffects();
+    });
+
+    function setupGame() {
+        if (currentQuestionIndex < questions.length) {
+            displayQuestion(questions[currentQuestionIndex]);
+        } else {
+            endGame();
+        }
+    }
+
+    function displayQuestion(q) {
+        questionText.textContent = q.text;
+        optionsContainer.innerHTML = '';
+        q.options.forEach(option => {
+            const button = document.createElement('button');
+            button.className = 'option-button';
+            button.textContent = option;
+            button.onclick = () => handleAnswer(option, q.answer, button);
+            optionsContainer.appendChild(button);
+        });
+        questionCard.style.transform = 'scale(1)';
+        questionCard.style.opacity = '1';
+    }
+
+    function handleAnswer(selected, correct, button) {
+        const allButtons = optionsContainer.querySelectorAll('.option-button');
+        allButtons.forEach(btn => btn.disabled = true);
+
+        if (selected === correct) {
+            button.classList.add('correct');
+            score += 10;
+            flowersPlanted++;
+            updateHUD();
+            plantFlower();
+            
+            setTimeout(() => {
+                questionCard.style.transform = 'scale(0.8)';
+                questionCard.style.opacity = '0';
+                setTimeout(() => {
+                    currentQuestionIndex++;
+                    setupGame();
+                }, 500);
+            }, 1000);
+            
+        } else {
+            button.classList.add('wrong');
+            setTimeout(() => {
+                allButtons.forEach(btn => btn.disabled = false);
+                button.classList.remove('wrong');
+            }, 500);
+        }
+    }
+
+    function updateHUD() {
+        scoreCounter.textContent = `النقاط: ${score}`;
+        flowerCounter.textContent = `الزهور: ${flowersPlanted}`;
+    }
+
+    function plantFlower() {
+        const flowerContainer = document.createElement('div');
+        flowerContainer.className = 'flower-container';
+        
+        const position = Math.random() * 80 + 10;
+        flowerContainer.style.left = `${position}%`;
+
+        const randomIndex = Math.floor(Math.random() * flowerSVGs.length);
+        flowerContainer.innerHTML = flowerSVGs[randomIndex];
+
+        garden.appendChild(flowerContainer);
+        
+        // Trigger the animation by setting the scale after appending
+        setTimeout(() => {
+            flowerContainer.style.transform = 'scale(1)';
+            flowerContainer.style.opacity = '1';
+        }, 10);
+    }
+
+    function endGame() {
+        questionText.textContent = "أحسنت! لقد أصبحت حديقة الأفعال مكتملة.";
+        optionsContainer.innerHTML = `
+            <p>لقد قمت بزراعة ${flowersPlanted} زهرة وجمعت ${score} نقطة.</p>
+        `;
+        questionCard.style.transform = 'scale(1)';
+        questionCard.style.opacity = '1';
+    }
+
+    function startParticleEffects() {
+        for (let i = 0; i < 50; i++) {
+            createParticle();
+        }
+    }
+
+    function createParticle() {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        const size = Math.random() * 10 + 5;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+
+        const colors = [
+            'var(--petal-color-1)',
+            'var(--petal-color-2)',
+            'var(--petal-color-3)',
+            'var(--leaf-color)',
+            '#ffffff'
+        ];
+        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+        particle.style.backgroundColor = randomColor;
+
+        const leftPosition = Math.random() * 100;
+        particle.style.left = `${leftPosition}vw`;
+
+        const duration = Math.random() * 20 + 15;
+        particle.style.animationDuration = `${duration}s`;
+
+        const delay = Math.random() * 10;
+        particle.style.animationDelay = `${delay}s`;
+
+        particlesContainer.appendChild(particle);
+
+        particle.addEventListener('animationend', () => {
+            particle.remove();
+            createParticle();
+        });
+    }
+
+</script>
+
+</body>
+</html>

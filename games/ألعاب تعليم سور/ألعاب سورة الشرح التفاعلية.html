@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ألعاب سورة الشرح التفاعلية</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 20px rgba(255,255,255,0.3); }
+            to { text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 30px rgba(255,255,255,0.5); }
+        }
+
+        .surah-text {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            color: white;
+            font-size: 1.5em;
+            line-height: 1.8;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 3px solid rgba(255,255,255,0.2);
+        }
+
+        .games-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 3px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s ease;
+            opacity: 0;
+        }
+
+        .game-card:hover::before {
+            opacity: 1;
+            transform: rotate(45deg) translate(100%, 100%);
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+            border-color: #667eea;
+        }
+
+        .game-title {
+            font-size: 1.8em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .game-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* لعبة الترتيب */
+        .verse-item {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            color: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border: 2px solid transparent;
+        }
+
+        .verse-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            border-color: #fff;
+        }
+
+        .verse-item.selected {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .verse-item.correct {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            animation: correctPulse 0.6s ease;
+        }
+
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* لعبة الكلمات المفقودة */
+        .missing-word {
+            display: inline-block;
+            background: #ecf0f1;
+            border: 3px dashed #3498db;
+            border-radius: 8px;
+            padding: 8px 15px;
+            margin: 0 5px;
+            min-width: 100px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .missing-word:hover {
+            background: #d5dbdb;
+            transform: scale(1.05);
+        }
+
+        .missing-word.filled {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border-style: solid;
+            animation: fillAnimation 0.5s ease;
+        }
+
+        @keyframes fillAnimation {
+            0% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .word-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .word-option {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            border: 2px solid transparent;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .word-option:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            border-color: #fff;
+        }
+
+        .word-option.used {
+            opacity: 0.5;
+            transform: scale(0.9);
+            pointer-events: none;
+        }
+
+        /* لعبة الأسئلة */
+        .question-container {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 3px solid rgba(255,255,255,0.3);
+        }
+
+        .question-text {
+            font-size: 1.3em;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .answer-option {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border: 2px solid transparent;
+        }
+
+        .answer-option:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            border-color: #fff;
+        }
+
+        .answer-option.correct {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            animation: correctAnswer 0.6s ease;
+        }
+
+        .answer-option.incorrect {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            animation: shake 0.6s ease;
+        }
+
+        @keyframes correctAnswer {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            margin: 10px 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn.success {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        }
+
+        .btn.danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        .score-display {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.5em;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        .score-number {
+            color: #e74c3c;
+            font-size: 2em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* الكونفيتي */
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10000;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: fall 3s linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .star {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: gold;
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            animation: starTwinkle 2s ease-in-out infinite;
+        }
+
+        @keyframes starTwinkle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        @media (max-width: 768px) {
+            .games-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .surah-text {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌟 ألعاب سورة الشرح التفاعلية 🌟</h1>
+            <div class="surah-text">
+                <p>بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</p>
+                <p>أَلَمْ نَشْرَحْ لَكَ صَدْرَكَ ﴿١﴾ وَوَضَعْنَا عَنكَ وِزْرَكَ ﴿٢﴾ الَّذِي أَنقَضَ ظَهْرَكَ ﴿٣﴾ وَرَفَعْنَا لَكَ ذِكْرَكَ ﴿٤﴾ فَإِنَّ مَعَ الْعُسْرِ يُسْراً ﴿٥﴾ إِنَّ مَعَ الْعُسْرِ يُسْراً ﴿٦﴾ فَإِذَا فَرَغْتَ فَانصَبْ ﴿٧﴾ وَإِلَى رَبِّكَ فَارْغَبْ ﴿٨﴾</p>
+            </div>
+        </div>
+
+        <div class="games-container">
+            <!-- لعبة ترتيب الآيات -->
+            <div class="game-card">
+                <div class="game-content">
+                    <div class="game-title">🎯 لعبة ترتيب الآيات</div>
+                    <div class="score-display">
+                        النقاط: <span class="score-number" id="orderScore">0</span>
+                    </div>
+                    <div id="orderGame">
+                        <div class="verse-item" data-order="1">أَلَمْ نَشْرَحْ لَكَ صَدْرَكَ</div>
+                        <div class="verse-item" data-order="4">وَرَفَعْنَا لَكَ ذِكْرَكَ</div>
+                        <div class="verse-item" data-order="2">وَوَضَعْنَا عَنكَ وِزْرَكَ</div>
+                        <div class="verse-item" data-order="6">إِنَّ مَعَ الْعُسْرِ يُسْراً</div>
+                        <div class="verse-item" data-order="3">الَّذِي أَنقَضَ ظَهْرَكَ</div>
+                        <div class="verse-item" data-order="5">فَإِنَّ مَعَ الْعُسْرِ يُسْراً</div>
+                        <div class="verse-item" data-order="7">فَإِذَا فَرَغْتَ فَانصَبْ</div>
+                        <div class="verse-item" data-order="8">وَإِلَى رَبِّكَ فَارْغَبْ</div>
+                    </div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn success" onclick="checkOrder()">✅ تحقق من الترتيب</button>
+                        <button class="btn danger" onclick="resetOrder()">🔄 إعادة التشغيل</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- لعبة الكلمات المفقودة -->
+            <div class="game-card">
+                <div class="game-content">
+                    <div class="game-title">🧩 لعبة الكلمات المفقودة</div>
+                    <div class="score-display">
+                        النقاط: <span class="score-number" id="wordScore">0</span>
+                    </div>
+                    <div id="wordGame">
+                        <div class="question-container">
+                            <p>أَلَمْ <span class="missing-word" data-word="نَشْرَحْ">___</span> لَكَ صَدْرَكَ</p>
+                            <p>وَوَضَعْنَا عَنكَ <span class="missing-word" data-word="وِزْرَكَ">___</span></p>
+                            <p>الَّذِي أَنقَضَ <span class="missing-word" data-word="ظَهْرَكَ">___</span></p>
+                            <p>وَرَفَعْنَا لَكَ <span class="missing-word" data-word="ذِكْرَكَ">___</span></p>
+                            <p>فَإِنَّ مَعَ الْعُسْرِ <span class="missing-word" data-word="يُسْراً">___</span></p>
+                        </div>
+                        <div class="word-options">
+                            <span class="word-option" data-word="نَشْرَحْ">نَشْرَحْ</span>
+                            <span class="word-option" data-word="وِزْرَكَ">وِزْرَكَ</span>
+                            <span class="word-option" data-word="ظَهْرَكَ">ظَهْرَكَ</span>
+                            <span class="word-option" data-word="ذِكْرَكَ">ذِكْرَكَ</span>
+                            <span class="word-option" data-word="يُسْراً">يُسْراً</span>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn success" onclick="checkWords()">✅ تحقق من الكلمات</button>
+                        <button class="btn danger" onclick="resetWords()">🔄 إعادة التشغيل</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- لعبة الأسئلة -->
+            <div class="game-card">
+                <div class="game-content">
+                    <div class="game-title">❓ لعبة الأسئلة</div>
+                    <div class="score-display">
+                        النقاط: <span class="score-number" id="quizScore">0</span>
+                    </div>
+                    <div id="quizGame">
+                        <div class="question-container">
+                            <div class="question-text" id="questionText">ما هو المعنى المقصود من "أَلَمْ نَشْرَحْ لَكَ صَدْرَكَ"؟</div>
+                            <div class="answer-option" data-correct="true">ألم نوسع لك قلبك ونشرحه للإسلام</div>
+                            <div class="answer-option" data-correct="false">ألم نعطك المال الكثير</div>
+                            <div class="answer-option" data-correct="false">ألم نجعلك تسافر كثيراً</div>
+                            <div class="answer-option" data-correct="false">ألم نجعلك تأكل كثيراً</div>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn" onclick="nextQuestion()">➡️ السؤال التالي</button>
+                        <button class="btn danger" onclick="resetQuiz()">🔄 إعادة التشغيل</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="celebration" id="celebration"></div>
+
+    <script>
+        // متغيرات النقاط
+        let orderScore = 0;
+        let wordScore = 0;
+        let quizScore = 0;
+        let currentQuestion = 0;
+
+        // أسئلة اللعبة
+        const questions = [
+            {
+                question: "ما هو المعنى المقصود من \"أَلَمْ نَشْرَحْ لَكَ صَدْرَكَ\"؟",
+                answers: [
+                    { text: "ألم نوسع لك قلبك ونشرحه للإسلام", correct: true },
+                    { text: "ألم نعطك المال الكثير", correct: false },
+                    { text: "ألم نجعلك تسافر كثيراً", correct: false },
+                    { text: "ألم نجعلك تأكل كثيراً", correct: false }
+                ]
+            },
+            {
+                question: "ماذا تعني \"وَوَضَعْنَا عَنكَ وِزْرَكَ\"؟",
+                answers: [
+                    { text: "وضعنا عنك الحمل الثقيل", correct: true },
+                    { text: "أعطيناك حقيبة جديدة", correct: false },
+                    { text: "جعلناك تنام أكثر", correct: false },
+                    { text: "أطعمناك طعاماً لذيذاً", correct: false }
+                ]
+            },
+            {
+                question: "ما معنى \"فَإِنَّ مَعَ الْعُسْرِ يُسْراً\"؟",
+                answers: [
+                    { text: "إن مع الصعوبة سهولة", correct: true },
+                    { text: "إن مع الليل نهار", correct: false },
+                    { text: "إن مع الشتاء صيف", correct: false },
+                    { text: "إن مع الماء نار", correct: false }
+                ]
+            },
+            {
+                question: "كم مرة تكررت آية \"إِنَّ مَعَ الْعُسْرِ يُسْراً\" في السورة؟",
+                answers: [
+                    { text: "مرتان", correct: true },
+                    { text: "مرة واحدة", correct: false },
+                    { text: "ثلاث مرات", correct: false },
+                    { text: "أربع مرات", correct: false }
+                ]
+            }
+        ];
+
+        // لعبة ترتيب الآيات
+        let selectedVerse = null;
+        let currentOrder = 1;
+
+        document.querySelectorAll('.verse-item').forEach(item => {
+            item.addEventListener('click', function() {
+                if (selectedVerse) {
+                    selectedVerse.classList.remove('selected');
+                }
+                this.classList.add('selected');
+                selectedVerse = this;
+            });
+        });
+
+        function checkOrder() {
+            if (!selectedVerse) {
+                alert('اختر آية أولاً!');
+                return;
+            }
+
+            if (selectedVerse.dataset.order == currentOrder) {
+                selectedVerse.classList.add('correct');
+                selectedVerse.classList.remove('selected');
+                selectedVerse.style.pointerEvents = 'none';
+                orderScore += 10;
+                updateScore('orderScore', orderScore);
+                showCelebration();
+                
+                currentOrder++;
+                selectedVerse = null;
+                
+                if (currentOrder > 8) {
+                    setTimeout(() => {
+                        alert('🎉 ممتاز! لقد رتبت جميع الآيات بشكل صحيح!');
+                        showBigCelebration();
+                    }, 500);
+                }
+            } else {
+                selectedVerse.classList.remove('selected');
+                selectedVerse = null;
+                alert('❌ ترتيب خاطئ! حاول مرة أخرى');
+            }
+        }
+
+        function resetOrder() {
+            document.querySelectorAll('.verse-item').forEach(item => {
+                item.classList.remove('selected', 'correct');
+                item.style.pointerEvents = 'auto';
+            });
+            selectedVerse = null;
+            currentOrder = 1;
+            orderScore = 0;
+            updateScore('orderScore', orderScore);
+        }
+
+        // لعبة الكلمات المفقودة
+        let selectedWord = null;
+
+        document.querySelectorAll('.word-option').forEach(option => {
+            option.addEventListener('click', function() {
+                if (this.classList.contains('used')) return;
+                
+                if (selectedWord) {
+                    selectedWord.classList.remove('selected');
+                }
+                this.classList.add('selected');
+                selectedWord = this;
+            });
+        });
+
+        document.querySelectorAll('.missing-word').forEach(blank => {
+            blank.addEventListener('click', function() {
+                if (selectedWord && !this.classList.contains('filled')) {
+                    this.textContent = selectedWord.textContent;
+                    this.classList.add('filled');
+                    this.dataset.selectedWord = selectedWord.dataset.word;
+                    selectedWord.classList.add('used');
+                    selectedWord.classList.remove('selected');
+                    selectedWord = null;
+                }
+            });
+        });
+
+        function checkWords() {
+            let correct = 0;
+            document.querySelectorAll('.missing-word').forEach(blank => {
+                if (blank.dataset.selectedWord === blank.dataset.word) {
+                    correct++;
+                }
+            });
+
+            if (correct === 5) {
+                wordScore += 50;
+                updateScore('wordScore', wordScore);
+                showBigCelebration();
+                alert('🎉 ممتاز! جميع الكلمات صحيحة!');
+            } else {
+                alert(`حصلت على ${correct} من 5 كلمات صحيحة. حاول مرة أخرى!`);
+            }
+        }
+
+        function resetWords() {
+            document.querySelectorAll('.missing-word').forEach(blank => {
+                blank.textContent = '___';
+                blank.classList.remove('filled');
+                blank.dataset.selectedWord = '';
+            });
+            document.querySelectorAll('.word-option').forEach(option => {
+                option.classList.remove('used', 'selected');
+            });
+            selectedWord = null;
+            wordScore = 0;
+            updateScore('wordScore', wordScore);
+        }
+
+        // لعبة الأسئلة
+        function loadQuestion() {
+            const question = questions[currentQuestion];
+            document.getElementById('questionText').textContent = question.question;
+            
+            const answerOptions = document.querySelectorAll('.answer-option');
+            answerOptions.forEach((option, index) => {
+                option.textContent = question.answers[index].text;
+                option.dataset.correct = question.answers[index].correct;
+                option.classList.remove('correct', 'incorrect');
+                option.style.pointerEvents = 'auto';
+            });
+        }
+
+        document.querySelectorAll('.answer-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const isCorrect = this.dataset.correct === 'true';
+                
+                if (isCorrect) {
+                    this.classList.add('correct');
+                    quizScore += 20;
+                    updateScore('quizScore', quizScore);
+                    showCelebration();
+                    setTimeout(() => {
+                        alert('🎉 إجابة صحيحة!');
+                    }, 500);
+                } else {
+                    this.classList.add('incorrect');
+                    alert('❌ إجابة خاطئة! حاول مرة أخرى');
+                }
+                
+                document.querySelectorAll('.answer-option').forEach(opt => {
+                    opt.style.pointerEvents = 'none';
+                });
+            });
+        });
+
+        function nextQuestion() {
+            currentQuestion = (currentQuestion + 1) % questions.length;
+            loadQuestion();
+        }
+
+        function resetQuiz() {
+            currentQuestion = 0;
+            quizScore = 0;
+            updateScore('quizScore', quizScore);
+            loadQuestion();
+        }
+
+        // تحديث النقاط
+        function updateScore(elementId, score) {
+            document.getElementById(elementId).textContent = score;
+        }
+
+        // الكونفيتي
+        function showCelebration() {
+            const celebration = document.getElementByI

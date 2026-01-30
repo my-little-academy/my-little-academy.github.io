@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدينة المعرفة - باب قواعد اللغة</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-image: url('https://img.freepik.com/free-vector/hand-drawn-colorful-doodle-background_23-2149015287.jpg');
+            background-size: cover;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            margin-top: 30px;
+        }
+        
+        h1 {
+            color: #8b4513;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .door {
+            width: 300px;
+            height: 400px;
+            margin: 20px auto;
+            background-image: url('https://i.imgur.com/JQlE5G2.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+            transition: transform 0.5s;
+            position: relative;
+        }
+        
+        .door:hover {
+            transform: scale(1.05);
+        }
+        
+        .game-area {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #fff9e6;
+            border-radius: 10px;
+            border: 2px dashed #8b4513;
+        }
+        
+        .letters {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .letter {
+            width: 50px;
+            height: 50px;
+            background-color: #ffd700;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: grab;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+        
+        .letter:hover {
+            transform: translateY(-5px);
+            background-color: #ffc800;
+        }
+        
+        .word-slots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 30px 0;
+        }
+        
+        .slot {
+            width: 50px;
+            height: 50px;
+            background-color: #e6f7ff;
+            border-radius: 10px;
+            border: 2px dashed #4682b4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 10px 5px;
+            cursor: pointer;
+            border-radius: 25px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        #hint {
+            background-color: #ff9800;
+        }
+        
+        #hint:hover {
+            background-color: #e68a00;
+        }
+        
+        .feedback {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 20px 0;
+            min-height: 30px;
+        }
+        
+        .correct {
+            color: #4CAF50;
+        }
+        
+        .incorrect {
+            color: #f44336;
+        }
+        
+        .character {
+            width: 100px;
+            height: 100px;
+            margin: 20px auto;
+            background-image: url('https://i.imgur.com/WL9JY4G.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        
+        .reward {
+            display: none;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>أبواب مدينة المعرفة</h1>
+        <p>انقر على الباب لبدء مغامرة اللغة العربية!</p>
+        
+        <div class="door" id="door" onclick="startGame()"></div>
+        
+        <div class="game-area" id="gameArea">
+            <h2>مملكة الحروف</h2>
+            <p>ساعد تنين النحو في تكوين الكلمة الصحيحة من الأحرف المبعثرة!</p>
+            
+            <div class="character" id="dragon"></div>
+            
+            <div class="word-slots" id="wordSlots">
+                <div class="slot"></div>
+                <div class="slot"></div>
+                <div class="slot"></div>
+                <div class="slot"></div>
+            </div>
+            
+            <div class="letters" id="letters">
+                <!-- الأحرف ستضاف هنا بالجافاسكريبت -->
+            </div>
+            
+            <div class="feedback" id="feedback"></div>
+            
+            <button onclick="checkWord()">تحقق</button>
+            <button id="hint" onclick="giveHint()">مساعدة</button>
+            <button onclick="resetLetters()">إعادة</button>
+            
+            <div class="reward" id="reward">
+                <h3>أحسنت! لقد كسبت جوهرة البيان!</h3>
+                <img src="https://i.imgur.com/XwTQ9yO.png" width="100">
+                <p>الكلمة الصحيحة هي: <span id="correctWord"></span></p>
+                <button onclick="nextChallenge()">التحدي التالي</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // الكلمات والأحرف
+        const words = [
+            {word: "كتاب", hint: "مجموعة من الصفحات تحتوي على معلومات أو قصص"},
+            {word: "قلم", hint: "أداة نستخدمها للكتابة"},
+            {word: "مدرسة", hint: "مكان نذهب إليه للتعلم"},
+            {word: "علم", hint: "وسيلة لفهم العالم من حولنا"}
+        ];
+        
+        let currentWord = {};
+        let selectedLetters = [];
+        let slots = [];
+        
+        function startGame() {
+            document.getElementById('door').style.display = 'none';
+            document.getElementById('gameArea').style.display = 'block';
+            
+            // اختيار كلمة عشوائية
+            currentWord = words[Math.floor(Math.random() * words.length)];
+            
+            // تفريغ الأحرف والفتحات
+            document.getElementById('letters').innerHTML = '';
+            document.getElementById('wordSlots').innerHTML = '';
+            
+            // إنشاء فتحات الكلمة
+            slots = [];
+            for (let i = 0; i < currentWord.word.length; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'slot';
+                slot.dataset.index = i;
+                document.getElementById('wordSlots').appendChild(slot);
+                slots.push(slot);
+            }
+            
+            // إنشاء أحرف مشوشة
+            let shuffledLetters = shuffleArray([...currentWord.word]);
+            
+            // إضافة الأحرف إلى المنطقة
+            shuffledLetters.forEach((letter, index) => {
+                const letterElement = document.createElement('div');
+                letterElement.className = 'letter';
+                letterElement.textContent = letter;
+                letterElement.dataset.letter = letter;
+                letterElement.dataset.index = index;
+                letterElement.draggable = true;
+                
+                letterElement.addEventListener('dragstart', dragStart);
+                
+                document.getElementById('letters').appendChild(letterElement);
+            });
+            
+            // إعداد السحب والإفلات
+            setupDragAndDrop();
+        }
+        
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        function dragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.dataset.letter);
+            e.dataTransfer.setData('index', e.target.dataset.index);
+        }
+        
+        function setupDragAndDrop() {
+            slots.forEach(slot => {
+                slot.addEventListener('dragover', e => {
+                    e.preventDefault();
+                });
+                
+                slot.addEventListener('drop', e => {
+                    e.preventDefault();
+                    const letter = e.dataTransfer.getData('text/plain');
+                    const index = e.dataTransfer.getData('index');
+                    
+                    // إذا كانت الفتحة فارغة
+                    if (!slot.textContent) {
+                        slot.textContent = letter;
+                        selectedLetters[slot.dataset.index] = letter;
+                        
+                        // إخفاء الحرف الذي تم سحبه
+                        const letters = document.querySelectorAll('.letter');
+                        letters.forEach(l => {
+                            if (l.dataset.index === index && l.textContent === letter) {
+                                l.style.visibility = 'hidden';
+                            }
+                        });
+                    }
+                });
+            });
+        }
+        
+        function checkWord() {
+            const userWord = selectedLetters.join('');
+            const feedback = document.getElementById('feedback');
+            
+            if (userWord === currentWord.word) {
+                feedback.textContent = "أحسنت! الكلمة صحيحة!";
+                feedback.className = "feedback correct";
+                document.getElementById('reward').style.display = 'block';
+                document.getElementById('correctWord').textContent = currentWord.word;
+            } else {
+                feedback.textContent = "ليس تمامًا! حاول مرة أخرى!";
+                feedback.className = "feedback incorrect";
+            }
+        }
+        
+        function giveHint() {
+            alert(`تلميح: ${currentWord.hint}`);
+        }
+        
+        function resetLetters() {
+            selectedLetters = [];
+            const slots = document.querySelectorAll('.slot');
+            const letters = document.querySelectorAll('.letter');
+            
+            slots.forEach(slot => {
+                slot.textContent = '';
+            });
+            
+            letters.forEach(letter => {
+                letter.style.visibility = 'visible';
+            });
+            
+            document.getElementById('feedback').textContent = '';
+        }
+        
+        function nextChallenge() {
+            document.getElementById('reward').style.display = 'none';
+            resetLetters();
+            startGame();
+        }
+    </script>
+</body>
+</html>

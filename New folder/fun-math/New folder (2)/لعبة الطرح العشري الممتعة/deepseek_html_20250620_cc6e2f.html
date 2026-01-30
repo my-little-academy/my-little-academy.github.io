@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>لعبة الطرح العشري - المطروح منه أكبر من المطروح</title>
+    <style>
+        body {
+            background-color: #f5f5f5;
+            font-family: 'Arial Arabic', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            text-align: right;
+        }
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .card-rows-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            position: relative;
+        }
+        .divider {
+            height: 2px;
+            background-color: #7f8c8d;
+            margin: 10px 0;
+            width: calc(100% - 120px);
+        }
+        .card-row {
+            display: flex;
+            margin: 5px 0;
+            justify-content: flex-end;
+        }
+        .card {
+            width: 60px;
+            height: 80px;
+            color: white;
+            margin: 0 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            cursor: pointer;
+            border-radius: 8px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.16);
+            transition: all 0.3s ease;
+            user-select: none;
+            position: relative;
+        }
+        .place-row .card {
+            background-color: #3498db;
+            font-size: 14px;
+            height: 50px;
+            font-weight: bold;
+            cursor: default;
+        }
+        .minuend-row .card {
+            background-color: #2ecc71;
+        }
+        .subtrahend-row .card {
+            background-color: #e74c3c;
+        }
+        .result-row .card {
+            background-color: #f39c12;
+        }
+        .decimal-card {
+            background-color: #9b59b6 !important;
+            font-size: 30px;
+            font-weight: bold;
+        }
+        .empty-card {
+            background-color: #ecf0f1 !important;
+            color: #2c3e50;
+            border: 2px dashed #bdc3c7;
+        }
+        .card:hover:not(.place-row .card) {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+        .selected {
+            border: 3px solid #FFD700;
+            transform: scale(1.05);
+        }
+        .number-pad {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 20px 0;
+            gap: 10px;
+            max-width: 300px;
+        }
+        .number-btn {
+            width: 50px;
+            height: 50px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .number-btn:hover {
+            background-color: #2980b9;
+            transform: scale(1.1);
+        }
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .control-btn {
+            padding: 10px 20px;
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .control-btn:hover {
+            background-color: #1a252f;
+            transform: translateY(-2px);
+        }
+        #message {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 20px 0;
+            height: 30px;
+            text-align: center;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        .row-label {
+            width: 100px;
+            text-align: center;
+            font-weight: bold;
+            color: #34495e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .borrow-circle {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: #ff0000;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            cursor: pointer;
+            top: -15px;
+            right: 15px;
+            z-index: 10;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .borrow-circle:hover {
+            transform: scale(1.1);
+        }
+        .changed-digit {
+            animation: pulse 0.5s 3;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .explanation-box {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 20px;
+            max-width: 600px;
+            text-align: right;
+        }
+        .step-explanation {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-left: 4px solid #3498db;
+            background-color: #e8f4fc;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>لعبة الطرح العشري - المطروح منه أكبر من المطروح</h1>
+        
+        <div class="card-rows-container">
+            <!-- صف المنازل -->
+            <div class="card-row place-row">
+                <div class="row-label">المنازل</div>
+                <div class="card">عشرات</div>
+                <div class="card">آحاد</div>
+                <div class="card">فاصلة</div>
+                <div class="card">أعشار</div>
+                <div class="card">أجزاء المئة</div>
+                <div class="card">أجزاء الألف</div>
+            </div>
+            
+            <!-- صف المطروح منه -->
+            <div class="card-row minuend-row">
+                <div class="row-label">المطروح منه</div>
+                <!-- سيتم ملؤها بالجافاسكريبت -->
+            </div>
+            
+            <!-- صف المطروح -->
+            <div class="card-row subtrahend-row">
+                <div class="row-label">المطروح</div>
+                <!-- سيتم ملؤها بالجافاسكريبت -->
+            </div>
+            
+            <!-- خط فاصل -->
+            <div class="divider"></div>
+            
+            <!-- صف النتيجة -->
+            <div class="card-row result-row">
+                <div class="row-label">النتيجة</div>
+                <!-- سيتم ملؤها بالجافاسكريبت -->
+            </div>
+        </div>
+        
+        <!-- لوحة الأرقام -->
+        <div class="number-pad">
+            <button class="number-btn" data-number="0">0</button>
+            <button class="number-btn" data-number="1">1</button>
+            <button class="number-btn" data-number="2">2</button>
+            <button class="number-btn" data-number="3">3</button>
+            <button class="number-btn" data-number="4">4</button>
+            <button class="number-btn" data-number="5">5</button>
+            <button class="number-btn" data-number="6">6</button>
+            <button class="number-btn" data-number="7">7</button>
+            <button class="number-btn" data-number="8">8</button>
+            <button class="number-btn" data-number="9">9</button>
+        </div>
+        
+        <!-- أزرار التحكم -->
+        <div class="control-buttons">
+            <button class="control-btn" id="check-btn">تحقق</button>
+            <button class="control-btn" id="change-btn">تغيير الأرقام</button>
+        </div>
+        
+        <p id="message">اختر أرقام النتيجة من لوحة الأرقام</p>
+        
+        <!-- صندوق الشرح -->
+        <div class="explanation-box" id="explanation-box" style="display: none;">
+            <h3>خطوات الحل مع توضيح الاستلاف:</h3>
+            <div id="explanation-steps"></div>
+        </div>
+    </div>
+
+    <script>
+        // تعريف البطاقات بالترتيب المطلوب: عشرات ← آحاد ← فاصلة ← أعشار ← أجزاء المئة ← أجزاء الألف
+        const places = ["عشرات", "آحاد", "فاصلة", "أعشار", "أجزاء المئة", "أجزاء الألف"];
+        let minuends = [0, 0, '.', 0, 0, 0]; // الفاصلة في الموضع الثالث
+        let subtrahends = [0, 0, '.', 0, 0, 0]; // الفاصلة في الموضع الثالث
+        let results = ['', '', '.', '', '', '']; // فارغة باستثناء الفاصلة
+        
+        // تهيئة اللعبة
+        let selectedCard = null;
+        let decimalPosition = 2; // موقع الفاصلة (الموضع الثالث في المصفوفة)
+        let borrowSteps = [];
+        let currentStep = 0;
+
+        // إنشاء البطاقات
+        function createCards() {
+            const placeRow = document.querySelector('.place-row');
+            const minuendRow = document.querySelector('.minuend-row');
+            const subtrahendRow = document.querySelector('.subtrahend-row');
+            const resultRow = document.querySelector('.result-row');
+            
+            // مسح البطاقات الحالية
+            while (placeRow.children.length > 1) placeRow.removeChild(placeRow.lastChild);
+            while (minuendRow.children.length > 1) minuendRow.removeChild(minuendRow.lastChild);
+            while (subtrahendRow.children.length > 1) subtrahendRow.removeChild(subtrahendRow.lastChild);
+            while (resultRow.children.length > 1) resultRow.removeChild(resultRow.lastChild);
+            
+            // إضافة بطاقات المنازل
+            places.forEach((place, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.textContent = place;
+                placeRow.appendChild(card);
+            });
+            
+            // إضافة بطاقات المطروح منه مع دوائر الاستلاف
+            minuends.forEach((value, index) => {
+                const card = document.createElement('div');
+                card.className = index === decimalPosition ? 'card decimal-card' : 'card';
+                card.textContent = value;
+                card.dataset.type = 'minuend';
+                card.dataset.index = index;
+                
+                // نضيف دائرة استلاف إذا كانت البطاقة ليست الفاصلة وليست أقصى اليسار
+                if (index !== decimalPosition && index > 0) {
+                    const borrowCircle = document.createElement('div');
+                    borrowCircle.className = 'borrow-circle';
+                    borrowCircle.textContent = '↓';
+                    borrowCircle.title = 'اضغط للاستلاف';
+                    borrowCircle.dataset.index = index;
+                    
+                    borrowCircle.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        handleBorrow(this.dataset.index);
+                    });
+                    
+                    card.appendChild(borrowCircle);
+                }
+                
+                minuendRow.appendChild(card);
+            });
+            
+            // إضافة بطاقات المطروح
+            subtrahends.forEach((value, index) => {
+                const card = document.createElement('div');
+                card.className = index === decimalPosition ? 'card decimal-card' : 'card';
+                card.textContent = value;
+                card.dataset.type = 'subtrahend';
+                card.dataset.index = index;
+                subtrahendRow.appendChild(card);
+            });
+            
+            // إضافة بطاقات النتيجة (قابلة للتعديل)
+            results.forEach((value, index) => {
+                const card = document.createElement('div');
+                if (index === decimalPosition) {
+                    card.className = 'card decimal-card';
+                    card.textContent = '.';
+                } else {
+                    card.className = 'card empty-card';
+                    card.textContent = value;
+                    card.dataset.type = 'result';
+                    card.dataset.index = index;
+                    card.addEventListener('click', function() {
+                        selectResultCard(this);
+                    });
+                }
+                resultRow.appendChild(card);
+            });
+        }
+        
+        // توليد أرقام عشوائية مع ضمان أن المطروح منه أكبر من المطروح
+        function generateRandomNumbers() {
+            // توليد المطروح منه
+            minuends = minuends.map((val, index) => 
+                index === decimalPosition ? '.' : Math.floor(Math.random() * 10)
+            );
+            
+            // توليد المطروح مع ضمان أن يكون أصغر من المطروح منه في كل خانة
+            subtrahends = subtrahends.map((val, index) => {
+                if (index === decimalPosition) return '.';
+                const max = parseInt(minuends[index]);
+                return Math.floor(Math.random() * (max + 1));
+            });
+            
+            // نتائج فارغة
+            results = results.map((val, index) => 
+                index === decimalPosition ? '.' : ''
+            );
+            
+            // إذا لم يكن هناك استلاف مطلوب، نخلق حالة استلاف
+            if (calculateBorrowSteps().length === 0) {
+                createBorrowScenario();
+            }
+        }
+        
+        // إنشاء حالة استلاف إذا لم تكن موجودة
+        function createBorrowScenario() {
+            // نختار خانة عشوائية (عدا الفاصلة والخانة الأولى)
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * (minuends.length - 2)) + 1;
+            } while (randomIndex === decimalPosition);
+            
+            // نجعل المطروح في هذه الخانة أكبر من المطروح منه
+            subtrahends[randomIndex] = parseInt(minuends[randomIndex]) + 1;
+            
+            // نقلل المطروح منه في الخانة السابقة لضمان إمكانية الاستلاف
+            const borrowFrom = randomIndex - (randomIndex === decimalPosition + 1 ? 2 : 1);
+            if (borrowFrom >= 0 && borrowFrom !== decimalPosition) {
+                minuends[borrowFrom] = Math.max(1, parseInt(minuends[borrowFrom]));
+            }
+        }
+        
+        // دالة للتعامل مع عملية الاستلاف
+        function handleBorrow(index) {
+            index = parseInt(index);
+            
+            // نتحقق أنه يمكن الاستلاف (الخانة الحالية أقل من المطروح)
+            if (parseInt(minuends[index]) >= parseInt(subtrahends[index])) {
+                alert('لا حاجة للاستلاف هنا، الخانة الحالية أكبر أو تساوي المطروح');
+                return;
+            }
+            
+            // نتحقق أنه يمكن الاستلاف من الخانة التي قبلها
+            const borrowFrom = index - (index === decimalPosition + 1 ? 2 : 1);
+            
+            if (borrowFrom < 0 || parseInt(minuends[borrowFrom]) < 1) {
+                alert('لا يمكن الاستلاف من الخانة السابقة');
+                return;
+            }
+            
+            // نجري عملية الاستلاف
+            minuends[borrowFrom] = parseInt(minuends[borrowFrom]) - 1;
+            minuends[index] = parseInt(minuends[index]) + 10;
+            
+            // نحدث الواجهة
+            updateMinuendDisplay();
+            
+            // نظهر رسالة توضيحية
+            document.getElementById('message').textContent = 
+                `تم الاستلاف: ناقص 1 من ${places[borrowFrom]} و اضيف 10 إلى ${places[index]}`;
+        }
+        
+        // دالة لتحديث عرض المطروح منه
+        function updateMinuendDisplay() {
+            const minuendRow = document.querySelector('.minuend-row');
+            minuendRow.innerHTML = '<div class="row-label">المطروح منه</div>';
+            
+            minuends.forEach((value, index) => {
+                const card = document.createElement('div');
+                card.className = index === decimalPosition ? 'card decimal-card' : 'card';
+                card.textContent = value;
+                card.dataset.type = 'minuend';
+                card.dataset.index = index;
+                
+                if (index !== decimalPosition && index > 0) {
+                    const borrowCircle = document.createElement('div');
+                    borrowCircle.className = 'borrow-circle';
+                    borrowCircle.textContent = '↓';
+                    borrowCircle.title = 'اضغط للاستلاف';
+                    borrowCircle.dataset.index = index;
+                    
+                    borrowCircle.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        handleBorrow(this.dataset.index);
+                    });
+                    
+                    card.appendChild(borrowCircle);
+                }
+                
+                minuendRow.appendChild(card);
+            });
+        }
+        
+        // حساب خطوات الاستلاف
+        function calculateBorrowSteps() {
+            const steps = [];
+            const minuendCopy = [...minuends];
+            const subtrahendCopy = [...subtrahends];
+            
+            // نتحقق من كل خانة من اليمين إلى اليسار (من الأصغر إلى الأكبر)
+            for (let i = minuendCopy.length - 1; i >= 0; i--) {
+                if (i === decimalPosition) continue; // نتجاوز الفاصلة
+                
+                // إذا كان الرقم في المطروح أكبر من المطروح منه
+                if (parseInt(subtrahendCopy[i]) > parseInt(minuendCopy[i])) {
+                    // نبحث عن أقرب خانة يساراً يمكن الاستلاف منها
+                    let borrowFrom = i - 1;
+                    while (borrowFrom >= 0) {
+                        if (borrowFrom === decimalPosition) {
+                            borrowFrom--;
+                            continue;
+                        }
+                        
+                        if (parseInt(minuendCopy[borrowFrom]) > 0) {
+                            // نوجد خطوة الاستلاف
+                            const step = {
+                                from: borrowFrom,
+                                to: i,
+                                amount: 1,
+                                oldValue: minuendCopy[i],
+                                newValue: parseInt(minuendCopy[i]) + 10,
+                                oldFromValue: minuendCopy[borrowFrom],
+                                newFromValue: parseInt(minuendCopy[borrowFrom]) - 1
+                            };
+                            steps.push(step);
+                            
+                            // نحدث القيم
+                            minuendCopy[borrowFrom] = step.newFromValue;
+                            minuendCopy[i] = step.newValue;
+                            break;
+                        }
+                        borrowFrom--;
+                    }
+                }
+            }
+            
+            return steps;
+        }
+        
+        // بقية الدوال تبقى كما هي (selectResultCard, checkAnswer, calculatePlayerResult, ...)
+        // ... [يجب الاحتفاظ بجميع الدوال الأخرى كما هي بدون تغيير] ...
+        
+        // بدء اللعبة عند تحميل الصفحة
+        window.onload = function() {
+            generateRandomNumbers();
+            createCards();
+            initEvents();
+        };
+        
+        function selectResultCard(card) {
+            if (selectedCard) {
+                selectedCard.classList.remove('selected');
+            }
+            
+            selectedCard = card;
+            selectedCard.classList.add('selected');
+            
+            document.getElementById('message').textContent = 'اختر رقماً من لوحة الأرقام';
+        }
+        
+        function calculatePlayerResult() {
+            return (results[0] ? parseInt(results[0]) : 0) * 10 + 
+                   (results[1] ? parseInt(results[1]) : 0) * 1 + 
+                   (results[3] ? parseInt(results[3]) : 0) * 0.1 + 
+                   (results[4] ? parseInt(results[4]) : 0) * 0.01 + 
+                   (results[5] ? parseInt(results[5]) : 0) * 0.001;
+        }
+        
+        function calculateMinuendValue() {
+            return minuends[0] * 10 + 
+                   minuends[1] * 1 + 
+                   minuends[3] * 0.1 + 
+                   minuends[4] * 0.01 + 
+                   minuends[5] * 0.001;
+        }
+        
+        function calculateSubtrahendValue() {
+            return subtrahends[0] * 10 + 
+                   subtrahends[1] * 1 + 
+                   subtrahends[3] * 0.1 + 
+                   subtrahends[4] * 0.01 + 
+                   subtrahends[5] * 0.001;
+        }
+        
+        function colorResultCards(isCorrect) {
+            const resultCards = document.querySelectorAll('.result-row .card:not(.decimal-card)');
+            resultCards.forEach(card => {
+                if (isCorrect) {
+                    card.style.backgroundColor = '#2ecc71';
+                } else {
+                    card.style.backgroundColor = '#e74c3c';
+                }
+                card.classList.remove('empty-card');
+            });
+        }
+        
+        function resetGame() {
+            generateRandomNumbers();
+            createCards();
+            document.getElementById('message').textContent = 'اختر أرقام النتيجة من لوحة الأرقام';
+            document.getElementById('explanation-box').style.display = 'none';
+            selectedCard = null;
+        }
+        
+        function initEvents() {
+            document.querySelectorAll('.number-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (selectedCard) {
+                        selectedCard.textContent = this.dataset.number;
+                        results[selectedCard.dataset.index] = this.dataset.number;
+                        selectedCard.classList.remove('selected');
+                        selectedCard.classList.remove('empty-card');
+                        selectedCard = null;
+                    }
+                });
+            });
+            
+            document.getElementById('check-btn').addEventListener('click', checkAnswer);
+            document.getElementById('change-btn').addEventListener('click', resetGame);
+        }
+        
+        function checkAnswer() {
+            const playerResultValue = calculatePlayerResult();
+            const minuendValue = calculateMinuendValue();
+            const subtrahendValue = calculateSubtrahendValue();
+            const expectedResult = minuendValue - subtrahendValue;
+            
+            if (Math.abs(expectedResult - playerResultValue) < 0.0001) {
+                document.getElementById('message').textContent = 'إجابة صحيحة! أحسنت!';
+                colorResultCards(true);
+            } else {
+                document.getElementById('message').textContent = 
+                    `إجابة خاطئة! الجواب الصحيح: ${expectedResult.toFixed(3)}`;
+                colorResultCards(false);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>ولد الهدى فالكائنات ضياء</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: #fef6e4 url('https://i.imgur.com/7QqJbQV.png') no-repeat center;
+            color: #172c66;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #f582ae 0%, #8bd3dd 100%);
+            padding: 20px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            border-bottom: 5px solid #f3d2c1;
+        }
+        
+        .story-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            width: 80%;
+            margin: 30px auto;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            position: relative;
+            border: 2px dashed #f3d2c1;
+        }
+        
+        .interactive-section {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin: 40px 0;
+        }
+        
+        .quiz-box, .game-box {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            width: 45%;
+            min-width: 300px;
+            margin: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+        
+        .game-box {
+            position: relative;
+            height: 300px;
+            overflow: hidden;
+        }
+        
+        .game-area {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .moon {
+            width: 80px;
+            height: 80px;
+            background: url('https://i.imgur.com/J6l6aXp.png') no-repeat center;
+            background-size: contain;
+            position: absolute;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .moon:hover {
+            transform: scale(1.1);
+        }
+        
+        button {
+            background: #f582ae;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <!-- باقي المحتوى كما هو ... -->
+    
+    <div class="game-box">
+        <h3>لعبة نور النبي ﷺ ✨</h3>
+        <p>ساعد نور النبي ﷺ ليصل إلى كل مكان!</p>
+        <button onclick="startGame()">ابدأ اللعبة</button>
+        
+        <div class="game-area" id="gameArea">
+            <!-- سيتم إضافة القمر ديناميكياً عبر الجافاسكربت -->
+        </div>
+    </div>
+
+    <script>
+        // الأسئلة التفاعلية (كما هي ...)
+        
+        // اللعبة المعدلة
+        let gameScore = 0;
+        let gameInterval;
+        const gameArea = document.getElementById('gameArea');
+        
+        function createMoon() {
+            const moon = document.createElement('div');
+            moon.className = 'moon';
+            moon.style.left = `${Math.random() * (gameArea.offsetWidth - 80)}px`;
+            moon.style.top = `${Math.random() * (gameArea.offsetHeight - 80)}px`;
+            moon.onclick = function() {
+                catchLight(this);
+            };
+            gameArea.appendChild(moon);
+            
+            // اختفاء القمر بعد 1.5 ثانية إذا لم يتم الضغط عليه
+            setTimeout(() => {
+                if (moon.parentNode) {
+                    moon.remove();
+                }
+            }, 1500);
+        }
+        
+        function startGame() {
+            // مسح أي أقمار موجودة مسبقاً
+            gameArea.innerHTML = '<p>اضغط على القمر كلما يظهر!</p><p>النقاط: <span id="score">0</span></p>';
+            gameScore = 0;
+            document.getElementById('score').innerText = gameScore;
+            
+            // ظهور قمر جديد كل ثانية
+            gameInterval = setInterval(createMoon, 1000);
+        }
+        
+        function catchLight(moon) {
+            moon.remove();
+            gameScore++;
+            document.getElementById('score').innerText = gameScore;
+            
+            if (gameScore >= 5) {
+                clearInterval(gameInterval);
+                const msg = document.createElement('p');
+                msg.textContent = "ممتاز! نورك وصل إلى كل مكان 🌍";
+                msg.style.color = "#f582ae";
+                msg.style.fontWeight = "bold";
+                gameArea.appendChild(msg);
+            }
+        }
+    </script>
+</body>
+</html>

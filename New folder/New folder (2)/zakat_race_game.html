@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سباق الزكاة</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Amiri', serif;
+            background: linear-gradient(135deg, #87CEEB, #98FB98, #FFB6C1);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #2E8B57;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-width: 800px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .race-track {
+            background: linear-gradient(to left, #98FB98, #87CEEB);
+            height: 400px;
+            border-radius: 15px;
+            position: relative;
+            border: 5px solid #4169E1;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .character {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: #FFD700;
+            border-radius: 50%;
+            border: 3px solid #FF6347;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: right 0.5s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .player {
+            top: 100px;
+            right: 20px;
+        }
+
+        .computer {
+            top: 240px;
+            right: 20px;
+            background: #FF69B4;
+        }
+
+        .finish-line {
+            position: absolute;
+            left: 50px;
+            top: 0;
+            width: 10px;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                #000 0px,
+                #000 20px,
+                #fff 20px,
+                #fff 40px
+            );
+        }
+
+        .progress-bar {
+            background: #E0E0E0;
+            height: 30px;
+            border-radius: 15px;
+            margin: 10px 0;
+            overflow: hidden;
+            border: 2px solid #4169E1;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #32CD32, #00FF00);
+            border-radius: 15px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255,255,255,0.4),
+                transparent
+            );
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .score {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            padding: 10px 20px;
+            border-radius: 25px;
+            color: #8B4513;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .action-btn {
+            background: linear-gradient(45deg, #FF6347, #FF4500);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 15px;
+            font-family: 'Amiri', serif;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .action-btn:active {
+            transform: translateY(-2px);
+        }
+
+        .message {
+            background: #E6F3FF;
+            padding: 15px;
+            border-radius: 15px;
+            margin: 15px 0;
+            border-right: 5px solid #4169E1;
+            font-size: 1.1rem;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #FFD700;
+            animation: fall 3s linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .reset-btn {
+            background: linear-gradient(45deg, #32CD32, #228B22);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-family: 'Amiri', serif;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .reset-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .instructions {
+            background: #FFF8DC;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 3px solid #DAA520;
+            text-align: center;
+        }
+
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 50px;
+            opacity: 0.7;
+            animation: float 20s infinite linear;
+        }
+
+        .cloud::before,
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: white;
+            border-radius: 50px;
+        }
+
+        .cloud1 {
+            width: 80px;
+            height: 40px;
+            top: 50px;
+            right: -100px;
+        }
+
+        .cloud1::before {
+            width: 50px;
+            height: 40px;
+            top: -20px;
+            right: 10px;
+        }
+
+        .cloud1::after {
+            width: 60px;
+            height: 30px;
+            top: -10px;
+            left: 10px;
+        }
+
+        @keyframes float {
+            0% { right: -100px; }
+            100% { right: 100%; }
+        }
+
+        .hearts {
+            position: absolute;
+            color: #FF69B4;
+            font-size: 20px;
+            animation: heartFloat 3s ease-out infinite;
+        }
+
+        @keyframes heartFloat {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        .wisdom {
+            background: linear-gradient(45deg, #DDA0DD, #DA70D6);
+            color: white;
+            padding: 15px;
+            border-radius: 15px;
+            margin: 15px 0;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="cloud cloud1"></div>
+    
+    <h1 class="title">🌟 سباق الزكاة 🌟</h1>
+    
+    <div class="instructions">
+        <h3>📚 تعلم وامرح مع سباق الزكاة! 📚</h3>
+        <p>ساعد الطفل الطيب في الوصول لخط النهاية من خلال أعمال الخير والصدقة</p>
+        <p>كلما تصدقت أكثر، كلما تقدمت أسرع في السباق!</p>
+    </div>
+
+    <div class="game-container">
+        <div class="score-board">
+            <div class="score">
+                <span>نقاط الخير: </span>
+                <span id="playerScore">0</span>
+            </div>
+            <div class="score">
+                <span>نقاط الحاسوب: </span>
+                <span id="computerScore">0</span>
+            </div>
+        </div>
+
+        <div class="race-track">
+            <div class="finish-line"></div>
+            <div class="character player" id="playerChar">😊</div>
+            <div class="character computer" id="computerChar">🤖</div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="playerProgress" style="width: 0%"></div>
+        </div>
+        <p style="text-align: center; margin-bottom: 10px;">تقدم الطفل الطيب</p>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="computerProgress" style="width: 0%; background: linear-gradient(90deg, #FF6347, #FF4500);"></div>
+        </div>
+        <p style="text-align: center; margin-bottom: 20px;">تقدم الحاسوب</p>
+
+        <div class="actions">
+            <button class="action-btn" onclick="doCharity('صدقة صغيرة', 10)">
+                💰 صدقة صغيرة
+            </button>
+            <button class="action-btn" onclick="doCharity('مساعدة فقير', 15)">
+                🤝 ساعد فقيراً
+            </button>
+            <button class="action-btn" onclick="doCharity('إطعام جائع', 20)">
+                🍞 أطعم جائعاً
+            </button>
+            <button class="action-btn" onclick="doCharity('كفالة يتيم', 25)">
+                👶 اكفل يتيماً
+            </button>
+            <button class="action-btn" onclick="doCharity('بناء مسجد', 30)">
+                🕌 ساهم في بناء مسجد
+            </button>
+            <button class="action-btn" onclick="doCharity('حفر بئر', 35)">
+                💧 احفر بئراً
+            </button>
+        </div>
+
+        <div id="messageArea"></div>
+        <div id="wisdomArea"></div>
+
+        <button class="reset-btn" onclick="resetGame()">🔄 ابدأ من جديد</button>
+    </div>
+
+    <div class="celebration" id="celebration"></div>
+
+    <script>
+        let playerScore = 0;
+        let computerScore = 0;
+        let gameActive = true;
+
+        const wisdomQuotes = [
+            "الصدقة تطفئ غضب الرب وتدفع البلاء",
+            "من أعطى لله أعطاه الله أضعافاً مضاعفة",
+            "البر لا يبلى والذنب لا ينسى",
+            "ما نقصت صدقة من مال",
+            "الصدقة برهان على الإيمان",
+            "أحب الأعمال إلى الله أدومها وإن قل"
+        ];
+
+        const encouragements = [
+            "ممتاز! 🌟 عمل رائع",
+            "أحسنت! 🎉 استمر في الخير", 
+            "بارك الله فيك! 💫",
+            "عمل طيب! 🌈 الله يجزيك خيراً",
+            "رائع! 🎊 قلبك طيب",
+            "ما شاء الله! ⭐ استمر"
+        ];
+
+        function doCharity(action, points) {
+            if (!gameActive) return;
+
+            playerScore += points;
+            updateScore();
+            movePlayer();
+            showMessage(action, points);
+            showWisdom();
+            createHearts();
+            
+            // Computer moves randomly
+            setTimeout(() => {
+                if (gameActive) {
+                    computerScore += Math.floor(Math.random() * 15) + 5;
+                    updateScore();
+                    moveComputer();
+                }
+            }, 1000);
+
+            // Check for winner
+            if (playerScore >= 200) {
+                playerWins();
+            } else if (computerScore >= 200) {
+                computerWins();
+            }
+        }
+
+        function updateScore() {
+            document.getElementById('playerScore').textContent = playerScore;
+            document.getElementById('computerScore').textContent = computerScore;
+        }
+
+        function movePlayer() {
+            const progress = Math.min((playerScore / 200) * 100, 100);
+            const playerChar = document.getElementById('playerChar');
+            const playerProgress = document.getElementById('playerProgress');
+            
+            playerChar.style.right = `${20 + (progress * 6.5)}px`;
+            playerProgress.style.width = `${progress}%`;
+        }
+
+        function moveComputer() {
+            const progress = Math.min((computerScore / 200) * 100, 100);
+            const computerChar = document.getElementById('computerChar');
+            const computerProgress = document.getElementById('computerProgress');
+            
+            computerChar.style.right = `${20 + (progress * 6.5)}px`;
+            computerProgress.style.width = `${progress}%`;
+        }
+
+        function showMessage(action, points) {
+            const messageArea = document.getElementById('messageArea');
+            const encouragement = encouragements[Math.floor(Math.random() * encouragements.length)];
+            
+            messageArea.innerHTML = `
+                <div class="message">
+                    <strong>${encouragement}</strong><br>
+                    قمت بـ: ${action} وحصلت على ${points} نقطة خير! 🎈
+                </div>
+            `;
+        }
+
+        function showWisdom() {
+            const wisdomArea = document.getElementById('wisdomArea');
+            const randomWisdom = wisdomQuotes[Math.floor(Math.random() * wisdomQuotes.length)];
+            
+            wisdomArea.innerHTML = `
+                <div class="wisdom">
+                    💎 حكمة: ${randomWisdom} 💎
+                </div>
+            `;
+        }
+
+        function createHearts() {
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.className = 'hearts';
+                    heart.innerHTML = '💖';
+                    heart.style.left = Math.random() * 100 + '%';
+                    heart.style.top = Math.random() * 100 + '%';
+                    document.body.appendChild(heart);
+
+                    setTimeout(() => {
+                        heart.remove();
+                    }, 3000);
+                }, i * 200);
+            }
+        }
+
+        function createConfetti() {
+            const celebration = document.getElementById('celebration');
+            const colors = ['#FFD700', '#FF6347', '#32CD32', '#4169E1', '#FF69B4', '#FFA500'];
+            
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 3 + 's';
+                    confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                    celebration.appendChild(confetti);
+
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 6000);
+                }, i * 50);
+            }
+        }
+
+        function playerWins() {
+            gameActive = false;
+            createConfetti();
+            
+            const messageArea = document.getElementById('messageArea');
+            messageArea.innerHTML = `
+                <div class="message" style="background: linear-gradient(45deg, #FFD700, #FFA500); color: white; text-align: center; font-size: 1.5rem;">
+                    🎉🎊 مبروك! فزت في السباق! 🎊🎉<br>
+                    <strong>أنت بطل الزكاة والخير! 🏆</strong><br>
+                    لقد تعلمت أن العطاء يجعلنا سعداء ويقربنا من الله 💕
+                </div>
+            `;
+
+            showWisdom();
+        }
+
+        function computerWins() {
+            gameActive = false;
+            
+            const messageArea = document.getElementById('messageArea');
+            messageArea.innerHTML = `
+                <div class="message" style="background: #FF6347; color: white; text-align: center;">
+                    😅 الحاسوب فاز هذه المرة!<br>
+                    لا تحزن، المهم أن تستمر في فعل الخير 💪<br>
+                    جرب مرة أخرى وستفوز بإذن الله! 🌟
+                </div>
+            `;
+        }
+
+        function resetGame() {
+            playerScore = 0;
+            computerScore = 0;
+            gameActive = true;
+            
+            updateScore();
+            
+            document.getElementById('playerChar').style.right = '20px';
+            document.getElementById('computerChar').style.right = '20px';
+            document.getElementById('playerProgress').style.width = '0%';
+            document.getElementById('computerProgress').style.width = '0%';
+            
+            document.getElementById('messageArea').innerHTML = '';
+            document.getElementById('wisdomArea').innerHTML = '';
+            document.getElementById('celebration').innerHTML = '';
+        }
+
+        // Computer auto-play
+        setInterval(() => {
+            if (gameActive && Math.random() < 0.3) {
+                computerScore += Math.floor(Math.random() * 10) + 3;
+                updateScore();
+                moveComputer();
+                
+                if (computerScore >= 200) {
+                    computerWins();
+                }
+            }
+        }, 2000);
+
+        // Initialize game
+        showWisdom();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رحلة الإيمان في السيرة النبوية</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* استيراد خط جديد أكثر طفولية ومرحة */
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif; /* استخدام خط Cairo */
+            background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%); /* خلفية زرقاء فاتحة ومرحة */
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95); /* خلفية بيضاء شبه شفافة */
+            border-radius: 30px; /* حواف أكثر استدارة */
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2); /* ظل ناعم */
+            padding: 35px; /* مساحة داخلية أكبر قليلاً */
+            max-width: 950px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .game-title {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 2.8em; /* حجم أكبر للعنوان */
+            margin-bottom: 35px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.15); /* ظل أوضح */
+            background: linear-gradient(to right, #ff7e5f, #feb47b); /* تدرج لوني دافئ ومشرق */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            padding: 12px;
+            border-radius: 15px; /* حواف مستديرة أكثر */
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 2px solid #ff7e5f; /* حدود ملونة */
+        }
+
+        .board {
+            width: 650px;
+            height: 650px;
+            margin: 0 auto 35px;
+            position: relative;
+            background: #e0f7fa; /* خلفية لوحة أفتح */
+            border: 6px solid #4fc3f7; /* حدود أكثر سمكًا ولون أزرق فاتح */
+            border-radius: 25px; /* حواف مستديرة أكثر */
+            box-shadow: 0 18px 36px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .property {
+            position: absolute;
+            background: linear-gradient(145deg, #ffffff, #f5f5f5); /* خلفية أفتح للمحطات */
+            border: 2px solid #a7d9f7; /* حدود أزرق فاتح */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px; /* حجم خط أكبر قليلاً */
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 12px; /* حواف مستديرة أكثر */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            color: #444;
+            z-index: 5;
+            padding: 5px; /* مساحة داخلية للمحتوى */
+        }
+
+        .property:hover {
+            transform: translateY(-5px) scale(1.05); /* تأثير أكبر عند التحويم */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+            z-index: 10;
+        }
+
+        .property-icon {
+            font-size: 20px; /* أيقونات أكبر */
+            margin-bottom: 5px;
+            color: #3498db; /* لون أيقونات موحد */
+        }
+
+        .property.discovered-1 {
+            background: linear-gradient(145deg, #66bb6a, #43a047); /* أخضر زاهي */
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 187, 106, 0.4);
+        }
+
+        .property.discovered-2 {
+            background: linear-gradient(145deg, #ffb300, #fb8c00); /* برتقالي ذهبي */
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 179, 0, 0.4);
+        }
+
+        .corner {
+            width: 90px;
+            height: 90px;
+            font-size: 11px;
+            background: linear-gradient(145deg, #4fc3f7, #29b6f6); /* أزرق سماوي للزوايا */
+            color: white;
+            z-index: 8;
+            border: 3px solid #039be5; /* حدود أغمق قليلاً */
+        }
+
+        .side {
+            width: 80px;
+            height: 60px;
+            font-size: 11px;
+        }
+
+        /* مواضع الخصائص - تبقى كما هي لأنها تعتمد على البكسل */
+        .start { top: 560px; right: 560px; }
+        .prop1 { top: 560px; right: 480px; }
+        .prop2 { top: 560px; right: 400px; }
+        .prop3 { top: 560px; right: 320px; }
+        .prop4 { top: 560px; right: 240px; }
+        .prop5 { top: 560px; right: 160px; }
+        .prop6 { top: 560px; right: 80px; }
+        .jail { top: 560px; right: 0px; }
+        
+        .prop7 { top: 500px; right: 0px; }
+        .prop8 { top: 440px; right: 0px; }
+        .prop9 { top: 380px; right: 0px; }
+        .prop10 { top: 320px; right: 0px; }
+        .prop11 { top: 260px; right: 0px; }
+        .prop12 { top: 200px; right: 0px; }
+        .parking { top: 0px; right: 0px; }
+        
+        .prop13 { top: 0px; right: 80px; }
+        .prop14 { top: 0px; right: 160px; }
+        .prop15 { top: 0px; right: 240px; }
+        .prop16 { top: 0px; right: 320px; }
+        .prop17 { top: 0px; right: 400px; }
+        .prop18 { top: 0px; right: 480px; }
+        .go-jail { top: 0px; right: 560px; }
+        
+        .prop19 { top: 200px; right: 560px; }
+        .prop20 { top: 260px; right: 560px; }
+        .prop21 { top: 320px; right: 560px; }
+        .prop22 { top: 380px; right: 560px; }
+        .prop23 { top: 440px; right: 560px; }
+        .prop24 { top: 500px; right: 560px; }
+
+        .player {
+            position: absolute;
+            width: 30px; /* لاعبين أكبر قليلاً */
+            height: 30px;
+            border-radius: 50%;
+            border: 4px solid white; /* حدود بيضاء أكثر سمكًا */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.7s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px; /* حجم خط أكبر */
+            color: white;
+            font-weight: bold;
+        }
+
+        .player1 {
+            background: #4caf50; /* أخضر زاهي */
+            transform: translate(-35px, 10px);
+        }
+
+        .player2 {
+            background: #ff9800; /* برتقالي زاهي */
+            transform: translate(-10px, 10px);
+        }
+
+        .center-area {
+            position: absolute;
+            top: 130px;
+            right: 130px;
+            width: 390px;
+            height: 390px;
+            background: linear-gradient(135deg, #a7d9f7 0%, #72d0f7 100%); /* أزرق فاتح مبهج */
+            border-radius: 20px; /* حواف مستديرة أكثر */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            box-shadow: inset 0 6px 15px rgba(0, 0, 0, 0.2);
+            border: 4px solid #4fc3f7; /* حدود زرقاء فاتحة */
+            z-index: 1;
+        }
+
+        .center-logo {
+            font-size: 3em; /* شعار أكبر */
+            font-weight: 900; /* خط أثقل */
+            margin-bottom: 25px;
+            text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.4);
+            background: linear-gradient(to right, #fff, #e0f7fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px; /* مسافة أكبر */
+            gap: 30px; /* فجوة أكبر */
+        }
+
+        .player-info {
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            padding: 25px; /* مساحة داخلية أكبر */
+            border-radius: 20px; /* حواف مستديرة أكثر */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            flex: 1;
+            text-align: center;
+            border: 4px solid; /* حدود أكثر سمكًا */
+            transition: all 0.3s ease;
+        }
+
+        .player-info.player1 {
+            border-color: #4caf50; /* أخضر زاهي */
+        }
+
+        .player-info.player2 {
+            border-color: #ff9800; /* برتقالي زاهي */
+        }
+
+        .player-info.current-player {
+            transform: translateY(-8px); /* تأثير رفع أكبر */
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+            border-color: #ffeb3b !important; /* لون أصفر ذهبي ساطع */
+            animation: pulse 1.5s infinite alternate; /* تأثير نبض */
+        }
+
+        @keyframes pulse {
+            from { box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25), 0 0 0px 0px rgba(255, 235, 59, 0.7); }
+            to { box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25), 0 0 15px 10px rgba(255, 235, 59, 0); }
+        }
+
+        .player-info h3 {
+            margin-bottom: 18px;
+            font-size: 1.6em; /* حجم أكبر */
+            color: #2c3e50;
+        }
+
+        .player-info p {
+            margin-bottom: 10px;
+            font-size: 1.2em; /* حجم أكبر */
+        }
+
+        .controls {
+            text-align: center;
+            margin-top: 35px; /* مسافة أكبر من الأسفل */
+        }
+
+        .btn {
+            background: linear-gradient(145deg, #ff7e5f, #feb47b); /* تدرج لوني دافئ ومشرق */
+            color: white;
+            border: none;
+            padding: 18px 40px; /* حجم أكبر للأزرار */
+            border-radius: 40px; /* حواف مستديرة جداً */
+            font-size: 18px; /* حجم خط أكبر */
+            font-weight: bold;
+            cursor: pointer;
+            margin: 0 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.15); /* تأثير لامع أوضح */
+            transform: rotate(45deg);
+            transition: all 0.5s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-5px) scale(1.07); /* تأثير أكبر عند التحويم */
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:hover::after {
+            left: 100%;
+        }
+
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            background: #bdbdbd; /* لون رمادي باهت عند التعطيل */
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn.danger {
+            background: linear-gradient(145deg, #ef5350, #d32f2f); /* أحمر زاهي */
+        }
+
+        .btn.secondary {
+            background: linear-gradient(145deg, #42a5f5, #1976d2); /* أزرق فاتح زاهي */
+        }
+
+        .dice-area {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 25px; /* فجوة أكبر بين النرد */
+            margin: 30px 0;
+        }
+
+        .dice {
+            width: 70px; /* نرد أكبر */
+            height: 70px;
+            background: linear-gradient(145deg, #ffe082, #ffca28); /* لون أصفر ذهبي */
+            border: 4px solid #ffa000; /* حدود برتقالية */
+            border-radius: 15px; /* حواف مستديرة أكثر */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px; /* حجم رقم أكبر */
+            font-weight: bold;
+            color: #333;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease;
+        }
+
+        .dice.rolling {
+            animation: roll 0.7s ease-in-out;
+        }
+
+        @keyframes roll {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            20% { transform: rotate(90deg) scale(1.1); }
+            40% { transform: rotate(180deg) scale(0.9); }
+            60% { transform: rotate(270deg) scale(1.1); }
+            80% { transform: rotate(360deg) scale(0.95); }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); /* خلفية مودال أفتح قليلاً */
+            direction: rtl;
+            animation: fadeIn 0.3s ease;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 40px; /* مساحة داخلية أكبر */
+            border-radius: 25px; /* حواف مستديرة أكثر */
+            width: 90%; /* عرض أكبر قليلاً */
+            max-width: 600px; /* أقصى عرض أكبر */
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.4s ease;
+            position: relative;
+            border: 3px solid #64b5f6; /* حدود زرقاء فاتحة */
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-70px); opacity: 0; } /* تأثير دخول أكبر */
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-content h2 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2.2em; /* حجم أكبر */
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .modal-content p {
+            margin-bottom: 25px;
+            font-size: 1.25em; /* حجم أكبر */
+            color: #555;
+            line-height: 1.7;
+        }
+
+        .question-options {
+            margin: 30px 0;
+        }
+
+        .question-options button {
+            display: block;
+            width: 90%; /* عرض أقل قليلاً لترك مساحة للهامش */
+            padding: 18px; /* حجم أكبر للأزرار */
+            margin: 15px auto; /* هامش أكبر */
+            background: linear-gradient(145deg, #42a5f5, #1976d2); /* أزرق فاتح زاهي */
+            color: white;
+            border: none;
+            border-radius: 15px; /* حواف مستديرة أكثر */
+            font-size: 1.15em; /* حجم خط أكبر */
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .question-options button:hover {
+            background-color: #2196f3; /* أزرق أغمق عند التحويم */
+            transform: translateX(-8px); /* تأثير تحريك أكبر */
+        }
+
+        .close {
+            color: #aaa;
+            float: left;
+            font-size: 36px; /* حجم أكبر */
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: absolute;
+            left: 25px; /* مسافة أكبر */
+            top: 20px; /* مسافة أكبر */
+        }
+
+        .close:hover {
+            color: #ef5350; /* أحمر زاهي عند التحويم */
+            transform: rotate(90deg) scale(1.1); /* تأثير دوران وتكبير */
+        }
+
+        .current-player {
+            border: 5px solid #ffeb3b !important; /* حدود أكثر سمكًا ولون أصفر ذهبي ساطع */
+            box-shadow: 0 0 30px rgba(255, 235, 59, 0.8); /* ظل متوهج أكبر */
+        }
+
+        .property-price {
+            font-size: 10px; /* حجم خط أكبر قليلاً */
+            color: #7f8c8d;
+            margin-top: 5px;
+            font-weight: normal;
+        }
+
+        .timer {
+            width: 100%;
+            height: 10px; /* شريط مؤقت أكثر سمكًا */
+            background: #e0f2f7; /* خلفية أفتح */
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .timer-bar {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(to right, #81c784, #4caf50); /* أخضر زاهي */
+            transition: width 0.1s linear;
+        }
+
+        #station-info-modal .modal-content {
+            max-width: 700px; /* أقصى عرض أكبر */
+            padding: 45px; /* مساحة داخلية أكبر */
+        }
+        
+        #station-info-modal h2 {
+            font-size: 2.5em; /* حجم أكبر */
+            color: #4caf50; /* أخضر زاهي */
+            border-bottom: 3px solid #e0f2f7; /* حدود أسمك وأفتح */
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+        
+        #station-info-modal p {
+            line-height: 1.9; /* تباعد أسطر أكبر */
+            font-size: 1.2em; /* حجم خط أكبر */
+        }
+        
+        .info-row {
+            padding: 12px; /* مساحة داخلية أكبر */
+            background: #f0f8ff; /* خلفية زرقاء فاتحة جداً */
+            border-radius: 10px; /* حواف مستديرة أكثر */
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #3f51b5; /* أزرق داكن */
+        }
+        
+        .info-value {
+            color: #4caf50; /* أخضر زاهي */
+            font-weight: 700; /* خط أثقل */
+        }
+
+        /* أنيميشن للاعب عند الحركة */
+        @keyframes playerMove {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); } /* تكبير أكثر أثناء الحركة */
+            100% { transform: scale(1); }
+        }
+
+        .player-move {
+            animation: playerMove 0.6s ease; /* مدة أطول قليلاً */
+        }
+
+        /* رسائل التأكيد */
+        .confetti {
+            width: 12px; /* قصاصات أكبر */
+            height: 12px;
+            background-color: #ffeb3b; /* لون أصفر ذهبي */
+            animation: confetti 4s ease-out forwards; /* مدة أطول للرسوم المتحركة */
+        }
+
+        @keyframes confetti {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(1080deg); opacity: 0; } /* دوران أكثر */
+        }
+
+        /* ستايل للأسئلة الصعبة */
+        .difficulty-hard {
+            border-left: 8px solid #ef5350; /* حدود أكثر سمكًا ولون أحمر زاهي */
+        }
+        
+        .difficulty-medium {
+            border-left: 8px solid #ffb300; /* حدود أكثر سمكًا ولون برتقالي ذهبي */
+        }
+        
+        .difficulty-easy {
+            border-left: 8px solid #81c784; /* حدود أكثر سمكًا ولون أخضر زاهي */
+        }
+
+        /* رسائل النجاح/الفشل */
+        .feedback-correct {
+            color: #4caf50 !important; /* أخضر زاهي */
+            font-weight: bold;
+            font-size: 1.3em; /* حجم أكبر */
+        }
+        
+        .feedback-wrong {
+            color: #ef5350 !important; /* أحمر زاهي */
+            font-weight: bold;
+            font-size: 1.3em; /* حجم أكبر */
+        }
+
+        /* بطاقات الإنجاز */
+        .achievement-card {
+            background: linear-gradient(135deg, #ffeb3b, #ffc107); /* تدرج أصفر ذهبي */
+            color: #333; /* لون نص داكن ليبرز على الخلفية الفاتحة */
+            padding: 20px; /* مساحة داخلية أكبر */
+            border-radius: 15px; /* حواف مستديرة أكثر */
+            margin: 15px 0;
+            box-shadow: 0 8px 20px rgba(255, 193, 7, 0.4);
+            font-size: 1.1em;
+        }
+        .achievement-card h3 {
+            color: #333; /* لون نص داكن */
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        /* التكيف مع الشاشات الصغيرة */
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 15px;
+            }
+            
+            .board {
+                width: 100%;
+                height: auto;
+                aspect-ratio: 1/1;
+            }
+            
+            .property {
+                font-size: 8px;
+            }
+            
+            .center-area {
+                width: 60%;
+                height: 60%;
+                top: 20%;
+                right: 20%;
+
+            }
+            
+            .controls {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .btn {
+                margin: 5px 0;
+                width: 100%;
+            }
+
+            /* Adjust property positions for smaller screens if necessary */
+            /* This would require more complex calculations or a grid system */
+            .start, .jail, .parking, .go-jail {
+                width: 20vw; /* Example: make corners responsive */
+                height: 20vw;
+                font-size: 1.5vw;
+            }
+            .side {
+                width: 15vw; /* Example: make sides responsive */
+                height: 10vw;
+                font-size: 1.5vw;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="game-title"><i class="fas fa-mosque"></i> رحلة الإيمان في السيرة النبوية <i class="fas fa-book-quran"></i></h1>
+        
+        <div class="game-info">
+            <div class="player-info player1 current-player" id="player-info-1">
+                <h3><i class="fas fa-user"></i> اللاعب الأول</h3>
+                <p><i class="fas fa-star"></i> نقاط الإيمان: <span id="player1-faithPoints">15000</span> نقطة</p>
+                <p><i class="fas fa-map-marker-alt"></i> محطات مكتشفة: <span id="player1-discoveredStations">0</span></p>
+                <p><i class="fas fa-lock"></i> دور في السجن: <span id="player1-jailTurns">0</span></p>
+                <p><i class="fas fa-trophy"></i> الإنجازات: <span id="player1-achievements">0</span></p>
+            </div>
+            <div class="player-info player2" id="player-info-2">
+                <h3><i class="fas fa-user"></i> اللاعب الثاني</h3>
+                <p><i class="fas fa-star"></i> نقاط الإيمان: <span id="player2-faithPoints">15000</span> نقطة</p>
+                <p><i class="fas fa-map-marker-alt"></i> محطات مكتشفة: <span id="player2-discoveredStations">0</span></p>
+                <p><i class="fas fa-lock"></i> دور في السجن: <span id="player2-jailTurns">0</span></p>
+                <p><i class="fas fa-trophy"></i> الإنجازات: <span id="player2-achievements">0</span></p>
+            </div>
+        </div>
+
+        <div class="board">
+            <div class="property corner start" data-id="0"><i class="fas fa-kaaba"></i><br>البعثة النبوية<br>نور الوحي 2000</div>
+            <div class="property corner jail" data-id="7"><i class="fas fa-lock"></i><br>اختبار الصبر<br>انتظار</div>
+            <div class="property corner parking" data-id="14"><i class="fas fa-spa"></i><br>واحة التأمل<br>استراحة</div>
+            <div class="property corner go-jail" data-id="21"><i class="fas fa-exclamation-triangle"></i><br>وقوع في محنة<br>لـ اختبار الصبر</div>
+
+            <div class="property side prop1" data-id="1"><i class="fas fa-elephant"></i><br>عام الفيل<br><span class="property-price">600 نقطة</span></div>
+            <div class="property side prop2" data-id="2"><i class="fas fa-baby"></i><br>مولد النبوة<br><span class="property-price">600 نقطة</span></div>
+            <div class="property side prop3" data-id="3"><i class="fas fa-heart"></i><br>زواج الرسول ﷺ بخديجة<br><span class="property-price">800 نقطة</span></div>
+            <div class="property side prop4" data-id="4"><i class="fas fa-cube"></i><br>بناء الكعبة<br><span class="property-price">800 نقطة</span></div>
+            <div class="property side prop5" data-id="5"><i class="fas fa-quran"></i><br>بعثة النبي ﷺ<br><span class="property-price">1000 نقطة</span></div>
+            <div class="property side prop6" data-id="6"><i class="fas fa-user-secret"></i><br>السرية بالدعوة<br><span class="property-price">1000 نقطة</span></div>
+
+            <div class="property side prop7" data-id="8"><i class="fas fa-bullhorn"></i><br>جهر بالدعوة<br><span class="property-price">1200 نقطة</span></div>
+            <div class="property side prop8" data-id="9"><i class="fas fa-handshake-slash"></i><br>مقاطعة قريش<br><span class="property-price">1200 نقطة</span></div>
+            <div class="property side prop9" data-id="10"><i class="fas fa-sad-tear"></i><br>عام الحزن<br><span class="property-price">1400 نقطة</span></div>
+            <div class="property side prop10" data-id="11"><i class="fas fa-mountain"></i><br>الإسراء والمعراج<br><span class="property-price">1400 نقطة</span></div>
+            <div class="property side prop11" data-id="12"><i class="fas fa-hands-helping"></i><br>بيعة العقبة الأولى<br><span class="property-price">1600 نقطة</span></div>
+            <div class="property side prop12" data-id="13"><i class="fas fa-hands"></i><br>بيعة العقبة الثانية<br><span class="property-price">1600 نقطة</span></div>
+
+            <div class="property side prop13" data-id="15"><i class="fas fa-walking"></i><br>الهجرة إلى المدينة<br><span class="property-price">1800 نقطة</span></div>
+            <div class="property side prop14" data-id="16"><i class="fas fa-mosque"></i><br>بناء المسجد النبوي<br><span class="property-price">1800 نقطة</span></div>
+            <div class="property side prop15" data-id="17"><i class="fas fa-people-arrows"></i><br>المؤاخاة بين المهاجرين والأنصار<br><span class="property-price">2000 نقطة</span></div>
+            <div class="property side prop16" data-id="18"><i class="fas fa-prayer"></i><br>تشريع الأذان<br><span class="property-price">2000 نقطة</span></div>
+            <div class="property side prop17" data-id="19"><i class="fas fa-shield-alt"></i><br>غزوة بدر الكبرى<br><span class="property-price">2200 نقطة</span></div>
+            <div class="property side prop18" data-id="20"><i class="fas fa-swords"></i><br>غزوة أحد<br><span class="property-price">2200 نقطة</span></div>
+
+            <div class="property side prop19" data-id="22"><i class="fas fa-trench"></i><br>غزوة الخندق<br><span class="property-price">2400 نقطة</span></div>
+            <div class="property side prop20" data-id="23"><i class="fas fa-peace"></i><br>صلح الحديبية<br><span class="property-price">2400 نقطة</span></div>
+            <div class="property side prop21" data-id="24"><i class="fas fa-flag"></i><br>فتح مكة<br><span class="property-price">2600 نقطة</span></div>
+            <div class="property side prop22" data-id="25"><i class="fas fa-kaaba"></i><br>حجة الوداع<br><span class="property-price">2600 نقطة</span></div>
+            <div class="property side prop23" data-id="26"><i class="fas fa-heartbeat"></i><br>وفاة النبي ﷺ<br><span class="property-price">2800 نقطة</span></div>
+            <div class="property side prop24" data-id="27"><i class="fas fa-landmark"></i><br>تأسيس الدولة الإسلامية<br><span class="property-price">2800 نقطة</span></div>
+
+            <div class="center-area">
+                <div class="center-logo">السيرة النبوية</div>
+                <p>رحلة الإيمان</p>
+                <div class="dice-area">
+                    <div class="dice" id="dice">1</div>
+                </div>
+                <p>المجموع: <span id="dice-total">1</span></p>
+                <div id="achievement-display"></div>
+            </div>
+
+            <div class="player player1" id="player1">1</div>
+            <div class="player player2" id="player2">2</div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="roll-dice"><i class="fas fa-dice"></i> ارم النرد</button>
+            <button class="btn danger" id="end-turn" disabled><i class="fas fa-forward"></i> أنهِ الدور</button>
+            <button class="btn secondary" id="reset-game"><i class="fas fa-redo"></i> ابدأ رحلة جديدة</button>
+            <button class="btn" id="sound-toggle"><i class="fas fa-volume-up"></i> الصوت</button>
+        </div>
+
+        <!-- تم حذف قسم سجل اللعبة بالكامل -->
+    </div>
+
+    <!-- النوافذ المنبثقة -->
+    <div id="buy-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="property-name-buy"><i class="fas fa-map-marked-alt"></i> اسم المحطة</h2>
+            <p>هل تريد اكتشاف هذه المحطة التاريخية؟</p>
+            <p>القيمة: <span id="property-price-modal">0</span> نقطة إيمان</p>
+            <button class="btn" id="buy-yes"><i class="fas fa-check"></i> اكتشاف</button>
+            <button class="btn danger" id="buy-no"><i class="fas fa-times"></i> تجاهل</button>
+        </div>
+    </div>
+
+    <div id="rent-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2><i class="fas fa-hand-holding-usd"></i> زكاة المعرفة</h2>
+            <p id="rent-message">يجب دفع زكاة معرفة</p>
+            <button class="btn danger" id="pay-rent"><i class="fas fa-coins"></i> ادفع</button>
+        </div>
+    </div>
+
+    <div id="question-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="question-title"><i class="fas fa-question-circle"></i> سؤال المعرفة النبوية</h2>
+            <p id="question-text">نص السؤال هنا؟</p>
+            <div class="timer">
+                <div class="timer-bar" id="question-timer"></div>
+            </div>
+            <div id="question-options" class="question-options"></div>
+            <p id="question-feedback"></p>
+            <div id="achievement-card" class="achievement-card" style="display: none;">
+                <h3><i class="fas fa-trophy"></i> إنجاز جديد!</h3>
+                <p id="achievement-text"></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="station-info-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-station-info-modal">&times;</span>
+            <h2 id="info-station-name"><i class="fas fa-info-circle"></i> اسم المحطة</h2>
+            <p id="info-station-description">وصف المحطة هنا.</p>
+            
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-coins"></i> قيمة الاكتشاف:</span>
+                <span class="info-value" id="info-discovery-value">0 نقطة إيمان</span>
+            </div>
+            
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-hand-holding-usd"></i> قيمة الزكاة (الإيجار):</span>
+                <span class="info-value" id="info-rent-value">0 نقطة إيمان</span>
+            </div>
+
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-user-tag"></i> المكتشف:</span>
+                <span class="info-value" id="info-owner">لم يكتشف بعد</span>
+            </div>
+
+            <button class="btn secondary" id="close-station-info-btn"><i class="fas fa-times"></i> إغلاق</button>
+        </div>
+    </div>
+
+    <script>
+        // تعريف اللاعبين
+        const players = [
+            { id: 1, name: 'اللاعب الأول', faithPoints: 15000, position: 0, discoveredStations: [], jailTurns: 0, achievements: 0, element: document.getElementById('player1'), infoElement: document.getElementById('player-info-1'), achievementsUnlocked: {} },
+            { id: 2, name: 'اللاعب الثاني', faithPoints: 15000, position: 0, discoveredStations: [], jailTurns: 0, achievements: 0, element: document.getElementById('player2'), infoElement: document.getElementById('player-info-2'), achievementsUnlocked: {} }
+        ];
+
+        let currentPlayerIndex = 0;
+        let gameEnded = false;
+        let currentDiceRoll = 0;
+        let questionTimeout;
+        let isSoundOn = true; // التحكم في تشغيل/إيقاف الصوت
+
+        // تعريف المحطات على لوحة اللعب
+        const boardProperties = [
+            // Start (غير قابل للشراء)
+            { id: 0, name: 'البعثة النبوية', type: 'start', value: 0, rent: 0, description: 'نور الوحي يشرق وتبدأ رحلة الدعوة المباركة. تكتسب 2000 نقطة إيمان عند المرور أو التوقف هنا.', icon: 'fas fa-kaaba' },
+            // Properties
+            { id: 1, name: 'عام الفيل', type: 'property', value: 600, rent: 50, owner: null, icon: 'fas fa-elephant', description: 'سنة ميلاد النبي محمد ﷺ، حدثت فيها معجزة حفظ الكعبة من أبرهة الأشرم وجيشه.' },
+            { id: 2, name: 'مولد النبوة', type: 'property', value: 600, rent: 50, owner: null, icon: 'fas fa-baby', description: 'ميلاد سيد الخلق نبينا محمد ﷺ في مكة المكرمة.' },
+            { id: 3, name: 'زواج الرسول ﷺ بخديجة', type: 'property', value: 800, rent: 70, owner: null, icon: 'fas fa-heart', description: 'زواج النبي ﷺ من السيدة خديجة بنت خويلد رضي الله عنها، أولى زوجاته وأم أولاده.' },
+            { id: 4, name: 'بناء الكعبة', type: 'property', value: 800, rent: 70, owner: null, icon: 'fas fa-cube', description: 'تجديد بناء الكعبة ووضع الحجر الأسود بمشاركة النبي ﷺ قبل البعثة.' },
+            { id: 5, name: 'بعثة النبي ﷺ', type: 'property', value: 1000, rent: 90, owner: null, icon: 'fas fa-quran', description: 'نزول الوحي على النبي محمد ﷺ في غار حراء، وبدء رسالته بالنبوة.' },
+            { id: 6, name: 'السرية بالدعوة', type: 'property', value: 1000, rent: 90, owner: null, icon: 'fas fa-user-secret', description: 'المرحلة الأولى من الدعوة الإسلامية التي استمرت ثلاث سنوات، حيث كان النبي ﷺ يدعو سراً.' },
+            // Jail (غير قابل للشراء)
+            { id: 7, name: 'اختبار الصبر', type: 'jail', value: 0, rent: 0, description: 'إذا توقفت هنا، فأنت تنتظر دورك. لا تفقد دورك إلا إذا تم إرسالك إلى هنا.', icon: 'fas fa-lock' },
+            // Properties
+            { id: 8, name: 'جهر بالدعوة', type: 'property', value: 1200, rent: 110, owner: null, icon: 'fas fa-bullhorn', description: 'أمر الله النبي ﷺ بالجهر بالدعوة بعد ثلاث سنوات من السرية، فصعد الصفا ودعا الناس.' },
+            { id: 9, name: 'مقاطعة قريش', type: 'property', value: 1200, rent: 110, owner: null, icon: 'fas fa-handshake-slash', description: 'حصار اقتصادي واجتماعي فرضته قريش على بني هاشم والمطلب في شعب أبي طالب.' },
+            { id: 10, name: 'عام الحزن', type: 'property', value: 1400, rent: 130, owner: null, icon: 'fas fa-sad-tear', description: 'العام الذي توفيت فيه السيدة خديجة وعم النبي ﷺ أبو طالب، مما جلب الحزن الشديد لقلبه.' },
+            { id: 11, name: 'الإسراء والمعراج', type: 'property', value: 1400, rent: 130, owner: null, icon: 'fas fa-mountain', description: 'الرحلة المعجزة من المسجد الحرام إلى المسجد الأقصى ثم العروج إلى السماء.' },
+            { id: 12, name: 'بيعة العقبة الأولى', type: 'property', value: 1600, rent: 150, owner: null, icon: 'fas fa-hands-helping', description: 'البيعة الأولى التي تمت بين النبي ﷺ ووفد من الأنصار من المدينة المنورة.' },
+            { id: 13, name: 'بيعة العقبة الثانية', type: 'property', value: 1600, rent: 150, owner: null, icon: 'fas fa-hands', description: 'البيعة الثانية والأكبر التي مهدت للهجرة إلى المدينة المنورة.' },
+            // Parking (غير قابل للشراء)
+            { id: 14, name: 'واحة التأمل', type: 'parking', value: 0, rent: 0, description: 'استراحة وتأمل في آيات الله. لا يوجد تأثير مالي مباشر.', icon: 'fas fa-spa' },
+            // Properties
+            { id: 15, name: 'الهجرة إلى المدينة', type: 'property', value: 1800, rent: 170, owner: null, icon: 'fas fa-walking', description: 'هجرة النبي ﷺ وصحابته الكرام من مكة إلى المدينة، نقطة تحول في تاريخ الإسلام.' },
+            { id: 16, name: 'بناء المسجد النبوي', type: 'property', value: 1800, rent: 170, owner: null, icon: 'fas fa-mosque', description: 'أول عمل قام به النبي ﷺ بعد وصوله المدينة، أصبح مركزاً للدولة الإسلامية.' },
+            { id: 17, name: 'المؤاخاة بين المهاجرين والأنصار', type: 'property', value: 2000, rent: 190, owner: null, icon: 'fas fa-people-arrows', description: 'حدثت المؤاخاة بين المسلمين المهاجرين من مكة والأنصار من المدينة، تعزيزاً للوحدة.' },
+            { id: 18, name: 'تشريع الأذان', type: 'property', value: 2000, rent: 190, owner: null, icon: 'fas fa-prayer', description: 'تشريع الأذان لإعلام المسلمين بوقت الصلاة والدعوة إليها.' },
+            { id: 19, name: 'غزوة بدر الكبرى', type: 'property', value: 2200, rent: 210, owner: null, icon: 'fas fa-shield-alt', description: 'أول معركة كبرى في الإسلام بين المسلمين وقريش، انتهت بانتصار المسلمين.' },
+            { id: 20, name: 'غزوة أحد', type: 'property', value: 2200, rent: 210, owner: null, icon: 'fas fa-swords', description: 'معركة بين المسلمين وقريش، تعلم منها المسلمون دروساً في الالتزام بأوامر القيادة.' },
+            // Go to Jail (غير قابل للشراء)
+            { id: 21, name: 'وقوع في محنة', type: 'go-jail', value: 0, rent: 0, description: 'بسبب خطأ أو اختبار، يجب أن تذهب إلى اختبار الصبر (السجن) وتفقد دورًا.', icon: 'fas fa-exclamation-triangle' },
+            // Properties
+            { id: 22, name: 'غزوة الخندق', type: 'property', value: 2400, rent: 230, owner: null, icon: 'fas fa-trench', description: 'حصار المدينة من قبل الأحزاب، وحفر المسلمين للخندق دفاعاً عنها.' },
+            { id: 23, name: 'صلح الحديبية', type: 'property', value: 2400, rent: 230, owner: null, icon: 'fas fa-peace', description: 'معاهدة صلح بين المسلمين وقريش، كانت فتحاً مبيناً للمسلمين.' },
+            { id: 24, name: 'فتح مكة', type: 'property', value: 2600, rent: 250, owner: null, icon: 'fas fa-flag', description: 'عودة النبي ﷺ والمسلمين إلى مكة فاتحين دون قتال، وتطهير الكعبة من الأصنام.' },
+            { id: 25, name: 'حجة الوداع', type: 'property', value: 2600, rent: 250, owner: null, icon: 'fas fa-kaaba', description: 'الحجة الوحيدة التي قام بها النبي ﷺ بعد الهجرة، وألقى فيها خطبته الجامعة.' },
+            { id: 26, name: 'وفاة النبي ﷺ', type: 'property', value: 2800, rent: 270, owner: null, icon: 'fas fa-heartbeat', description: 'رحيل النبي محمد ﷺ عن الدنيا، خاتم الأنبياء والمرسلين.' },
+            { id: 27, name: 'تأسيس الدولة الإسلامية', type: 'property', value: 2800, rent: 270, owner: null, icon: 'fas fa-landmark', description: 'تأسيس أسس الدولة الإسلامية في المدينة المنورة وتوسعها بعد وفاة النبي ﷺ.' }
+        ];
+
+        // الأسئلة (يمكنك توسيع هذه القائمة)
+        const questions = [
+            { question: 'ما هو اسم أم النبي محمد ﷺ؟', options: ['فاطمة', 'آمنة', 'مريم', 'خديجة'], answer: 'آمنة', difficulty: 'easy', points: 100 },
+            { question: 'في أي غار نزل الوحي على النبي ﷺ لأول مرة؟', options: ['غار ثور', 'غار حراء', 'غار أحد', 'غار بدر'], answer: 'غار حراء', difficulty: 'easy', points: 100 },
+            { question: 'من هو أول من آمن من الرجال؟', options: ['علي بن أبي طالب', 'أبو بكر الصديق', 'عمر بن الخطاب', 'عثمان بن عفان'], answer: 'أبو بكر الصديق', difficulty: 'medium', points: 200 },
+            { question: 'ما اسم العام الذي توفيت فيه السيدة خديجة وأبو طالب؟', options: ['عام الفيل', 'عام الحزن', 'عام الوفود', 'عام الفتح'], answer: 'عام الحزن', difficulty: 'medium', points: 200 },
+            { question: 'كم كان عمر النبي ﷺ عندما توفيت والدته؟', options: ['4 سنوات', '5 سنوات', '6 سنوات', '7 سنوات'], answer: '6 سنوات', difficulty: 'hard', points: 300 },
+            { question: 'ما هي أول غزوة في الإسلام؟', options: ['غزوة أحد', 'غزوة الخندق', 'غزوة بدر', 'غزوة تبوك'], answer: 'غزوة بدر', difficulty: 'easy', points: 100 },
+            { question: 'ما اسم الصحابي الذي أشار على النبي ﷺ بحفر الخندق؟', options: ['عمر بن الخطاب', 'أبو بكر الصديق', 'سلمان الفارسي', 'علي بن أبي طالب'], answer: 'سلمان الفارسي', difficulty: 'medium', points: 200 },
+            { question: 'متى كانت حجة الوداع؟', options: ['العام الخامس للهجرة', 'العام السادس للهجرة', 'العام العاشر للهجرة', 'العام الثالث عشر للهجرة'], answer: 'العام العاشر للهجرة', difficulty: 'hard', points: 300 }
+        ];
+
+        // نظام الإنجازات (مثال بسيط)
+        const achievements = [
+            { id: 'firstDiscovery', name: 'أول اكتشاف', condition: (player) => player.discoveredStations.length === 1, message: 'تهانينا! لقد اكتشفت أول محطة لك في رحلة الإيمان!' },
+            { id: 'fiveStations', name: 'خمس محطات', condition: (player) => player.discoveredStations.length === 5, message: 'رائع! لقد اكتشفت 5 محطات تاريخية في السيرة النبوية.' },
+            { id: 'masterDiscoverer', name: 'مكتشف بارع', condition: (player) => player.discoveredStations.length >= 10, message: 'لقد أصبحت مكتشفاً بارعاً! استمر في رحلتك.' },
+            { id: 'richInFaith', name: 'غني بالإيمان', condition: (player) => player.faithPoints >= 30000, message: 'نقاط إيمانك تتجاوز 30000! أنت غني بالإيمان.' },
+            { id: 'knowitAll', name: 'موسوعة السيرة', condition: (player) => player.achievements >= 2 && player.faithPoints > 20000, message: 'لقد أصبحت موسوعة في السيرة النبوية! بارك الله في علمك.' }
+        ];
+
+
+        // عناصر DOM
+        const diceElement = document.getElementById('dice');
+        const diceTotalElement = document.getElementById('dice-total');
+        const rollDiceBtn = document.getElementById('roll-dice');
+        const endTurnBtn = document.getElementById('end-turn');
+        const resetGameBtn = document.getElementById('reset-game');
+        const soundToggleBtn = document.getElementById('sound-toggle');
+        // تم حذف gameLog حيث لم يعد له وجود في DOM
+
+        // النوافذ المنبثقة
+        const buyModal = document.getElementById('buy-modal');
+        const propertyNameBuy = document.getElementById('property-name-buy');
+        const propertyPriceModal = document.getElementById('property-price-modal');
+        const buyYesBtn = document.getElementById('buy-yes');
+        const buyNoBtn = document.getElementById('buy-no');
+
+        const rentModal = document.getElementById('rent-modal');
+        const rentMessage = document.getElementById('rent-message');
+        const payRentBtn = document.getElementById('pay-rent');
+
+        const questionModal = document.getElementById('question-modal');
+        const questionTitle = document.getElementById('question-title');
+        const questionText = document.getElementById('question-text');
+        const questionOptionsDiv = document.getElementById('question-options');
+        const questionTimerBar = document.getElementById('question-timer');
+        const questionFeedback = document.getElementById('question-feedback');
+        const achievementCard = document.getElementById('achievement-card');
+        const achievementText = document.getElementById('achievement-text');
+
+        const stationInfoModal = document.getElementById('station-info-modal');
+        const infoStationName = document.getElementById('info-station-name');
+        const infoStationDescription = document.getElementById('info-station-description');
+        const infoDiscoveryValue = document.getElementById('info-discovery-value');
+        const infoRentValue = document.getElementById('info-rent-value');
+        const infoOwner = document.getElementById('info-owner');
+        const closeStationInfoBtn = document.getElementById('close-station-info-btn');
+        const closeModals = document.querySelectorAll('.modal .close');
+
+        // وظائف الصوت
+        function playSound(file) {
+            if (isSoundOn) {
+                const audio = new Audio(`sounds/${file}.mp3`); // تحتاج لإنشاء مجلد sounds ووضع الملفات فيه
+                audio.play().catch(e => console.error("Error playing sound:", e));
+            }
+        }
+
+        // تبديل حالة الصوت
+        soundToggleBtn.addEventListener('click', () => {
+            isSoundOn = !isSoundOn;
+            soundToggleBtn.innerHTML = isSoundOn ? '<i class="fas fa-volume-up"></i> الصوت' : '<i class="fas fa-volume-mute"></i> الصوت';
+            if (isSoundOn) {
+                playSound('click'); // مثال على صوت عند تشغيل الصوت
+            }
+        });
+
+        // وظيفة تحديث معلومات اللاعب
+        function updatePlayerInfo() {
+            players.forEach(player => {
+                document.getElementById(`player${player.id}-faithPoints`).textContent = player.faithPoints.toLocaleString();
+                document.getElementById(`player${player.id}-discoveredStations`).textContent = player.discoveredStations.length;
+                document.getElementById(`player${player.id}-jailTurns`).textContent = player.jailTurns;
+                document.getElementById(`player${player.id}-achievements`).textContent = player.achievements;
+                
+                // تحديث حالة اللاعب الحالي
+                if (players[currentPlayerIndex].id === player.id) {
+                    player.infoElement.classList.add('current-player');
+                } else {
+                    player.infoElement.classList.remove('current-player');
+                }
+            });
+        }
+
+        // وظيفة إضافة سجل للأحداث (تم حذفها من DOM، ولكن يمكن استخدامها لـ console.log لأغراض التصحيح)
+        function addLogEntry(message, type = '') {
+            // console.log(message); // يمكن استخدام console.log بدلاً من عرضها في الواجهة
+            // إذا أردت عرض رسائل للمستخدم بطريقة أخرى (مثل رسائل عائمة)، يمكنك تطبيقها هنا.
+        }
+
+        // وظيفة إظهار نافذة منبثقة
+        function showModal(modalElement) {
+            modalElement.style.display = 'flex';
+        }
+
+        // وظيفة إخفاء نافذة منبثقة
+        function hideModal(modalElement) {
+            modalElement.style.display = 'none';
+        }
+
+        // إغلاق النوافذ المنبثقة عند النقر على X
+        closeModals.forEach(span => {
+            span.onclick = function() {
+                const modal = this.closest('.modal');
+                hideModal(modal);
+                // إذا كانت نافذة السؤال أو معلومات المحطة، قم بتمكين زر إنهاء الدور
+                if (modal === questionModal && questionTimeout) {
+                    clearInterval(questionTimeout);
+                    endTurnBtn.disabled = false; // تمكين زر إنهاء الدور
+                } else if (modal === stationInfoModal) { // أضف هذا الشرط
+                    endTurnBtn.disabled = false; // تمكين زر إنهاء الدور
+                }
+            };
+        });
+
+        // إغلاق النوافذ المنبثقة عند النقر خارجها
+        window.onclick = function(event) {
+            if (event.target === buyModal) hideModal(buyModal);
+            else if (event.target === rentModal) hideModal(rentModal);
+            else if (event.target === questionModal) {
+                hideModal(questionModal);
+                if (questionTimeout) {
+                    clearInterval(questionTimeout);
+                    endTurnBtn.disabled = false; // تمكين زر إنهاء الدور
+                }
+            }
+            else if (event.target === stationInfoModal) { // أضف هذا الشرط
+                hideModal(stationInfoModal);
+                endTurnBtn.disabled = false; // تمكين زر إنهاء الدور
+            }
+        };
+        // تأكد من أن زر الإغلاق في نافذة معلومات المحطة يقوم بتمكين زر إنهاء الدور
+        closeStationInfoBtn.onclick = () => {
+            hideModal(stationInfoModal);
+            endTurnBtn.disabled = false; // تمكين زر إنهاء الدور
+        };
+        // إضافة مستمع لزر الإغلاق داخل نافذة معلومات المحطة (للتأكد فقط)
+        document.getElementById('close-station-info-btn').onclick = () => {
+            hideModal(stationInfoModal);
+            endTurnBtn.disabled = false; // تمكين زر إنهاء الدور
+        };
+
+
+        // دالة لإظهار تفاصيل المحطة عند النقر عليها
+        function showStationInfo(property) {
+            infoStationName.innerHTML = `<i class="${property.icon}"></i> ${property.name}`;
+            infoStationDescription.textContent = property.description;
+            infoDiscoveryValue.textContent = property.value ? `${property.value.toLocaleString()} نقطة إيمان` : 'غير قابل للاكتشاف';
+            infoRentValue.textContent = property.rent ? `${property.rent.toLocaleString()} نقطة إيمان` : 'لا يوجد زكاة';
+            infoOwner.textContent = property.owner ? `اللاعب ${property.owner.id}` : 'لم يكتشف بعد';
+
+            // إضافة أو إزالة فئة اللون للمالك
+            infoOwner.classList.remove('player1-owner', 'player2-owner');
+            if (property.owner) {
+                infoOwner.classList.add(`player${property.owner.id}-owner`); // ستحتاج لتعريف هذه الفئات في CSS
+            }
+
+            showModal(stationInfoModal);
+        }
+
+        // إضافة مستمعي الأحداث لكل خاصية
+        document.querySelectorAll('.property').forEach(propElement => {
+            propElement.addEventListener('click', () => {
+                const propertyId = parseInt(propElement.dataset.id);
+                const property = boardProperties.find(p => p.id === propertyId);
+                if (property) {
+                    showStationInfo(property);
+                }
+            });
+        });
+
+
+        // وظيفة رمي النرد
+        rollDiceBtn.addEventListener('click', rollDice);
+
+        function rollDice() {
+            if (gameEnded) return;
+
+            playSound('dice_roll');
+            rollDiceBtn.disabled = true;
+            endTurnBtn.disabled = true; // Disable end turn until player moves
+
+            diceElement.classList.add('rolling');
+            const roll1 = Math.floor(Math.random() * 6) + 1;
+            
+            const totalRoll = roll1; 
+
+            setTimeout(() => {
+                diceElement.textContent = totalRoll;
+                diceTotalElement.textContent = totalRoll;
+                diceElement.classList.remove('rolling');
+                currentDiceRoll = totalRoll;
+                movePlayer();
+            }, 700);
+        }
+
+        // وظيفة تحريك اللاعب
+        function movePlayer() {
+            const currentPlayer = players[currentPlayerIndex];
+            const oldPosition = currentPlayer.position;
+            let newPosition = (oldPosition + currentDiceRoll);
+
+            // المرور بنقطة البداية
+            if (newPosition >= boardProperties.length) {
+                newPosition %= boardProperties.length;
+                currentPlayer.faithPoints += 2000; // مكافأة عند المرور بالبداية
+                addLogEntry(`✨ ${currentPlayer.name} مر بنقطة البعثة النبوية واكتسب 2000 نقطة إيمان.`);
+                playSound('cash');
+            }
+
+            currentPlayer.position = newPosition;
+            addLogEntry(`🎲 ${currentPlayer.name} رمى ${currentDiceRoll} وتحرك إلى المحطة رقم ${currentPlayer.position} (${boardProperties[currentPlayer.position].name}).`);
+            
+            // تحديث موقع اللاعب بصرياً
+            updatePlayerPosition(currentPlayer);
+
+            // التعامل مع المحطة الجديدة بعد الحركة
+            setTimeout(() => {
+                handleProperty(currentPlayer, boardProperties[currentPlayer.position]);
+            }, 800); // تأخير بسيط للسماح بحركة اللاعب
+        }
+
+        function updatePlayerPosition(player) {
+            // الحصول على عنصر المحطة بناءً على الـ data-id أو الفئات للزوايا
+            let targetElement = document.querySelector(`.property[data-id="${player.position}"]`);
+
+            if (!targetElement) {
+                console.error("Target element not found for position:", player.position);
+                return;
+            }
+            
+            const rect = targetElement.getBoundingClientRect();
+            const boardRect = document.querySelector('.board').getBoundingClientRect();
+
+            // حساب الإحداثيات بالنسبة للوحة
+            // هذه القيم هي إزاحات ثابتة داخل كل مربع
+            const playerOffsetRight = player.id === 1 ? 15 : 45; // 15px من اليمين للاعب 1، 45px للاعب 2
+            const playerOffsetTop = 15; // 15px من الأعلى لكلا اللاعبين
+
+            // الحصول على الـ computed style لـ top و right للعنصر الهدف
+            const computedStyle = window.getComputedStyle(targetElement);
+            const targetTop = parseFloat(computedStyle.top);
+            const targetRight = parseFloat(computedStyle.right);
+
+            player.element.style.top = `${targetTop + playerOffsetTop}px`;
+            player.element.style.right = `${targetRight + playerOffsetRight}px`;
+
+            player.element.classList.add('player-move');
+            player.element.addEventListener('animationend', () => {
+                player.element.classList.remove('player-move');
+            }, { once: true });
+        }
+
+
+        // وظيفة التعامل مع المحطة
+        async function handleProperty(player, property) {
+            switch (property.type) {
+                case 'start':
+                    // مكافأة المرور بالبداية تم منحها بالفعل في movePlayer
+                    addLogEntry(`${player.name} وصل إلى ${property.name}.`);
+                    endTurnBtn.disabled = false;
+                    break;
+                case 'parking':
+                    addLogEntry(`${player.name} وصل إلى ${property.name}. استراحة قصيرة.`);
+                    endTurnBtn.disabled = false;
+                    break;
+                case 'jail':
+                    // إذا وصل إلى السجن عن طريق المشي، فلا يفقد دورًا
+                    addLogEntry(`${player.name} وصل إلى ${property.name}.`);
+                    endTurnBtn.disabled = false;
+                    break;
+                case 'go-jail':
+                    addLogEntry(`🚨 ${player.name} وصل إلى ${property.name} وسيذهب إلى اختبار الصبر!`);
+                    player.jailTurns = 3; // عدد الأدوار التي يبقى فيها في السجن
+                    // البحث عن المحطة ذات النوع 'jail'
+                    const jailProperty = boardProperties.find(p => p.type === 'jail');
+                    if (jailProperty) {
+                        player.position = jailProperty.id;
+                        updatePlayerPosition(player);
+                    }
+                    playSound('negative');
+                    setTimeout(() => {
+                        addLogEntry(`${player.name} تم إرساله إلى اختبار الصبر (السجن). سيبقى لـ ${player.jailTurns} أدوار.`);
+                        endTurnBtn.disabled = false;
+                    }, 800);
+                    break;
+                case 'property':
+                    if (property.owner === null) {
+                        // إذا كانت المحطة غير مملوكة، اسأل اللاعب إذا كان يريد الشراء
+                        showBuyModal(player, property);
+                    } else if (property.owner.id !== player.id) {
+                        // إذا كانت مملوكة للاعب آخر، ادفع الإيجار
+                        showRentModal(player, property);
+                    } else {
+                        // إذا كانت مملوكة لنفس اللاعب
+                        addLogEntry(`${player.name} وصل إلى محطته الخاصة: ${property.name}.`);
+                        // يمكن إضافة حدث هنا، مثل سؤال معرفي إضافي أو مكافأة
+                        showQuestionModal(player); // طرح سؤال معرفة كبديل
+                    }
+                    break;
+            }
+            updatePlayerInfo();
+        }
+
+        function showBuyModal(player, property) {
+            propertyNameBuy.innerHTML = `<i class="${property.icon}"></i> ${property.name}`;
+            propertyPriceModal.textContent = property.value.toLocaleString();
+            showModal(buyModal);
+
+            // إزالة المستمعين القدامى لتجنب تكرار الأحداث
+            buyYesBtn.onclick = null;
+            buyNoBtn.onclick = null;
+
+            buyYesBtn.onclick = () => buyProperty(player, property);
+            buyNoBtn.onclick = () => {
+                hideModal(buyModal);
+                addLogEntry(`${player.name} قرر عدم اكتشاف ${property.name}.`);
+                // بعد الرفض، يمكن طرح سؤال معرفة كبديل أو لا شيء
+                showQuestionModal(player); // طرح سؤال معرفة كبديل
+            };
+        }
+
+        function buyProperty(player, property) {
+            if (player.faithPoints >= property.value) {
+                player.faithPoints -= property.value;
+                property.owner = player;
+                player.discoveredStations.push(property.id);
+                // تحديث الفئة على العنصر المرئي للمحطة
+                const propElement = document.querySelector(`.property[data-id="${property.id}"]`);
+                if (propElement) {
+                    propElement.classList.add(`discovered-${player.id}`);
+                }
+                addLogEntry(`💰 ${player.name} اكتشف ${property.name} مقابل ${property.value.toLocaleString()} نقطة إيمان.`);
+                playSound('buy_property');
+                checkAchievements(player); // تحقق من الإنجازات بعد الشراء
+                
+                // **** التغيير هنا: عرض معلومات المحطة بعد الاكتشاف ****
+                hideModal(buyModal); // إخفاء نافذة الشراء أولاً
+                showStationInfo(property); // عرض نافذة معلومات المحطة المكتشفة
+                // سيتم تمكين زر إنهاء الدور عندما يغلق المستخدم نافذة معلومات المحطة
+            } else {
+                addLogEntry(`⛔ ${player.name} ليس لديه نقاط إيمان كافية لاكتشاف ${property.name}.`, 'feedback-wrong');
+                playSound('negative');
+                hideModal(buyModal); // إخفاء نافذة الشراء
+                endTurnBtn.disabled = false; // تمكين زر إنهاء الدور إذا لم يتم الشراء
+            }
+            updatePlayerInfo();
+        }
+
+        function showRentModal(player, property) {
+            const owner = property.owner;
+            const rentAmount = property.rent;
+            rentMessage.innerHTML = `${player.name} وصل إلى محطة ${property.name} المملوكة للاعب ${owner.id}.<br>يجب دفع زكاة معرفة قدرها <strong>${rentAmount.toLocaleString()}</strong> نقطة إيمان.`;
+            showModal(rentModal);
+
+            // إزالة المستمعين القدامى
+            payRentBtn.onclick = null;
+            payRentBtn.onclick = () => payRent(player, owner, rentAmount);
+        }
+
+        function payRent(payer, owner, amount) {
+            if (payer.faithPoints >= amount) {
+                payer.faithPoints -= amount;
+                owner.faithPoints += amount;
+                addLogEntry(`💸 ${payer.name} دفع ${amount.toLocaleString()} نقطة إيمان زكاة معرفة للاعب ${owner.id}.`);
+                playSound('cash');
+            } else {
+                // اللاعب لا يملك نقاط إيمان كافية - هنا يمكن إضافة منطق الإفلاس
+                addLogEntry(`💔 ${payer.name} لا يملك نقاط إيمان كافية لدفع الزكاة! لقد خسر اللعبة.`, 'feedback-wrong');
+                playSound('game_over');
+                gameEnded = true; // إنهاء اللعبة
+                // بدلاً من alert، يمكن استخدام نافذة منبثقة مخصصة
+                showCustomMessageModal(`${payer.name} خسر اللعبة بسبب الإفلاس!`, 'انتهت اللعبة');
+            }
+            hideModal(rentModal);
+            updatePlayerInfo();
+            endTurnBtn.disabled = false;
+        }
+
+        // وظيفة عرض سؤال المعرفة
+        function showQuestionModal(player) {
+            const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
+            questionTitle.innerHTML = `<i class="fas fa-question-circle"></i> سؤال المعرفة النبوية`;
+            questionText.textContent = randomQuestion.question;
+            questionOptionsDiv.innerHTML = '';
+            questionFeedback.textContent = '';
+            achievementCard.style.display = 'none';
+
+            // إضافة فئة الصعوبة إلى العنوان
+            questionTitle.classList.remove('difficulty-easy', 'difficulty-medium', 'difficulty-hard');
+            questionTitle.classList.add(`difficulty-${randomQuestion.difficulty}`);
+
+            randomQuestion.options.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.onclick = () => checkAnswer(player, option, randomQuestion);
+                questionOptionsDiv.appendChild(button);
+            });
+
+            startQuestionTimer(player, randomQuestion);
+            showModal(questionModal);
+        }
+
+        function startQuestionTimer(player, question) {
+            let timeLeft = 15; // 15 ثانية للإجابة
+            questionTimerBar.style.width = '100%';
+            questionTimerBar.style.backgroundColor = 'linear-gradient(to right, #2ecc71, #27ae60)';
+
+            // مسح أي مؤقت سابق لمنع التداخل
+            if (questionTimeout) {
+                clearInterval(questionTimeout);
+            }
+
+            questionTimeout = setInterval(() => {
+                timeLeft--;
+                questionTimerBar.style.width = `${(timeLeft / 15) * 100}%`;
+                if (timeLeft <= 5) {
+                    questionTimerBar.style.background = 'linear-gradient(to right, #e74c3c, #c0392b)'; // استخدام background بدلاً من background-color
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(questionTimeout);
+                    questionFeedback.textContent = `انتهى الوقت! الإجابة الصحيحة هي: ${question.answer}`;
+                    questionFeedback.classList.add('feedback-wrong');
+                    playSound('wrong_answer');
+                    addLogEntry(`⏳ ${player.name} لم يتمكن من الإجابة في الوقت المحدد على السؤال.`, 'feedback-wrong');
+                    setTimeout(() => {
+                        hideModal(questionModal);
+                        endTurnBtn.disabled = false;
+                    }, 2000);
+                }
+            }, 1000);
+        }
+
+        function checkAnswer(player, selectedOption, question) {
+            clearInterval(questionTimeout); // إيقاف المؤقت
+            Array.from(questionOptionsDiv.children).forEach(button => button.disabled = true); // تعطيل الأزرار
+
+            if (selectedOption === question.answer) {
+                player.faithPoints += question.points;
+                questionFeedback.textContent = `إجابة صحيحة! اكتسبت ${question.points} نقطة إيمان.`;
+                questionFeedback.classList.add('feedback-correct');
+                playSound('correct_answer');
+                addLogEntry(`✅ ${player.name} أجاب على السؤال بشكل صحيح واكتسب ${question.points} نقطة إيمان.`);
+                checkAchievements(player); // تحقق من الإنجازات
+            } else {
+                questionFeedback.textContent = `إجابة خاطئة. الإجابة الصحيحة هي: ${question.answer}`;
+                questionFeedback.classList.add('feedback-wrong');
+                playSound('wrong_answer');
+                // يمكن خصم نقاط أو فرض عقوبة هنا
+                player.faithPoints = Math.max(0, player.faithPoints - (question.points / 2)); // خصم نصف النقاط
+                addLogEntry(`❌ ${player.name} أجاب على السؤال بشكل خاطئ. الإجابة الصحيحة هي: ${question.answer}. تم خصم ${question.points / 2} نقطة إيمان.`, 'feedback-wrong');
+            }
+            updatePlayerInfo();
+            
+            setTimeout(() => {
+                hideModal(questionModal);
+                endTurnBtn.disabled = false;
+            }, 2000); // إبقاء النافذة مفتوحة قليلاً لعرض التغذية الراجعة
+        }
+
+        function checkAchievements(player) {
+            achievements.forEach(achievement => {
+                if (!player.achievementsUnlocked[achievement.id]) { // تحقق مما إذا كان الإنجاز غير مقفل بالفعل
+                    if (achievement.condition(player)) {
+                        player.achievementsUnlocked[achievement.id] = true;
+                        player.achievements++;
+                        showAchievementCard(player, achievement);
+                        addLogEntry(`🏆 ${player.name} حقق إنجازاً: <strong>${achievement.name}</strong>!`, 'achievement');
+                        playSound('achievement');
+                    }
+                }
+            });
+            updatePlayerInfo();
+        }
+
+        function showAchievementCard(player, achievement) {
+            achievementText.innerHTML = `${player.name}: ${achievement.message}`;
+            achievementCard.style.display = 'block';
+            // إطلاق قصاصات الورق الاحتفالية
+            for (let i = 0; i < 50; i++) {
+                createConfetti();
+            }
+            // إخفاء بطاقة الإنجاز بعد فترة
+            setTimeout(() => {
+                achievementCard.style.display = 'none';
+            }, 5000);
+        }
+
+        function createConfetti() {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            confetti.style.left = `${Math.random() * 100}vw`;
+            confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 70%)`;
+            document.body.appendChild(confetti);
+
+            confetti.addEventListener('animationend', () => {
+                confetti.remove();
+            });
+        }
+
+        // دالة لعرض رسائل مخصصة بدلاً من alert
+        function showCustomMessageModal(message, title = 'رسالة') {
+            const customModal = document.createElement('div');
+            customModal.classList.add('modal');
+            customModal.innerHTML = `
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>${title}</h2>
+                    <p>${message}</p>
+                    <button class="btn secondary" id="custom-modal-close-btn">حسناً</button>
+                </div>
+            `;
+            document.body.appendChild(customModal);
+            showModal(customModal);
+
+            customModal.querySelector('.close').onclick = () => hideModal(customModal);
+            customModal.querySelector('#custom-modal-close-btn').onclick = () => hideModal(customModal);
+
+            // إزالة المودال من DOM بعد الإغلاق
+            customModal.addEventListener('animationend', () => {
+                if (customModal.style.display === 'none') {
+                    customModal.remove();
+                }
+            });
+        }
+
+
+        // وظيفة إنهاء الدور
+        endTurnBtn.addEventListener('click', endTurn);
+
+        function endTurn() {
+            if (gameEnded) return;
+
+            // إذا كان اللاعب في السجن
+            if (players[currentPlayerIndex].jailTurns > 0) {
+                players[currentPlayerIndex].jailTurns--;
+                addLogEntry(`${players[currentPlayerIndex].name} في اختبار الصبر. تبقى له ${players[currentPlayerIndex].jailTurns} أدوار.`);
+                if (players[currentPlayerIndex].jailTurns === 0) {
+                    addLogEntry(`${players[currentPlayerIndex].name} أكمل مدة اختبار الصبر ويمكنه الحركة في الدور القادم.`);
+                }
+            } else {
+                // إذا لم يكن في السجن، أو أكمل مدة السجن، فقم بتغيير اللاعب
+                currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+                addLogEntry(`<i class="fas fa-user-circle"></i> ${players[currentPlayerIndex].id === 1 ? '🔵' : '🟠'} دور اللاعب ${players[currentPlayerIndex].id}`);
+            }
+
+            rollDiceBtn.disabled = false;
+            endTurnBtn.disabled = true;
+            updatePlayerInfo();
+            // تحقق من شروط النهاية (مثلاً، إذا أفلس لاعب)
+            checkGameEnd();
+        }
+
+        function checkGameEnd() {
+            const activePlayers = players.filter(p => p.faithPoints > 0);
+            if (activePlayers.length <= 1) {
+                gameEnded = true;
+                if (activePlayers.length === 1) {
+                    addLogEntry(`🎉 ${activePlayers[0].name} هو الفائز في رحلة الإيمان!`, 'feedback-correct');
+                    playSound('game_over');
+                    showCustomMessageModal(`تهانينا! ${activePlayers[0].name} هو الفائز!`, 'اللعبة انتهت');
+                } else {
+                    addLogEntry(`😔 انتهت اللعبة بلا فائز.`, 'feedback-wrong');
+                    playSound('game_over');
+                    showCustomMessageModal(`انتهت اللعبة!`, 'لا يوجد فائز');
+                }
+                rollDiceBtn.disabled = true;
+                endTurnBtn.disabled = true;
+            }
+        }
+
+        // وظيفة إعادة تعيين اللعبة
+        resetGameBtn.addEventListener('click', resetGame);
+
+        function resetGame() {
+            players.forEach(player => {
+                player.faithPoints = 15000;
+                player.position = 0;
+                player.discoveredStations = [];
+                player.jailTurns = 0;
+                player.achievements = 0;
+                player.achievementsUnlocked = {}; // إعادة تعيين الإنجازات المقفلة
+                // إعادة تعيين الموقع الأولي للاعبين بصريًا
+                // يجب أن تكون هذه القيم هي نفسها القيم الافتراضية في CSS
+                player.element.style.top = ''; 
+                player.element.style.right = '';
+            });
+
+            // إعادة تعيين مالكي المحطات
+            boardProperties.forEach(prop => {
+                if (prop.type === 'property') {
+                    prop.owner = null;
+                    const propElement = document.querySelector(`.property[data-id="${prop.id}"]`);
+                    if (propElement) {
+                        propElement.classList.remove('discovered-1', 'discovered-2');
+                    }
+                }
+            });
+
+            currentPlayerIndex = 0;
+            gameEnded = false;
+            // تم حذف gameLog.innerHTML = ''; حيث لم يعد له وجود
+            addLogEntry('🔄 بدأت رحلة إيمان جديدة!');
+            addLogEntry('<i class="fas fa-user-circle"></i> 🔵 دور اللاعب الأول');
+            rollDiceBtn.disabled = false;
+            endTurnBtn.disabled = true;
+            updatePlayerInfo();
+            // وضع اللاعبين في نقطة البداية
+            players.forEach(player => updatePlayerPosition(player)); // تحديث المواقع الأولية
+        }
+
+        // تهيئة اللعبة عند التحميل
+        document.addEventListener('DOMContentLoaded', () => {
+            updatePlayerInfo();
+            // تحديث مواقع اللاعبين الأولية بعد تحميل DOM بالكامل
+            players.forEach(player => updatePlayerPosition(player));
+        });
+    </script>
+</body>
+</html>

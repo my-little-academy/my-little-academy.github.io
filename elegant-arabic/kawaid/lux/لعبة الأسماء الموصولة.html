@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الأسماء الموصولة</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #e6f7ff;
+            text-align: center;
+            padding: 20px;
+            color: #333;
+        }
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2a6496;
+        }
+        .question {
+            font-size: 24px;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f0f8ff;
+            border-radius: 10px;
+        }
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .option {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        .option:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+        .feedback {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 20px 0;
+            min-height: 30px;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+        .progress-container {
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .progress-bar {
+            height: 20px;
+            background-color: #4CAF50;
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        .level-selector {
+            margin: 20px 0;
+        }
+        .level-btn {
+            padding: 10px 15px;
+            margin: 0 5px;
+            background-color: #2a6496;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .explanation {
+            background-color: #fffde7;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+        .hint-btn {
+            background-color: #ffc107;
+            color: #333;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>لعبة الأسماء الموصولة</h1>
+        <p>اختر الاسم الموصول الصحيح لكل جملة</p>
+        
+        <div class="level-selector">
+            <button class="level-btn" onclick="setLevel(1)">مبتدئ</button>
+            <button class="level-btn" onclick="setLevel(2)">متوسط</button>
+            <button class="level-btn" onclick="setLevel(3)">متقدم</button>
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progress"></div>
+        </div>
+        
+        <div class="question" id="question"></div>
+        
+        <div class="options" id="options"></div>
+        
+        <button class="hint-btn" onclick="showHint()">تلميح</button>
+        
+        <div class="feedback" id="feedback"></div>
+        
+        <div class="explanation" id="explanation"></div>
+    </div>
+
+    <script>
+        // بيانات اللعبة
+        const questions = {
+            level1: [
+                {
+                    question: "الطالب ___ حضر مبكرًا (الذي/اللتان)",
+                    options: ["الذي", "اللتان"],
+                    answer: 0,
+                    explanation: "الاسم الموصول 'الذي' يستخدم للمفرد المذكر"
+                },
+                {
+                    question: "الطالبة ___ درست جيدًا (التي/اللذان)",
+                    options: ["التي", "اللذان"],
+                    answer: 0,
+                    explanation: "الاسم الموصول 'التي' يستخدم للمفرد المؤنث"
+                }
+            ],
+            level2: [
+                {
+                    question: "المدرسان ___ شرحا الدرس (اللذان/اللتان)",
+                    options: ["اللذان", "اللتان"],
+                    answer: 0,
+                    explanation: "الاسم الموصول 'اللذان' يستخدم للمثنى المذكر"
+                },
+                {
+                    question: "الطالبتان ___ نجحتا (اللتان/اللذان)",
+                    options: ["اللتان", "اللذان"],
+                    answer: 0,
+                    explanation: "الاسم الموصول 'اللتان' يستخدم للمثنى المؤنث"
+                }
+            ],
+            level3: [
+                {
+                    question: "هؤلاء هم الطلاب ___ مشاريعهم متميزة (الذين/اللاتي)",
+                    options: ["الذين", "اللاتي"],
+                    answer: 0,
+                    explanation: "الاسم الموصول 'الذين' يستخدم للجمع المذكر"
+                },
+                {
+                    question: "هؤلاء هم الطالبات ___ شاركن في المسابقة (اللاتي/الذين)",
+                    options: ["اللاتي", "الذين"],
+                    answer: 0,
+                    explanation: "الاسم الموصول 'اللاتي' يستخدم للجمع المؤنث"
+                }
+            ]
+        };
+
+        let currentLevel = 1;
+        let currentQuestion = 0;
+        let score = 0;
+        
+        function setLevel(level) {
+            currentLevel = level;
+            currentQuestion = 0;
+            score = 0;
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('explanation').style.display = 'none';
+            loadQuestion();
+        }
+        
+        function loadQuestion() {
+            const levelKey = 'level' + currentLevel;
+            const q = questions[levelKey][currentQuestion];
+            
+            document.getElementById('question').textContent = q.question;
+            document.getElementById('progress').style.width = ((currentQuestion / questions[levelKey].length) * 100) + '%';
+            
+            const optionsDiv = document.getElementById('options');
+            optionsDiv.innerHTML = '';
+            
+            q.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option';
+                button.textContent = option;
+                button.onclick = () => checkAnswer(index);
+                optionsDiv.appendChild(button);
+            });
+            
+            document.getElementById('explanation').style.display = 'none';
+        }
+        
+        function checkAnswer(selectedIndex) {
+            const levelKey = 'level' + currentLevel;
+            const q = questions[levelKey][currentQuestion];
+            const feedback = document.getElementById('feedback');
+            const explanation = document.getElementById('explanation');
+            
+            if (selectedIndex === q.answer) {
+                feedback.textContent = 'إجابة صحيحة! أحسنت!';
+                feedback.className = 'feedback correct';
+                score++;
+            } else {
+                feedback.textContent = 'إجابة خاطئة! حاول مرة أخرى.';
+                feedback.className = 'feedback incorrect';
+            }
+            
+            explanation.textContent = q.explanation;
+            explanation.style.display = 'block';
+            
+            setTimeout(() => {
+                currentQuestion++;
+                const levelKey = 'level' + currentLevel;
+                if (currentQuestion < questions[levelKey].length) {
+                    loadQuestion();
+                } else {
+                    showResults();
+                }
+            }, 2000);
+        }
+        
+        function showHint() {
+            const levelKey = 'level' + currentLevel;
+            const q = questions[levelKey][currentQuestion];
+            alert('تلميح: ' + q.explanation);
+        }
+        
+        function showResults() {
+            const levelKey = 'level' + currentLevel;
+            const totalQuestions = questions[levelKey].length;
+            const percentage = (score / totalQuestions) * 100;
+            
+            document.getElementById('question').textContent = `انتهت الأسئلة! نتيجتك: ${score} من ${totalQuestions} (${percentage}%)`;
+            document.getElementById('options').innerHTML = '';
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('explanation').style.display = 'none';
+            
+            if (percentage >= 80) {
+                document.getElementById('question').textContent += ' - ممتاز!';
+            } else if (percentage >= 50) {
+                document.getElementById('question').textContent += ' - جيد!';
+            } else {
+                document.getElementById('question').textContent += ' - تحتاج إلى مزيد من الممارسة!';
+            }
+        }
+        
+        // بدء اللعبة بالمستوى الأول
+        setLevel(1);
+    </script>
+</body>
+</html>

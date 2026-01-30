@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محاكاة الطواف حول الكعبة</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 25%, #2c5364 50%, #1a365d 75%, #0f2027 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tawaf-area {
+            position: relative;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 50%, transparent 100%);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 100px rgba(255, 215, 0, 0.2);
+        }
+
+        .kaaba {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(45deg, #1a1a1a 0%, #333 25%, #1a1a1a 50%, #333 75%, #1a1a1a 100%);
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+            transform: perspective(1000px) rotateX(10deg);
+        }
+
+        .kaaba::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            background: linear-gradient(45deg, #ffd700, #ff8c00, #ffd700, #ff8c00);
+            border-radius: 20px;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .kaaba-door {
+            position: absolute;
+            width: 30px;
+            height: 50px;
+            background: linear-gradient(180deg, #ffd700 0%, #ff8c00 100%);
+            border-radius: 5px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .black-stone {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: radial-gradient(circle, #333 0%, #000 100%);
+            border-radius: 50%;
+            top: 50%;
+            right: -7px;
+            transform: translateY(-50%);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            animation: blackStoneGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes blackStoneGlow {
+            0% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+            100% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.8); }
+        }
+
+        .pilgrim {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #fff 0%, #e0e0e0 100%);
+            border-radius: 50%;
+            border: 2px solid #ffd700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+            transform-origin: 300px 300px;
+            animation: tawaf 10s linear infinite;
+        }
+
+        .pilgrim::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #ffd700, transparent, #ffd700);
+            border-radius: 50%;
+            z-index: -1;
+            animation: pilgrimage 2s ease-in-out infinite;
+        }
+
+        @keyframes pilgrimage {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .pilgrim:nth-child(2) { animation-delay: -1s; }
+        .pilgrim:nth-child(3) { animation-delay: -2s; }
+        .pilgrim:nth-child(4) { animation-delay: -3s; }
+        .pilgrim:nth-child(5) { animation-delay: -4s; }
+        .pilgrim:nth-child(6) { animation-delay: -5s; }
+        .pilgrim:nth-child(7) { animation-delay: -6s; }
+        .pilgrim:nth-child(8) { animation-delay: -7s; }
+
+        @keyframes tawaf {
+            0% { transform: rotate(0deg) translateX(280px) rotate(0deg); }
+            100% { transform: rotate(360deg) translateX(280px) rotate(-360deg); }
+        }
+
+        .main-pilgrim {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            background: radial-gradient(circle, #32cd32 0%, #228b22 100%);
+            border-radius: 50%;
+            border: 3px solid #ffd700;
+            box-shadow: 0 0 25px rgba(50, 205, 50, 0.8);
+            transform-origin: 300px 300px;
+            animation: mainTawaf 12s linear infinite;
+            z-index: 10;
+        }
+
+        .main-pilgrim::after {
+            content: '🕌';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12px;
+        }
+
+        @keyframes mainTawaf {
+            0% { transform: rotate(0deg) translateX(280px) rotate(0deg); }
+            100% { transform: rotate(360deg) translateX(280px) rotate(-360deg); }
+        }
+
+        .tawaf-circles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        .circle:nth-child(1) {
+            width: 400px;
+            height: 400px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: 0s;
+        }
+
+        .circle:nth-child(2) {
+            width: 500px;
+            height: 500px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: 1s;
+        }
+
+        .circle:nth-child(3) {
+            width: 600px;
+            height: 600px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: 2s;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.3; transform: translate(-50%, -50%) scale(0.8); }
+            50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0.3; transform: translate(-50%, -50%) scale(0.8); }
+        }
+
+        .controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .controls h3 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .counter {
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .counter span {
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ffd700, #ff8c00);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .dua-section {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            text-align: center;
+            max-width: 600px;
+        }
+
+        .dua-text {
+            font-size: 1.2em;
+            color: #ffd700;
+            margin-bottom: 10px;
+            font-family: 'Times New Roman', serif;
+        }
+
+        .dua-translation {
+            font-size: 1em;
+            color: #ccc;
+            font-style: italic;
+        }
+
+        .progress-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 350px;
+            height: 350px;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 215, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .progress-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, #ffd700 0deg, #ffd700 var(--progress), transparent var(--progress));
+            transition: --progress 0.5s ease;
+        }
+
+        .shawt-marker {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(45deg, #ffd700, #ff8c00);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #000;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+            animation: markerPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes markerPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .floating-text {
+            position: absolute;
+            color: #ffd700;
+            font-size: 1.5em;
+            font-weight: bold;
+            pointer-events: none;
+            animation: floatUp 3s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0px); }
+            100% { opacity: 0; transform: translateY(-100px); }
+        }
+
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #ffd700;
+            border-radius: 50%;
+            animation: particleFloat 4s linear infinite;
+        }
+
+        @keyframes particleFloat {
+            0% { transform: translateY(0px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-200px) rotate(360deg); opacity: 0; }
+        }
+
+        .completion-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            border: 3px solid #ffd700;
+            display: none;
+            z-index: 100;
+        }
+
+        .completion-message.show {
+            display: block;
+            animation: celebrateAppear 1s ease;
+        }
+
+        @keyframes celebrateAppear {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        .completion-message h2 {
+            color: #ffd700;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .info-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            max-width: 250px;
+        }
+
+        .info-panel h4 {
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        .info-panel p {
+            font-size: 0.9em;
+            color: #ccc;
+            line-height: 1.4;
+        }
+
+        .speed-controls {
+            margin-top: 15px;
+        }
+
+        .speed-btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin: 2px;
+        }
+
+        .speed-btn.active {
+            background: linear-gradient(45deg, #ffd700, #ff8c00);
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="particles" id="particles"></div>
+        
+        <div class="tawaf-area">
+            <div class="tawaf-circles">
+                <div class="circle"></div>
+                <div class="circle"></div>
+                <div class="circle"></div>
+            </div>
+            
+            <div class="progress-indicator">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            
+            <div class="kaaba">
+                <div class="kaaba-door"></div>
+                <div class="black-stone" id="blackStone"></div>
+            </div>
+            
+            <div class="main-pilgrim" id="mainPilgrim"></div>
+            
+            <!-- Multiple pilgrims -->
+            <div class="pilgrim"></div>
+            <div class="pilgrim"></div>
+            <div class="pilgrim"></div>
+            <div class="pilgrim"></div>
+            <div class="pilgrim"></div>
+            <div class="pilgrim"></div>
+            <div class="pilgrim"></div>
+            <div class="pilgrim"></div>
+        </div>
+
+        <div class="controls">
+            <h3>🕋 محاكاة الطواف</h3>
+            <div class="counter">الشوط: <span id="currentShawt">1</span> / 7</div>
+            <div class="counter">المسافة: <span id="distance">0</span> متر</div>
+            <div class="counter">الوقت: <span id="time">0</span> ثانية</div>
+            <button class="btn" onclick="startTawaf()">بدء الطواف</button>
+            <button class="btn" onclick="pauseTawaf()">توقف</button>
+            <button class="btn" onclick="resetTawaf()">إعادة تشغيل</button>
+            
+            <div class="speed-controls">
+                <div style="margin-bottom: 10px; color: #ffd700;">السرعة:</div>
+                <button class="speed-btn" onclick="setSpeed(0.5)">بطيء</button>
+                <button class="speed-btn active" onclick="setSpeed(1)">عادي</button>
+                <button class="speed-btn" onclick="setSpeed(2)">سريع</button>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <h4>معلومات الطواف</h4>
+            <p>الطواف حول الكعبة المشرفة سبعة أشواط، يبدأ من الحجر الأسود وينتهي به.</p>
+            <p style="margin-top: 10px;">المسافة الإجمالية: حوالي 1,750 متر</p>
+        </div>
+
+        <div class="dua-section">
+            <div class="dua-text">ربنا آتنا في الدنيا حسنة وفي الآخرة حسنة وقنا عذاب النار</div>
+            <div class="dua-translation">دعاء الطواف المستجاب</div>
+        </div>
+
+        <div class="completion-message" id="completionMessage">
+            <h2>🎉 تم إكمال الطواف بنجاح! 🎉</h2>
+            <p>لقد أتممت السبعة أشواط حول الكعبة المشرفة</p>
+            <p>تقبل الله طوافك وجعله في موازين حسناتك</p>
+            <div class="dua-section" style="position: relative; margin-top: 20px;">
+                <div class="dua-text">اللهم تقبل مني هذا الطواف واجعله خالصاً لوجهك الكريم</div>
+            </div>
+            <button class="btn" onclick="resetTawaf()" style="margin-top: 20px;">طواف جديد</button>
+        </div>
+    </div>
+
+    <script>
+        let currentShawt = 1;
+        let distance = 0;
+        let time = 0;
+        let isRunning = false;
+        let startTime = 0;
+        let animationSpeed = 1;
+        let mainPilgrimAngle = 0;
+        let animationId;
+
+        const SHAWT_DISTANCE = 250; // متر لكل شوط
+        const TOTAL_DISTANCE = SHAWT_DISTANCE * 7;
+
+        function startTawaf() {
+            if (!isRunning) {
+                isRunning = true;
+                startTime = Date.now() - (time * 1000);
+                animate();
+                updateAnimationSpeed();
+            }
+        }
+
+        function pauseTawaf() {
+            isRunning = false;
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+        }
+
+        function resetTawaf() {
+            isRunning = false;
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            
+            currentShawt = 1;
+            distance = 0;
+            time = 0;
+            mainPilgrimAngle = 0;
+            
+            updateDisplay();
+            updateProgress();
+            
+            const completionMessage = document.getElementById('completionMessage');
+            completionMessage.classList.remove('show');
+            
+            // Reset main pilgrim position
+            const mainPilgrim = document.getElementById('mainPilgrim');
+            mainPilgrim.style.transform = 'rotate(0deg) translateX(280px) rotate(0deg)';
+            
+            // Reset all pilgrims animation
+            document.querySelectorAll('.pilgrim').forEach(pilgrim => {
+                pilgrim.style.animationPlayState = 'running';
+            });
+        }
+
+        function setSpeed(speed) {
+            animationSpeed = speed;
+            updateAnimationSpeed();
+            
+            // Update active button
+            document.querySelectorAll('.speed-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function updateAnimationSpeed() {
+            const mainPilgrim = document.getElementById('mainPilgrim');
+            const pilgrims = document.querySelectorAll('.pilgrim');
+            
+            mainPilgrim.style.animationDuration = (12 / animationSpeed) + 's';
+            pilgrims.forEach(pilgrim => {
+                pilgrim.style.animationDuration = (10 / animationSpeed) + 's';
+            });
+        }
+
+        function animate() {
+            if (!isRunning) return;
+            
+            time = (Date.now() - startTime) / 1000;
+            
+            // Calculate progress
+            const progress = (time * animationSpeed) % 12; // 12 seconds per complete rotation
+            mainPilgrimAngle = (progress / 12) * 360;
+            
+            // Update distance
+            distance = Math.min(TOTAL_DISTANCE, (time * animationSpeed / 12) * SHAWT_DISTANCE);
+            
+            // Update current shawt
+            const newShawt = Math.min(7, Math.floor((time * animationSpeed) / 12) + 1);
+            
+            if (newShawt > currentShawt) {
+                currentShawt = newShawt;
+                showFloatingText(`الشوط ${currentShawt}`);
+                createCelebrationParticles();
+                
+                if (currentShawt === 7) {
+                    // Check if completed
+                    setTimeout(() => {
+                        if (distance >= TOTAL_DISTANCE - 10) {
+                            completeTawaf();
+                        }
+                    }, 1000);
+                }
+            }
+            
+            updateDisplay();
+            updateProgress();
+            
+            // Continue animation
+            animationId = requestAnimationFrame(animate);
+            
+            // Check for completion
+            if (distance >= TOTAL_DISTANCE && currentShawt >= 7) {
+                completeTawaf();
+                return;
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById('currentShawt').textContent = currentShawt;
+            document.getElementById('distance').textContent = Math.round(distance);
+            document.getElementById('time').textContent = Math.round(time);
+        }
+
+        function updateProgress() {
+            const progressFill = document.getElementById('progressFill');
+            const progress = (distance / TOTAL_DISTANCE) * 360;
+            progressFill.style.background = `conic-gradient(from 0deg, #ffd700 0deg, #ffd700 ${progress}deg, transparent ${progress}deg)`;
+        }
+
+        function completeTawaf() {
+            isRunning = false;
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            
+            // Stop all animations
+            document.querySelectorAll('.pilgrim').forEach(pilgrim => {
+                pilgrim.style.animationPlayState = 'paused';
+            });
+            
+            // Show completion message
+            const completionMessage = document.getElementById('completionMessage');
+            completionMessage.classList.add('show');
+            
+            // Create celebration effects
+            createMassiveCelebration();
+        }
+
+        function showFloatingText(text) {
+            const floatingText = document.createElement('div');
+            floatingText.className = 'floating-text';
+            floatingText.textContent = text;
+            floatingText.style.top = '50%';
+            floatingText.style.left = '50%';
+            floatingText.style.transform = 'translate(-50%, -50%)';
+            
+            document.querySelector('.container').appendChild(floatingText);
+            
+            setTimeout(() => {
+                floatingText.remove();
+            }, 3000);
+        }
+
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 4 + 's';
+                particle.style.animationDuration = (Math.random() * 2 + 3) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        function createCelebrationParticles() {
+            const particlesContainer = document.getElementById('particles');
+            
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.background = ['#ffd700', '#ff8c00', '#32cd32', '#ff69b4'][Math.floor(Math.random() * 4)];
+                particle.style.animationDelay = Math.random() * 1 + 's';
+                particle.style.animationDuration = (Math.random() * 1 + 2) + 's';
+                particlesContainer.appendChild(particle);
+                
+                setTimeout(() => {
+                    if (particle.parentNode) {
+                        particle.parentNode.removeChild(particle);
+                    }
+                }, 3000);
+            }
+        }
+
+        function createMassiveCelebration() {
+            const particlesContainer = document.getElementById('particles');
+            
+            for (let i = 0; i < 100; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.background = ['#ffd700', '#ff8c00', '#32cd32', '#ff69b4', '#ff1493'][Math.floor(Math.random() * 5)];
+                particle.style.animationDelay = Math.random() * 2 + 's';
+                particle.style.animationDuration = (Math.random() * 2 + 3) + 's';
+                particle.style.width = (Math.random() * 6 + 4) + 'px';
+                particle.style.height = particle.style.width;
+                particlesContainer.appendChild(particle);
+                
+                setTimeout(() => {
+                    if (particle.parentNode) {
+                        particle.parentNode.removeChild(particle);
+                    }
+                }, 5000);
+            }
+        }
+
+        // Initialize
+        window.onload = function() {
+            updateDisplay();
+            updateProgress();
+            createParticles();
+            updateAnimationSpeed();
+        };
+    </script>
+</body>
+</html>

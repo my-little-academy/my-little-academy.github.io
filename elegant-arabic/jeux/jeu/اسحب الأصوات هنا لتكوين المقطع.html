@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة تكوين المقاطع الصوتية</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f8ff;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .sound-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        .composition-area {
+            min-height: 100px;
+            border: 2px dashed #3498db;
+            border-radius: 5px;
+            margin: 20px 0;
+            padding: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+        .sound-chip {
+            background-color: #e74c3c;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .remove-chip {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 0;
+            font-size: 14px;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        #timer {
+            font-size: 24px;
+            margin: 10px 0;
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>لعبة تكوين المقاطع الصوتية</h1>
+        <p>قم بإنشاء مقطع صوتي باستخدام الأزرار أدناه، ثم استمع إلى تركيبك!</p>
+        
+        <div class="sound-buttons">
+            <button data-sound="kick">طبلة</button>
+            <button data-sound="snare">رق</button>
+            <button data-sound="hihat">هي هات</button>
+            <button data-sound="clap">تصفيق</button>
+            <button data-sound="cymbal">صنوج</button>
+        </div>
+        
+        <div class="composition-area" id="compositionArea">
+            <p>اسحب الأصوات هنا لتكوين المقطع</p>
+        </div>
+        
+        <div class="controls">
+            <button id="playBtn">تشغيل التركيب</button>
+            <button id="clearBtn">مسح الكل</button>
+            <button id="saveBtn">حفظ التركيب</button>
+            <button id="loadBtn">تحميل تركيب</button>
+        </div>
+        
+        <div id="timer">00:00</div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // عناصر DOM
+            const soundButtons = document.querySelectorAll('.sound-buttons button');
+            const compositionArea = document.getElementById('compositionArea');
+            const playBtn = document.getElementById('playBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const saveBtn = document.getElementById('saveBtn');
+            const loadBtn = document.getElementById('loadBtn');
+            const timer = document.getElementById('timer');
+            
+            // سياق الصوت
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            let sounds = {};
+            let composition = [];
+            let isPlaying = false;
+            let startTime;
+            let timerInterval;
+            
+            // تحميل عينات الصوت
+            function loadSounds() {
+                const soundFiles = {
+                    kick: 'https://assets.codepen.io/3364143/kick.wav',
+                    snare: 'https://assets.codepen.io/3364143/snare.wav',
+                    hihat: 'https://assets.codepen.io/3364143/hihat.wav',
+                    clap: 'https://assets.codepen.io/3364143/clap.wav',
+                    cymbal: 'https://assets.codepen.io/3364143/cymbal.wav'
+                };
+                
+                return Promise.all(
+                    Object.entries(soundFiles).map(([name, url]) => 
+                        fetch(url)
+                            .then(response => response.arrayBuffer())
+                            .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
+                            .then(audioBuffer => {
+                                sounds[name] = audioBuffer;
+                                return {name, success: true};
+                            })
+                            .catch(error => {
+                                console.error(`Error loading ${name}:`, error);
+                                return {name, success: false};
+                            })
+                    )
+                );
+            }
+            
+            // تشغيل الصوت
+            function playSound(soundName) {
+                if (!sounds[soundName]) return;
+                
+                const source = audioContext.createBufferSource();
+                source.buffer = sounds[soundName];
+                source.connect(audioContext.destination);
+                source.start();
+            }
+            
+            // تشغيل التركيب
+            function playComposition() {
+                if (isPlaying || composition.length === 0) return;
+                
+                isPlaying = true;
+                playBtn.disabled = true;
+                startTime = audioContext.currentTime;
+                
+                // بدء المؤقت
+                updateTimer();
+                timerInterval = setInterval(updateTimer, 1000);
+                
+                composition.forEach((sound, index) => {
+                    const time = startTime + index * 0.5; // نصف ثانية بين كل صوت
+                    const source = audioContext.createBufferSource();
+                    source.buffer = sounds[sound];
+                    source.connect(audioContext.destination);
+                    source.start(time);
+                    
+                    if (index === composition.length - 1) {
+                        source.onended = () => {
+                            isPlaying = false;
+                            playBtn.disabled = false;
+                            clearInterval(timerInterval);
+                            timer.textContent = "00:00";
+                        };
+                    }
+                });
+            }
+            
+            // تحديث المؤقت
+            function updateTimer() {
+                const elapsed = Math.floor(audioContext.currentTime - startTime);
+                const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                const seconds = (elapsed % 60).toString().padStart(2, '0');
+                timer.textContent = `${minutes}:${seconds}`;
+            }
+            
+            // إضافة صوت إلى التركيب
+            function addToComposition(soundName) {
+                composition.push(soundName);
+                updateCompositionDisplay();
+            }
+            
+            // إزالة صوت من التركيب
+            function removeFromComposition(index) {
+                composition.splice(index, 1);
+                updateCompositionDisplay();
+            }
+            
+            // تحديث عرض التركيب
+            function updateCompositionDisplay() {
+                compositionArea.innerHTML = composition.length === 0 ? 
+                    '<p>اسحب الأصوات هنا لتكوين المقطع</p>' : 
+                    composition.map((sound, index) => `
+                        <div class="sound-chip">
+                            ${sound}
+                            <button class="remove-chip" data-index="${index}">×</button>
+                        </div>
+                    `).join('');
+                
+                // إضافة معالجات الأحداث لأزرار الإزالة
+                document.querySelectorAll('.remove-chip').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        removeFromComposition(parseInt(this.dataset.index));
+                    });
+                });
+            }
+            
+            // مسح التركيب
+            function clearComposition() {
+                composition = [];
+                updateCompositionDisplay();
+            }
+            
+            // حفظ التركيب
+            function saveComposition() {
+                if (composition.length === 0) {
+                    alert('التركيب فارغ!');
+                    return;
+                }
+                
+                const compositionStr = JSON.stringify(composition);
+                localStorage.setItem('savedComposition', compositionStr);
+                alert('تم حفظ التركيب!');
+            }
+            
+            // تحميل التركيب
+            function loadComposition() {
+                const saved = localStorage.getItem('savedComposition');
+                if (saved) {
+                    composition = JSON.parse(saved);
+                    updateCompositionDisplay();
+                    alert('تم تحميل التركيب!');
+                } else {
+                    alert('لا يوجد تركيب محفوظ!');
+                }
+            }
+            
+            // سحب وإسقاط
+            function setupDragAndDrop() {
+                soundButtons.forEach(button => {
+                    button.setAttribute('draggable', 'true');
+                    
+                    button.addEventListener('dragstart', function(e) {
+                        e.dataTransfer.setData('sound', this.dataset.sound);
+                    });
+                });
+                
+                compositionArea.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.style.backgroundColor = '#ecf0f1';
+                });
+                
+                compositionArea.addEventListener('dragleave', function() {
+                    this.style.backgroundColor = '';
+                });
+                
+                compositionArea.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.style.backgroundColor = '';
+                    const sound = e.dataTransfer.getData('sound');
+                    if (sound) addToComposition(sound);
+                });
+            }
+            
+            // تهيئة اللعبة
+            function init() {
+                loadSounds().then(results => {
+                    const failed = results.filter(r => !r.success);
+                    if (failed.length > 0) {
+                        console.error('فشل تحميل بعض الأصوات:', failed);
+                    }
+                    
+                    // إعداد معالجات الأحداث
+                    soundButtons.forEach(button => {
+                        button.addEventListener('click', function() {
+                            playSound(this.dataset.sound);
+                        });
+                        
+                        // النقر المزدوج لإضافة إلى التركيب
+                        button.addEventListener('dblclick', function() {
+                            addToComposition(this.dataset.sound);
+                        });
+                    });
+                    
+                    playBtn.addEventListener('click', playComposition);
+                    clearBtn.addEventListener('click', clearComposition);
+                    saveBtn.addEventListener('click', saveComposition);
+                    loadBtn.addEventListener('click', loadComposition);
+                    
+                    // إعداد سحب وإسقاط
+                    setupDragAndDrop();
+                });
+            }
+            
+            // بدء اللعبة
+            init();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة تعليم الجمع للأطفال</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #4b6cb7;
+            margin-bottom: 30px;
+        }
+        
+        .problem {
+            font-size: 24px;
+            margin: 30px 0;
+            direction: ltr;
+            text-align: center;
+            display: inline-block;
+        }
+        
+        .digit {
+            display: inline-block;
+            width: 40px;
+            text-align: center;
+            margin: 0 5px;
+        }
+        
+        .carry {
+            font-size: 14px;
+            color: #ff6b6b;
+            height: 20px;
+            vertical-align: top;
+        }
+        
+        .line {
+            border-top: 2px solid #4b6cb7;
+            margin: 5px 0;
+            width: 100px;
+            display: inline-block;
+        }
+        
+        input {
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            text-align: center;
+            margin: 0 5px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        input:focus {
+            border-color: #4b6cb7;
+            outline: none;
+        }
+        
+        button {
+            background-color: #4b6cb7;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #3a56a0;
+        }
+        
+        .feedback {
+            font-size: 20px;
+            margin: 20px 0;
+            min-height: 30px;
+        }
+        
+        .correct {
+            color: #2ecc71;
+        }
+        
+        .incorrect {
+            color: #e74c3c;
+        }
+        
+        .explanation {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: right;
+            display: none;
+        }
+        
+        .stars {
+            font-size: 30px;
+            margin: 20px 0;
+            color: #f1c40f;
+        }
+        
+        .carry-box {
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+            margin: 0 5px;
+        }
+        
+        .controls {
+            margin: 20px 0;
+        }
+        
+        .level-selector {
+            margin: 15px 0;
+        }
+        
+        select {
+            padding: 8px;
+            border-radius: 5px;
+            border: 2px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 لعبة تعليم الجمع مع الاحتفاظ 🎮</h1>
+        
+        <div class="level-selector">
+            <label for="level">اختر مستوى الصعوبة:</label>
+            <select id="level">
+                <option value="1">مبتدئ (جمع بدون احتفاظ)</option>
+                <option value="2">متوسط (جمع مع احتفاظ بسيط)</option>
+                <option value="3">متقدم (جمع مع احتفاظ متعدد)</option>
+            </select>
+        </div>
+        
+        <div class="problem-area">
+            <div class="carry-row">
+                <span class="carry-box" id="carry-hundreds"></span>
+                <span class="carry-box" id="carry-tens"></span>
+                <span class="carry-box" id="carry-ones"></span>
+            </div>
+            <div class="problem">
+                <div>
+                    <span class="digit" id="num1-hundreds"></span>
+                    <span class="digit" id="num1-tens"></span>
+                    <span class="digit" id="num1-ones"></span>
+                </div>
+                <div>
+                    <span class="digit">+</span>
+                    <span class="digit" id="num2-hundreds"></span>
+                    <span class="digit" id="num2-tens"></span>
+                    <span class="digit" id="num2-ones"></span>
+                </div>
+                <div class="line"></div>
+                <div>
+                    <span class="digit">
+                        <input type="text" id="answer-hundreds" maxlength="1">
+                    </span>
+                    <span class="digit">
+                        <input type="text" id="answer-tens" maxlength="1">
+                    </span>
+                    <span class="digit">
+                        <input type="text" id="answer-ones" maxlength="1">
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="feedback"></div>
+        
+        <div class="controls">
+            <button id="check-btn">تحقق من الإجابة</button>
+            <button id="new-problem">مسألة جديدة</button>
+            <button id="help-btn">مساعدة</button>
+        </div>
+        
+        <div class="explanation" id="explanation"></div>
+        
+        <div class="stars">★★★★★</div>
+        <div>عدد الإجابات الصحيحة: <span id="score">0</span></div>
+    </div>
+
+    <script>
+        let score = 0;
+        let currentProblem = { num1: 0, num2: 0 };
+        let level = 1;
+        
+        const elements = {
+            level: document.getElementById('level'),
+            num1Hundreds: document.getElementById('num1-hundreds'),
+            num1Tens: document.getElementById('num1-tens'),
+            num1Ones: document.getElementById('num1-ones'),
+            num2Hundreds: document.getElementById('num2-hundreds'),
+            num2Tens: document.getElementById('num2-tens'),
+            num2Ones: document.getElementById('num2-ones'),
+            answerHundreds: document.getElementById('answer-hundreds'),
+            answerTens: document.getElementById('answer-tens'),
+            answerOnes: document.getElementById('answer-ones'),
+            carryHundreds: document.getElementById('carry-hundreds'),
+            carryTens: document.getElementById('carry-tens'),
+            carryOnes: document.getElementById('carry-ones'),
+            feedback: document.querySelector('.feedback'),
+            explanation: document.getElementById('explanation'),
+            score: document.getElementById('score'),
+            stars: document.querySelector('.stars'),
+            checkBtn: document.getElementById('check-btn'),
+            newProblemBtn: document.getElementById('new-problem'),
+            helpBtn: document.getElementById('help-btn')
+        };
+        
+        // تهيئة اللعبة
+        function init() {
+            elements.level.addEventListener('change', function() {
+                level = parseInt(this.value);
+                generateProblem();
+            });
+            
+            elements.checkBtn.addEventListener('click', checkAnswer);
+            elements.newProblemBtn.addEventListener('click', generateProblem);
+            elements.helpBtn.addEventListener('click', showHelp);
+            
+            // السماح فقط بإدخال الأرقام
+            document.querySelectorAll('input').forEach(input => {
+                input.addEventListener('input', function() {
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                });
+            });
+            
+            generateProblem();
+        }
+        
+        // توليد مسألة جديدة
+        function generateProblem() {
+            // مسح الحقول السابقة
+            elements.answerHundreds.value = '';
+            elements.answerTens.value = '';
+            elements.answerOnes.value = '';
+            elements.carryHundreds.textContent = '';
+            elements.carryTens.textContent = '';
+            elements.carryOnes.textContent = '';
+            elements.feedback.textContent = '';
+            elements.feedback.className = 'feedback';
+            elements.explanation.style.display = 'none';
+            
+            // توليد الأعداد حسب المستوى
+            if (level === 1) {
+                // جمع بدون احتفاظ (مجموع كل خانة أقل من 10)
+                currentProblem.num1 = Math.floor(Math.random() * 40) + 10;
+                currentProblem.num2 = Math.floor(Math.random() * (99 - currentProblem.num1)) + 1;
+                
+                // التأكد من عدم وجود احتفاظ في أي خانة
+                while (hasCarry(currentProblem.num1, currentProblem.num2)) {
+                    currentProblem.num1 = Math.floor(Math.random() * 40) + 10;
+                    currentProblem.num2 = Math.floor(Math.random() * (99 - currentProblem.num1)) + 1;
+                }
+            } else if (level === 2) {
+                // جمع مع احتفاظ بسيط (احتفاظ في خانة واحدة)
+                currentProblem.num1 = Math.floor(Math.random() * 80) + 10;
+                currentProblem.num2 = Math.floor(Math.random() * 80) + 10;
+                
+                // التأكد من وجود احتفاظ في خانة واحدة فقط
+                while (!hasSingleCarry(currentProblem.num1, currentProblem.num2)) {
+                    currentProblem.num1 = Math.floor(Math.random() * 80) + 10;
+                    currentProblem.num2 = Math.floor(Math.random() * 80) + 10;
+                }
+            } else {
+                // جمع مع احتفاظ متعدد
+                currentProblem.num1 = Math.floor(Math.random() * 900) + 100;
+                currentProblem.num2 = Math.floor(Math.random() * 900) + 100;
+            }
+            
+            displayProblem();
+        }
+        
+        // عرض المسألة
+        function displayProblem() {
+            const num1 = currentProblem.num1.toString().padStart(3, '0');
+            const num2 = currentProblem.num2.toString().padStart(3, '0');
+            
+            elements.num1Hundreds.textContent = num1[0];
+            elements.num1Tens.textContent = num1[1];
+            elements.num1Ones.textContent = num1[2];
+            
+            elements.num2Hundreds.textContent = num2[0];
+            elements.num2Tens.textContent = num2[1];
+            elements.num2Ones.textContent = num2[2];
+            
+            // إخفاء الخانات غير المستخدمة للمستويات البسيطة
+            if (level === 1 || level === 2) {
+                elements.num1Hundreds.textContent = '';
+                elements.num2Hundreds.textContent = '';
+                elements.answerHundreds.style.visibility = 'hidden';
+            } else {
+                elements.answerHundreds.style.visibility = 'visible';
+            }
+        }
+        
+        // التحقق من الإجابة
+        function checkAnswer() {
+            const userAnswer = parseInt(
+                (elements.answerHundreds.value || '0') + 
+                (elements.answerTens.value || '0') + 
+                elements.answerOnes.value
+            );
+            
+            const correctAnswer = currentProblem.num1 + currentProblem.num2;
+            
+            if (userAnswer === correctAnswer) {
+                elements.feedback.textContent = 'إجابة صحيحة! أحسنت! 🌟';
+                elements.feedback.className = 'feedback correct';
+                score++;
+                elements.score.textContent = score;
+                updateStars();
+                
+                // عرض خطوات الحل
+                showExplanation(true);
+            } else {
+                elements.feedback.textContent = 'إجابة خاطئة، حاول مرة أخرى! 💪';
+                elements.feedback.className = 'feedback incorrect';
+                showExplanation(false);
+            }
+        }
+        
+        // عرض الشرح
+        function showExplanation(isCorrect) {
+            const num1 = currentProblem.num1;
+            const num2 = currentProblem.num2;
+            const sum = num1 + num2;
+            
+            let explanation = '<h3>خطوات الحل:</h3>';
+            
+            if (level === 1 || level === 2) {
+                // شرح للخانتين فقط
+                const ones1 = num1 % 10;
+                const tens1 = Math.floor(num1 / 10) % 10;
+                const ones2 = num2 % 10;
+                const tens2 = Math.floor(num2 / 10) % 10;
+                
+                const onesSum = ones1 + ones2;
+                const tensSum = tens1 + tens2;
+                
+                explanation += `
+                    <p>1. جمع خانة الآحاد: ${ones1} + ${ones2} = ${onesSum}</p>
+                    <p>2. جمع خانة العشرات: ${tens1} + ${tens2} = ${tensSum}</p>
+                    <p>3. الناتج النهائي: ${tensSum}${onesSum} = ${sum}</p>
+                `;
+                
+                if (onesSum >= 10 && level === 2) {
+                    explanation += `
+                        <p class="carry-step">ملاحظة: عند جمع الآحاد (${ones1} + ${ones2} = ${onesSum}) 
+                        نحتفظ بـ ${Math.floor(onesSum / 10)} ونضيفه إلى خانة العشرات</p>
+                    `;
+                }
+            } else {
+                // شرح للخانات الثلاث
+                const ones1 = num1 % 10;
+                const tens1 = Math.floor(num1 / 10) % 10;
+                const hundreds1 = Math.floor(num1 / 100) % 10;
+                
+                const ones2 = num2 % 10;
+                const tens2 = Math.floor(num2 / 10) % 10;
+                const hundreds2 = Math.floor(num2 / 100) % 10;
+                
+                let onesSum = ones1 + ones2;
+                let carryOnes = Math.floor(onesSum / 10);
+                onesSum = onesSum % 10;
+                
+                let tensSum = tens1 + tens2 + carryOnes;
+                let carryTens = Math.floor(tensSum / 10);
+                tensSum = tensSum % 10;
+                
+                let hundredsSum = hundreds1 + hundreds2 + carryTens;
+                
+                explanation += `
+                    <p>1. جمع خانة الآحاد: ${ones1} + ${ones2} = ${ones1 + ones2}</p>
+                    ${carryOnes > 0 ? `<p>→ نحتفظ بـ ${carryOnes} لخانة العشرات</p>` : ''}
+                    <p>2. جمع خانة العشرات: ${tens1} + ${tens2} + ${carryOnes} = ${tens1 + tens2 + carryOnes}</p>
+                    ${carryTens > 0 ? `<p>→ نحتفظ بـ ${carryTens} لخانة المئات</p>` : ''}
+                    <p>3. جمع خانة المئات: ${hundreds1} + ${hundreds2} + ${carryTens} = ${hundredsSum}</p>
+                    <p>4. الناتج النهائي: ${sum}</p>
+                `;
+            }
+            
+            if (!isCorrect) {
+                explanation += `<p>الإجابة الصحيحة هي: ${sum}</p>`;
+            }
+            
+            elements.explanation.innerHTML = explanation;
+            elements.explanation.style.display = 'block';
+        }
+        
+        // عرض المساعدة
+        function showHelp() {
+            alert(`
+                كيفية حل مسائل الجمع مع الاحتفاظ:
+                
+                1. ابدأ من اليمين (خانة الآحاد)
+                2. اجمع الأرقام في كل خانة
+                3. إذا كان المجموع في أي خانة أكبر من أو يساوي 10:
+                   - اكتب خانة الآحاد من الناتج في الأسفل
+                   - احتفظ بخانة العشرات لتضيفها إلى الخانة التالية
+                4. انتقل إلى الخانة التالية على اليسار وأضف أي رقم محتفظ به
+                5. كرر العملية حتى تنتهي من جميع الخانات
+                
+                جرب مثالاً:
+                  ٤٥
+                + ٣٧
+                -----
+                  ٨٢
+                
+                الخطوات:
+                1. ٥ + ٧ = ١٢ → نكتب ٢ ونحتفظ بـ ١
+                2. ٤ + ٣ + ١ (المحتفظ به) = ٨
+                3. الناتج: ٨٢
+            `);
+        }
+        
+        // تحديث النجوم حسب النقاط
+        function updateStars() {
+            const starCount = Math.min(5, Math.floor(score / 3) + 1);
+            elements.stars.textContent = '★'.repeat(starCount) + '☆'.repeat(5 - starCount);
+        }
+        
+        // التحقق من وجود احتفاظ في المسألة
+        function hasCarry(num1, num2) {
+            const ones1 = num1 % 10;
+            const tens1 = Math.floor(num1 / 10) % 10;
+            const ones2 = num2 % 10;
+            const tens2 = Math.floor(num2 / 10) % 10;
+            
+            return (ones1 + ones2 >= 10) || (tens1 + tens2 >= 10);
+        }
+        
+        // التحقق من وجود احتفاظ واحد فقط
+        function hasSingleCarry(num1, num2) {
+            const ones1 = num1 % 10;
+            const tens1 = Math.floor(num1 / 10) % 10;
+            const ones2 = num2 % 10;
+            const tens2 = Math.floor(num2 / 10) % 10;
+            
+            const onesCarry = (ones1 + ones2 >= 10);
+            const tensCarry = (tens1 + tens2 >= 10);
+            
+            return (onesCarry && !tensCarry) || (!onesCarry && tensCarry);
+        }
+        
+        // بدء اللعبة
+        window.onload = init;
+    </script>
+</body>
+</html>

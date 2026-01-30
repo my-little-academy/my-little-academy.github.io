@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قناص الكلمات: اسم أم فعل أم حرف؟</title>
+    <style>
+        /* CSS لستايل "قناص الكلمات" المتخيل */
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap'); /* خط عربي جذاب */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            /* خلفية فضاء متوهجة بالنيون */
+            background: radial-gradient(circle at top left, #2c0b4e, #0e041d 70%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            direction: rtl;
+            overflow: hidden;
+            color: #E0FFFF; /* لون نص أزرق سماوي فاتح */
+            position: relative;
+        }
+
+        /* تأثير النجوم في الخلفية */
+        .star {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle 5s infinite ease-in-out alternate;
+        }
+
+        .star:nth-child(1) { width: 2px; height: 2px; top: 10%; left: 20%; animation-delay: 0s; }
+        .star:nth-child(2) { width: 3px; height: 3px; top: 30%; left: 80%; animation-delay: 1s; }
+        .star:nth-child(3) { width: 2px; height: 2px; top: 50%; left: 40%; animation-delay: 2s; }
+        .star:nth-child(4) { width: 4px; height: 4px; top: 70%; left: 10%; animation-delay: 0.5s; }
+        .star:nth-child(5) { width: 3px; height: 3px; top: 20%; left: 60%; animation-delay: 1.5s; }
+        .star:nth-child(6) { width: 2px; height: 2px; top: 85%; left: 55%; animation-delay: 2.5s; }
+        .star:nth-child(7) { width: 4px; height: 4px; top: 45%; left: 5%; animation-delay: 0.8s; }
+        .star:nth-child(8) { width: 3px; height: 3px; top: 60%; left: 90%; animation-delay: 1.2s; }
+
+
+        .game-container {
+            background: rgba(10, 2, 28, 0.9); /* خلفية داكنة جداً شفافة */
+            border: 5px solid #00FFFF; /* حدود سماوي نيون */
+            box-shadow: 0 0 40px #00FFFF, 0 0 80px rgba(0,255,255,0.5); /* توهج نيون */
+            border-radius: 30px;
+            padding: 50px;
+            text-align: center;
+            max-width: 900px;
+            width: 90%;
+            animation: scaleIn 1s ease-out;
+            position: relative;
+            z-index: 10;
+        }
+
+        .game-header {
+            margin-bottom: 40px;
+            text-shadow: 0 0 15px #FF00FF, 0 0 25px rgba(255,0,255,0.7); /* توهج بنفسجي نيون */
+        }
+
+        .game-header h1 {
+            font-size: 4.5rem;
+            color: #FF00FF; /* بنفسجي نيون */
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+        }
+
+        .game-header p {
+            font-size: 1.8rem;
+            color: #00FFFF; /* سماوي نيون */
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin-bottom: 30px;
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #FFD700; /* ذهبي */
+            text-shadow: 0 0 10px rgba(255,215,0,0.7);
+        }
+
+        .score-board span {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 2px solid #FFD700;
+        }
+
+        .word-display {
+            background: linear-gradient(45deg, #FF00FF, #00FFFF); /* تدرج بنفسجي سماوي */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+            font-size: 7rem; /* حجم كبير للكلمة */
+            font-weight: bold;
+            margin: 60px 0;
+            min-height: 100px; /* لضمان عدم اهتزاز التخطيط */
+            text-shadow: 0 0 30px rgba(255,0,255,0.7), 0 0 50px rgba(0,255,255,0.7); /* توهج مزدوج */
+            animation: pulseText 2s infinite alternate; /* نبض للكلمة */
+            direction: ltr; /* لضمان عرض الكلمات الفردية بشكل صحيح إذا كانت لاتينية */
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 40px;
+        }
+
+        .control-button {
+            background: linear-gradient(45deg, #00FFFF, #4D4DFF); /* سماوي أزرق */
+            border: 3px solid #00FFFF;
+            padding: 20px 40px;
+            border-radius: 40px;
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #0E041D; /* لون نص داكن جدا ليبرز على النيون */
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 0 15px #00FFFF, 0 0 25px rgba(0,255,255,0.5); /* توهج */
+            outline: none;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+            min-width: 200px;
+        }
+
+        .control-button:nth-child(2) { /* فعل */
+            background: linear-gradient(45deg, #FF00FF, #9932CC); /* بنفسجي وردي */
+            border-color: #FF00FF;
+            box-shadow: 0 0 15px #FF00FF, 0 0 25px rgba(255,0,255,0.5);
+        }
+
+        .control-button:nth-child(3) { /* حرف */
+            background: linear-gradient(45deg, #FFD700, #FFA500); /* ذهبي برتقالي */
+            border-color: #FFD700;
+            box-shadow: 0 0 15px #FFD700, 0 0 25px rgba(255,215,0,0.5);
+        }
+
+        .control-button:hover {
+            transform: scale(1.08) translateY(-5px);
+            box-shadow: 0 0 25px #E0FFFF, 0 0 50px #E0FFFF;
+        }
+
+        .result-message {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-top: 30px;
+            min-height: 50px;
+            opacity: 0;
+            animation: fadeInOut 1.5s forwards;
+        }
+
+        .result-message.correct {
+            color: #00FF7F; /* أخضر نيون */
+            text-shadow: 0 0 15px #00FF7F, 0 0 25px rgba(0,255,127,0.7);
+        }
+
+        .result-message.wrong {
+            color: #FF4500; /* أحمر نيون */
+            text-shadow: 0 0 15px #FF4500, 0 0 25px rgba(255,69,0,0.7);
+        }
+
+        .navigation-buttons {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 2px dashed rgba(0, 255, 255, 0.3);
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        .nav-button {
+            background: linear-gradient(45deg, #32CD32, #228B22); /* أخضر ليموني */
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .nav-button:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            opacity: 0.9;
+        }
+
+        /* Keyframe Animations */
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes pulseText {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            30% { opacity: 1; }
+            70% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        @media (max-width: 768px) {
+            .game-container { padding: 30px; }
+            .game-header h1 { font-size: 3rem; }
+            .game-header p { font-size: 1.4rem; }
+            .score-board { font-size: 1.4rem; gap: 20px; }
+            .word-display { font-size: 5rem; margin: 40px 0; }
+            .control-button { padding: 15px 25px; font-size: 1.8rem; min-width: unset; }
+            .result-message { font-size: 2rem; }
+            .nav-button { padding: 12px 25px; font-size: 1.1rem; }
+        }
+
+        @media (max-width: 480px) {
+            .game-container { padding: 20px; border-width: 3px; border-radius: 20px; }
+            .game-header h1 { font-size: 2.2rem; }
+            .game-header p { font-size: 1.1rem; }
+            .score-board { flex-direction: column; gap: 10px; font-size: 1.2rem; }
+            .word-display { font-size: 3.5rem; margin: 30px 0; }
+            .controls { flex-direction: column; gap: 15px; }
+            .control-button { width: 100%; padding: 12px 20px; font-size: 1.6rem; }
+            .result-message { font-size: 1.6rem; }
+            .navigation-buttons { flex-direction: column; gap: 15px; }
+            .nav-button { width: 100%; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="star"></div>
+    <div class="star"></div>
+    <div class="star"></div>
+    <div class="star"></div>
+    <div class="star"></div>
+    <div class="star"></div>
+    <div class="star"></div>
+    <div class="star"></div>
+
+    <div class="game-container">
+        <div class="game-header">
+            <h1>🌠 قناص الكلمات 🎯</h1>
+            <p>هل أنت مستعد لمهمة التصنيف؟ صنف الكلمة: اسم، فعل، أم حرف؟</p>
+        </div>
+
+        <div class="score-board">
+            <span>النقاط: <span id="score">0</span></span>
+            <span>الأخطاء: <span id="errors">0</span></span>
+        </div>
+
+        <div class="word-display" id="wordDisplay">ابدأ اللعبة!</div>
+
+        <div class="controls">
+            <button class="control-button" data-type="اسم" onclick="checkAnswer('اسم')">اسم 🏷️</button>
+            <button class="control-button" data-type="فعل" onclick="checkAnswer('فعل')">فعل ⏳</button>
+            <button class="control-button" data-type="حرف" onclick="checkAnswer('حرف')">حرف 🔗</button>
+        </div>
+
+        <div class="result-message" id="resultMessage"></div>
+
+        <div class="navigation-buttons">
+            <a href="qawaed.html" class="nav-button">العودة إلى حديقة القواعد 🌷</a>
+            <button class="nav-button" onclick="restartGame()">ابـدأ مـن جـديـد ✨</button>
+        </div>
+    </div>
+
+    <audio id="correctSound" src="sounds/correct.mp3" preload="auto"></audio>
+    <audio id="wrongSound" src="sounds/wrong.mp3" preload="auto"></audio>
+
+    <script>
+        // قائمة الكلمات للعبة القنص
+        const words = [
+            { word: "كتاب", type: "اسم" },
+            { word: "يقرأ", type: "فعل" },
+            { word: "إلى", type: "حرف" },
+            { word: "شمس", type: "اسم" },
+            { word: "يكتب", type: "فعل" },
+            { word: "في", type: "حرف" },
+            { word: "معلم", type: "اسم" },
+            { word: "يلعب", type: "فعل" },
+            { word: "عن", type: "حرف" },
+            { word: "بيت", type: "اسم" },
+            { word: "نام", type: "فعل" },
+            { word: "على", type: "حرف" },
+            { word: "طالب", type: "اسم" },
+            { word: "شرب", type: "فعل" },
+            { word: "من", type: "حرف" },
+            { word: "قلم", type: "اسم" },
+            { word: "يأكل", type: "فعل" },
+            { word: "بـ", type: "حرف" }, /* حرف الباء الجار */
+            { word: "مدرسة", type: "اسم" },
+            { word: "رسم", type: "فعل" },
+            { word: "و", type: "حرف" }, /* حرف الواو العاطفة */
+            { word: "حديقة", type: "اسم" },
+            { word: "زرع", type: "فعل" },
+            { word: "ثم", type: "حرف" },
+            { word: "سيارة", type: "اسم" },
+            { word: "يقود", type: "فعل" },
+            { word: "أو", type: "حرف" },
+            { word: "قمر", type: "اسم" },
+            { word: "أشرق", type: "فعل" },
+            { word: "فـ", type: "حرف" }, /* حرف الفاء العاطفة */
+            { word: "فأر", type: "اسم" },
+            { word: "هرب", type: "فعل" },
+            { word: "يا", type: "حرف" }, /* حرف النداء */
+            { word: "كرسي", type: "اسم" },
+            { word: "يجلس", type: "فعل" },
+            { word: "لـ", type: "حرف" }, /* حرف اللام الجار */
+            { word: "باب", type: "اسم" },
+            { word: "فتح", type: "فعل" },
+            { word: "كـ", type: "حرف" } /* حرف الكاف الجار */
+        ];
+
+        let currentWordIndex = 0;
+        let score = 0;
+        let errors = 0;
+        let shuffledWords = [];
+        let gameActive = false; // لتحديد ما إذا كانت اللعبة قيد التشغيل
+
+        const wordDisplay = document.getElementById('wordDisplay');
+        const scoreElement = document.getElementById('score');
+        const errorsElement = document.getElementById('errors');
+        const resultMessageElement = document.getElementById('resultMessage');
+        const correctSound = document.getElementById('correctSound');
+        const wrongSound = document.getElementById('wrongSound');
+
+        // وظيفة بدء/إعادة تشغيل اللعبة
+        function restartGame() {
+            score = 0;
+            errors = 0;
+            scoreElement.textContent = score;
+            errorsElement.textContent = errors;
+            resultMessageElement.textContent = '';
+            gameActive = true;
+            shuffledWords = [...words]; // نسخ قائمة الكلمات
+            shuffleArray(shuffledWords); // خلط الكلمات
+            currentWordIndex = 0;
+            displayNextWord();
+        }
+
+        // وظيفة عرض الكلمة التالية
+        function displayNextWord() {
+            if (currentWordIndex < shuffledWords.length) {
+                wordDisplay.textContent = shuffledWords[currentWordIndex].word;
+                resultMessageElement.style.animation = 'none'; // إعادة تعيين الأنميشن
+                resultMessageElement.offsetHeight; // إعادة تشغيل الأنميشن
+                resultMessageElement.style.opacity = 0; // إخفاء الرسالة مؤقتا
+                enableButtons();
+            } else {
+                wordDisplay.textContent = 'انتهت الكلمات! 🎉';
+                resultMessageElement.textContent = `أحسنت! نقاطك النهائية: ${score} وأخطاؤك: ${errors}`;
+                resultMessageElement.className = 'result-message correct'; // لإظهار النتيجة النهائية
+                gameActive = false;
+                disableButtons();
+            }
+        }
+
+        // وظيفة التحقق من الإجابة
+        function checkAnswer(selectedType) {
+            if (!gameActive) return; // لا تفعل شيئًا إذا كانت اللعبة غير نشطة
+
+            disableButtons(); // تعطيل الأزرار لمنع النقر المتعدد
+
+            const correctAnswer = shuffledWords[currentWordIndex].type;
+            if (selectedType === correctAnswer) {
+                score++;
+                scoreElement.textContent = score;
+                resultMessageElement.textContent = 'صحيح! ✅';
+                resultMessageElement.className = 'result-message correct';
+                playCorrectSound();
+            } else {
+                errors++;
+                errorsElement.textContent = errors;
+                resultMessageElement.textContent = `خطأ! الإجابة الصحيحة هي: ${correctAnswer} ❌`;
+                resultMessageElement.className = 'result-message wrong';
+                playWrongSound();
+            }
+
+            // إعادة تشغيل الأنميشن للرسالة
+            resultMessageElement.style.animation = 'none';
+            resultMessageElement.offsetHeight; /* trigger reflow */
+            resultMessageElement.style.animation = null;
+            resultMessageElement.style.opacity = 1; /* التأكد من أن الأنميشن يبدأ من مرئي */
+
+
+            setTimeout(() => {
+                currentWordIndex++;
+                displayNextWord();
+            }, 1500); // 1.5 ثانية قبل عرض الكلمة التالية
+        }
+
+        // دالة لخلط عناصر المصفوفة
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // تفعيل الأزرار
+        function enableButtons() {
+            const buttons = document.querySelectorAll('.control-button');
+            buttons.forEach(button => button.disabled = false);
+        }
+
+        // تعطيل الأزرار
+        function disableButtons() {
+            const buttons = document.querySelectorAll('.control-button');
+            buttons.forEach(button => button.disabled = true);
+        }
+
+        // تشغيل صوت الإجابة الصحيحة
+        function playCorrectSound() {
+            if (correctSound) {
+                correctSound.currentTime = 0; // إعادة الصوت من البداية
+                correctSound.play().catch(e => console.log("Sound play error:", e));
+            }
+        }
+
+        // تشغيل صوت الإجابة الخاطئة
+        function playWrongSound() {
+            if (wrongSound) {
+                wrongSound.currentTime = 0; // إعادة الصوت من البداية
+                wrongSound.play().catch(e => console.log("Sound play error:", e));
+            }
+        }
+
+        // بدء اللعبة تلقائيا عند تحميل الصفحة
+        window.onload = restartGame;
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <title>لعبة كتابة السؤال المناسب</title>
+  <style>
+    body {
+      font-family: 'Tahoma', sans-serif;
+      background: linear-gradient(to right, #fbd3e9, #bbd2c5);
+      margin: 0;
+      padding: 20px;
+      direction: rtl;
+      text-align: center;
+    }
+
+    #game-container {
+      background-color: #ffffffdd;
+      padding: 30px;
+      margin: auto;
+      border-radius: 20px;
+      max-width: 700px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    }
+
+    h1 {
+      font-size: 28px;
+      color: #6a0572;
+    }
+
+    #answer-box {
+      margin: 20px 0;
+      font-size: 24px;
+      color: #333;
+      animation: fadeSlide 0.6s ease;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      font-size: 18px;
+      width: 80%;
+      border: 2px solid #aaa;
+      border-radius: 10px;
+      margin-top: 10px;
+      transition: 0.3s;
+    }
+
+    input[type="text"]:focus {
+      border-color: #6a0572;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: #ff758c;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      margin: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #ff5c75;
+      animation: pulseHover 0.8s infinite;
+    }
+
+    #result {
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+      margin-top: 15px;
+    }
+
+    #stars {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+
+    @keyframes fadeSlide {
+      0% { opacity: 0; transform: translateY(-20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes starBurst {
+      0% { transform: scale(0); opacity: 0.8; }
+      100% { transform: scale(1.5); opacity: 0; }
+    }
+
+    @keyframes pulseHover {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <h1>اكتب السؤال المناسب للإجابة</h1>
+    <div id="answer-box"></div>
+    <input type="text" id="user-input" placeholder="اكتب السؤال هنا..." />
+    <br />
+    <button onclick="checkAnswer()">تحقق</button>
+    <div id="result"></div>
+  </div>
+  <div id="stars"></div>
+
+  <script>
+    const qaPairs = [
+      { answer: "ثلاثةُ رجالٍ", question: "كم عدد الرجال الذين يعملون في المشروع؟" },
+      { answer: "يوم الثلاثاء", question: "متى موعد الوليمة؟" },
+      { answer: "لا يعلم الميعاد أحدٌ", question: "أيّان تقوم القيامة؟" },
+      { answer: "أبو خالد", question: "من هو مؤذّن المسجد؟" },
+      { answer: "محمّد بن سفيان", question: "ما اسم جاركم الجديد؟" },
+      { answer: "كلَّ خيرٍ وسرور", question: "ماذا وجدتّم في سفركم؟" },
+      { answer: "في المكتبة العامّة", question: "أين يوزّع الكتاب الجديد؟" },
+      { answer: "بخير والحمد لله", question: "كيف حالك اليوم؟" },
+      { answer: "لا، لم أطّلع عليه", question: "هل اطّلعت على كتاب (أأعجمي وعربيٌّ)؟" },
+      { answer: "بلى، نشهد على ذلك", question: "أألست بربكم؟" },
+      { answer: "الصف العاشر", question: "أيّ الصفين أيسر: التاسع أم العاشر؟" },
+      { answer: "بسبب أزمات الطريق", question: "لماذا تأخرت في الوصول؟" }
+    ];
+
+    let current = 0;
+    const answerBox = document.getElementById("answer-box");
+    const input = document.getElementById("user-input");
+    const resultBox = document.getElementById("result");
+
+    function showQuestion() {
+      resultBox.textContent = "";
+      input.value = "";
+      answerBox.textContent = "الإجابة: " + qaPairs[current].answer;
+    }
+
+    function checkAnswer() {
+      const correct = qaPairs[current].question.trim();
+      const user = input.value.trim();
+      if (user === correct) {
+        resultBox.textContent = "إجابة صحيحة!";
+        current++;
+        if (current < qaPairs.length) {
+          setTimeout(showQuestion, 1000);
+        } else {
+          resultBox.textContent = "أحسنت! أنهيت اللعبة!";
+          showStars();
+        }
+      } else {
+        resultBox.textContent = "إجابة غير صحيحة! جرّب مرة أخرى.";
+      }
+    }
+
+    function showStars() {
+      const container = document.getElementById("stars");
+      for (let i = 0; i < 20; i++) {
+        const star = document.createElement("div");
+        star.textContent = "⭐";
+        star.style.position = "absolute";
+        star.style.fontSize = "24px";
+        star.style.left = Math.random() * window.innerWidth + "px";
+        star.style.top = Math.random() * window.innerHeight + "px";
+        star.style.animation = "starBurst 1s ease-out forwards";
+        container.appendChild(star);
+        setTimeout(() => star.remove(), 1000);
+      }
+    }
+
+    showQuestion();
+  </script>
+</body>
+</html>

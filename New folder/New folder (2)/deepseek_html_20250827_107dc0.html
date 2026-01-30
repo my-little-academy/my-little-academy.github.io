@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>توصيل مفاهيم سورة الأعلى</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+        
+        :root {
+            --primary-color: #2c5e50;
+            --secondary-color: #f8b400;
+            --accent-color: #e74c3c;
+            --light-color: #f9f9f9;
+            --dark-color: #333;
+        }
+        
+        body {
+            font-family: 'Amiri', serif;
+            background-color: #f5f5f0;
+            color: var(--dark-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .game-container {
+            width: 90%;
+            max-width: 1000px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-size: 2rem;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .instructions {
+            background: #f0f7f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-right: 4px solid var(--secondary-color);
+        }
+        
+        .matching-area {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .items-column {
+            flex: 1;
+            min-width: 300px;
+            margin: 0 10px;
+        }
+        
+        .items-title {
+            background: var(--primary-color);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .draggable-item, .droppable-item {
+            background: var(--light-color);
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+        
+        .draggable-item {
+            background: white;
+            border: 2px solid var(--secondary-color);
+        }
+        
+        .droppable-item {
+            background: #f0f7f5;
+            border: 2px dashed var(--primary-color);
+            min-height: 50px;
+        }
+        
+        .draggable-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .draggable-item.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+        
+        .droppable-item.highlight {
+            background: rgba(248, 180, 0, 0.2);
+            border-color: var(--secondary-color);
+        }
+        
+        .droppable-item.matched {
+            background: #e8f5e9;
+            border-color: #4caf50;
+            border-style: solid;
+        }
+        
+        .matched-item {
+            background: white;
+            padding: 8px;
+            border-radius: 5px;
+            margin: 5px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .btn {
+            background: var(--secondary-color);
+            color: var(--dark-color);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-family: 'Amiri', serif;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .btn:hover {
+            background: #e6a800;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        
+        .btn-check {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-reset {
+            background: var(--accent-color);
+            color: white;
+        }
+        
+        .result-message {
+            font-size: 1.3rem;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-right: 4px solid #4caf50;
+        }
+        
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            border-right: 4px solid #f44336;
+        }
+        
+        .completion-bar {
+            width: 100%;
+            height: 10px;
+            background: #eee;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .completion-progress {
+            height: 100%;
+            background: linear-gradient(to right, var(--secondary-color), var(--primary-color));
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .timer {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .matching-area {
+                flex-direction: column;
+            }
+            
+            .items-column {
+                margin-bottom: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>توصيل مفاهيم سورة الأعلى</h1>
+        
+        <div class="instructions">
+            <p>قم بسحب المفاهيم من العمود الأيمن وإفلاتها في المكان المناسب في العمود الأيسر</p>
+        </div>
+        
+        <div class="timer" id="timer">الوقت: 00:00</div>
+        
+        <div class="completion-bar">
+            <div class="completion-progress" id="completionProgress"></div>
+        </div>
+        
+        <div class="matching-area">
+            <div class="items-column">
+                <div class="items-title">الآيات</div>
+                <div class="droppable-item" data-correct="التسبيح" id="drop1">
+                    <p>"سَبِّحِ اسْمَ رَبِّكَ الْأَعْلَى"</p>
+                </div>
+                <div class="droppable-item" data-correct="القدرة" id="drop2">
+                    <p>"الَّذِي خَلَقَ فَسَوَّى"</p>
+                </div>
+                <div class="droppable-item" data-correct="الهداية" id="drop3">
+                    <p>"وَالَّذِي قَدَّرَ فَهَدَى"</p>
+                </div>
+                <div class="droppable-item" data-correct="الوعد" id="drop4">
+                    <p>"سَنُقْرِئُكَ فَلَا تَنْسَى"</p>
+                </div>
+                <div class="droppable-item" data-correct="التيسير" id="drop5">
+                    <p>"وَنُيَسِّرُكَ لِلْيُسْرَى"</p>
+                </div>
+                <div class="droppable-item" data-correct="الفلاح" id="drop6">
+                    <p>"قَدْ أَفْلَحَ مَنْ تَزَكَّى"</p>
+                </div>
+            </div>
+            
+            <div class="items-column">
+                <div class="items-title">المفاهيم</div>
+                <div class="draggable-item" draggable="true" data-concept="القدرة" id="drag1">
+                    قدرة الله في الخلق والتسوية
+                </div>
+                <div class="draggable-item" draggable="true" data-concept="الهداية" id="drag2">
+                    هداية الله للخلق
+                </div>
+                <div class="draggable-item" draggable="true" data-concept="التسبيح" id="drag3">
+                    تسبيح الله وتمجيده
+                </div>
+                <div class="draggable-item" draggable="true" data-concept="الوعد" id="drag4">
+                    وعد الله بعدم النسيان
+                </div>
+                <div class="draggable-item" draggable="true" data-concept="التيسير" id="drag5">
+                    تيسير الله لطريق الخير
+                </div>
+                <div class="draggable-item" draggable="true" data-concept="الفلاح" id="drag6">
+                    فلاح المتزكي الذاكر
+                </div>
+            </div>
+        </div>
+        
+        <button class="btn btn-check" id="checkBtn">تحقق من الإجابات</button>
+        <button class="btn btn-reset" id="resetBtn">إعادة اللعبة</button>
+        
+        <div class="result-message" id="resultMessage"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let startTime;
+            let timerInterval;
+            let matches = {};
+            let matchedCount = 0;
+            const totalMatches = 6;
+            
+            const draggableItems = document.querySelectorAll('.draggable-item');
+            const droppableItems = document.querySelectorAll('.droppable-item');
+            const checkBtn = document.getElementById('checkBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const resultMessage = document.getElementById('resultMessage');
+            const timerElement = document.getElementById('timer');
+            const completionProgress = document.getElementById('completionProgress');
+            
+            // بدء اللعبة
+            startGame();
+            
+            function startGame() {
+                // إعادة تعيين المتغيرات
+                matches = {};
+                matchedCount = 0;
+                startTime = new Date();
+                
+                // إعادة تعيين العناصر
+                draggableItems.forEach(item => {
+                    item.style.display = 'block';
+                    item.classList.remove('dragging');
+                });
+                
+                droppableItems.forEach(item => {
+                    item.classList.remove('matched', 'highlight');
+                    item.innerHTML = `<p>${item.querySelector('p').textContent}</p>`;
+                });
+                
+                // خلط العناصر القابلة للسحب
+                const draggableContainer = document.querySelector('.items-column:last-child');
+                const draggableArray = Array.from(draggableItems);
+                
+                draggableArray.sort(() => Math.random() - 0.5);
+                draggableArray.forEach(item => draggableContainer.appendChild(item));
+                
+                // بدء المؤقت
+                startTimer();
+                
+                // إخفاء رسالة النتيجة
+                resultMessage.style.display = 'none';
+                
+                // تحديث شريط التقدم
+                updateCompletion();
+            }
+            
+            function startTimer() {
+                clearInterval(timerInterval);
+                updateTimerDisplay();
+                
+                timerInterval = setInterval(() => {
+                    updateTimerDisplay();
+                }, 1000);
+            }
+            
+            function updateTimerDisplay() {
+                const currentTime = new Date();
+                const timeDiff = (currentTime - startTime) / 1000; // بالثواني
+                const minutes = Math.floor(timeDiff / 60);
+                const seconds = Math.floor(timeDiff % 60);
+                
+                timerElement.textContent = `الوقت: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+            
+            function updateCompletion() {
+                const progress = (matchedCount / totalMatches) * 100;
+                completionProgress.style.width = `${progress}%`;
+            }
+            
+            // أحداث السحب والإفلات
+            draggableItems.forEach(item => {
+                item.addEventListener('dragstart', function(e) {
+                    this.classList.add('dragging');
+                    e.dataTransfer.setData('text/plain', this.id);
+                });
+                
+                item.addEventListener('dragend', function() {
+                    this.classList.remove('dragging');
+                });
+            });
+            
+            droppableItems.forEach(item => {
+                item.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.classList.add('highlight');
+                });
+                
+                item.addEventListener('dragleave', function() {
+                    this.classList.remove('highlight');
+                });
+                
+                item.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('highlight');
+                    
+                    const draggableId = e.dataTransfer.getData('text/plain');
+                    const draggableItem = document.getElementById(draggableId);
+                    const concept = draggableItem.dataset.concept;
+                    const correctConcept = this.dataset.correct;
+                    
+                    // التحقق مما إذا كانت المنطقة تحتوي بالفعل على عنصر
+                    if (this.querySelector('.matched-item')) {
+                        return;
+                    }
+                    
+                    // إضافة العنصر إلى المنطقة
+                    const matchedElement = document.createElement('div');
+                    matchedElement.className = 'matched-item';
+                    matchedElement.textContent = draggableItem.textContent;
+                    matchedElement.dataset.concept = concept;
+                    this.appendChild(matchedElement);
+                    
+                    // إخفاء العنصر الأصلي
+                    draggableItem.style.display = 'none';
+                    
+                    // التحقق من التطابق
+                    if (concept === correctConcept) {
+                        this.classList.add('matched');
+                        matches[this.id] = true;
+                        matchedCount++;
+                        
+                        // تشغيل تأثير النجاح
+                        animateSuccess(this);
+                    } else {
+                        matches[this.id] = false;
+                        
+                        // تشغيل تأثير الخطأ
+                        animateError(this);
+                    }
+                    
+                    // التحقق من اكتمال اللعبة
+                    if (matchedCount === totalMatches) {
+                        checkAnswers(true);
+                    }
+                    
+                    // تحديث شريط التقدم
+                    updateCompletion();
+                });
+            });
+            
+            function animateSuccess(element) {
+                element.style.transform = 'scale(1.05)';
+                element.style.boxShadow = '0 0 15px rgba(76, 175, 80, 0.5)';
+                element.style.transition = 'all 0.3s ease';
+                
+                setTimeout(() => {
+                    element.style.transform = '';
+                    element.style.boxShadow = '';
+                }, 500);
+            }
+            
+            function animateError(element) {
+                element.style.transform = 'translateX(-5px)';
+                element.style.boxShadow = '0 0 15px rgba(244, 67, 54, 0.5)';
+                element.style.transition = 'all 0.1s ease';
+                
+                setTimeout(() => {
+                    element.style.transform = 'translateX(5px)';
+                    
+                    setTimeout(() => {
+                        element.style.transform = 'translateX(-5px)';
+                        
+                        setTimeout(() => {
+                            element.style.transform = 'translateX(5px)';
+                            
+                            setTimeout(() => {
+                                element.style.transform = '';
+                                element.style.boxShadow = '';
+                            }, 100);
+                        }, 100);
+                    }, 100);
+                }, 100);
+            }
+            
+            function checkAnswers(completed = false) {
+                clearInterval(timerInterval);
+                
+                if (completed) {
+                    // حساب الوقت المنقضي
+                    const endTime = new Date();
+                    const timeDiff = (endTime - startTime) / 1000; // بالثواني
+                    const minutes = Math.floor(timeDiff / 60);
+                    const seconds = Math.floor(timeDiff % 60);
+                    
+                    // عرض رسالة النجاح
+                    resultMessage.textContent = `مبروك! لقد أكملت التوصيل في ${minutes} دقائق و ${seconds} ثواني.`;
+                    resultMessage.className = 'result-message success';
+                    resultMessage.style.display = 'block';
+                    
+                    // تأثيرات النجاح
+                    celebrateCompletion();
+                } else {
+                    // التحقق من الإجابات يدوياً
+                    let allCorrect = true;
+                    
+                    droppableItems.forEach(item => {
+                        const matchedItem = item.querySelector('.matched-item');
+                        if (!matchedItem || matchedItem.dataset.concept !== item.dataset.correct) {
+                            allCorrect = false;
+                        }
+                    });
+                    
+                    if (allCorrect) {
+                        resultMessage.textContent = 'أحسنت! جميع الإجابات صحيحة.';
+                        resultMessage.className = 'result-message success';
+                        resultMessage.style.display = 'block';
+                    } else {
+                        resultMessage.textContent = 'بعض الإجابات غير صحيحة، حاول مرة أخرى!';
+                        resultMessage.className = 'result-message error';
+                        resultMessage.style.display = 'block';
+                    }
+                }
+            }
+            
+            function celebrateCompletion() {
+                const colors = ['#f8b400', '#2c5e50', '#e74c3c', '#4a8c7c'];
+                
+                for (let i = 0; i < 30; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.style.position = 'fixed';
+                    confetti.style.width = '10px';
+                    confetti.style.height = '10px';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.borderRadius = '50%';
+                    confetti.style.left = `${Math.random() * 100}%`;
+                    confetti.style.top = '-10px';
+                    confetti.style.zIndex = '1000';
+                    document.body.appendChild(confetti);
+                    
+                    const animationDuration = 2 + Math.random() * 3;
+                    
+                    confetti.style.transition = `all ${animationDuration}s ease-out`;
+                    
+                    setTimeout(() => {
+                        confetti.style.top = `${100 + Math.random() * 10}%`;
+                        confetti.style.left = `${parseFloat(confetti.style.left) + (Math.random() - 0.5) * 20}%`;
+                        confetti.style.opacity = '0';
+                    }, 10);
+                    
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, animationDuration * 1000);
+                }
+            }
+            
+            // أحداث الأزرار
+            checkBtn.addEventListener('click', () => checkAnswers());
+            resetBtn.addEventListener('click', startGame);
+        });
+    </script>
+</body>
+</html>

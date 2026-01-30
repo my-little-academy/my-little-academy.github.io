@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مغامرات الهمزة السحرية</title>
+    <style>
+        /* أنماط لعبة السحب والإفلات المحسنة */
+        .drag-drop-game {
+            background-color: #e6ffe6;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 30px;
+            border: 3px solid #4CAF50;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .drag-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #f8fff8;
+            border-radius: 10px;
+            border: 2px dashed #4CAF50;
+        }
+        
+        .drag-item {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 8px;
+            cursor: grab;
+            font-size: 28px;
+            font-weight: bold;
+            user-select: none;
+            transition: all 0.3s;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+        
+        .drag-item:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+        
+        .drop-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 20px;
+        }
+        
+        .drop-box {
+            min-width: 180px;
+            padding: 20px 15px;
+            border: 3px dashed #4CAF50;
+            border-radius: 12px;
+            background-color: #f8fff8;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+        }
+        
+        .word {
+            font-size: 28px;
+            color: #333;
+            letter-spacing: 2px;
+            font-weight: bold;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .empty-spot {
+            display: inline-flex;
+            width: 50px;
+            height: 50px;
+            border: 2px solid #4CAF50;
+            border-radius: 8px;
+            margin: 0 5px;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(76, 175, 80, 0.1);
+            transition: all 0.3s;
+        }
+        
+        .empty-spot.highlight {
+            background-color: rgba(76, 175, 80, 0.3);
+            border-color: #2E7D32;
+        }
+        
+        .word-example {
+            font-size: 16px;
+            color: #666;
+            margin-top: 10px;
+            font-style: italic;
+            background-color: #f0f9f0;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        
+        .success-message {
+            color: #2E7D32;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 25px;
+            font-size: 1.5em;
+            padding: 15px;
+            background-color: #e8f5e9;
+            border-radius: 10px;
+            border: 2px solid #4CAF50;
+        }
+        
+        .reset-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin: 25px auto 0;
+            display: block;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .reset-btn:hover {
+            background-color: #d32f2f;
+            transform: scale(1.05);
+        }
+        
+        /* تحسينات للهمزة المنسدلة */
+        .dropped-hamza {
+            font-size: 28px;
+            font-weight: bold;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .correct-hamza {
+            color: #2E7D32;
+            animation: pulse 0.5s;
+        }
+        
+        .incorrect-hamza {
+            color: #f44336;
+            animation: shake 0.5s;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body>
+    <!-- لعبة السحب والإفلات المحدثة -->
+    <div class="drag-drop-game">
+        <h2 style="text-align:center; color:#2E7D32; font-size:28px;">لعبة تركيب الهمزة ✨</h2>
+        <p style="text-align:center; font-size:18px; color:#555;">اسحب كل همزة إلى المربع الفارغ المناسب في الكلمات التالية:</p>
+        
+        <div class="drag-container">
+            <div class="drag-item" draggable="true" data-hamza="أ">أ</div>
+            <div class="drag-item" draggable="true" data-hamza="إ">إ</div>
+            <div class="drag-item" draggable="true" data-hamza="ؤ">ؤ</div>
+            <div class="drag-item" draggable="true" data-hamza="ئ">ئ</div>
+            <div class="drag-item" draggable="true" data-hamza="ء">ء</div>
+        </div>
+        
+        <div class="drop-container" id="words-container">
+            <!-- سيتم ملء هذا القسم ديناميكياً باستخدام JavaScript -->
+        </div>
+        
+        <div id="drag-success" class="success-message hidden">🎉 أحسنت! جميع الهمزات في مكانها الصحيح! 🎉</div>
+        <button id="reset-drag" class="reset-btn">إعادة المحاولة</button>
+    </div>
+
+    <script>
+        // مجموعة الأمثلة للهمزات في أوضاع مختلفة
+        const wordExamples = [
+            // همزة أول الكلمة
+            [
+                { word: "_كل", parts: ["", "كل"], correct: "أ", position: 0, example: "أَكَلَ" },
+                { word: "_خذ", parts: ["", "خذ"], correct: "أ", position: 0, example: "أَخَذَ" },
+                { word: "_نبة", parts: ["", "نبة"], correct: "إ", position: 0, example: "إِنْبَة" }
+            ],
+            // همزة وسط الكلمة
+            [
+                { word: "س_ل", parts: ["س", "ل"], correct: "أ", position: 1, example: "سَأَلَ" },
+                { word: "ب_ر", parts: ["ب", "ر"], correct: "ئ", position: 1, example: "بِئْر" },
+                { word: "ر_س", parts: ["ر", "س"], correct: "ؤ", position: 1, example: "رَؤُوس" },
+                { word: "مس_لة", parts: ["مس", "لة"], correct: "ئ", position: 2, example: "مَسْئَلَة" }
+            ],
+            // همزة آخر الكلمة
+            [
+                { word: "مبد_", parts: ["مبد", ""], correct: "ئ", position: 3, example: "مُبْتَدِئ" },
+                { word: "جز_", parts: ["جز", ""], correct: "ء", position: 2, example: "جَزْء" },
+                { word: "ملج_", parts: ["ملج", ""], correct: "أ", position: 3, example: "مَلْجَأ" },
+                { word: "شاط_", parts: ["شاط", ""], correct: "ئ", position: 3, example: "شَاطِئ" }
+            ]
+        ];
+
+        // متغيرات اللعبة
+        let currentExamples = [];
+        let gameLevel = 0;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const dragItems = document.querySelectorAll('.drag-item');
+            const wordsContainer = document.getElementById('words-container');
+            const successMessage = document.getElementById('drag-success');
+            const resetBtn = document.getElementById('reset-drag');
+            
+            let draggedItem = null;
+            
+            // بدء اللعبة
+            loadNewExamples();
+            
+            // أحداث السحب
+            dragItems.forEach(item => {
+                item.addEventListener('dragstart', function(e) {
+                    draggedItem = this;
+                    e.dataTransfer.setData('text/plain', this.dataset.hamza);
+                    this.style.opacity = '0.7';
+                    this.style.transform = 'scale(1.2)';
+                });
+                
+                item.addEventListener('dragend', function() {
+                    this.style.opacity = '1';
+                    this.style.transform = 'scale(1)';
+                });
+            });
+            
+            // تحميل أمثلة جديدة
+            function loadNewExamples() {
+                wordsContainer.innerHTML = '';
+                currentExamples = [];
+                
+                // اختيار أمثلة عشوائية من كل مجموعة
+                const firstWord = getRandomExample(wordExamples[0]); // أول الكلمة
+                const middleWord = getRandomExample(wordExamples[1]); // وسط الكلمة
+                const lastWord = getRandomExample(wordExamples[2]); // آخر الكلمة
+                
+                currentExamples = [firstWord, middleWord, lastWord];
+                
+                // عرض الأمثلة في الواجهة
+                currentExamples.forEach((example, index) => {
+                    const dropBox = document.createElement('div');
+                    dropBox.className = 'drop-box';
+                    dropBox.setAttribute('data-word', example.word);
+                    dropBox.setAttribute('data-correct', example.correct);
+                    dropBox.setAttribute('data-position', example.position);
+                    
+                    const wordDiv = document.createElement('div');
+                    wordDiv.className = 'word';
+                    
+                    example.parts.forEach((part, i) => {
+                        wordDiv.appendChild(document.createTextNode(part));
+                        if (i < example.parts.length - 1) {
+                            const emptySpot = document.createElement('div');
+                            emptySpot.className = 'empty-spot';
+                            emptySpot.setAttribute('data-position', example.position);
+                            wordDiv.appendChild(emptySpot);
+                        }
+                    });
+                    
+                    const exampleDiv = document.createElement('div');
+                    exampleDiv.className = 'word-example';
+                    exampleDiv.textContent = `مثال: ${example.example}`;
+                    
+                    dropBox.appendChild(wordDiv);
+                    dropBox.appendChild(exampleDiv);
+                    wordsContainer.appendChild(dropBox);
+                });
+                
+                // إضافة أحداث الإفلات للمربعات الجديدة
+                addDropEvents();
+            }
+            
+            function getRandomExample(examples) {
+                return examples[Math.floor(Math.random() * examples.length)];
+            }
+            
+            function addDropEvents() {
+                const emptySpots = document.querySelectorAll('.empty-spot');
+                
+                emptySpots.forEach(spot => {
+                    spot.addEventListener('dragover', function(e) {
+                        e.preventDefault();
+                        this.classList.add('highlight');
+                    });
+                    
+                    spot.addEventListener('dragleave', function() {
+                        this.classList.remove('highlight');
+                    });
+                    
+                    spot.addEventListener('drop', function(e) {
+                        e.preventDefault();
+                        this.classList.remove('highlight');
+                        
+                        if (draggedItem) {
+                            const hamzaType = draggedItem.getAttribute('data-hamza');
+                            const parentBox = this.closest('.drop-box');
+                            const correctHamza = parentBox.getAttribute('data-correct');
+                            
+                            // إزالة أي همزة موجودة مسبقاً
+                            while (this.firstChild) {
+                                this.removeChild(this.firstChild);
+                            }
+                            
+                            // إنشاء الهمزة المنسدلة
+                            const droppedHamza = document.createElement('div');
+                            droppedHamza.className = 'dropped-hamza';
+                            droppedHamza.textContent = hamzaType;
+                            
+                            // التحقق من الإجابة
+                            if (hamzaType === correctHamza) {
+                                droppedHamza.classList.add('correct-hamza');
+                                parentBox.setAttribute('data-correct', 'true');
+                            } else {
+                                droppedHamza.classList.add('incorrect-hamza');
+                                parentBox.setAttribute('data-correct', 'false');
+                            }
+                            
+                            this.appendChild(droppedHamza);
+                            checkAllCorrect();
+                        }
+                    });
+                });
+            }
+            
+            // التحقق من جميع الإجابات
+            function checkAllCorrect() {
+                const allBoxes = document.querySelectorAll('.drop-box');
+                let allCorrect = true;
+                
+                allBoxes.forEach(box => {
+                    if (box.getAttribute('data-correct') !== 'true') {
+                        allCorrect = false;
+                    }
+                });
+                
+                if (allCorrect) {
+                    successMessage.classList.remove('hidden');
+                    createConfetti();
+                    
+                    // تحميل أمثلة جديدة بعد تأخير
+                    setTimeout(() => {
+                        gameLevel++;
+                        loadNewExamples();
+                        successMessage.classList.add('hidden');
+                    }, 1500);
+                }
+            }
+            
+            // زر إعادة المحاولة
+            resetBtn.addEventListener('click', function() {
+                loadNewExamples();
+                successMessage.classList.add('hidden');
+            });
+            
+            // تأثير الكونفيتي
+            function createConfetti() {
+                const colors = ['#4CAF50', '#2E7D32', '#8BC34A', '#CDDC39', '#FFEB3B'];
+                const container = document.querySelector('.drag-drop-game');
+                
+                for (let i = 0; i < 50; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.style.position = 'absolute';
+                    confetti.style.width = '15px';
+                    confetti.style.height = '15px';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.borderRadius = '50%';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.top = '-20px';
+                    confetti.style.zIndex = '1000';
+                    confetti.style.opacity = '0.8';
+                    
+                    container.appendChild(confetti);
+                    
+                    const animationDuration = Math.random() * 3 + 2;
+                    
+                    confetti.animate([
+                        { top: '-20px', transform: 'rotate(0deg) scale(1)' },
+                        { top: '100%', transform: 'rotate(360deg) scale(0.5)' }
+                    ], {
+                        duration: animationDuration * 1000,
+                        easing: 'cubic-bezier(0.1, 0.8, 0.9, 1)'
+                    });
+                    
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, animationDuration * 1000);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

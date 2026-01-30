@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ألعاب سورة الزلزلة للأطفال</title>
+    <style>
+        :root {
+            --primary: #6a1b9a;
+            --secondary: #ffab00;
+            --accent: #00bfa5;
+            --text: #333;
+            --light: #f5f5f5;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 0;
+            color: var(--text);
+        }
+        
+        .header {
+            background: var(--primary);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .game-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            overflow: hidden;
+            width: 650px;
+            transition: transform 0.3s;
+            position: relative;
+        }
+        
+        .game-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .game-header {
+            background: var(--secondary);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .game-content {
+            padding: 1.5rem;
+            min-height: 200px;
+        }
+        
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            display: block;
+            margin: 1rem auto 0;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        
+        /* تأثيرات الكوفييتي */
+        .confetti {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background-color: #f00;
+            border-radius: 50%;
+            animation: confetti-fall 3s linear forwards;
+            z-index: 100;
+        }
+        
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        /* لعبة ترتيب الآيات */
+        .verse-piece {
+            background: #e3f2fd;
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            cursor: move;
+            transition: all 0.3s;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .verse-piece:hover {
+            background: #bbdefb;
+            transform: translateX(5px);
+        }
+        
+        .verse-target {
+            min-height: 200px;
+            border: 2px dashed var(--accent);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            background: #f5f5f5;
+        }
+        
+        /* لعبة الاختيار */
+        .option {
+            background: white;
+            border: 2px solid #e0e0e0;
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .option:hover {
+            border-color: var(--accent);
+            transform: scale(1.02);
+        }
+        
+        .option.correct {
+            background: #c8e6c9;
+            border-color: #2e7d32;
+        }
+        
+        .option.wrong {
+            background: #ffcdd2;
+            border-color: #c62828;
+        }
+        
+        /* لعبة الإكمال */
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 30px;
+            border-bottom: 2px solid var(--primary);
+            margin: 0 5px;
+            vertical-align: middle;
+            text-align: center;
+        }
+        
+        .blank-option {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            margin: 0.5rem;
+            background: var(--light);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .blank-option:hover {
+            background: #e0e0e0;
+            transform: scale(1.1);
+        }
+        
+        .bounce {
+            animation: bounce 0.5s;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .result {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 1rem;
+            min-height: 24px;
+        }
+        
+        .success {
+            color: #2e7d32;
+        }
+        
+        .error {
+            color: #c62828;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎮 ألعاب تعليم سورة الزلزلة 🎮</h1>
+    </div>
+    
+    <div class="container">
+        <!-- اللعبة 1: ترتيب الآيات -->
+        <div class="game-card">
+            <div class="game-header">🧩 لعبة ترتيب الآيات</div>
+            <div class="game-content">
+                <p>رتب الآيات بالترتيب الصحيح لسورة الزلزلة</p>
+                <div id="verse-pieces">
+                    
+                    <div class="verse-piece" draggable="true" data-order="2">وَأَخْرَجَتِ الْأَرْضُ أَثْقَالَهَا</div>
+                       <div class="verse-piece" draggable="true" data-order="4">يَوْمَئِذٍ تُحَدِّثُ أَخْبَارَهَا</div>
+                    <div class="verse-piece" draggable="true" data-order="1">إِذَا زُلْزِلَتِ الْأَرْضُ زِلْزَالَهَا</div>
+                    
+                    <div class="verse-piece" draggable="true" data-order="3">وَقَالَ الْإِنْسَانُ مَا لَهَا</div>
+                 
+                </div>
+                <div id="verse-target" class="verse-target"></div>
+                <button id="check-order-btn" class="btn">تحقق من الترتيب</button>
+                <div id="order-result" class="result"></div>
+            </div>
+        </div>
+        
+        <!-- اللعبة 2: اختبار المعاني -->
+        <div class="game-card">
+            <div class="game-header">❓ لعبة اختبار المعاني</div>
+            <div class="game-content">
+                <p id="quiz-question">ماذا تفعل الأرض يوم القيامة حسب سورة الزلزلة؟</p>
+                <div id="quiz-options">
+                    <div class="option" data-correct="false">تنشق نصفين</div>
+                    <div class="option" data-correct="true">تزلزل زلزالها</div>
+                    <div class="option" data-correct="false">تتحول إلى نار</div>
+                    <div class="option" data-correct="false">تختفي تماماً</div>
+                </div>
+                <div id="quiz-result" class="result"></div>
+                <button id="next-quiz-btn" class="btn" style="display:none;">السؤال التالي</button>
+            </div>
+        </div>
+        
+        <!-- اللعبة 3: إكمال الآيات -->
+        <div class="game-card">
+            <div class="game-header">✏️ لعبة إكمال الآيات</div>
+            <div class="game-content">
+                <p>أكمل الآية الناقصة:</p>
+                <p id="incomplete-verse">يَوْمَئِذٍ يَصْدُرُ النَّاسُ أَشْتَاتًا <span id="blank-word" class="blank"></span> لِّيُرَوْا أَعْمَالَهُمْ</p>
+                <div id="word-options">
+                    
+                     <span class="blank-option">يصدرون</span>
+                    <span class="blank-option">الناس</span>
+                    <span class="blank-option">ليروا</span>
+                    <span class="blank-option">أشتاتاً</span>
+                   
+                </div>
+                <div id="blank-result" class="result"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // اللعبة 1: ترتيب الآيات
+        const versePieces = document.querySelectorAll('.verse-piece');
+        const verseTarget = document.getElementById('verse-target');
+        const checkOrderBtn = document.getElementById('check-order-btn');
+        const orderResult = document.getElementById('order-result');
+        
+        let draggedPiece = null;
+        
+        versePieces.forEach(piece => {
+            piece.addEventListener('dragstart', () => {
+                draggedPiece = piece;
+                setTimeout(() => piece.style.opacity = '0.4', 0);
+            });
+            
+            piece.addEventListener('dragend', () => {
+                setTimeout(() => piece.style.opacity = '1', 0);
+            });
+        });
+        
+        verseTarget.addEventListener('dragover', e => {
+            e.preventDefault();
+            verseTarget.style.backgroundColor = '#e3f2fd';
+        });
+        
+        verseTarget.addEventListener('dragleave', () => {
+            verseTarget.style.backgroundColor = '#f5f5f5';
+        });
+        
+        verseTarget.addEventListener('drop', e => {
+            e.preventDefault();
+            verseTarget.style.backgroundColor = '#f5f5f5';
+            
+            if (draggedPiece && !verseTarget.contains(draggedPiece)) {
+                verseTarget.appendChild(draggedPiece);
+            }
+        });
+        
+        checkOrderBtn.addEventListener('click', () => {
+            const piecesInTarget = verseTarget.querySelectorAll('.verse-piece');
+            let isCorrect = true;
+            
+            piecesInTarget.forEach((piece, index) => {
+                if (parseInt(piece.dataset.order) !== index + 1) {
+                    isCorrect = false;
+                }
+            });
+            
+            if (isCorrect && piecesInTarget.length === versePieces.length) {
+                orderResult.textContent = 'أحسنت! الترتيب صحيح ✅';
+                orderResult.className = 'result success';
+                createConfetti(verseTarget);
+                playSuccessSound();
+            } else {
+                orderResult.textContent = 'الترتيب غير صحيح، حاول مرة أخرى ❌';
+                orderResult.className = 'result error';
+            }
+        });
+        
+        // اللعبة 2: اختبار المعاني
+        const quizOptions = document.querySelectorAll('#quiz-options .option');
+        const quizResult = document.getElementById('quiz-result');
+        const nextQuizBtn = document.getElementById('next-quiz-btn');
+        const quizQuestion = document.getElementById('quiz-question');
+        
+        const quizQuestions = [
+            {
+                question: "ماذا تفعل الأرض يوم القيامة حسب سورة الزلزلة؟",
+                options: ["تنشق نصفين", "تزلزل زلزالها", "تتحول إلى نار", "تختفي تماماً"],
+                correct: 1
+            },
+            {
+                question: "ماذا تخرج الأرض يوم القيامة؟",
+                options: ["كنوزها", "أثقالها", "مياهها", "نباتاتها"],
+                correct: 1
+            },
+            {
+                question: "ماذا يقول الإنسان عندما يرى ما يحدث للأرض؟",
+                options: ["سبحان الله", "ما لها", "هذا يوم عظيم", "النجاة النجاة"],
+                correct: 1
+            }
+        ];
+        
+        let currentQuiz = 0;
+        
+        function loadQuizQuestion() {
+            const quiz = quizQuestions[currentQuiz];
+            quizQuestion.textContent = quiz.question;
+            
+            quizOptions.forEach((option, index) => {
+                option.textContent = quiz.options[index];
+                option.dataset.correct = (index === quiz.correct).toString();
+                option.className = 'option';
+            });
+            
+            quizResult.textContent = '';
+            nextQuizBtn.style.display = 'none';
+        }
+        
+        quizOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const isCorrect = option.dataset.correct === 'true';
+                
+                quizOptions.forEach(opt => {
+                    opt.style.pointerEvents = 'none';
+                    if (opt.dataset.correct === 'true') {
+                        opt.classList.add('correct');
+                    }
+                });
+                
+                if (isCorrect) {
+                    option.classList.add('correct');
+                    quizResult.textContent = 'إجابة صحيحة! أحسنت! 🌟';
+                    quizResult.className = 'result success';
+                    createConfetti(option);
+                    playSuccessSound();
+                } else {
+                    option.classList.add('wrong');
+                    quizResult.textContent = 'إجابة خاطئة، حاول مرة أخرى!';
+                    quizResult.className = 'result error';
+                }
+                
+                nextQuizBtn.style.display = 'block';
+            });
+        });
+        
+        nextQuizBtn.addEventListener('click', () => {
+            currentQuiz++;
+            if (currentQuiz < quizQuestions.length) {
+                loadQuizQuestion();
+            } else {
+                quizQuestion.textContent = 'أحسنت! لقد أكملت جميع الأسئلة!';
+                document.getElementById('quiz-options').style.display = 'none';
+                nextQuizBtn.style.display = 'none';
+                createConfetti(document.querySelector('.game-card:nth-child(2)'));
+            }
+        });
+        
+        loadQuizQuestion();
+        
+        // اللعبة 3: إكمال الآيات
+        const blankWord = document.getElementById('blank-word');
+        const wordOptions = document.querySelectorAll('.blank-option');
+        const blankResult = document.getElementById('blank-result');
+        
+        const blankVerses = [
+            {
+                verse: "يَوْمَئِذٍ يَصْدُرُ النَّاسُ أَشْتَاتًا <blank> لِّيُرَوْا أَعْمَالَهُمْ",
+                blank: "ليروا",
+                options: ["ليروا", "أشتاتاً", "يصدرون", "الناس"]
+            },
+            {
+                verse: "فَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ <blank> يَرَهُ",
+                blank: "خيراً",
+                options: ["خيراً", "شراً", "صالحاً", "طاعة"]
+            }
+        ];
+        
+        let currentBlankVerse = 0;
+        
+        function loadBlankVerse() {
+            const verse = blankVerses[currentBlankVerse];
+            document.getElementById('incomplete-verse').innerHTML = 
+                verse.verse.replace('<blank>', '<span id="blank-word" class="blank"></span>');
+            
+            wordOptions.forEach((option, index) => {
+                option.textContent = verse.options[index];
+            });
+            
+            blankResult.textContent = '';
+        }
+        
+        wordOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const selectedWord = option.textContent;
+                const correctWord = blankVerses[currentBlankVerse].blank;
+                
+                if (selectedWord === correctWord) {
+                    blankWord.textContent = selectedWord;
+                    blankWord.classList.add('bounce');
+                    blankResult.textContent = 'أحسنت! إجابة صحيحة 🎉';
+                    blankResult.className = 'result success';
+                    createConfetti(blankWord);
+                    playSuccessSound();
+                    
+                    setTimeout(() => {
+                        currentBlankVerse++;
+                        if (currentBlankVerse < blankVerses.length) {
+                            loadBlankVerse();
+                        } else {
+                            document.getElementById('incomplete-verse').textContent = 'أحسنت! أكملت جميع الآيات!';
+                            document.getElementById('word-options').style.display = 'none';
+                        }
+                    }, 1500);
+                } else {
+                    blankResult.textContent = 'ليس صحيحاً، حاول مرة أخرى!';
+                    blankResult.className = 'result error';
+                }
+            });
+        });
+        
+        loadBlankVerse();
+        
+        // تأثيرات الكوفييتي
+        function createConfetti(element) {
+            const rect = element.getBoundingClientRect();
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+            
+            for (let i = 0; i < 30; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = (rect.left + rect.width/2 - 7 + Math.random()*30 - 15) + 'px';
+                confetti.style.top = (rect.top + rect.height/2 - 7) + 'px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+                confetti.style.animationDuration = (Math.random()*2 + 1) + 's';
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => {
+                    confetti.remove();
+                }, 3000);
+            }
+        }
+        
+        // صوت النجاح
+        function playSuccessSound() {
+            const sounds = [
+                'https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3',
+                'https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3',
+                'https://assets.mixkit.co/sfx/preview/mixkit-positive-interface-beep-221.mp3'
+            ];
+            const sound = new Audio(sounds[Math.floor(Math.random()*sounds.length)]);
+            sound.play();
+        }
+    </script>
+</body>
+</html>

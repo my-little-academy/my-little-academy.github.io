@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>لعبة مقارنة الأعداد</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f0f8ff;
+      padding-top: 50px;
+    }
+    h1 {
+      color: #333;
+    }
+    .cards-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      margin: 40px 0;
+    }
+    .card {
+      width: 100px;
+      height: 100px;
+      border: 2px solid #333;
+      border-radius: 10px;
+      font-size: 2em;
+      line-height: 100px;
+      background-color: white;
+      user-select: none;
+    }
+    .card.empty {
+      border-style: dashed;
+      text-align: center;
+      line-height: 100px;
+      font-size: 2em;
+      color: #999;
+    }
+    .choices {
+      margin: 20px;
+    }
+    .choices button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 1.2em;
+      cursor: pointer;
+    }
+    #result {
+      font-size: 1.5em;
+      margin-top: 20px;
+    }
+    .correct {
+      color: green;
+    }
+    .wrong {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>اسحب رمز المقارنة المناسب ثم اضغط "تحقق"</h1>
+
+  <div class="cards-container">
+    <div class="card" id="num1">0</div>
+    <div class="card empty" id="dropArea" ondragover="allowDrop(event)" ondrop="drop(event)"></div>
+    <div class="card" id="num2">0</div>
+  </div>
+
+  <div class="choices">
+    <button onclick="dragSymbol('>')">></button>
+    <button onclick="dragSymbol('<')"><</button>
+    <button onclick="dragSymbol('==')">=</button>
+  </div>
+
+  <button onclick="checkAnswer()" style="font-size:1.2em; padding:10px 30px;">✅ تحقق</button>
+
+  <div id="result"></div>
+
+  <script>
+    let num1, num2;
+    let selectedSymbol = null;
+
+    function generateNumbers() {
+      num1 = Math.floor(Math.random() * 10000); // من 0 إلى 9999
+      num2 = Math.floor(Math.random() * 10000);
+      document.getElementById("num1").textContent = num1;
+      document.getElementById("num2").textContent = num2;
+      document.getElementById("dropArea").textContent = "";
+      selectedSymbol = null;
+      document.getElementById("result").textContent = "";
+    }
+
+    function dragSymbol(symbol) {
+      selectedSymbol = symbol;
+      document.getElementById("dropArea").textContent = symbol;
+    }
+
+    function checkAnswer() {
+      if (selectedSymbol === null) {
+        alert("الرجاء اختيار رمز للمقارنة أولاً.");
+        return;
+      }
+
+      let correctAnswer;
+      if (num1 > num2) correctAnswer = '>';
+      else if (num1 < num2) correctAnswer = '<';
+      else correctAnswer = '==';
+
+      const resultDiv = document.getElementById("result");
+
+      if (selectedSymbol === correctAnswer) {
+        resultDiv.innerHTML = "✅ إجابة صحيحة!";
+        resultDiv.className = "correct";
+      } else {
+        resultDiv.innerHTML = `❌ خطأ! الإجابة الصحيحة هي: ${correctAnswer}`;
+        resultDiv.className = "wrong";
+      }
+
+      setTimeout(generateNumbers, 2000); // سؤال جديد بعد ثانيتين
+    }
+
+    // Drag and drop functions (اختياري، لكنها تضيف تفاعل)
+    function allowDrop(ev) {
+      ev.preventDefault();
+    }
+
+    function drop(ev) {
+      ev.preventDefault();
+      alert("يمكنك فقط وضع الرمز عبر النقر على الأزرار");
+    }
+
+    // بدء اللعبة أول مرة
+    window.onload = generateNumbers;
+  </script>
+
+</body>
+</html>

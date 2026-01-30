@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>لوحة الحروف والمقاطع — مع المدود والتنوين</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body{font-family: 'Noto Sans Arabic', system-ui, Arial; background: linear-gradient(180deg,#FEF3C7 0%, #FFF7ED 100%);}
+    .grid-card{border-radius:14px;box-shadow:0 8px 24px rgba(15,23,42,0.08);transition:transform .18s ease, box-shadow .18s ease}
+    .grid-card:active{transform:translateY(2px)}
+    .pulse{animation:pulse .9s ease;}
+    @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.06)}100%{transform:scale(1)}}
+  </style>
+</head>
+<body class="min-h-screen p-6">
+  <div class="max-w-5xl mx-auto">
+    <header class="mb-6 text-right">
+      <h1 class="text-3xl font-bold">لوحة الحروف والمقاطع (مع الحركات والمدود والتنوين)</h1>
+    </header>
+
+    <main class="grid gap-6 md:grid-cols-3">
+      <!-- لوحة الحروف -->
+      <section class="p-4 bg-white rounded-2xl grid-card">
+        <h2 class="text-lg font-semibold mb-3">لوحة الحروف</h2>
+        <div id="lettersGrid" class="grid grid-cols-7 gap-2 text-center"></div>
+      </section>
+
+      <!-- نافذة العرض -->
+      <section class="p-4 bg-white rounded-2xl grid-card">
+        <h2 class="text-lg font-semibold text-right">نافذة العرض</h2>
+        <div id="display" class="mt-3 p-3 rounded-lg bg-amber-50 min-h-[180px]">
+          <div id="bigChar" class="text-6xl font-extrabold text-right">ع</div>
+          <div id="vowelRow" class="mt-2 flex gap-2 flex-wrap justify-end"></div>
+          <div id="longRow" class="mt-2 flex gap-2 flex-wrap justify-end"></div>
+          <div id="tanweenRow" class="mt-2 flex gap-2 flex-wrap justify-end"></div>
+          <div id="examples" class="mt-3 grid grid-cols-1 gap-2"></div>
+        </div>
+      </section>
+
+      <!-- لوحة النشاطات -->
+      <section class="p-4 bg-white rounded-2xl grid-card">
+        <h2 class="text-lg font-semibold text-right">أنشطة سريعة</h2>
+        <button id="practiceBtn" class="p-2 rounded bg-amber-50 w-full mt-3">تمرين النطق السريع</button>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const data = {
+      letters: ['ع','غ','ر','ز','د','ذ'],
+      examples: {
+        'ع': ['عَصفور','عُمر','عِلم','سَمْع'],
+        'غ': ['غَزال','غُرفة','غِطاء'],
+        'ر': ['رَمل','رُمان','رِحال'],
+        'ز': ['زَهر','زُرّ','زِرافة'],
+        'د': ['دَرس','دُبّ','دِراسة'],
+        'ذ': ['ذَهب','ذُرة','ذِكر']
+      }
+    };
+
+    const lettersGrid = document.getElementById('lettersGrid');
+    const bigChar = document.getElementById('bigChar');
+    const vowelRow = document.getElementById('vowelRow');
+    const longRow = document.getElementById('longRow');
+    const tanweenRow = document.getElementById('tanweenRow');
+    const examplesBox = document.getElementById('examples');
+    const practiceBtn = document.getElementById('practiceBtn');
+
+    function buildGrid(){
+      lettersGrid.innerHTML='';
+      data.letters.forEach(ch=>{
+        const card = document.createElement('button');
+        card.className = 'p-3 bg-white border rounded-lg text-xl font-bold hover:shadow-md';
+        card.innerText = ch;
+        card.onclick = ()=>selectLetter(ch);
+        lettersGrid.appendChild(card);
+      });
+    }
+
+    let selected = 'ع';
+    function selectLetter(ch){
+      selected = ch;
+      bigChar.innerText = ch;
+      renderVowels(ch);
+      renderLongVowels(ch);
+      renderTanween(ch);
+      renderExamples(ch);
+      speak(ch);
+    }
+
+    function renderVowels(ch){
+      vowelRow.innerHTML='';
+      const vowels = [ ['َ','فتحة'], ['ُ','ضمة'], ['ِ','كسرة'], ['ْ','سكون'] ];
+      vowels.forEach(v=>{
+        const btn = document.createElement('button');
+        btn.className = 'px-3 py-1 rounded bg-white border';
+        const text = ch+v[0];
+        btn.innerText = text;
+        btn.onclick = ()=>speak(text);
+        vowelRow.appendChild(btn);
+      });
+    }
+
+    function renderLongVowels(ch){
+      longRow.innerHTML='';
+      const longs = [ [ch+'ا','مد بالألف'], [ch+'و','مد بالواو'], [ch+'ي','مد بالياء'] ];
+      longs.forEach(v=>{
+        const btn = document.createElement('button');
+        btn.className = 'px-3 py-1 rounded bg-amber-100 border';
+        btn.innerText = v[0];
+        btn.onclick = ()=>speak(v[0]);
+        longRow.appendChild(btn);
+      });
+    }
+
+    function renderTanween(ch){
+      tanweenRow.innerHTML='';
+      const tans = [ [ch+'ً','تنوين فتح'], [ch+'ٌ','تنوين ضم'], [ch+'ٍ','تنوين كسر'] ];
+      tans.forEach(v=>{
+        const btn = document.createElement('button');
+        btn.className = 'px-3 py-1 rounded bg-amber-50 border';
+        btn.innerText = v[0];
+        btn.onclick = ()=>speak(v[0]);
+        tanweenRow.appendChild(btn);
+      });
+    }
+
+    function renderExamples(ch){
+      examplesBox.innerHTML='';
+      const arr = data.examples[ch] || [];
+      arr.forEach(w=>{
+        const el = document.createElement('div');
+        el.className='p-2 rounded bg-white border flex justify-between items-center';
+        el.innerHTML = `<div>${w}</div><button class='px-2 py-1 rounded bg-amber-100'>سماع</button>`;
+        el.querySelector('button').onclick = ()=>speak(w);
+        examplesBox.appendChild(el);
+      });
+    }
+
+    function speak(text){
+      if('speechSynthesis' in window){
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'ar-SA';
+        window.speechSynthesis.speak(u);
+      }
+    }
+
+    practiceBtn.addEventListener('click', ()=>{
+      const arr = data.examples[selected] || [];
+      if(arr.length===0){alert('لا أمثلة'); return}
+      arr.forEach((w,i)=>setTimeout(()=>speak(w), i*1500));
+    });
+
+    buildGrid();
+    selectLetter(selected);
+  </script>
+</body>
+</html>

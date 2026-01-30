@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تعلم حرف اللام - عالم الحروف العربية</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f9ff;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        .section {
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .letter-card {
+            background-color: #e8f5e9;
+            border: 3px solid #4CAF50;
+            border-radius: 15px;
+            width: 150px;
+            height: 150px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto;
+            font-size: 80px;
+            color: #2E7D32;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .letter-card:hover {
+            transform: scale(1.1);
+        }
+        .word-examples {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .word-card {
+            background-color: #e3f2fd;
+            border: 2px solid #2196F3;
+            border-radius: 10px;
+            padding: 10px 15px;
+            text-align: center;
+            width: 120px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .word-card:hover {
+            background-color: #bbdefb;
+            transform: translateY(-5px);
+        }
+        .word-card img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+        .game-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .memory-card {
+            height: 100px;
+            background-color: #f8bbd0;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            perspective: 1000px;
+        }
+        .memory-card.flipped {
+            background-color: #fce4ec;
+            transform: rotateY(180deg);
+        }
+        .writing-area {
+            background-color: #fff8e1;
+            border: 2px dashed #ffc107;
+            border-radius: 10px;
+            height: 200px;
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        #writing-canvas {
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+        .clear-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #ff9800;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .progress-container {
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            height: 20px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            background-color: #4CAF50;
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        .feedback {
+            text-align: center;
+            font-size: 24px;
+            margin-top: 10px;
+            min-height: 40px;
+        }
+        .positive {
+            color: #4CAF50;
+        }
+        .negative {
+            color: #f44336;
+        }
+        .tajweed-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .tajweed-table th, .tajweed-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        .tajweed-table th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .tajweed-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .tajweed-table tr:hover {
+            background-color: #ddd;
+        }
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+        .hidden {
+            display: none;
+        }
+        .stars {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .star {
+            font-size: 30px;
+            color: #ffc107;
+            margin: 0 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>مرحباً بكم في درس حرف اللام!</h1>
+            <p>لنتعلم معاً حرف اللام بطريقة ممتعة وسهلة</p>
+        </header>
+
+        <section class="section" id="intro-section">
+            <h2>تعرف على حرف اللام</h2>
+            <div class="letter-card" onclick="playSound('laam')">ل</div>
+            <p>حرف اللام هو الحرف الثالث والعشرون في الأبجدية العربية. ننطقه "لام" وهو من الحروف الممتعة التي تظهر في كثير من الكلمات.</p>
+            <button class="btn" onclick="nextSection('intro-section', 'words-section')">التالي</button>
+        </section>
+
+        <section class="section hidden" id="words-section">
+            <h2>كلمات تبدأ بحرف اللام</h2>
+            <p>دعونا نتعرف على بعض الكلمات التي تبدأ بحرف اللام:</p>
+            
+            <div class="word-examples">
+                <div class="word-card" onclick="playSound('lemon')">
+                    <img src="https://cdn.pixabay.com/photo/2017/02/05/12/31/lemons-2039830_640.jpg" alt="ليمون">
+                    <div>ليمون</div>
+                </div>
+                <div class="word-card" onclick="playSound('lion')">
+                    <img src="https://cdn.pixabay.com/photo/2017/07/24/19/57/tiger-2535888_640.jpg" alt="أسد">
+                    <div>أسد (حيوان الليل)</div>
+                </div>
+                <div class="word-card" onclick="playSound('moon')">
+                    <img src="https://cdn.pixabay.com/photo/2017/08/30/01/05/moon-2694769_640.jpg" alt="قمر">
+                    <div>قمر (ليل)</div>
+                </div>
+                <div class="word-card" onclick="playSound('flower')">
+                    <img src="https://cdn.pixabay.com/photo/2018/01/29/07/11/flower-3115353_640.jpg" alt="زهرة">
+                    <div>زهرة (لوتس)</div>
+                </div>
+            </div>
+            
+            <button class="btn" onclick="nextSection('words-section', 'writing-section')">التالي</button>
+            <button class="btn" onclick="prevSection('words-section', 'intro-section')">السابق</button>
+        </section>
+
+        <section class="section hidden" id="writing-section">
+            <h2>لنتمرن على كتابة حرف اللام</h2>
+            <p>انظر كيف يكتب حرف اللام في أول الكلمة ووسطها وآخرها:</p>
+            
+            <div style="text-align: center; font-size: 40px; margin: 20px 0;">
+                لـ ـلـ ـل
+            </div>
+            
+            <p>حاول كتابة حرف اللام بنفسك في المساحة التالية:</p>
+            
+            <div class="writing-area">
+                <button class="clear-btn" onclick="clearCanvas()">مسح</button>
+                <canvas id="writing-canvas"></canvas>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="writing-progress"></div>
+            </div>
+            <div class="feedback" id="writing-feedback"></div>
+            
+            <button class="btn" onclick="nextSection('writing-section', 'games-section')">التالي</button>
+            <button class="btn" onclick="prevSection('writing-section', 'words-section')">السابق</button>
+        </section>
+
+        <section class="section hidden" id="games-section">
+            <h2>ألعاب تعليمية مع حرف اللام</h2>
+            
+            <h3>لعبة الذاكرة: ابحث عن أزواج حرف اللام</h3>
+            <div class="game-container" id="memory-game">
+                <!-- سيتم ملؤها بالجافاسكريبت -->
+            </div>
+            <div class="feedback" id="memory-feedback"></div>
+            
+            <h3 style="margin-top: 30px;">اختر الكلمات التي تبدأ بحرف اللام</h3>
+            <div class="word-examples" id="word-selection-game">
+                <!-- سيتم ملؤها بالجافاسكريبت -->
+            </div>
+            <div class="feedback" id="selection-feedback"></div>
+            
+            <button class="btn" onclick="nextSection('games-section', 'tajweed-section')">التالي</button>
+            <button class="btn" onclick="prevSection('games-section', 'writing-section')">السابق</button>
+        </section>
+
+        <section class="section hidden" id="tajweed-section">
+            <h2>حرف اللام مع الحركات والتنوين</h2>
+            <p>لنرى كيف يتغير نطق حرف اللام مع الحركات المختلفة:</p>
+            
+            <table class="tajweed-table">
+                <tr>
+                    <th>تنوين الضم</th>
+                    <th>تنوين الكسر</th>
+                    <th>تنوين الفتح</th>
+                    <th>مد الياء في الوسط</th>
+                    <th>مد الياء في الاخر</th>
+                    <th>مد الواو</th>
+                    <th>مد الألف</th>
+                    <th>الكسرة</th>
+                    <th>الضمة</th>
+                    <th>الفتحة</th>
+                    <th>الصوت</th>
+                </tr>
+                <tr>
+                    <td>لٌ</td>
+                    <td>لٍ</td>
+                    <td>لًا</td>
+                    <td>ليـ</td>
+                    <td>لي</td>
+                    <td>لو</td>
+                    <td>لا</td>
+                    <td>لِ</td>
+                    <td>لُ</td>
+                    <td>لَ</td>
+                    <td>[ل]</td>
+                </tr>
+            </table>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn" onclick="playAllSounds()">استمع إلى جميع الأصوات</button>
+            </div>
+            
+            <button class="btn" onclick="nextSection('tajweed-section', 'assessment-section')">التالي</button>
+            <button class="btn" onclick="prevSection('tajweed-section', 'games-section')">السابق</button>
+        </section>
+
+        <section class="section hidden" id="assessment-section">
+            <h2>لنختبر ما تعلمناه!</h2>
+            <p>أجب عن الأسئلة التالية لتتأكد من فهمك لحرف اللام:</p>
+            
+            <div id="quiz-container">
+                <!-- سيتم ملؤها بالجافاسكريبت -->
+            </div>
+            
+            <div class="feedback" id="quiz-feedback"></div>
+            <div class="stars" id="stars-container"></div>
+            
+            <button class="btn" onclick="showResults()">عرض النتائج</button>
+            <button class="btn" onclick="prevSection('assessment-section', 'tajweed-section')">السابق</button>
+        </section>
+
+        <section class="section hidden" id="results-section">
+            <h2>أحسنت! لقد أكملت درس حرف اللام</h2>
+            <div style="text-align: center; font-size: 100px; color: #4CAF50;">🎉</div>
+            <p id="final-message">لقد تعلمت حرف اللام بشكل رائع! يمكنك الآن التعرف عليه وكتابته واستخدامه في الكلمات.</p>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn" onclick="location.reload()">كرر الدرس مرة أخرى</button>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // العناصر التفاعلية
+        let currentSection = 'intro-section';
+        let memoryCards = ['ل', 'ليمون', 'ل', 'أسد', 'قمر', 'ليمون', 'أسد', 'قمر'];
+        let selectedWords = [
+            {word: 'ليمون', correct: true},
+            {word: 'تفاح', correct: false},
+            {word: 'لوز', correct: true},
+            {word: 'موز', correct: false},
+            {word: 'لعبة', correct: true},
+            {word: 'سيارة', correct: false}
+        ];
+        let quizQuestions = [
+            {
+                question: 'ما هو شكل حرف اللام؟',
+                options: ['أ', 'ب', 'ل', 'م'],
+                answer: 2
+            },
+            {
+                question: 'أي من هذه الكلمات تبدأ بحرف اللام؟',
+                options: ['تفاح', 'ليمون', 'موز', 'برتقال'],
+                answer: 1
+            },
+            {
+                question: 'كيف ننطق حرف اللام مع الفتحة؟',
+                options: ['لِ', 'لُ', 'لَ', 'لْ'],
+                answer: 2
+            }
+        ];
+        let quizAnswers = [];
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let correctSelections = 0;
+
+        // تهيئة الصفحة عند التحميل
+        window.onload = function() {
+            initWritingCanvas();
+            setupMemoryGame();
+            setupWordSelectionGame();
+            setupQuiz();
+        };
+
+        // الانتقال بين الأقسام
+        function nextSection(current, next) {
+            document.getElementById(current).classList.add('hidden');
+            document.getElementById(next).classList.remove('hidden');
+            currentSection = next;
+            
+            if (next === 'assessment-section') {
+                resetQuiz();
+            }
+        }
+
+        function prevSection(current, prev) {
+            document.getElementById(current).classList.add('hidden');
+            document.getElementById(prev).classList.remove('hidden');
+            currentSection = prev;
+        }
+
+        // تشغيل الأصوات
+        function playSound(type) {
+            // في تطبيق حقيقي، ستكون هناك أصوات مسجلة مسبقاً
+            console.log('تشغيل صوت: ' + type);
+        }
+
+        function playAllSounds() {
+            const sounds = ['لَ', 'لُ', 'لِ', 'لًا', 'لٍ', 'لٌ', 'لا', 'لو', 'لي', 'ليـ'];
+            let i = 0;
+            
+            const playNext = () => {
+                if (i < sounds.length) {
+                    playSound(sounds[i]);
+                    i++;
+                    setTimeout(playNext, 1000);
+                }
+            };
+            
+            playNext();
+        }
+
+        // قسم الكتابة
+        function initWritingCanvas() {
+            const canvas = document.getElementById('writing-canvas');
+            const ctx = canvas.getContext('2d');
+            let isDrawing = false;
+            let progress = 0;
+            
+            // ضبط حجم الكانفاس
+            function resizeCanvas() {
+                const container = canvas.parentElement;
+                canvas.width = container.offsetWidth;
+                canvas.height = container.offsetHeight;
+                ctx.lineWidth = 5;
+                ctx.lineCap = 'round';
+                ctx.strokeStyle = '#4CAF50';
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+            
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // بدء الرسم
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('touchstart', startDrawing);
+            
+            // الرسم
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('touchmove', draw);
+            
+            // إنهاء الرسم
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('touchend', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+            
+            function startDrawing(e) {
+                isDrawing = true;
+                const pos = getPosition(e);
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+                e.preventDefault();
+            }
+            
+            function draw(e) {
+                if (!isDrawing) return;
+                
+                const pos = getPosition(e);
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+                
+                // زيادة التقدم
+                if (progress < 100) {
+                    progress += 0.5;
+                    document.getElementById('writing-progress').style.width = progress + '%';
+                    
+                    if (progress >= 100) {
+                        showFeedback('أحسنت! لقد أكملت كتابة حرف اللام', 'positive');
+                    }
+                }
+                
+                e.preventDefault();
+            }
+            
+            function stopDrawing() {
+                isDrawing = false;
+            }
+            
+            function getPosition(e) {
+                const rect = canvas.getBoundingClientRect();
+                return {
+                    x: (e.clientX || e.touches[0].clientX) - rect.left,
+                    y: (e.clientY || e.touches[0].clientY) - rect.top
+                };
+            }
+        }
+
+        function clearCanvas() {
+            const canvas = document.getElementById('writing-canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            document.getElementById('writing-progress').style.width = '0%';
+            document.getElementById('writing-feedback').textContent = '';
+        }
+
+        // قسم الألعاب
+        function setupMemoryGame() {
+            const gameContainer = document.getElementById('memory-game');
+            gameContainer.innerHTML = '';
+            flippedCards = [];
+            matchedPairs = 0;
+            
+            // خلط الأوراق
+            const shuffledCards = [...memoryCards].sort(() => Math.random() - 0.5);
+            
+            shuffledCards.forEach((card, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'memory-card';
+                cardElement.dataset.index = index;
+                cardElement.dataset.value = card;
+                cardElement.textContent = '؟';
+                cardElement.addEventListener('click', flipCard);
+                gameContainer.appendChild(cardElement);
+            });
+        }
+
+        function flipCard() {
+            if (flippedCards.length >= 2 || this.classList.contains('flipped')) return;
+            
+            this.classList.add('flipped');
+            this.textContent = this.dataset.value;
+            flippedCards.push(this);
+            
+            if (flippedCards.length === 2) {
+                checkForMatch();
+            }
+        }
+
+        function checkForMatch() {
+            const [card1, card2] = flippedCards;
+            
+            if (card1.dataset.value === card2.dataset.value) {
+                matchedPairs++;
+                flippedCards = [];
+                
+                if (matchedPairs === memoryCards.length / 2) {
+                    showFeedback('أحسنت! لقد وجدت جميع الأزواج', 'positive', 'memory-feedback');
+                } else {
+                    showFeedback('أحسنت! وجدت زوجاً متطابقاً', 'positive', 'memory-feedback');
+                }
+            } else {
+                setTimeout(() => {
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                    card1.textContent = '؟';
+                    card2.textContent = '؟';
+                    flippedCards = [];
+                    showFeedback('حاول مرة أخرى!', 'negative', 'memory-feedback');
+                }, 1000);
+            }
+        }
+
+        function setupWordSelectionGame() {
+            const container = document.getElementById('word-selection-game');
+            container.innerHTML = '';
+            correctSelections = 0;
+            
+            // خلط الكلمات
+            const shuffledWords = [...selectedWords].sort(() => Math.random() - 0.5);
+            
+            shuffledWords.forEach(word => {
+                const wordElement = document.createElement('div');
+                wordElement.className = 'word-card';
+                wordElement.textContent = word.word;
+                wordElement.addEventListener('click', () => selectWord(wordElement, word.correct));
+                container.appendChild(wordElement);
+            });
+        }
+
+        function selectWord(element, isCorrect) {
+            if (element.classList.contains('selected')) return;
+            
+            element.classList.add('selected');
+            
+            if (isCorrect) {
+                element.style.backgroundColor = '#c8e6c9';
+                correctSelections++;
+                showFeedback('أحسنت! هذه الكلمة تبدأ بحرف اللام', 'positive', 'selection-feedback');
+            } else {
+                element.style.backgroundColor = '#ffcdd2';
+                showFeedback('هذه الكلمة لا تبدأ بحرف اللام', 'negative', 'selection-feedback');
+            }
+            
+            if (correctSelections === selectedWords.filter(w => w.correct).length) {
+                showFeedback('ممتاز! لقد وجدت جميع الكلمات التي تبدأ بحرف اللام', 'positive', 'selection-feedback');
+            }
+        }
+
+        // قسم الاختبار
+        function setupQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+            
+            quizQuestions.forEach((question, qIndex) => {
+                const questionElement = document.createElement('div');
+                questionElement.className = 'section';
+                questionElement.style.marginBottom = '20px';
+                questionElement.innerHTML = `
+                    <h3>${qIndex + 1}. ${question.question}</h3>
+                    <div id="options-${qIndex}"></div>
+                `;
+                
+                container.appendChild(questionElement);
+                
+                const optionsContainer = document.getElementById(`options-${qIndex}`);
+                question.options.forEach((option, oIndex) => {
+                    const optionElement = document.createElement('div');
+                    optionElement.className = 'word-card';
+                    optionElement.textContent = option;
+                    optionElement.addEventListener('click', () => selectAnswer(qIndex, oIndex));
+                    optionsContainer.appendChild(optionElement);
+                });
+            });
+        }
+
+        function selectAnswer(qIndex, oIndex) {
+            quizAnswers[qIndex] = oIndex;
+            
+            // إظهار التحديد
+            const options = document.querySelectorAll(`#options-${qIndex} .word-card`);
+            options.forEach((opt, idx) => {
+                opt.style.backgroundColor = idx === oIndex ? '#c8e6c9' : '#e3f2fd';
+            });
+        }
+
+        function resetQuiz() {
+            quizAnswers = [];
+            const options = document.querySelectorAll('#quiz-container .word-card');
+            options.forEach(opt => {
+                opt.style.backgroundColor = '#e3f2fd';
+            });
+            document.getElementById('quiz-feedback').textContent = '';
+            document.getElementById('stars-container').innerHTML = '';
+        }
+
+        function showResults() {
+            let correctCount = 0;
+            
+            quizQuestions.forEach((question, index) => {
+                if (quizAnswers[index] === question.answer) {
+                    correctCount++;
+                }
+            });
+            
+            const percentage = Math.round((correctCount / quizQuestions.length) * 100);
+            let message = '';
+            
+            if (percentage >= 80) {
+                message = 'ممتاز! لقد أتقنت حرف اللام';
+            } else if (percentage >= 50) {
+                message = 'جيد جداً! لكن يمكنك التحسن أكثر';
+            } else {
+                message = 'حاول مرة أخرى، ستتحسن مع الممارسة';
+            }
+            
+            document.getElementById('quiz-feedback').textContent = `لقد أجبت بشكل صحيح على ${correctCount} من ${quizQuestions.length} أسئلة. ${message}`;
+            
+            // عرض النجوم
+            const starsContainer = document.getElementById('stars-container');
+            starsContainer.innerHTML = '';
+            const starCount = Math.max(1, Math.round(correctCount / quizQuestions.length * 5));
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.textContent = '★';
+                starsContainer.appendChild(star);
+            }
+            
+            // الانتقال إلى قسم النتائج بعد 3 ثوان
+            setTimeout(() => {
+                nextSection('assessment-section', 'results-section');
+                document.getElementById('final-message').textContent = message;
+            }, 3000);
+        }
+
+        // عرض التعليقات
+        function showFeedback(message, type, elementId = 'feedback') {
+            const feedbackElement = document.getElementById(elementId);
+            feedbackElement.textContent = message;
+            feedbackElement.className = 'feedback ' + type;
+        }
+    </script>
+</body>
+</html>

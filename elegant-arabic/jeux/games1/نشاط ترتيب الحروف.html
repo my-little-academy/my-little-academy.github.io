@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نشاط ترتيب الحروف</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f8ff;
+            padding: 20px;
+        }
+        h1 {
+            color: #2e8b57;
+        }
+        .container {
+            margin: 20px auto;
+            max-width: 600px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .word-display {
+            font-size: 24px;
+            margin: 20px 0;
+            color: #333;
+        }
+        .scrambled-letters {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .letter {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 18px;
+            cursor: grab;
+            border-radius: 5px;
+            user-select: none;
+        }
+        .letter:hover {
+            background-color: #45a049;
+        }
+        .answer-area {
+            min-height: 60px;
+            border: 2px dashed #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 20px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            justify-content: center;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            background-color: #2e8b57;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 0 5px;
+        }
+        button:hover {
+            background-color: #3cb371;
+        }
+        .message {
+            font-size: 18px;
+            margin: 10px 0;
+            min-height: 27px;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>نشاط ترتيب الحروف</h1>
+        <p>اسحب الحروف بالترتيب الصحيح لتكوين الكلمة!</p>
+        
+        <div class="word-display">الكلمة: <span id="target-word">مدرسة</span></div>
+        
+        <div class="scrambled-letters" id="scrambled-letters">
+            <!-- الحروف المبعثرة تُضاف هنا بالجافاسكريبت -->
+        </div>
+        
+        <div class="answer-area" id="answer-area"></div>
+        
+        <div class="controls">
+            <button id="check-btn">تحقق</button>
+            <button id="reset-btn">إعادة</button>
+        </div>
+        
+        <div class="message" id="message"></div>
+    </div>
+
+    <script>
+        // الكلمات والحروف المبعثرة
+        const words = [
+            { word: "مدرسة", scrambled: ["س", "د", "ة", "ر", "م"] },
+            { word: "تفاحة", scrambled: ["ح", "ا", "ت", "ف", "ة"] },
+            { word: "كتاب", scrambled: ["ا", "ب", "ت", "ك"] }
+        ];
+        
+        let currentWordIndex = 0;
+        let draggedLetter = null;
+        
+        // تهيئة النشاط
+        function initGame() {
+            const targetWordElement = document.getElementById("target-word");
+            const scrambledLettersElement = document.getElementById("scrambled-letters");
+            const answerAreaElement = document.getElementById("answer-area");
+            const messageElement = document.getElementById("message");
+            
+            const currentWord = words[currentWordIndex];
+            
+            // عرض الكلمة الهدف
+            targetWordElement.textContent = currentWord.word;
+            
+            // مسح المناطق
+            scrambledLettersElement.innerHTML = "";
+            answerAreaElement.innerHTML = "";
+            messageElement.textContent = "";
+            messageElement.className = "message";
+            
+            // إنشاء الحروف المبعثرة
+            currentWord.scrambled.forEach(letter => {
+                const letterElement = document.createElement("div");
+                letterElement.className = "letter";
+                letterElement.textContent = letter;
+                letterElement.draggable = true;
+                
+                letterElement.addEventListener("dragstart", () => {
+                    draggedLetter = letterElement;
+                });
+                
+                scrambledLettersElement.appendChild(letterElement);
+            });
+            
+            // جعل منطقة الإجابة قابلة للسحب
+            answerAreaElement.addEventListener("dragover", (e) => {
+                e.preventDefault();
+            });
+            
+            answerAreaElement.addEventListener("drop", (e) => {
+                e.preventDefault();
+                if (draggedLetter) {
+                    answerAreaElement.appendChild(draggedLetter);
+                    draggedLetter = null;
+                }
+            });
+        }
+        
+        // التحقق من الإجابة
+        document.getElementById("check-btn").addEventListener("click", () => {
+            const currentWord = words[currentWordIndex].word;
+            const answerArea = document.getElementById("answer-area");
+            const messageElement = document.getElementById("message");
+            
+            let userAnswer = "";
+            Array.from(answerArea.children).forEach(letter => {
+                userAnswer += letter.textContent;
+            });
+            
+            if (userAnswer === currentWord) {
+                messageElement.textContent = "إجابة صحيحة! أحسنت!";
+                messageElement.className = "message correct";
+                
+                // الانتقال للكلمة التالية بعد تأخير
+                setTimeout(() => {
+                    currentWordIndex = (currentWordIndex + 1) % words.length;
+                    initGame();
+                }, 1500);
+            } else {
+                messageElement.textContent = "حاول مرة أخرى!";
+                messageElement.className = "message incorrect";
+            }
+        });
+        
+        // إعادة تعيين النشاط
+        document.getElementById("reset-btn").addEventListener("click", () => {
+            initGame();
+        });
+        
+        // بدء اللعبة عند تحميل الصفحة
+        window.onload = initGame;
+    </script>
+</body>
+</html>

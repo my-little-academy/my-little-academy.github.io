@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>العداد الصيني الممتع!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        /* CSS لستايل الصفحة الطفولي والمرح */
+        body {
+            font-family: 'Fredoka One', cursive; /* خط طفولي ومرح */
+            background: linear-gradient(to bottom right, #87CEEB, #FFFACD); /* خلفية سماوية وصفراء فاتحة */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden; /* لمنع ظهور شريط التمرير إذا تجاوزت العناصر */
+            position: relative;
+        }
+
+        /* رسومات خلفية بسيطة */
+        body::before, body::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.7;
+        }
+        body::before {
+            width: 150px;
+            height: 150px;
+            background-color: #FFD700; /* ذهبي */
+            top: 10%;
+            left: 5%;
+            animation: bounce 3s infinite alternate;
+        }
+        body::after {
+            width: 100px;
+            height: 100px;
+            background-color: #ADFF2F; /* أخضر فاتح */
+            bottom: 15%;
+            right: 8%;
+            animation: bounce 4s infinite alternate-reverse;
+        }
+
+        @keyframes bounce {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-20px); }
+        }
+
+        .header {
+            background-color: #FFA07A; /* برتقالي فاتح */
+            padding: 20px 40px;
+            border-radius: 30px;
+            box-shadow: 0 8px 0 #FF6347; /* ظل برتقالي غامق */
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            border: 5px solid #FF4500;
+        }
+
+        .header h1 {
+            color: #FFFFFF; /* أبيض */
+            font-size: 3.5em;
+            text-shadow: 3px 3px 0 #FF4500; /* ظل نص برتقالي داكن */
+            margin: 0;
+            letter-spacing: 2px;
+        }
+
+        .header .character {
+            position: absolute;
+            top: -30px;
+            right: -30px;
+            width: 80px;
+            height: 80px;
+            background-color: #98FB98; /* أخضر فاتح للبومة/الأرنب */
+            border-radius: 50%;
+            border: 4px solid #3CB371;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4em; /* لعيون الشخصية */
+            line-height: 0.5;
+            transform: rotate(10deg);
+            box-shadow: 0 5px 0 #2E8B57;
+        }
+        .header .character::before {
+            content: '🦉'; /* رمز بومة أو 🐰 أرنب */
+            font-size: 0.8em;
+            position: relative;
+            top: 5px;
+        }
+
+        /* العداد الصيني */
+        .abacus-container {
+            background-color: #4682B4; /* الإطار الأزرق الرئيسي */
+            border: 8px solid #36454F; /* حدود أغمق */
+            border-radius: 20px;
+            padding: 25px 20px;
+            box-shadow: 0 15px 0 #2C3A47, 0 20px 30px rgba(0, 0, 0, 0.3); /* ظل عميق */
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            position: relative;
+            z-index: 5;
+            animation: popIn 0.8s ease-out;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .horizontal-bar {
+            background-color: #FF69B4; /* وردي زاهي */
+            height: 25px;
+            width: 100%;
+            border-radius: 10px;
+            position: relative;
+            z-index: 1;
+            border: 3px solid #C71585;
+            box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .deck {
+            display: flex;
+            justify-content: space-around;
+            position: relative;
+        }
+
+        .upper-deck {
+            background-color: #6A5ACD; /* بنفسجي فاتح */
+            padding: 15px 0;
+            border-radius: 10px;
+            box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .lower-deck {
+            background-color: #32CD32; /* أخضر عشبي */
+            padding: 15px 0;
+            border-radius: 10px;
+            box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .rod-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .rod {
+            width: 8px;
+            background-color: #D3D3D3; /* رمادي فاتح */
+            border-radius: 5px;
+            position: absolute;
+            z-index: 0;
+        }
+        .upper-deck .rod {
+            height: 60px; /* طول العمود في القسم العلوي */
+            top: 0;
+        }
+        .lower-deck .rod {
+            height: 120px; /* طول العمود في القسم السفلي */
+            top: 0;
+        }
+
+        .bead-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 50px; /* عرض كل عمود وهمي */
+            z-index: 2; /* لجعل الخرزات فوق الأعمدة */
+        }
+
+        .bead-upper, .bead-lower {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: #FFD700; /* ذهبي */
+            border: 3px solid #DAA520;
+            cursor: pointer;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2), inset 0 2px 5px rgba(255,255,255,0.5);
+            transition: transform 0.1s ease, background-color 0.3s ease;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            user-select: none; /* منع تحديد النص */
+        }
+
+        .bead-upper {
+            background-color: #FF6347; /* أحمر طماطم */
+            border-color: #CD5C5C;
+            top: 5px; /* لتكون في أعلى القسم العلوي */
+        }
+
+        .bead-lower {
+            background-color: #00BFFF; /* أزرق سماوي عميق */
+            border-color: #1E90FF;
+            position: absolute; /* تحديد الموضع بالـ JS */
+        }
+
+        .bead-lower.moved-up {
+            transform: translateX(-50%) translateY(-50px); /* مثال على حركة */
+        }
+
+        /* ألوان الخرزات السفلى المتنوعة */
+        .bead-lower:nth-child(1) { background-color: #FF6347; border-color: #CD5C5C; } /* أحمر */
+        .bead-lower:nth-child(2) { background-color: #FFD700; border-color: #DAA520; } /* أصفر */
+        .bead-lower:nth-child(3) { background-color: #32CD32; border-color: #228B22; } /* أخضر */
+        .bead-lower:nth-child(4) { background-color: #4169E1; border-color: #191970; } /* أزرق ملكي */
+        .bead-lower:nth-child(5) { background-color: #FF8C00; border-color: #E68A00; } /* برتقالي داكن */
+
+        .controls {
+            margin-top: 30px;
+            display: flex;
+            gap: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .button {
+            background-color: #98FB98; /* أخضر فاتح */
+            color: #3CB371;
+            padding: 15px 30px;
+            border: 5px solid #3CB371;
+            border-radius: 15px;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 8px 0 #2E8B57;
+            text-shadow: 1px 1px 0 rgba(0,0,0,0.1);
+            position: relative;
+            top: 0;
+            outline: none;
+        }
+
+        .button:hover {
+            background-color: #7CFC00; /* أخضر أكثر إشراقاً */
+            box-shadow: 0 5px 0 #2E8B57;
+            top: 3px;
+        }
+
+        .button:active {
+            background-color: #6B8E23; /* أخضر زيتوني */
+            box-shadow: 0 2px 0 #2E8B57;
+            top: 6px;
+        }
+
+        .value-display {
+            background-color: #FFFFFF;
+            border: 4px solid #4682B4;
+            border-radius: 15px;
+            padding: 15px 30px;
+            font-size: 2em;
+            color: #4682B4;
+            min-width: 150px;
+            text-align: center;
+            box-shadow: 0 5px 0 #A9A9A9;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        /* رسالة التشجيع */
+        .encouragement {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px 30px;
+            border-radius: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            font-size: 2.5em;
+            color: #FF4500;
+            text-align: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease-in-out;
+            z-index: 100;
+            white-space: nowrap;
+            border: 3px solid #FF6347;
+            animation: bounceIn 0.5s ease-out forwards;
+        }
+        .encouragement.show {
+            opacity: 1;
+            visibility: visible;
+            animation: bounceIn 0.5s ease-out forwards;
+        }
+        @keyframes bounceIn {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            70% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>العداد الصيني الممتع!</h1>
+        <div class="character"></div>
+    </div>
+
+    <div class="abacus-container">
+        <div class="deck upper-deck">
+            <div class="bead-container">
+                <div class="rod upper-deck-rod" style="top: 0; height: 60px;"></div>
+                <div class="bead-upper" data-rod="0" data-value="5"></div>
+            </div>
+            <div class="bead-container">
+                <div class="rod upper-deck-rod" style="top: 0; height: 60px;"></div>
+                <div class="bead-upper" data-rod="1" data-value="5"></div>
+            </div>
+            <div class="bead-container">
+                <div class="rod upper-deck-rod" style="top: 0; height: 60px;"></div>
+                <div class="bead-upper" data-rod="2" data-value="5"></div>
+            </div>
+            <div class="bead-container">
+                <div class="rod upper-deck-rod" style="top: 0; height: 60px;"></div>
+                <div class="bead-upper" data-rod="3" data-value="5"></div>
+            </div>
+            <div class="bead-container">
+                <div class="rod upper-deck-rod" style="top: 0; height: 60px;"></div>
+                <div class="bead-upper" data-rod="4" data-value="5"></div>
+            </div>
+             </div>
+
+        <div class="horizontal-bar"></div>
+
+        <div class="deck lower-deck">
+            <div class="bead-container">
+                <div class="rod lower-deck-rod" style="top: 0; height: 120px;"></div>
+                <div class="bead-lower" data-rod="0" data-bead-index="0" data-value="1"></div>
+                <div class="bead-lower" data-rod="0" data-bead-index="1" data-value="1"></div>
+                <div class="bead-lower" data-rod="0" data-bead-index="2" data-value="1"></div>
+                <div class="bead-lower" data-rod="0" data-bead-index="3" data-value="1"></div>
+                <div class="bead-lower" data-rod="0" data-bead-index="4" data-value="1"></div>
+            </div>
+            <div class="bead-container">
+                <div class="rod lower-deck-rod" style="top: 0; height: 120px;"></div>
+                <div class="bead-lower" data-rod="1" data-bead-index="0" data-value="1"></div>
+                <div class="bead-lower" data-rod="1" data-bead-index="1" data-value="1"></div>
+                <div class="bead-lower" data-rod="1" data-bead-index="2" data-value="1"></div>
+                <div class="bead-lower" data-rod="1" data-bead-index="3" data-value="1"></div>
+                <div class="bead-lower" data-rod="1" data-bead-index="4" data-value="1"></div>
+            </div>
+            <div class="bead-container">
+                <div class="rod lower-deck-rod" style="top: 0; height: 120px;"></div>
+                <div class="bead-lower" data-rod="2" data-bead-index="0" data-value="1"></div>
+                <div class="bead-lower" data-rod="2" data-bead-index="1" data-value="1"></div>
+                <div class="bead-lower" data-rod="2" data-bead-index="2" data-value="1"></div>
+                <div class="bead-lower" data-rod="2" data-bead-index="3" data-value="1"></div>
+                <div class="bead-lower" data-rod="2" data-bead-index="4" data-value="1"></div>
+            </div>
+            <div class="bead-container">
+                <div class="rod lower-deck-rod" style="top: 0; height: 120px;"></div>
+                <div class="bead-lower" data-rod="3" data-bead-index="0" data-value="1"></div>
+                <div class="bead-lower" data-rod="3" data-bead-index="1" data-value="1"></div>
+                <div class="bead-lower" data-rod="3" data-bead-index="2" data-value="1"></div>
+                <div class="bead-lower" data-rod="3" data-bead-index="3" data-value="1"></div>
+                <div class="bead-lower" data-rod="3" data-bead-index="4" data-value="1"></div>
+            </div>
+            <div class="bead-container">
+                <div class="rod lower-deck-rod" style="top: 0; height: 120px;"></div>
+                <div class="bead-lower" data-rod="4" data-bead-index="0" data-value="1"></div>
+                <div class="bead-lower" data-rod="4" data-bead-index="1" data-value="1"></div>
+                <div class="bead-lower" data-rod="4" data-bead-index="2" data-value="1"></div>
+                <div class="bead-lower" data-rod="4" data-bead-index="3" data-value="1"></div>
+                <div class="bead-lower" data-rod="4" data-bead-index="4" data-value="1"></div>
+            </div>
+            </div>
+    </div>
+
+    <div class="value-display">القيمة: <span id="abacusValue">0</span></div>
+
+    <div class="controls">
+        <button class="button" id="resetButton">إعادة تعيين</button>
+        <button class="button" id="learnButton">تعلم العداد</button>
+    </div>
+
+    <div class="encouragement" id="encouragementMessage">أحسنت!</div>
+
+    <audio id="beadSound" src="https://www.soundjay.com/buttons/beep-01a.mp3"></audio> <audio id="resetSound" src="https://www.soundjay.com/misc/sounds/ding-01.mp3"></audio> <script>
+        // JavaScript لجعل العداد تفاعليًا
+        const lowerBeads = document.querySelectorAll('.bead-lower');
+        const upperBeads = document.querySelectorAll('.bead-upper');
+        const horizontalBar = document.querySelector('.horizontal-bar');
+        const abacusValueDisplay = document.getElementById('abacusValue');
+        const resetButton = document.getElementById('resetButton');
+        const learnButton = document.getElementById('learnButton');
+        const beadSound = document.getElementById('beadSound');
+        const resetSound = document.getElementById('resetSound');
+        const encouragementMessage = document.getElementById('encouragementMessage');
+
+        // تحديد المواضع الافتراضية للخرزات
+        const initialLowerBeadPositions = {}; // لتخزين الموضع الأولي لكل خرزة سفلى
+        const lowerBeadHeight = 45; // ارتفاع الخرزة
+        const lowerBeadSpacing = 5; // المسافة بين الخرزات
+
+        // تهيئة العداد عند تحميل الصفحة
+        function initializeAbacus() {
+            let abacusState = {}; // لتتبع حالة كل خرزة (up/down)
+
+            lowerBeads.forEach(bead => {
+                const rod = bead.dataset.rod;
+                const index = parseInt(bead.dataset.beadIndex);
+
+                if (!initialLowerBeadPositions[rod]) {
+                    initialLowerBeadPositions[rod] = [];
+                }
+
+                // حساب الموضع الأولي للخرزة (في الأسفل)
+                const initialTop = (index * (lowerBeadHeight + lowerBeadSpacing)) + 10; // 10px هامش علوي
+                bead.style.top = `${initialTop}px`;
+                initialLowerBeadPositions[rod][index] = initialTop;
+
+                // تعيين الحالة الأولية للخرزة (في الأسفل)
+                if (!abacusState[rod]) abacusState[rod] = { upper: false, lower: Array(5).fill(false) };
+                abacusState[rod].lower[index] = false; // false تعني في الأسفل
+            });
+
+            upperBeads.forEach(bead => {
+                bead.style.top = `5px`; // الخرزة العلوية تبدأ في الأعلى
+                const rod = bead.dataset.rod;
+                if (!abacusState[rod]) abacusState[rod] = { upper: false, lower: Array(5).fill(false) };
+                abacusState[rod].upper = false; // false تعني في الأعلى
+            });
+
+            return abacusState;
+        }
+
+        let currentAbacusState = initializeAbacus();
+        updateAbacusValue(); // تحديث القيمة الأولية
+
+        // وظيفة تشغيل الصوت
+        function playSound(audioElement) {
+            audioElement.currentTime = 0; // إعادة تشغيل الصوت من البداية
+            audioElement.play().catch(e => console.error("Error playing sound:", e));
+        }
+
+        // تحديث قيمة العداد
+        function updateAbacusValue() {
+            let totalValue = 0;
+            // يمكنك هنا تطبيق منطق العداد الصيني الحقيقي
+            // حاليًا، هذا مثال بسيط يجمع القيم الظاهرة
+
+            Object.keys(currentAbacusState).forEach(rodIndex => {
+                let rodValue = 0;
+                // قيمة القسم العلوي (كل خرزة علوية = 5)
+                if (currentAbacusState[rodIndex].upper) {
+                    rodValue += 5;
+                }
+                // قيمة القسم السفلي (كل خرزة سفلية = 1)
+                currentAbacusState[rodIndex].lower.forEach(isUp => {
+                    if (isUp) {
+                        rodValue += 1;
+                    }
+                });
+                // يمكننا تطبيق نظام المنازل العشرية هنا
+                // مثلاً، العمود الأخير هو الآحاد، الذي قبله العشرات وهكذا.
+                // لتبسيط المثال، سنجمع كل القيم ببساطة.
+                totalValue += rodValue;
+            });
+
+            abacusValueDisplay.textContent = totalValue;
+        }
+
+        // التعامل مع نقرات الخرزات السفلية
+        lowerBeads.forEach(bead => {
+            bead.addEventListener('click', () => {
+                const rod = bead.dataset.rod;
+                const index = parseInt(bead.dataset.beadIndex);
+                const isUp = currentAbacusState[rod].lower[index];
+
+                playSound(beadSound);
+
+                if (isUp) {
+                    // إذا كانت الخرزة مرتفعة، أنزلها
+                    bead.style.top = `${initialLowerBeadPositions[rod][index]}px`;
+                    currentAbacusState[rod].lower[index] = false;
+                    showEncouragement("جيد!");
+                } else {
+                    // إذا كانت الخرزة منخفضة، ارفعها
+                    // الموضع العلوي للخرزات السفلية يحدد بناءً على العارضة الأفقية
+                    // نحتاج لحساب المسافة من العارضة
+                    const barBottom = horizontalBar.offsetTop + horizontalBar.offsetHeight;
+                    const topPosition = barBottom + (index * (lowerBeadHeight + lowerBeadSpacing)) - (lowerBeadHeight * 5) - (lowerBeadSpacing * 4) + 10; // ضبط الموضع
+                    bead.style.top = `${topPosition}px`;
+                    currentAbacusState[rod].lower[index] = true;
+                    showEncouragement("رائع!");
+                }
+                updateAbacusValue();
+            });
+        });
+
+        // التعامل مع نقرات الخرزات العلوية
+        upperBeads.forEach(bead => {
+            bead.addEventListener('click', () => {
+                const rod = bead.dataset.rod;
+                const isUp = currentAbacusState[rod].upper;
+
+                playSound(beadSound);
+
+                if (isUp) {
+                    // إذا كانت الخرزة مرتفعة (ملتصقة بالعارضة)، أنزلها لأعلى
+                    bead.style.top = `5px`;
+                    currentAbacusState[rod].upper = false;
+                    showEncouragement("فهمت!");
+                } else {
+                    // إذا كانت الخرزة منخفضة (في الأعلى)، ارفعها لملامسة العارضة
+                    const barTop = horizontalBar.offsetTop;
+                    // حساب الموضع العلوي للخرزة بحيث تلامس العارضة من الأسفل
+                    const topPosition = barTop - bead.offsetHeight - 5; // 5px هامش بسيط
+                    bead.style.top = `${topPosition}px`;
+                    currentAbacusState[rod].upper = true;
+                    showEncouragement("مدهش!");
+                }
+                updateAbacusValue();
+            });
+        });
+
+
+        // زر إعادة التعيين
+        resetButton.addEventListener('click', () => {
+            playSound(resetSound);
+            currentAbacusState = initializeAbacus(); // إعادة تهيئة جميع الخرزات لمواضعها الأولية
+            updateAbacusValue();
+            lowerBeads.forEach(bead => {
+                const rod = bead.dataset.rod;
+                const index = parseInt(bead.dataset.beadIndex);
+                bead.style.top = `${initialLowerBeadPositions[rod][index]}px`;
+            });
+            upperBeads.forEach(bead => {
+                bead.style.top = `5px`;
+            });
+            showEncouragement("لنبدأ من جديد!");
+        });
+
+        // زر تعلم العداد (يمكن إضافة نافذة منبثقة أو توجيه لصفحة تعليمية)
+        learnButton.addEventListener('click', () => {
+            alert('قريبًا: دروس تفاعلية لتعلم العداد الصيني!');
+        });
+
+        // وظيفة إظهار رسالة التشجيع
+        function showEncouragement(message) {
+            encouragementMessage.textContent = message;
+            encouragementMessage.classList.add('show');
+            setTimeout(() => {
+                encouragementMessage.classList.remove('show');
+            }, 1500); // تختفي بعد 1.5 ثانية
+        }
+
+    </script>
+</body>
+</html>

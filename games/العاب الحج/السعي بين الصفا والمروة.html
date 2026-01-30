@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<title>السعي بين الصفا والمروة - رحلة الحاج الصغير</title>
+<style>
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: #e3fdfd;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+  }
+  h1 {
+    color: #00796b;
+    margin: 30px 0 10px;
+  }
+  .sai-area {
+    position: relative; /* مهم لجعل الطفل يتحرك داخله */
+    width: 320px;
+    height: 120px;
+    margin: 30px auto;
+    border: 6px dashed #b2dfdb;
+    border-radius: 50px;
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+  }
+  #safa, #marwa {
+    width: 80px;
+    height: 60px;
+    background-color: #222;
+    color: white;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: bold;
+    user-select: none;
+  }
+  #pilgrim {
+    position: absolute; /* نستخدم absolute داخل الحاوية النسبية */
+    top: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 28px;
+    line-height: 40px;
+    user-select: none;
+    cursor: default;
+    color: #00796b;
+    transform: translateY(-50%);
+    transition: left 1s ease;
+  }
+  button {
+    margin-top: 25px;
+    padding: 10px 25px;
+    font-size: 1.2em;
+    background-color: #4db6ac;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  button:hover {
+    background-color: #00796b;
+  }
+  #lapMsg {
+    margin-top: 15px;
+    font-size: 1.2em;
+    color: #333;
+  }
+  #valueMsg {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #f57c00;
+    font-size: 1.3em;
+  }
+</style>
+</head>
+<body>
+
+  <h1>🏃‍♂️ السعي بين الصفا والمروة</h1>
+  <p>ساعد الحاج الصغير في أداء السعي 7 مرات بين الصفا والمروة!</p>
+
+  <div class="sai-area" id="saiArea">
+    <div id="marwa">المروة</div>
+    <div id="safa">الصفا</div>
+    <div id="pilgrim" aria-label="شخصية الحاج">🚶‍♂️</div>
+  </div>
+
+  <button onclick="nextStep()">ابدأ السعي / الخطوة التالية</button>
+
+  <p id="lapMsg">شوط: 0 من 7</p>
+  <p id="valueMsg"></p>
+
+  <script>
+    const pilgrim = document.getElementById('pilgrim');
+    const saiArea = document.getElementById('saiArea');
+    const safa = document.getElementById('safa');
+    const marwa = document.getElementById('marwa');
+    const lapMsg = document.getElementById('lapMsg');
+    const valueMsg = document.getElementById('valueMsg');
+
+    // الحصول على موقع الصفا والمروة داخل الحاوية
+    // إضافة تعويض بسيط ليظهر الحاج في المنتصف تحت الصفا / المروة
+    const safaPos = safa.offsetLeft + safa.offsetWidth/2 - pilgrim.offsetWidth/2;
+    const marwaPos = marwa.offsetLeft + marwa.offsetWidth/2 - pilgrim.offsetWidth/2;
+
+    let lapCount = 0;
+    let goingToSafa = false; // false = من الصفا إلى المروة، true = العكس
+    let stepCount = 0;
+    const totalSteps = 14;
+
+    const messages = [
+      "الإخلاص لله وحده ❤️",
+      "طاعة أوامر الله 🙌",
+      "توحيد الله ☝️",
+      "اتباع سنة النبي ﷺ 📜",
+      "الذكر والدعاء 📿",
+      "الصبر والتأمل 🕊️",
+      "الحب والتقوى 💖"
+    ];
+
+    // تعيين موضع بداية الحاج عند الصفا
+    pilgrim.style.left = safaPos + 'px';
+    pilgrim.style.top = '50%';
+
+    function nextStep() {
+      if (stepCount >= totalSteps) {
+        valueMsg.textContent = "🎉 مبارك! أكملت السعي 7 مرات!";
+        return;
+      }
+
+      stepCount++;
+
+      if (!goingToSafa) {
+        pilgrim.style.left = marwaPos + 'px';
+        if (stepCount % 2 === 1) {
+          lapCount++;
+          lapMsg.textContent = `شوط: ${lapCount} من 7`;
+          valueMsg.textContent = messages[lapCount -1];
+        }
+        goingToSafa = true;
+      } else {
+        pilgrim.style.left = safaPos + 'px';
+        goingToSafa = false;
+      }
+    }
+  </script>
+
+</body>
+</html>

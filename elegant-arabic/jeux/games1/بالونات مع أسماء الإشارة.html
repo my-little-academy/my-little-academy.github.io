@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة البالونات - تعلم أسماء الإشارة</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            background-color: var(--light-color);
+            margin: 0;
+            padding: 20px;
+            direction: rtl;
+            color: var(--dark-color);
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 2.2em;
+        }
+        
+        .subtitle {
+            color: var(--dark-color);
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        #game-container {
+            position: relative;
+            width: 100%;
+            height: 65vh;
+            max-height: 500px;
+            border: 3px solid var(--secondary-color);
+            border-radius: 15px;
+            overflow: hidden;
+            background-color: #e6f7ff;
+            margin: 0 auto 25px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .balloon {
+            position: absolute;
+            width: 85px;
+            height: 110px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.3s;
+            box-shadow: inset -7px -7px 15px rgba(0,0,0,0.2);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+        
+        .balloon:hover {
+            transform: scale(1.15);
+            z-index: 20;
+        }
+        
+        .balloon::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 5px;
+            height: 20px;
+            background-color: rgba(0,0,0,0.2);
+        }
+        
+        #word-display {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 15px 25px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            display: inline-block;
+            min-width: 200px;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .info-container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .info-box {
+            background-color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-size: 1.2em;
+            min-width: 150px;
+            border: 1px solid #ddd;
+        }
+        
+        .info-label {
+            font-size: 0.8em;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+        
+        #controls {
+            margin-top: 25px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        button {
+            padding: 12px 25px;
+            font-size: 1.1em;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        #reset-btn {
+            background-color: var(--accent-color);
+        }
+        
+        #reset-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        .balloon-pop {
+            animation: pop 0.4s forwards;
+        }
+        
+        @keyframes pop {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.7; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+        
+        .correct {
+            background-color: #2ecc71 !important;
+        }
+        
+        .wrong {
+            background-color: var(--accent-color) !important;
+        }
+        
+        .cloud {
+            position: absolute;
+            background-color: rgba(255,255,255,0.8);
+            border-radius: 50%;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <h1>لعبة البالونات مع أسماء الإشارة</h1>
+    <p class="subtitle">اضغط على البالون الذي يحمل اسم الإشارة المناسب للكلمة المعروضة</p>
+    
+    <div class="info-container">
+        <div class="info-box">
+            <div class="info-label">النقاط</div>
+            <div id="score-display">0</div>
+        </div>
+        <div class="info-box">
+            <div class="info-label">الوقت المتبقي</div>
+            <div id="time-display">60</div>
+        </div>
+    </div>
+    
+    <div id="game-container"></div>
+    
+    <div id="word-display"></div>
+    
+    <div id="controls">
+        <button id="start-btn">بدء اللعبة</button>
+        <button id="reset-btn">إعادة تشغيل</button>
+    </div>
+
+    <script>
+        // الكلمات المتنوعة مع تصنيفها
+        const words = {
+            أشخاص: ["محمد", "أحمد", "فاطمة", "خالد", "سارة", "علي", "مريم", "يوسف"],
+            حيوانات: ["أسد", "قطة", "فيل", "عصفور", "حصان", "كلب", "زرافة", "دجاجة"],
+            نباتات: ["شجرة", "وردة", "تفاحة", "نخلة", "برتقالة", "خيار", "طماطم", "موزة"],
+            أشياء: ["كتاب", "قلم", "سيارة", "منزل", "هاتف", "طائرة", "كرة", "ساعة"],
+            أماكن: ["مدرسة", "مستشفى", "حديقة", "سوق", "مكتبة", "مطعم", "ملعب", "مسجد"]
+        };
+        
+        // أسماء الإشارة مع تصنيفها حسب العدد والجنس
+        const signals = {
+            مفرد_m: ["هذا", "ذلك", "ذالك"],
+            مفرد_f: ["هذه", "تلك"],
+            مثنى_m: ["هذان", "ذانك"],
+            مثنى_f: ["هاتان", "تانك"],
+            جمع: ["هؤلاء", "أولئك"]
+        };
+        
+        // ألوان البالونات
+        const colors = ['#e74c3c', '#3498db', '#2ecc71', '#f1c40f', '#9b59b6', '#1abc9c', '#d35400', '#34495e'];
+        
+        // متغيرات اللعبة
+        let score = 0;
+        let timeLeft = 60;
+        let gameInterval;
+        let balloons = [];
+        let currentWord = "";
+        let currentCategory = "";
+        let correctSignal = "";
+        let gameActive = false;
+        
+        // عناصر DOM
+        const gameContainer = document.getElementById('game-container');
+        const wordDisplay = document.getElementById('word-display');
+        const scoreDisplay = document.getElementById('score-display');
+        const timeDisplay = document.getElementById('time-display');
+        const startBtn = document.getElementById('start-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        
+        // أحداث الأزرار
+        startBtn.addEventListener('click', startGame);
+        resetBtn.addEventListener('click', resetGame);
+        
+        // بدء اللعبة
+        function startGame() {
+            if (gameActive) return;
+            
+            gameActive = true;
+            score = 0;
+            timeLeft = 60;
+            updateScore();
+            updateTime();
+            startBtn.disabled = true;
+            
+            // إنشاء الغيوم الخلفية
+            createClouds();
+            
+            // بدء المؤقت
+            gameInterval = setInterval(() => {
+                timeLeft--;
+                updateTime();
+                
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+            
+            // إنشاء بالونات جديدة كل 3 ثواني
+            setInterval(createBalloons, 3000);
+            
+            // عرض كلمة جديدة
+            showNewWord();
+            
+            // البدء بالبالونات الأولى
+            createBalloons();
+        }
+        
+        // إنهاء اللعبة
+        function endGame() {
+            gameActive = false;
+            clearInterval(gameInterval);
+            gameContainer.innerHTML = '';
+            wordDisplay.textContent = `انتهى الوقت! النتيجة النهائية: ${score}`;
+            startBtn.disabled = false;
+        }
+        
+        // إعادة التشغيل
+        function resetGame() {
+            clearInterval(gameInterval);
+            gameContainer.innerHTML = '';
+            wordDisplay.textContent = '';
+            balloons = [];
+            startBtn.disabled = false;
+            gameActive = false;
+            score = 0;
+            timeLeft = 60;
+            updateScore();
+            updateTime();
+        }
+        
+        // تحديث النقاط
+        function updateScore() {
+            scoreDisplay.textContent = score;
+        }
+        
+        // تحديث الوقت
+        function updateTime() {
+            timeDisplay.textContent = timeLeft;
+            if (timeLeft <= 10) {
+                timeDisplay.style.color = '#e74c3c';
+            } else {
+                timeDisplay.style.color = 'inherit';
+            }
+        }
+        
+        // عرض كلمة جديدة
+        function showNewWord() {
+            // اختيار تصنيف عشوائي
+            const categories = Object.keys(words);
+            currentCategory = categories[Math.floor(Math.random() * categories.length)];
+            
+            // اختيار كلمة عشوائية من التصنيف
+            currentWord = words[currentCategory][Math.floor(Math.random() * words[currentCategory].length)];
+            
+            // تحديد اسم الإشارة المناسب
+            correctSignal = determineCorrectSignal();
+            
+            wordDisplay.textContent = currentWord;
+        }
+        
+        // تحديد اسم الإشارة الصحيح بناءً على الكلمة
+        function determineCorrectSignal() {
+            // تحديد الجنس (مذكر/مؤنث)
+            let isFeminine = false;
+            
+            // قواعد لتحديد الجنس (يمكن إضافة المزيد)
+            if (currentCategory === 'أشخاص') {
+                isFeminine = currentWord === 'فاطمة' || currentWord === 'سارة' || currentWord === 'مريم';
+            } else if (currentCategory === 'حيوانات') {
+                isFeminine = currentWord === 'قطة' || currentWord === 'دجاجة' || currentWord === 'زرافة';
+            } else if (currentCategory === 'نباتات') {
+                isFeminine = currentWord === 'وردة' || currentWord === 'تفاحة' || currentWord === 'برتقالة' || currentWord === 'طماطم';
+            } else if (currentCategory === 'أشياء') {
+                isFeminine = currentWord === 'كرة' || currentWord === 'ساعة';
+            } else if (currentCategory === 'أماكن') {
+                isFeminine = true; // معظم الأماكن مؤنثة
+            }
+            
+            // اختيار إشارة مناسبة
+            const randomChoice = Math.random();
+            
+            // 70% فرصة للإشارات المفردة، 20% للمثنى، 10% للجمع
+            if (randomChoice < 0.7) {
+                // مفرد
+                const group = isFeminine ? 'مفرد_f' : 'مفرد_m';
+                return signals[group][Math.floor(Math.random() * signals[group].length)];
+            } else if (randomChoice < 0.9) {
+                // مثنى
+                const group = isFeminine ? 'مثنى_f' : 'مثنى_m';
+                return signals[group][Math.floor(Math.random() * signals[group].length)];
+            } else {
+                // جمع
+                return signals['جمع'][Math.floor(Math.random() * signals['جمع'].length)];
+            }
+        }
+        
+        // إنشاء البالونات
+        function createBalloons() {
+            if (!gameActive) return;
+            
+            // إزالة البالونات القديمة
+            gameContainer.querySelectorAll('.balloon').forEach(el => el.remove());
+            balloons = [];
+            
+            // إنشاء 6 بالونات
+            for (let i = 0; i < 6; i++) {
+                const balloon = document.createElement('div');
+                balloon.className = 'balloon';
+                
+                // اختيار إشارة (واحدة صحيحة والباقي عشوائي)
+                let signal;
+                if (i === 0) {
+                    signal = correctSignal;
+                } else {
+                    // اختيار إشارة عشوائية مع تجنب التكرار
+                    let allSignals = Object.values(signals).flat();
+                    signal = allSignals[Math.floor(Math.random() * allSignals.length)];
+                    
+                    // التأكد من عدم تكرار الإشارة الصحيحة
+                    while (signal === correctSignal && i < 5) {
+                        signal = allSignals[Math.floor(Math.random() * allSignals.length)];
+                    }
+                }
+                
+                balloon.textContent = signal;
+                balloon.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                // وضع عشوائي مع تجنب الحواف
+                const left = 20 + Math.random() * (gameContainer.offsetWidth - 160);
+                const top = 20 + Math.random() * (gameContainer.offsetHeight - 140);
+                balloon.style.left = `${left}px`;
+                balloon.style.top = `${top}px`;
+                
+                // حركة البالون (بطيئة)
+                const speedX = (Math.random() - 0.5) * 0.4;
+                const speedY = (Math.random() - 0.5) * 0.4;
+                
+                // حدث الضغط على البالون
+                balloon.addEventListener('click', () => handleBalloonClick(balloon, signal));
+                
+                gameContainer.appendChild(balloon);
+                balloons.push({element: balloon, speedX, speedY});
+            }
+            
+            // بدء حركة البالونات
+            moveBalloons();
+        }
+        
+        // التعامل مع ضغط البالون
+        function handleBalloonClick(balloon, signal) {
+            if (!gameActive) return;
+            
+            if (signal === correctSignal) {
+                // إجابة صحيحة
+                score += 10;
+                updateScore();
+                balloon.classList.add('correct', 'balloon-pop');
+                
+                setTimeout(() => {
+                    balloon.remove();
+                    showNewWord();
+                    createBalloons();
+                }, 400);
+            } else {
+                // إجابة خاطئة
+                score = Math.max(0, score - 5);
+                updateScore();
+                balloon.classList.add('wrong');
+                
+                setTimeout(() => {
+                    balloon.classList.remove('wrong');
+                }, 1000);
+            }
+        }
+        
+        // تحريك البالونات
+        function moveBalloons() {
+            function animate() {
+                balloons.forEach(balloonObj => {
+                    const balloon = balloonObj.element;
+                    if (!balloon || !balloon.style) return;
+                    
+                    let left = parseFloat(balloon.style.left);
+                    let top = parseFloat(balloon.style.top);
+                    
+                    left += balloonObj.speedX;
+                    top += balloonObj.speedY;
+                    
+                    // ارتداد من الحواف
+                    if (left <= 0 || left >= gameContainer.offsetWidth - 85) {
+                        balloonObj.speedX *= -1;
+                    }
+                    
+                    if (top <= 0 || top >= gameContainer.offsetHeight - 110) {
+                        balloonObj.speedY *= -1;
+                    }
+                    
+                    balloon.style.left = `${left}px`;
+                    balloon.style.top = `${top}px`;
+                });
+                
+                if (gameActive && balloons.length > 0) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            
+            animate();
+        }
+        
+        // إنشاء غيوم خلفية
+        function createClouds() {
+            gameContainer.innerHTML = '';
+            
+            for (let i = 0; i < 8; i++) {
+                const cloud = document.createElement('div');
+                cloud.className = 'cloud';
+                
+                const size = 50 + Math.random() * 100;
+                const left = Math.random() * gameContainer.offsetWidth;
+                const top = Math.random() * gameContainer.offsetHeight;
+                const opacity = 0.3 + Math.random() * 0.5;
+                
+                cloud.style.width = `${size}px`;
+                cloud.style.height = `${size * 0.6}px`;
+                cloud.style.left = `${left}px`;
+                cloud.style.top = `${top}px`;
+                cloud.style.opacity = opacity;
+                
+                gameContainer.appendChild(cloud);
+            }
+        }
+    </script>
+</body>
+</html>

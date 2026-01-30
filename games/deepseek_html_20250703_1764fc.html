@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الاختيارات</title>
+    <style>
+        /* تصميم عام للصفحة */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+        
+        /* تصميم بطاقة اللعبة */
+        .game-container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 600px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        /* تصميم عنوان اللعبة */
+        h1 {
+            color: #4a4a4a;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        
+        /* تصميم السؤال */
+        .question {
+            font-size: 20px;
+            margin-bottom: 25px;
+            font-weight: bold;
+            line-height: 1.4;
+        }
+        
+        /* تصميم خيارات الإجابة */
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        /* تصميم أزرار الخيارات */
+        .option-btn {
+            background-color: #f5f5f5;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: right;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option-btn:hover {
+            background-color: #e0e0e0;
+            transform: translateY(-3px);
+        }
+        
+        .option-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* تأثير عند اختيار إجابة صحيحة */
+        .option-btn.correct {
+            background-color: #4CAF50;
+            color: white;
+            animation: pulse 0.5s;
+        }
+        
+        /* تأثير عند اختيار إجابة خاطئة */
+        .option-btn.wrong {
+            background-color: #F44336;
+            color: white;
+        }
+        
+        /* تصميم زر التالي */
+        .next-btn {
+            background-color: #4a4a4a;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 30px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+            margin: 0 auto;
+        }
+        
+        .next-btn:hover {
+            background-color: #333;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* تصميم شريط التقدم */
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #6e8efb, #a777e3);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        /* تصميم شاشة النتيجة النهائية */
+        .result-container {
+            display: none;
+            text-align: center;
+        }
+        
+        .result-container h2 {
+            color: #4a4a4a;
+            margin-bottom: 20px;
+        }
+        
+        .score {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #6e8efb;
+        }
+        
+        .restart-btn {
+            background-color: #6e8efb;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 30px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .restart-btn:hover {
+            background-color: #5a7df5;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* تأثير النبض للإجابات الصحيحة */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        /* تصميم مؤشر المرحلة */
+        .stage-indicator {
+            font-size: 14px;
+            color: #777;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- شريط التقدم -->
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        
+        <!-- مؤشر المرحلة -->
+        <div class="stage-indicator" id="stage-indicator">المرحلة 1 من 5</div>
+        
+        <!-- منطقة السؤال -->
+        <div class="question" id="question"></div>
+        
+        <!-- منطقة الخيارات -->
+        <div class="options" id="options"></div>
+        
+        <!-- زر التالي -->
+        <button class="next-btn" id="next-btn">التالي</button>
+        
+        <!-- شاشة النتائج -->
+        <div class="result-container" id="result-container">
+            <h2>أحسنت! لقد أكملت الاختبار</h2>
+            <div class="score" id="score">نقاطك: 0/5</div>
+            <button class="restart-btn" id="restart-btn">إعادة المحاولة</button>
+        </div>
+    </div>
+
+    <script>
+        // بيانات الأسئلة (يمكن استبدالها بأسئلتك الخاصة)
+        const questions = [
+            {
+                question: "ما هي عاصمة المملكة العربية السعودية؟",
+                options: ["جدة", "الرياض", "مكة المكرمة", "الدمام"],
+                answer: 1
+            },
+            {
+                question: "كم عدد أيام السنة الكبيسة؟",
+                options: ["365", "366", "364", "360"],
+                answer: 1
+            },
+            {
+                question: "ما هو أطول نهر في العالم؟",
+                options: ["نهر النيل", "نهر الأمازون", "نهر اليانغتسي", "نهر المسيسيبي"],
+                answer: 0
+            },
+            {
+                question: "ما هو العنصر الكيميائي الذي رمزه 'O'؟",
+                options: ["الذهب", "الأكسجين", "الفضة", "الأوزون"],
+                answer: 1
+            },
+            {
+                question: "في أي عام تم إطلاق أول iPhone؟",
+                options: ["2005", "2007", "2010", "2003"],
+                answer: 1
+            }
+        ];
+
+        // متغيرات اللعبة
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedOption = null;
+        let quizCompleted = false;
+
+        // عناصر DOM
+        const questionElement = document.getElementById('question');
+        const optionsElement = document.getElementById('options');
+        const nextButton = document.getElementById('next-btn');
+        const resultContainer = document.getElementById('result-container');
+        const scoreElement = document.getElementById('score');
+        const restartButton = document.getElementById('restart-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const stageIndicator = document.getElementById('stage-indicator');
+
+        // تهيئة اللعبة
+        function initGame() {
+            currentQuestionIndex = 0;
+            score = 0;
+            quizCompleted = false;
+            showQuestion();
+        }
+
+        // عرض السؤال الحالي
+        function showQuestion() {
+            // إعادة تعيين حالة اللعبة
+            resetState();
+            
+            // تحديث مؤشر المرحلة
+            stageIndicator.textContent = `المرحلة ${currentQuestionIndex + 1} من ${questions.length}`;
+            
+            // تحديث شريط التقدم
+            progressBar.style.width = `${((currentQuestionIndex) / questions.length) * 100}%`;
+            
+            // عرض السؤال الحالي
+            const currentQuestion = questions[currentQuestionIndex];
+            questionElement.textContent = currentQuestion.question;
+            
+            // إنشاء أزرار الخيارات
+            currentQuestion.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.classList.add('option-btn');
+                button.addEventListener('click', () => selectOption(index));
+                optionsElement.appendChild(button);
+            });
+        }
+
+        // إعادة تعيين حالة اللعبة
+        function resetState() {
+            // إخفاء زر التالي
+            nextButton.style.display = 'none';
+            
+            // مسح الخيارات السابقة
+            while (optionsElement.firstChild) {
+                optionsElement.removeChild(optionsElement.firstChild);
+            }
+            
+            // إعادة تعيين الخيار المحدد
+            selectedOption = null;
+        }
+
+        // اختيار إجابة
+        function selectOption(index) {
+            // منع اختيار أكثر من إجابة
+            if (selectedOption !== null) return;
+            
+            selectedOption = index;
+            const currentQuestion = questions[currentQuestionIndex];
+            const options = document.querySelectorAll('.option-btn');
+            
+            // تحديد إذا كانت الإجابة صحيحة أم خاطئة
+            if (index === currentQuestion.answer) {
+                options[index].classList.add('correct');
+                score++;
+            } else {
+                options[index].classList.add('wrong');
+                options[currentQuestion.answer].classList.add('correct');
+            }
+            
+            // إظهار زر التالي
+            nextButton.style.display = 'block';
+        }
+
+        // الانتقال إلى السؤال التالي أو عرض النتائج
+        function nextQuestion() {
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < questions.length) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        // عرض النتائج النهائية
+        function showResults() {
+            quizCompleted = true;
+            
+            // إخفاء عناصر السؤال
+            questionElement.style.display = 'none';
+            optionsElement.style.display = 'none';
+            nextButton.style.display = 'none';
+            stageIndicator.style.display = 'none';
+            
+            // تحديث شريط التقدم إلى 100%
+            progressBar.style.width = '100%';
+            
+            // عرض النتائج
+            resultContainer.style.display = 'block';
+            scoreElement.textContent = `نقاطك: ${score}/${questions.length}`;
+        }
+
+        // إعادة تشغيل اللعبة
+        function restartGame() {
+            // إعادة عرض عناصر السؤال
+            questionElement.style.display = 'block';
+            optionsElement.style.display = 'flex';
+            stageIndicator.style.display = 'block';
+            
+            // إخفاء نتائج
+            resultContainer.style.display = 'none';
+            
+            // إعادة التشغيل
+            initGame();
+        }
+
+        // إضافة مستمعي الأحداث
+        nextButton.addEventListener('click', nextQuestion);
+        restartButton.addEventListener('click', restartGame);
+
+        // بدء اللعبة
+        initGame();
+    </script>
+</body>
+</html>

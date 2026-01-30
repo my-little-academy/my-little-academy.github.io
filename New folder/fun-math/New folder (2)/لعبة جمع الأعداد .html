@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة جمع الأعداد مع الاحتفاظ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            text-align: center;
+            padding: 20px;
+            direction: rtl;
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .calculation-grid {
+            display: grid;
+            grid-template-columns: auto repeat(5, 65px);
+            grid-gap: 5px;
+            justify-content: end;
+            margin: 30px auto;
+            width: fit-content;
+        }
+        .grid-header {
+            grid-row: 1;
+            text-align: center;
+            font-size: 16px;
+            color: #7f8c8d;
+            font-weight: bold;
+            padding: 5px;
+        }
+        .digit-box {
+            width: 65px;
+            height: 80px;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 28px;
+            font-weight: bold;
+            background-color: #eaf2f8;
+            position: relative;
+        }
+        .carry-box {
+            position: absolute;
+            top: -25px;
+            width: 35px;
+            height: 35px;
+            border: 1px solid #7f8c8d;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+            background-color: #ecf0f1;
+            z-index: 1;
+            right: 15px;
+        }
+        .plus-sign {
+            font-size: 28px;
+            grid-column: 1;
+            align-self: center;
+            padding-left: 10px;
+        }
+        .line {
+            grid-column: 1 / span 6;
+            height: 3px;
+            background-color: #7f8c8d;
+            margin: 10px 0;
+        }
+        .input-container {
+            display: grid;
+            grid-template-columns: auto repeat(5, 65px);
+            grid-gap: 5px;
+            justify-content: end;
+            margin: 25px auto;
+            width: fit-content;
+        }
+        .input-digit {
+            width: 65px;
+            height: 80px;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .input-digit:focus {
+            outline: none;
+            border-color: #e74c3c;
+            box-shadow: 0 0 5px rgba(231, 76, 60, 0.5);
+        }
+        .correct {
+            background-color: #d5f5e3;
+            border-color: #2ecc71;
+        }
+        .wrong {
+            background-color: #fadbd8;
+            border-color: #e74c3c;
+        }
+        .check-btn {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 15px;
+        }
+        .check-btn:hover {
+            background-color: #27ae60;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+        }
+        .message {
+            margin: 25px auto;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 20px;
+            display: none;
+            max-width: 80%;
+        }
+        .success {
+            background-color: #d5f5e3;
+            color: #27ae60;
+            display: block;
+            border: 1px solid #2ecc71;
+        }
+        .error {
+            background-color: #fadbd8;
+            color: #e74c3c;
+            display: block;
+            border: 1px solid #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>لعبة جمع الأعداد مع الاحتفاظ</h1>
+        <p style="font-size: 18px; color: #555;">قم بحل المسألة الحسابية بالطريقة العمودية مع مراعاة الاحتفاظ</p>
+        
+        <div class="calculation-grid">
+            <!-- Column Headers -->
+            <div class="grid-header" style="grid-column: 6;">وحدات</div>
+            <div class="grid-header" style="grid-column: 5;">عشرات</div>
+            <div class="grid-header" style="grid-column: 4;">مئات</div>
+            <div class="grid-header" style="grid-column: 3;">آلاف</div>
+            <div class="grid-header" style="grid-column: 2;">عشرات الآلاف</div>
+            
+            <!-- Carry Row -->
+            <div style="grid-column: 1; grid-row: 2;"></div>
+            <div id="carry-4" class="carry-box" style="grid-column: 2; grid-row: 2;"></div>
+            <div id="carry-3" class="carry-box" style="grid-column: 3; grid-row: 2;"></div>
+            <div id="carry-2" class="carry-box" style="grid-column: 4; grid-row: 2;"></div>
+            <div id="carry-1" class="carry-box" style="grid-column: 5; grid-row: 2;"></div>
+            <div id="carry-0" class="carry-box" style="grid-column: 6; grid-row: 2;"></div>
+            
+            <!-- First Number -->
+            <div style="grid-column: 1; grid-row: 3;"></div>
+            <div id="digit1-4" class="digit-box" style="grid-column: 2; grid-row: 3;"></div>
+            <div id="digit1-3" class="digit-box" style="grid-column: 3; grid-row: 3;"></div>
+            <div id="digit1-2" class="digit-box" style="grid-column: 4; grid-row: 3;"></div>
+            <div id="digit1-1" class="digit-box" style="grid-column: 5; grid-row: 3;"></div>
+            <div id="digit1-0" class="digit-box" style="grid-column: 6; grid-row: 3;"></div>
+            
+            <!-- Second Number -->
+            <div class="plus-sign" style="grid-row: 4;">+</div>
+            <div id="digit2-4" class="digit-box" style="grid-column: 2; grid-row: 4;"></div>
+            <div id="digit2-3" class="digit-box" style="grid-column: 3; grid-row: 4;"></div>
+            <div id="digit2-2" class="digit-box" style="grid-column: 4; grid-row: 4;"></div>
+            <div id="digit2-1" class="digit-box" style="grid-column: 5; grid-row: 4;"></div>
+            <div id="digit2-0" class="digit-box" style="grid-column: 6; grid-row: 4;"></div>
+            
+            <!-- Line -->
+            <div class="line" style="grid-row: 5;"></div>
+        </div>
+        
+        <div class="input-container" id="answer-inputs">
+            <div style="grid-column: 1; grid-row: 1;"></div>
+            <input type="text" class="input-digit" data-position="4" style="grid-column: 2; grid-row: 1;">
+            <input type="text" class="input-digit" data-position="3" style="grid-column: 3; grid-row: 1;">
+            <input type="text" class="input-digit" data-position="2" style="grid-column: 4; grid-row: 1;">
+            <input type="text" class="input-digit" data-position="1" style="grid-column: 5; grid-row: 1;">
+            <input type="text" class="input-digit" data-position="0" style="grid-column: 6; grid-row: 1;">
+        </div>
+        
+        <button class="check-btn" id="check-btn">تحقق من الإجابة</button>
+        
+        <div class="message" id="message"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM elements
+            const checkBtn = document.getElementById('check-btn');
+            const message = document.getElementById('message');
+            const inputDigits = document.querySelectorAll('.input-digit');
+            
+            // Game variables
+            let num1, num2;
+            let correctAnswer;
+            let carryDigits = [];
+            
+            // Initialize the game
+            initGame();
+            
+            // Event listeners
+            checkBtn.addEventListener('click', checkAnswer);
+            
+            // Initialize the game with new numbers
+            function initGame() {
+                // Generate random 4-digit numbers
+                num1 = generateRandomNumber(1000, 9999);
+                num2 = generateRandomNumber(1000, 9999);
+                
+                // Calculate correct answer
+                correctAnswer = num1 + num2;
+                
+                // Reset carry digits
+                carryDigits = [0, 0, 0, 0, 0];
+                
+                // Display the numbers
+                displayNumbers();
+                
+                // Clear input fields
+                clearInputs();
+                
+                // Hide message
+                message.style.display = 'none';
+                
+                // Focus on first input
+                inputDigits[0].focus();
+            }
+            
+            // Generate random number between min and max
+            function generateRandomNumber(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            }
+            
+            // Display the numbers in their boxes
+            function displayNumbers() {
+                // Convert numbers to arrays of digits (right to left: units to ten-thousands)
+                const num1Str = String(num1).padStart(5, '0');
+                const num2Str = String(num2).padStart(5, '0');
+                
+                // Display first number (from right to left)
+                document.getElementById('digit1-0').textContent = num1Str[4]; // Units
+                document.getElementById('digit1-1').textContent = num1Str[3]; // Tens
+                document.getElementById('digit1-2').textContent = num1Str[2]; // Hundreds
+                document.getElementById('digit1-3').textContent = num1Str[1]; // Thousands
+                document.getElementById('digit1-4').textContent = num1Str[0]; // Ten-thousands
+                
+                // Display second number (from right to left)
+                document.getElementById('digit2-0').textContent = num2Str[4]; // Units
+                document.getElementById('digit2-1').textContent = num2Str[3]; // Tens
+                document.getElementById('digit2-2').textContent = num2Str[2]; // Hundreds
+                document.getElementById('digit2-3').textContent = num2Str[1]; // Thousands
+                document.getElementById('digit2-4').textContent = num2Str[0]; // Ten-thousands
+                
+                // Clear carry boxes
+                for (let i = 0; i < 5; i++) {
+                    document.getElementById(`carry-${i}`).textContent = '';
+                }
+            }
+            
+            // Clear input fields
+            function clearInputs() {
+                inputDigits.forEach(input => {
+                    input.value = '';
+                    input.classList.remove('correct', 'wrong');
+                });
+            }
+            
+            // Check the user's answer
+            function checkAnswer() {
+                const userAnswerDigits = [];
+                let allCorrect = true;
+                
+                // Get user's answer digits (from right to left)
+                inputDigits.forEach((input, index) => {
+                    userAnswerDigits[index] = input.value === '' ? null : parseInt(input.value);
+                });
+                
+                // Calculate correct answer digits (from right to left)
+                const correctDigits = [];
+                const correctAnswerStr = String(correctAnswer).padStart(5, '0');
+                
+                correctDigits[0] = parseInt(correctAnswerStr[4]); // Units
+                correctDigits[1] = parseInt(correctAnswerStr[3]); // Tens
+                correctDigits[2] = parseInt(correctAnswerStr[2]); // Hundreds
+                correctDigits[3] = parseInt(correctAnswerStr[1]); // Thousands
+                correctDigits[4] = parseInt(correctAnswerStr[0]); // Ten-thousands
+                
+                // Calculate carry digits
+                const num1Str = String(num1).padStart(5, '0');
+                const num2Str = String(num2).padStart(5, '0');
+                const newCarryDigits = [0, 0, 0, 0, 0];
+                let carry = 0;
+                
+                for (let i = 4; i >= 0; i--) {
+                    const digit1 = parseInt(num1Str[i]);
+                    const digit2 = parseInt(num2Str[i]);
+                    const sum = digit1 + digit2 + carry;
+                    newCarryDigits[i] = Math.floor(sum / 10);
+                    carry = newCarryDigits[i];
+                }
+                
+                // Update carry boxes (from right to left)
+                document.getElementById('carry-0').textContent = newCarryDigits[4] > 0 ? newCarryDigits[4] : ''; // Units carry
+                document.getElementById('carry-1').textContent = newCarryDigits[3] > 0 ? newCarryDigits[3] : ''; // Tens carry
+                document.getElementById('carry-2').textContent = newCarryDigits[2] > 0 ? newCarryDigits[2] : ''; // Hundreds carry
+                document.getElementById('carry-3').textContent = newCarryDigits[1] > 0 ? newCarryDigits[1] : ''; // Thousands carry
+                document.getElementById('carry-4').textContent = newCarryDigits[0] > 0 ? newCarryDigits[0] : ''; // Ten-thousands carry
+                
+                // Check each digit
+                inputDigits.forEach((input, index) => {
+                    if (userAnswerDigits[index] === null || userAnswerDigits[index] !== correctDigits[index]) {
+                        input.classList.add('wrong');
+                        input.classList.remove('correct');
+                        allCorrect = false;
+                    } else {
+                        input.classList.add('correct');
+                        input.classList.remove('wrong');
+                    }
+                });
+                
+                // Show appropriate message
+                if (allCorrect) {
+                    message.textContent = 'مبروك! جميع الأجوبة صحيحة. سيتم عرض مسألة جديدة...';
+                    message.className = 'message success';
+                    message.style.display = 'block';
+                    
+                    // Generate new problem after delay
+                    setTimeout(initGame, 2500);
+                } else {
+                    message.textContent = 'هناك أخطاء، يرجى مراجعة الأرقام وحاول مجدداً.';
+                    message.className = 'message error';
+                    message.style.display = 'block';
+                }
+            }
+            
+            // Add keyboard navigation
+            inputDigits.forEach((input, index) => {
+                // Allow only numbers
+                input.addEventListener('input', function(e) {
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                    
+                    // Auto move to next input
+                    if (this.value.length === 1 && index < inputDigits.length - 1) {
+                        inputDigits[index + 1].focus();
+                    }
+                });
+                
+                // Allow navigation with arrow keys
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'ArrowRight' && index > 0) {
+                        inputDigits[index - 1].focus();
+                    } else if (e.key === 'ArrowLeft' && index < inputDigits.length - 1) {
+                        inputDigits[index + 1].focus();
+                    } else if (e.key === 'Enter') {
+                        checkAnswer();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

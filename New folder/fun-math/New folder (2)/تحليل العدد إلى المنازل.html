@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة تحليل العدد إلى المنازل</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+            background-image: linear-gradient(to bottom, #e6f7ff, #ffffff);
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border: 2px solid #4CAF50;
+        }
+        
+        h1 {
+            color: #4CAF50;
+            margin-bottom: 30px;
+            font-size: 28px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .input-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            border: 1px dashed #4CAF50;
+        }
+        
+        .number-display {
+            font-size: 40px;
+            padding: 15px;
+            width: 300px;
+            text-align: center;
+            border: 3px solid #4CAF50;
+            border-radius: 10px;
+            margin: 0 auto 20px;
+            background-color: #fff;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: 5px;
+        }
+        
+        .digits-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        .values-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        .place-box {
+            width: 22%;
+            margin: 0 5px;
+            padding: 15px;
+            background-color: #e9f7ef;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .place-title {
+            font-weight: bold;
+            color: #2E7D32;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .place-input {
+            width: 80%;
+            padding: 10px;
+            font-size: 20px;
+            text-align: center;
+            border: 2px solid #4CAF50;
+            border-radius: 5px;
+            margin: 0 auto;
+            display: block;
+        }
+        
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 10px;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 16px;
+            display: none;
+        }
+        
+        .correct {
+            background-color: #dff0d8;
+            color: #3c763d;
+            border: 1px solid #d6e9c6;
+        }
+        
+        .incorrect {
+            background-color: #f2dede;
+            color: #a94442;
+            border: 1px solid #ebccd1;
+        }
+        
+        .explanation {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #e3f2fd;
+            border-radius: 8px;
+            text-align: right;
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        .place-value {
+            font-weight: bold;
+            color: #2E7D32;
+        }
+        
+        .digit-pad {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 20px auto;
+            max-width: 400px;
+        }
+        
+        .digit-btn {
+            width: 60px;
+            height: 60px;
+            margin: 5px;
+            font-size: 24px;
+            border: 2px solid #4CAF50;
+            border-radius: 50%;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .digit-btn:hover {
+            background-color: #e8f5e9;
+            transform: scale(1.1);
+        }
+        
+        .digit-btn:active {
+            background-color: #c8e6c9;
+            transform: scale(0.95);
+        }
+        
+        .clear-btn {
+            background-color: #ffebee;
+            border-color: #ef5350;
+            color: #c62828;
+        }
+        
+        .clear-btn:hover {
+            background-color: #ffcdd2;
+        }
+        
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+            display: none;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            opacity: 0;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .digits-row, .values-row {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .place-box {
+                width: 90%;
+                margin: 5px 0;
+            }
+            
+            .number-display {
+                width: 90%;
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 لعبة تحليل العدد إلى المنازل 🎮</h1>
+        
+        <div class="input-section">
+            <h2>قم بإنشاء العدد المكون من 4 أرقام</h2>
+            <div class="number-display" id="numberDisplay">____</div>
+            
+            <div class="digit-pad">
+                <button class="digit-btn" data-digit="1">1</button>
+                <button class="digit-btn" data-digit="2">2</button>
+                <button class="digit-btn" data-digit="3">3</button>
+                <button class="digit-btn" data-digit="4">4</button>
+                <button class="digit-btn" data-digit="5">5</button>
+                <button class="digit-btn" data-digit="6">6</button>
+                <button class="digit-btn" data-digit="7">7</button>
+                <button class="digit-btn" data-digit="8">8</button>
+                <button class="digit-btn" data-digit="9">9</button>
+                <button class="digit-btn" data-digit="0">0</button>
+                <button class="digit-btn clear-btn" id="clearBtn">مسح</button>
+            </div>
+            
+            <h3>أرقام المنازل</h3>
+            <div class="digits-row">
+                <div class="place-box">
+                    <div class="place-title">رقم الآلاف</div>
+                    <input type="number" id="thousandsDigit" class="place-input" placeholder="رقم">
+                    <div id="thousandsDigitResult" class="result"></div>
+                </div>
+                
+                <div class="place-box">
+                    <div class="place-title">رقم المئات</div>
+                    <input type="number" id="hundredsDigit" class="place-input" placeholder="رقم">
+                    <div id="hundredsDigitResult" class="result"></div>
+                </div>
+                
+                <div class="place-box">
+                    <div class="place-title">رقم العشرات</div>
+                    <input type="number" id="tensDigit" class="place-input" placeholder="رقم">
+                    <div id="tensDigitResult" class="result"></div>
+                </div>
+                
+                <div class="place-box">
+                    <div class="place-title">رقم الوحدات</div>
+                    <input type="number" id="unitsDigit" class="place-input" placeholder="رقم">
+                    <div id="unitsDigitResult" class="result"></div>
+                </div>
+            </div>
+            
+            <h3>أعداد المنازل</h3>
+            <div class="values-row">
+                <div class="place-box">
+                    <div class="place-title">عدد الآلاف</div>
+                    <input type="number" id="thousandsValue" class="place-input" placeholder="عدد">
+                    <div id="thousandsValueResult" class="result"></div>
+                </div>
+                
+                <div class="place-box">
+                    <div class="place-title">عدد المئات</div>
+                    <input type="number" id="hundredsValue" class="place-input" placeholder="عدد">
+                    <div id="hundredsValueResult" class="result"></div>
+                </div>
+                
+                <div class="place-box">
+                    <div class="place-title">عدد العشرات</div>
+                    <input type="number" id="tensValue" class="place-input" placeholder="عدد">
+                    <div id="tensValueResult" class="result"></div>
+                </div>
+                
+                <div class="place-box">
+                    <div class="place-title">عدد الوحدات</div>
+                    <input type="number" id="unitsValue" class="place-input" placeholder="عدد">
+                    <div id="unitsValueResult" class="result"></div>
+                </div>
+            </div>
+            
+            <button id="checkBtn" class="btn">تحقق من الإجابات</button>
+            <button id="newNumberBtn" class="btn">جرب عددًا جديدًا</button>
+        </div>
+        
+        <div id="explanation" class="explanation"></div>
+    </div>
+
+    <div id="celebration" class="celebration"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const numberDisplay = document.getElementById('numberDisplay');
+            const checkBtn = document.getElementById('checkBtn');
+            const newNumberBtn = document.getElementById('newNumberBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const explanationDiv = document.getElementById('explanation');
+            const celebrationDiv = document.getElementById('celebration');
+            const digitBtns = document.querySelectorAll('.digit-btn:not(.clear-btn)');
+            
+            let currentNumber = '';
+            const maxDigits = 4;
+            
+            // عناصر أرقام المنازل
+            const thousandsDigit = document.getElementById('thousandsDigit');
+            const hundredsDigit = document.getElementById('hundredsDigit');
+            const tensDigit = document.getElementById('tensDigit');
+            const unitsDigit = document.getElementById('unitsDigit');
+            
+            // عناصر أعداد المنازل
+            const thousandsValue = document.getElementById('thousandsValue');
+            const hundredsValue = document.getElementById('hundredsValue');
+            const tensValue = document.getElementById('tensValue');
+            const unitsValue = document.getElementById('unitsValue');
+            
+            // عناصر النتائج
+            const thousandsDigitResult = document.getElementById('thousandsDigitResult');
+            const hundredsDigitResult = document.getElementById('hundredsDigitResult');
+            const tensDigitResult = document.getElementById('tensDigitResult');
+            const unitsDigitResult = document.getElementById('unitsDigitResult');
+            
+            const thousandsValueResult = document.getElementById('thousandsValueResult');
+            const hundredsValueResult = document.getElementById('hundredsValueResult');
+            const tensValueResult = document.getElementById('tensValueResult');
+            const unitsValueResult = document.getElementById('unitsValueResult');
+            
+            // إضافة أرقام إلى العدد
+            digitBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (currentNumber.length < maxDigits) {
+                        currentNumber += this.getAttribute('data-digit');
+                        updateNumberDisplay();
+                    }
+                });
+            });
+            
+            // مسح العدد
+            clearBtn.addEventListener('click', function() {
+                currentNumber = '';
+                updateNumberDisplay();
+                clearInputs();
+                clearResults();
+                explanationDiv.style.display = 'none';
+            });
+            
+            // توليد عدد عشوائي
+            newNumberBtn.addEventListener('click', function() {
+                currentNumber = Math.floor(1000 + Math.random() * 9000).toString();
+                updateNumberDisplay();
+                clearInputs();
+                clearResults();
+                explanationDiv.style.display = 'none';
+            });
+            
+            // تحديث عرض العدد
+            function updateNumberDisplay() {
+                let displayText = currentNumber;
+                // إضافة شرطات للناقص
+                while (displayText.length < maxDigits) {
+                    displayText += '_';
+                }
+                numberDisplay.textContent = displayText.split('').join(' ');
+            }
+            
+            // التحقق من الإجابات
+            checkBtn.addEventListener('click', function() {
+                if (currentNumber.length !== 4) {
+                    alert('الرجاء إدخال عدد مكون من 4 أرقام');
+                    return;
+                }
+                
+                const number = currentNumber;
+                
+                // تحليل العدد إلى أرقام منازله
+                const digits = number.split('').map(Number);
+                const correctDigits = {
+                    thousands: digits[0],
+                    hundreds: digits[1],
+                    tens: digits[2],
+                    units: digits[3]
+                };
+                
+                // حساب القيم الصحيحة لأعداد المنازل
+                const correctValues = {
+                    thousands: digits[0], // عدد الآلاف هو الرقم الأول فقط
+                    hundreds: parseInt(number.substring(0, 2)), // أول رقمين
+                    tens: parseInt(number.substring(0, 3)), // أول ثلاثة أرقام
+                    units: parseInt(number) // العدد كامل
+                };
+                
+                // التحقق من أرقام المنازل
+                checkAnswer(thousandsDigit, correctDigits.thousands, thousandsDigitResult);
+                checkAnswer(hundredsDigit, correctDigits.hundreds, hundredsDigitResult);
+                checkAnswer(tensDigit, correctDigits.tens, tensDigitResult);
+                checkAnswer(unitsDigit, correctDigits.units, unitsDigitResult);
+                
+                // التحقق من أعداد المنازل
+                checkAnswer(thousandsValue, correctValues.thousands, thousandsValueResult);
+                checkAnswer(hundredsValue, correctValues.hundreds, hundredsValueResult);
+                checkAnswer(tensValue, correctValues.tens, tensValueResult);
+                checkAnswer(unitsValue, correctValues.units, unitsValueResult);
+                
+                // عرض الشرح
+                showExplanation(number, correctDigits, correctValues);
+                
+                // التحقق إذا كانت جميع الإجابات صحيحة
+                checkAllCorrect();
+            });
+            
+            // دالة للتحقق من الإجابة وعرض النتيجة
+            function checkAnswer(inputElement, correctAnswer, resultElement) {
+                const userAnswer = inputElement.value.trim();
+                
+                if (userAnswer === '') {
+                    resultElement.textContent = 'لم تقم بالإجابة';
+                    resultElement.className = 'result incorrect';
+                    resultElement.style.display = 'block';
+                    return false;
+                }
+                
+                if (parseInt(userAnswer) === correctAnswer) {
+                    resultElement.textContent = 'إجابة صحيحة! 👍';
+                    resultElement.className = 'result correct';
+                    resultElement.style.display = 'block';
+                    return true;
+                } else {
+                    resultElement.textContent = `إجابة خاطئة، الصحيح هو: ${correctAnswer}`;
+                    resultElement.className = 'result incorrect';
+                    resultElement.style.display = 'block';
+                    return false;
+                }
+            }
+            
+            // دالة للتحقق إذا كانت جميع الإجابات صحيحة
+            function checkAllCorrect() {
+                const allResults = document.querySelectorAll('.result');
+                let allCorrect = true;
+                
+                allResults.forEach(result => {
+                    if (!result.classList.contains('correct') && result.style.display === 'block') {
+                        allCorrect = false;
+                    }
+                });
+                
+                if (allCorrect) {
+                    celebrate();
+                }
+            }
+            
+            // دالة للاحتفال عند الإجابة الصحيحة
+            function celebrate() {
+                celebrationDiv.style.display = 'block';
+                celebrationDiv.innerHTML = '';
+                
+                for (let i = 0; i < 100; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.backgroundColor = getRandomColor();
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.animation = `fall ${Math.random() * 3 + 2}s linear forwards`;
+                    confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                    
+                    // إنشاء تأثير سقوط متباين
+                    document.head.insertAdjacentHTML('beforeend', `
+                        <style>
+                            @keyframes fall {
+                                to {
+                                    top: 100vh;
+                                    opacity: 1;
+                                    transform: rotate(${Math.random() * 360}deg);
+                                }
+                            }
+                        </style>
+                    `);
+                    
+                    celebrationDiv.appendChild(confetti);
+                }
+                
+                setTimeout(() => {
+                    celebrationDiv.style.display = 'none';
+                }, 3000);
+            }
+            
+            // دالة للحصول على لون عشوائي
+            function getRandomColor() {
+                const colors = ['#4CAF50', '#2196F3', '#FFC107', '#F44336', '#9C27B0', '#00BCD4', '#FF5722'];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
+            
+            // دالة لعرض الشرح التفصيلي
+            function showExplanation(number, digits, values) {
+                explanationDiv.innerHTML = `
+                    <h3>🎉 شرح تحليل العدد ${number} 🎉</h3>
+                    <p>عند تحليل العدد إلى منازله، ننظر إلى كل رقم حسب موقعه في العدد:</p>
+                    <div style="display: flex; justify-content: space-around; flex-wrap: wrap;">
+                        <div style="width: 45%; min-width: 250px;">
+                            <h4 style="color: #2E7D32;">أرقام المنازل:</h4>
+                            <ul>
+                                <li>رقم الآلاف هو: <span class="place-value">${digits.thousands}</span></li>
+                                <li>رقم المئات هو: <span class="place-value">${digits.hundreds}</span></li>
+                                <li>رقم العشرات هو: <span class="place-value">${digits.tens}</span></li>
+                                <li>رقم الوحدات هو: <span class="place-value">${digits.units}</span></li>
+                            </ul>
+                        </div>
+                        <div style="width: 45%; min-width: 250px;">
+                            <h4 style="color: #2E7D32;">أعداد المنازل:</h4>
+                            <ul>
+                                <li>عدد الآلاف هو الرقم الأول فقط: <span class="place-value">${values.thousands}</span></li>
+                                <li>عدد المئات هو أول رقمين: <span class="place-value">${values.hundreds}</span></li>
+                                <li>عدد العشرات هو أول ثلاثة أرقام: <span class="place-value">${values.tens}</span></li>
+                                <li>عدد الوحدات هو العدد كاملاً: <span class="place-value">${values.units}</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p style="text-align: center; margin-top: 15px; font-weight: bold;">🔍 لاحظ كيف يتغير عدد كل منزلة حسب موقعها في العدد!</p>
+                `;
+                explanationDiv.style.display = 'block';
+            }
+            
+            // دالة لمسح الحقول
+            function clearInputs() {
+                thousandsDigit.value = '';
+                hundredsDigit.value = '';
+                tensDigit.value = '';
+                unitsDigit.value = '';
+                
+                thousandsValue.value = '';
+                hundredsValue.value = '';
+                tensValue.value = '';
+                unitsValue.value = '';
+            }
+            
+            // دالة لمسح النتائج
+            function clearResults() {
+                const results = document.querySelectorAll('.result');
+                results.forEach(result => {
+                    result.style.display = 'none';
+                    result.textContent = '';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة تركيب الكلمات</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+        
+        :root {
+            --primary-color: #6a5acd;
+            --secondary-color: #9370db;
+            --accent-color: #ff8c00;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --success-color: #28a745;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: var(--dark-color);
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            padding: 30px;
+            margin-top: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2.2rem;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        h1::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            border-radius: 3px;
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+        
+        .score, .level {
+            text-align: center;
+        }
+        
+        .score h3, .level h3 {
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        .score-value, .level-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+        
+        .word-display {
+            font-size: 2rem;
+            text-align: center;
+            margin: 30px 0;
+            min-height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--primary-color);
+            font-weight: bold;
+            letter-spacing: 5px;
+        }
+        
+        .letters-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .letter-card {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+        
+        .letter-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 7px 20px rgba(106, 90, 205, 0.3);
+        }
+        
+        .letter-card.selected {
+            background: linear-gradient(135deg, var(--accent-color) 0%, #ffa500 100%);
+            transform: scale(0.95);
+        }
+        
+        .letter-card.correct {
+            background: linear-gradient(135deg, var(--success-color) 0%, #5cb85c 100%);
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+        
+        .check-btn {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+        }
+        
+        .check-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(106, 90, 205, 0.3);
+        }
+        
+        .reset-btn {
+            background-color: white;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+        
+        .reset-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .next-btn {
+            background: linear-gradient(135deg, var(--accent-color) 0%, #ffa500 100%);
+            color: white;
+        }
+        
+        .next-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(255, 140, 0, 0.3);
+        }
+        
+        .message {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.2rem;
+            min-height: 30px;
+        }
+        
+        .success {
+            color: var(--success-color);
+            font-weight: bold;
+            animation: bounce 0.5s;
+        }
+        
+        .error {
+            color: #dc3545;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: var(--accent-color);
+            opacity: 0;
+            top: 0;
+            animation: confetti-fall 3s ease-in-out forwards;
+        }
+        
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .letter-card {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>لعبة تركيب الكلمات</h1>
+        
+        <div class="game-info">
+            <div class="score">
+                <h3>النقاط</h3>
+                <div class="score-value">0</div>
+            </div>
+            <div class="level">
+                <h3>المحاولات</h3>
+                <div class="level-value">0</div>
+            </div>
+        </div>
+        
+        <div class="word-display"></div>
+        
+        <div class="message"></div>
+        
+        <div class="letters-container"></div>
+        
+        <div class="controls">
+            <button class="check-btn">تحقق</button>
+            <button class="reset-btn">إعادة</button>
+            <button class="next-btn">تبديل الكلمة</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // عناصر DOM
+            const wordDisplay = document.querySelector('.word-display');
+            const lettersContainer = document.querySelector('.letters-container');
+            const checkBtn = document.querySelector('.check-btn');
+            const resetBtn = document.querySelector('.reset-btn');
+            const nextBtn = document.querySelector('.next-btn');
+            const messageEl = document.querySelector('.message');
+            const scoreValue = document.querySelector('.score-value');
+            const levelValue = document.querySelector('.level-value');
+            
+            // بيانات اللعبة (كلمتان فقط)
+            const words = ["تفاحة", "موز"];
+            let currentWordIndex = 0;
+            let currentWord = words[currentWordIndex];
+            let selectedLetters = [];
+            let score = 0;
+            let attempts = 0;
+            let shuffledLetters = [];
+            
+            // تهيئة اللعبة
+            function initGame() {
+                // عرض الشرط
+                wordDisplay.textContent = '?'.repeat(currentWord.length);
+                
+                // خلط حروف الكلمة
+                shuffledLetters = shuffleArray([...currentWord]);
+                
+                // عرض الحروف
+                renderLetters();
+                
+                // مسح الرسائل
+                messageEl.textContent = '';
+                messageEl.className = 'message';
+                
+                // مسح الحروف المحددة
+                selectedLetters = [];
+                
+                // زيادة عدد المحاولات
+                attempts++;
+                levelValue.textContent = attempts;
+            }
+            
+            // عرض الحروف
+            function renderLetters() {
+                lettersContainer.innerHTML = '';
+                
+                shuffledLetters.forEach((letter, index) => {
+                    const letterCard = document.createElement('div');
+                    letterCard.className = 'letter-card';
+                    letterCard.textContent = letter;
+                    letterCard.dataset.index = index;
+                    
+                    letterCard.addEventListener('click', () => selectLetter(letterCard, index));
+                    
+                    lettersContainer.appendChild(letterCard);
+                });
+            }
+            
+            // اختيار حرف
+            function selectLetter(letterCard, index) {
+                if (letterCard.classList.contains('selected')) {
+                    // إلغاء التحديد إذا كان الحرف محددًا بالفعل
+                    letterCard.classList.remove('selected');
+                    selectedLetters = selectedLetters.filter(l => l.index !== index);
+                } else {
+                    // تحديد الحرف إذا لم يكن محددًا
+                    if (selectedLetters.length < currentWord.length) {
+                        letterCard.classList.add('selected');
+                        selectedLetters.push({ letter: letterCard.textContent, index });
+                        
+                        // تحديث عرض الكلمة
+                        updateWordDisplay();
+                    }
+                }
+            }
+            
+            // تحديث عرض الكلمة
+            function updateWordDisplay() {
+                const wordArray = Array(currentWord.length).fill('_');
+                
+                selectedLetters.forEach((selected, i) => {
+                    wordArray[i] = selected.letter;
+                });
+                
+                wordDisplay.textContent = wordArray.join(' ');
+            }
+            
+            // التحقق من الكلمة
+            function checkWord() {
+                const userWord = selectedLetters.map(l => l.letter).join('');
+                
+                if (userWord === currentWord) {
+                    // الكلمة صحيحة
+                    messageEl.textContent = 'أحسنت! كلمة صحيحة';
+                    messageEl.className = 'message success';
+                    
+                    // زيادة النقاط
+                    score += currentWord.length * 10;
+                    scoreValue.textContent = score;
+                    
+                    // عرض تأثيرات النجاح
+                    showSuccessEffects();
+                    
+                    // تعطيل الأزرار مؤقتًا
+                    checkBtn.disabled = true;
+                    resetBtn.disabled = true;
+                    
+                    // تمييز الحروف الصحيحة
+                    document.querySelectorAll('.letter-card').forEach(card => {
+                        card.classList.add('correct');
+                    });
+                } else {
+                    // الكلمة خاطئة
+                    messageEl.textContent = 'كلمة خاطئة، حاول مرة أخرى';
+                    messageEl.className = 'message error';
+                }
+            }
+            
+            // عرض تأثيرات النجاح
+            function showSuccessEffects() {
+                // تأثير الكونفيتي
+                for (let i = 0; i < 50; i++) {
+                    setTimeout(() => {
+                        const confetti = document.createElement('div');
+                        confetti.className = 'confetti';
+                        confetti.style.left = `${Math.random() * 100}vw`;
+                        confetti.style.backgroundColor = getRandomColor();
+                        confetti.style.width = `${Math.random() * 10 + 5}px`;
+                        confetti.style.height = `${Math.random() * 10 + 5}px`;
+                        document.body.appendChild(confetti);
+                        
+                        // إزالة الكونفيتي بعد الانتهاء
+                        setTimeout(() => {
+                            confetti.remove();
+                        }, 3000);
+                    }, i * 50);
+                }
+            }
+            
+            // الحصول على لون عشوائي
+            function getRandomColor() {
+                const colors = ['#6a5acd', '#9370db', '#ff8c00', '#28a745', '#dc3545', '#17a2b8'];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
+            
+            // إعادة تعيين الكلمة الحالية
+            function resetCurrentWord() {
+                selectedLetters = [];
+                updateWordDisplay();
+                
+                // إعادة تعيين الحروف المحددة
+                document.querySelectorAll('.letter-card').forEach(card => {
+                    card.classList.remove('selected', 'correct');
+                });
+                
+                messageEl.textContent = '';
+                messageEl.className = 'message';
+                
+                checkBtn.disabled = false;
+                resetBtn.disabled = false;
+            }
+            
+            // تبديل الكلمة
+            function switchWord() {
+                currentWordIndex = (currentWordIndex + 1) % words.length;
+                currentWord = words[currentWordIndex];
+                initGame();
+            }
+            
+            // دمج الحروف (Fisher-Yates shuffle)
+            function shuffleArray(array) {
+                const newArray = [...array];
+                for (let i = newArray.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+                }
+                return newArray;
+            }
+            
+            // أحداث الأزرار
+            checkBtn.addEventListener('click', checkWord);
+            resetBtn.addEventListener('click', resetCurrentWord);
+            nextBtn.addEventListener('click', switchWord);
+            
+            // بدء اللعبة
+            initGame();
+        });
+    </script>
+</body>
+</html>

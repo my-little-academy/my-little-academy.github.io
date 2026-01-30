@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة أدوات الاستفهام العربية</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeIn 1s ease-in-out;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .description {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        .game-area {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+        
+        .question-container {
+            margin-bottom: 20px;
+        }
+        
+        .question {
+            font-size: 1.3rem;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            line-height: 1.5;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border-right: 5px solid #3498db;
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 600px) {
+            .options {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .option {
+            padding: 15px;
+            background-color: #f1f2f6;
+            border: 2px solid #dfe4ea;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+        
+        .option:hover {
+            background-color: #e4e6eb;
+            transform: translateY(-2px);
+        }
+        
+        .option.selected {
+            background-color: #3498db;
+            color: white;
+            border-color: #2980b9;
+        }
+        
+        .option.correct {
+            background-color: #2ecc71;
+            color: white;
+            border-color: #27ae60;
+        }
+        
+        .option.incorrect {
+            background-color: #e74c3c;
+            color: white;
+            border-color: #c0392b;
+        }
+        
+        .feedback {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .feedback.correct {
+            background-color: rgba(46, 204, 113, 0.2);
+            border-left: 5px solid #2ecc71;
+            color: #27ae60;
+        }
+        
+        .feedback.incorrect {
+            background-color: rgba(231, 76, 60, 0.2);
+            border-left: 5px solid #e74c3c;
+            color: #c0392b;
+        }
+        
+        .feedback p {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+        
+        .next-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+            margin: 0 auto;
+        }
+        
+        .next-btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+        }
+        
+        .progress-container {
+            width: 100%;
+            background-color: #f1f2f6;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            height: 10px;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #3498db 0%, #2ecc71 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .score-container {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        
+        .result-container {
+            text-align: center;
+            display: none;
+            animation: fadeIn 1s ease-in-out;
+        }
+        
+        .result-title {
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .final-score {
+            font-size: 3rem;
+            color: #3498db;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .restart-btn {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        
+        .restart-btn:hover {
+            background-color: #27ae60;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+            color: #3498db;
+            font-weight: bold;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 300px;
+            background-color: #2c3e50;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.9rem;
+            font-weight: normal;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>لعبة أدوات الاستفهام العربية</h1>
+            <p class="description">تعلم أدوات الاستفهام في اللغة العربية بطريقة تفاعلية وممتعة! اختر الإجابة الصحيحة لكل سؤال وتعلم دلالات كل أداة.</p>
+        </header>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        
+        <div class="score-container" id="scoreContainer">
+            النقاط: <span id="score">0</span> / <span id="totalQuestions">0</span>
+        </div>
+        
+        <div class="game-area" id="gameArea">
+            <div class="question-container">
+                <div class="question" id="questionText"></div>
+            </div>
+            
+            <div class="options" id="optionsContainer"></div>
+            
+            <div class="feedback" id="feedback">
+                <p id="feedbackText"></p>
+            </div>
+            
+            <button class="next-btn" id="nextBtn">التالي</button>
+        </div>
+        
+        <div class="result-container" id="resultContainer">
+            <h2 class="result-title" id="resultTitle"></h2>
+            <div class="final-score" id="finalScore"></div>
+            <p id="resultMessage"></p>
+            <button class="restart-btn" id="restartBtn">العب مرة أخرى</button>
+        </div>
+    </div>
+
+    <script>
+        // بيانات الأسئلة
+        const questions = [
+            {
+                question: "هل كان عمروٌ موجودًا؟",
+                options: [
+                    { text: "هل - حرف - للسؤال عن الجمل المثبتة", correct: true },
+                    { text: "هل - اسم - للسؤال عن العاقل", correct: false },
+                    { text: "هل - حرف - للسؤال عن الجمل المنفية", correct: false },
+                    { text: "هل - اسم - للسؤال عن الزمان", correct: false }
+                ],
+                explanation: "أداة الاستفهام هي (هل)، وهي حرفٌ، وتستخدم لسؤال عن الجمل المثبتة."
+            },
+            {
+                question: "أتلعبُ الكرة؟",
+                options: [
+                    { text: "الهمزة - حرف - للسؤال عن الجمل المثبتة والمنفية", correct: true },
+                    { text: "الهمزة - اسم - للسؤال عن العاقل", correct: false },
+                    { text: "الهمزة - حرف - للسؤال عن الزمان فقط", correct: false },
+                    { text: "الهمزة - اسم - للسؤال عن غير العاقل", correct: false }
+                ],
+                explanation: "أداة الاستفهام هي (الهمزة)، وهي حرفٌ، وتستخدم للسؤال عن الجمل المثبتة والمنفيّة."
+            },
+            {
+                question: "أيّ الطالبين أكثر نبوغًا: محمد أم أحمد؟",
+                options: [
+                    { text: "أيّ - اسم - أداة عامة دلالتها بحسب المضاف إليها", correct: true },
+                    { text: "أيّ - حرف - للسؤال عن العاقل فقط", correct: false },
+                    { text: "أيّ - اسم - للسؤال عن الزمان فقط", correct: false },
+                    { text: "أيّ - حرف - للسؤال عن الجمل المثبتة", correct: false }
+                ],
+                explanation: "أداة الاستفهام هي (أيّ)، وهي اسم، وتعدّ أداةً عامّة دلالتها تكون بحسب المضاف إليها."
+            },
+            {
+                question: "من الذي درّسك مادّة العلوم؟",
+                options: [
+                    { text: "من - اسم - للسؤال عن العاقل", correct: true },
+                    { text: "من - حرف - للسؤال عن غير العاقل", correct: false },
+                    { text: "من - اسم - للسؤال عن المكان", correct: false },
+                    { text: "من - حرف - للسؤال عن الجمل المنفية", correct: false }
+                ],
+                explanation: "أداة الاستفهام هي (مَنْ)، وهي اسم، وتستخدم للسؤال عن العاقل."
+            },
+            {
+                question: "ما عنوان كتاب حمزة بن سليمان الجديد؟",
+                options: [
+                    { text: "ما - اسم - للسؤال عن غير العاقل", correct: true },
+                    { text: "ما - حرف - للسؤال عن العاقل", correct: false },
+                    { text: "ما - اسم - للسؤال عن الزمان", correct: false },
+                    { text: "ما - حرف - للسؤال عن الجمل المثبتة", correct: false }
+                ],
+                explanation: "أداة الاستفهام هي (ما)، وهي اسم، وتستخدم للسؤال عن غير العاقل."
+            },
+            {
+                question: "ماذا كان في الصندوق؟",
+                options: [
+                    { text: "ماذا - اسم - للسؤال عن الأخبار", correct: true },
+                    { text: "ماذا - حرف - للسؤال عن العاقل", correct: false },
+                    { text: "ماذا - اسم - للسؤال عن المكان", correct: false },
+                    { text: "ماذا - حرف - للسؤال عن الجمل المنفية", correct: false }
+                ],
+                explanation: "أداة الاستفهام هي (ماذا)، وهي اسم، وتستخدم للسؤال عن الأخبار."
+            },
+            {
+                question: "أينَ هاجرت الطيور هذه السنة؟",
+                options: [
+                    { text: "أينَ - اسم - للسؤال عن المكان", correct: true },
+                    { text: "أينَ - حرف - للسؤال عن الزمان", correct: false },
+                    { text: "أينَ - اسم - للسؤال عن العدد", correct: false },
+                    { text: "أينَ - حرف - للسؤال عن الجمل المثبتة", correct: false }
+                ],
+                explanation: "أداة الاستفهام هي (أينَ)، وهي اسم، وتستخدم للسؤال عن المكان."
+            },
+            {
+                question: "متى ستقلع الطائرة؟",
+                options: [
+                    { text: "متى - اسم - للسؤال عن الزمان", correct: true },
+                    { text: "متى - حرف - للسؤال عن المكان", correct: false },
+                    { text: "متى - اسم - للسؤال عن الحال", correct: false },
+                    { text: "متى - حرف - للسؤال عن العدد", correct: false }
+                ],
+                explanation: "أداة الاستفهام هي (متى)، وهي اسم، وتستخدم للسؤال عن الزمان."
+            },
+            {
+                question: "كيف تجلّدون الكتب القديمة؟",
+                options: [
+                    { text: "كيف - اسم - للسؤال عن الحال", correct: true },
+                    { text: "كيف - حرف - للسؤال عن الزمان", correct: false },
+                    { text: "كيف - اسم - للسؤال عن المكان", correct: false },
+                    { text: "كيف - حرف - للسؤال عن العدد", correct: false }
+                ],
+                explanation: "أداة الاستفهام هي (كيف)، وهي اسم، وتستخدم للسؤال عن الحال."
+            },
+            {
+                question: "كم كتابًا تقرأ في الشهر؟",
+                options: [
+                    { text: "كم - اسم - للسؤال عن العدد", correct: true },
+                    { text: "كم - حرف - للسؤال عن الزمان", correct: false },
+                    { text: "كم - اسم - للسؤال عن المكان", correct: false },
+                    { text: "كم - حرف - للسؤال عن الجمل المثبتة", correct: false }
+                ],
+                explanation: "أداة الاستفهام هي (كم)، وهي اسم، وتستخدم للسؤال عن العدد."
+            },
+            {
+                question: "يسألك الناس: أيّان تُقام الصلاة؟",
+                options: [
+                    { text: "أيّان - اسم - للسؤال عن الزمان", correct: true },
+                    { text: "أيّان - حرف - للسؤال عن المكان", correct: false },
+                    { text: "أيّان - اسم - للسؤال عن العدد", correct: false },
+                    { text: "أيّان - حرف - للسؤال عن الجمل المنفية", correct: false }
+                ],
+                explanation: "أداة الاستفهام هي (أيّان)، وهي اسم، وتستخدم للسؤال عن الزمان."
+            }
+        ];
+
+        // عناصر DOM
+        const questionText = document.getElementById('questionText');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const feedback = document.getElementById('feedback');
+        const feedbackText = document.getElementById('feedbackText');
+        const nextBtn = document.getElementById('nextBtn');
+        const progressBar = document.getElementById('progressBar');
+        const scoreElement = document.getElementById('score');
+        const totalQuestionsElement = document.getElementById('totalQuestions');
+        const gameArea = document.getElementById('gameArea');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultTitle = document.getElementById('resultTitle');
+        const finalScore = document.getElementById('finalScore');
+        const resultMessage = document.getElementById('resultMessage');
+        const restartBtn = document.getElementById('restartBtn');
+        const scoreContainer = document.getElementById('scoreContainer');
+
+        // متغيرات اللعبة
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedOption = null;
+        let quizCompleted = false;
+
+        // تهيئة اللعبة
+        function initGame() {
+            currentQuestionIndex = 0;
+            score = 0;
+            quizCompleted = false;
+            gameArea.style.display = 'block';
+            resultContainer.style.display = 'none';
+            totalQuestionsElement.textContent = questions.length;
+            updateScore();
+            showQuestion();
+        }
+
+        // عرض السؤال الحالي
+        function showQuestion() {
+            if (currentQuestionIndex >= questions.length) {
+                endGame();
+                return;
+            }
+
+            const question = questions[currentQuestionIndex];
+            questionText.textContent = question.question;
+            optionsContainer.innerHTML = '';
+            
+            // خلط الخيارات عشوائيًا
+            const shuffledOptions = [...question.options].sort(() => Math.random() - 0.5);
+            
+            shuffledOptions.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.classList.add('option');
+                optionElement.textContent = option.text;
+                optionElement.dataset.index = index;
+                optionElement.addEventListener('click', selectOption);
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            feedback.style.display = 'none';
+            nextBtn.style.display = 'none';
+            selectedOption = null;
+            
+            // تحديث شريط التقدم
+            progressBar.style.width = `${(currentQuestionIndex / questions.length) * 100}%`;
+        }
+
+        // اختيار إجابة
+        function selectOption(e) {
+            if (selectedOption !== null) return;
+            
+            const selectedElement = e.target;
+            const optionIndex = parseInt(selectedElement.dataset.index);
+            const question = questions[currentQuestionIndex];
+            const option = question.options[optionIndex];
+            
+            // إلغاء اختيار جميع الخيارات
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // تحديد الخيار المختار
+            selectedElement.classList.add('selected');
+            selectedOption = option;
+            
+            // عرض التغذية الراجعة
+            feedback.style.display = 'block';
+            if (option.correct) {
+                feedback.classList.remove('incorrect');
+                feedback.classList.add('correct');
+                feedbackText.textContent = 'إجابة صحيحة! ' + question.explanation;
+                score++;
+                updateScore();
+            } else {
+                feedback.classList.remove('correct');
+                feedback.classList.add('incorrect');
+                feedbackText.textContent = 'إجابة خاطئة. ' + question.explanation;
+                
+                // إظهار الإجابة الصحيحة
+                const correctIndex = question.options.findIndex(opt => opt.correct);
+                document.querySelectorAll('.option')[correctIndex].classList.add('correct');
+            }
+            
+            nextBtn.style.display = 'block';
+            nextBtn.classList.add('pulse');
+        }
+
+        // التالي
+        function nextQuestion() {
+            nextBtn.classList.remove('pulse');
+            currentQuestionIndex++;
+            showQuestion();
+        }
+
+        // تحديث النقاط
+        function updateScore() {
+            scoreElement.textContent = score;
+        }
+
+        // نهاية اللعبة
+        function endGame() {
+            quizCompleted = true;
+            gameArea.style.display = 'none';
+            resultContainer.style.display = 'block';
+            
+            const percentage = (score / questions.length) * 100;
+            finalScore.textContent = `${score} / ${questions.length}`;
+            
+            if (percentage >= 80) {
+                resultTitle.textContent = 'ممتاز!';
+                resultMessage.textContent = 'أحسنت! لديك فهم ممتاز لأدوات الاستفهام في اللغة العربية.';
+            } else if (percentage >= 50) {
+                resultTitle.textContent = 'جيد جدًا!';
+                resultMessage.textContent = 'عمل جيد! لديك فهم جيد لأدوات الاستفهام، ولكن يمكنك تحسينه أكثر.';
+            } else {
+                resultTitle.textContent = 'حاول مرة أخرى!';
+                resultMessage.textContent = 'تحتاج إلى مزيد من الممارسة. حاول مراجعة أدوات الاستفهام وحاول مرة أخرى.';
+            }
+            
+            progressBar.style.width = '100%';
+        }
+
+        // أحداث
+        nextBtn.addEventListener('click', nextQuestion);
+        restartBtn.addEventListener('click', initGame);
+
+        // بدء اللعبة
+        initGame();
+    </script>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>اختبار السيرة النبوية للأطفال</title>
+  <style>
+    body {
+      font-family: 'Tajawal', sans-serif;
+      background: linear-gradient(to bottom, #ffe9c7, #ffd4aa);
+      text-align: center;
+      padding: 40px 20px;
+      color: #333;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      color: #6d3f2c;
+    }
+
+    .quiz-container {
+      max-width: 700px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .question {
+      font-size: 1.5em;
+      margin-bottom: 20px;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .option-btn {
+      padding: 12px;
+      font-size: 1.1em;
+      border-radius: 12px;
+      border: none;
+      background-color: #f0f0f0;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .option-btn:hover {
+      background-color: #ffe5a2;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-size: 1.3em;
+      font-weight: bold;
+    }
+
+    .final-score {
+      font-size: 1.6em;
+      margin-top: 30px;
+      font-weight: bold;
+      color: green;
+    }
+
+    .restart-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1.1em;
+      background: #ffda70;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+    }
+
+    /* كونفيتي */
+    .confetti {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 0;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      width: 10px;
+      height: 20px;
+      background: #f39c12;
+      animation: fall 3s linear infinite;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>اختبار السيرة النبوية للأطفال</h1>
+  <div class="quiz-container">
+    <div id="question" class="question"></div>
+    <div id="options" class="options"></div>
+    <div id="result" class="result"></div>
+    <div id="final" class="final-score"></div>
+    <button class="restart-btn" onclick="restartQuiz()" style="display:none">🔄 إعادة المحاولة</button>
+  </div>
+
+  <!-- كونفيتي -->
+  <div class="confetti" id="confetti-container"></div>
+
+  <script>
+    const questions = [
+      {
+        question: "أين وُلد النبي محمد ﷺ؟",
+        options: ["المدينة", "مكة", "القدس"],
+        correct: "مكة"
+      },
+      {
+        question: "ما لقب النبي ﷺ قبل النبوة؟",
+        options: ["الأمين فقط", "الصادق الأمين", "الذكي النبيل"],
+        correct: "الصادق الأمين"
+      },
+      {
+        question: "من أرسل الله إلى النبي ﷺ بالوحي؟",
+        options: ["جبريل", "ميكائيل", "إسرافيل"],
+        correct: "جبريل"
+      },
+      {
+        question: "لماذا هاجر النبي ﷺ إلى المدينة؟",
+        options: ["للسياحة", "لنشر الإسلام بأمان", "للتجارة"],
+        correct: "لنشر الإسلام بأمان"
+      },
+      {
+        question: "كيف كان النبي ﷺ يعامل الأطفال؟",
+        options: ["يحبهم ويلاعبهم", "لا يهتمّ بهم", "يصرخ عليهم"],
+        correct: "يحبهم ويلاعبهم"
+      },
+      {
+        question: "كم صلاة نصلي في اليوم؟",
+        options: ["سبع", "ثلاث", "خمس"],
+        correct: "خمس"
+      },
+      {
+        question: "في أي عام تُوفي النبي ﷺ؟",
+        options: ["11 هـ", "5 هـ", "21 هـ"],
+        correct: "11 هـ"
+      }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+
+    function showQuestion() {
+      const q = questions[currentQuestion];
+      document.getElementById("question").innerText = q.question;
+      const optionsDiv = document.getElementById("options");
+      optionsDiv.innerHTML = "";
+
+      q.options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.innerText = opt;
+        btn.onclick = () => checkAnswer(opt);
+        optionsDiv.appendChild(btn);
+      });
+
+      document.getElementById("result").innerText = "";
+    }
+
+    function checkAnswer(selected) {
+      const correct = questions[currentQuestion].correct;
+      if (selected === correct) {
+        score++;
+        document.getElementById("result").innerText = "✅ إجابة صحيحة!";
+        document.getElementById("result").style.color = "green";
+      } else {
+        document.getElementById("result").innerText = "❌ خاطئة! الإجابة الصحيحة: " + correct;
+        document.getElementById("result").style.color = "red";
+      }
+
+      setTimeout(() => {
+        currentQuestion++;
+        if (currentQuestion < questions.length) {
+          showQuestion();
+        } else {
+          showFinal();
+        }
+      }, 1200);
+    }
+
+    function showFinal() {
+      document.getElementById("question").style.display = "none";
+      document.getElementById("options").style.display = "none";
+      document.getElementById("result").style.display = "none";
+      document.querySelector(".restart-btn").style.display = "inline-block";
+
+      const msg = score >= 6 ? "🎉 ممتاز! لقد أحرزت " + score + " من 7!" : "🙂 أحرزت " + score + " من 7. حاول مرة أخرى!";
+      document.getElementById("final").innerText = msg;
+
+      if (score >= 6) launchConfetti();
+    }
+
+    function restartQuiz() {
+      currentQuestion = 0;
+      score = 0;
+      document.getElementById("question").style.display = "block";
+      document.getElementById("options").style.display = "flex";
+      document.getElementById("result").style.display = "block";
+      document.getElementById("final").innerText = "";
+      document.querySelector(".restart-btn").style.display = "none";
+      showQuestion();
+    }
+
+    function launchConfetti() {
+      const container = document.getElementById('confetti-container');
+      for (let i = 0; i < 100; i++) {
+        const confetti = document.createElement('div');
+        confetti.classList.add('confetti-piece');
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.backgroundColor = `hsl(${Math.random()*360}, 70%, 60%)`;
+        confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+        confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+        container.appendChild(confetti);
+
+        setTimeout(() => confetti.remove(), 4000);
+      }
+    }
+
+    // بدء الاختبار
+    showQuestion();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>لعبة الأسماء الموصولة الطفولية 🎈</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap');
+
+    body {
+      font-family: 'Comic Neue', cursive, sans-serif;
+      background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+      padding: 40px;
+      direction: rtl;
+      text-align: center;
+      overflow-x: hidden;
+      position: relative;
+      user-select: none;
+    }
+
+    .quiz-container {
+      max-width: 700px;
+      margin: auto;
+      background: #fff8f0;
+      border-radius: 25px;
+      padding: 35px 40px;
+      box-shadow: 0 8px 15px rgba(255, 182, 193, 0.6);
+      border: 4px solid #ff81a8;
+      transition: transform 0.3s ease;
+      position: relative;
+      z-index: 1;
+    }
+    .quiz-container:hover {
+      transform: scale(1.03);
+      box-shadow: 0 12px 25px rgba(255, 105, 180, 0.8);
+    }
+
+    h1 {
+      color: #ff3c78;
+      font-size: 36px;
+      margin-bottom: 35px;
+      text-shadow: 2px 2px 4px #ffd1e8;
+    }
+
+    .question {
+      font-size: 26px;
+      margin-bottom: 25px;
+      color: #a83279;
+      min-height: 70px;
+    }
+
+    select {
+      font-size: 22px;
+      padding: 8px 18px;
+      border-radius: 18px;
+      border: 3px solid #ffa3c1;
+      background-color: #fff0f5;
+      color: #d94f89;
+      cursor: pointer;
+      outline-offset: 3px;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    select:hover, select:focus {
+      background-color: #ffd6e8;
+      border-color: #ff57a3;
+    }
+
+    button {
+      margin: 15px 15px 0 15px;
+      padding: 12px 30px;
+      font-size: 20px;
+      border: none;
+      border-radius: 20px;
+      background-color: #ff70a6;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.25s ease, transform 0.15s ease;
+      box-shadow: 0 6px 12px rgba(255, 112, 166, 0.7);
+      user-select: none;
+    }
+    button:hover:not(:disabled) {
+      background-color: #ff4d85;
+      transform: scale(1.1);
+    }
+    button:disabled {
+      background-color: #ffb6c1;
+      cursor: default;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .result {
+      margin-top: 18px;
+      font-size: 22px;
+      font-weight: 700;
+      min-height: 32px;
+      color: #6b004f;
+      text-shadow: 1px 1px 2px #ffccd5;
+    }
+
+    .correct {
+      color: #32a852;
+      text-shadow: 1px 1px 3px #a6f0b7;
+    }
+    .wrong {
+      color: #d92727;
+      text-shadow: 1px 1px 3px #f59ca9;
+    }
+
+    /* شكل الشخصية الصغيرة التي تتبع الماوس */
+    #follow-cursor {
+      position: fixed;
+      top: 0; left: 0;
+      width: 60px;
+      height: 60px;
+      pointer-events: none;
+      user-select: none;
+      transition: transform 0.1s ease-out;
+      z-index: 9999;
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="quiz-container" aria-live="polite" aria-atomic="true" aria-relevant="text">
+  <h1>🎉 لعبة الأسماء الموصولة الطفولية 🎈</h1>
+
+  <div class="question" id="question-text"></div>
+
+  <select id="answer-select" aria-label="اختيار الاسم الموصول">
+    <option value="">-- اختر --</option>
+  </select><br/>
+
+  <button id="check-btn" aria-pressed="false">تحقّق ✔️</button>
+  <button id="next-btn" disabled>التالي ⏭️</button>
+
+  <div class="result" id="result-text" role="alert" aria-live="assertive"></div>
+</div>
+
+<!-- الشخصية المتحركة -->
+<img id="follow-cursor" src="https://i.postimg.cc/qR9pTNjf/cute-pink-face.png" alt="شخصية مرحة" />
+
+<script>
+  const questions = [
+    {
+      textTemplate: "هذا هو الولدُ {blank} نجحَ في الامتحانِ بامتيازٍ. 🏆",
+      correct: "الذي",
+      options: ["الذي", "التي", "الذين", "ما"]
+    },
+    {
+      textTemplate: "قرأتُ القصةَ {blank} نالتْ جائزةَ أفضلِ نصٍّ. 📖",
+      correct: "التي",
+      options: ["الذي", "التي", "اللذان", "من"]
+    },
+    {
+      textTemplate: "الطلابُ {blank} اجتهدوا طوالَ العامِ وتفوّقوا. 🎓",
+      correct: "الذين",
+      options: ["اللذان", "الذين", "التي", "ما"]
+    },
+    {
+      textTemplate: "أحببتُ {blank} قرأتُهُ في هذا الكتابِ. 📚",
+      correct: "ما",
+      options: ["التي", "ما", "من", "الذين"]
+    }
+  ];
+
+  let currentIndex = 0;
+
+  const questionTextEl = document.getElementById('question-text');
+  const selectEl = document.getElementById('answer-select');
+  const checkBtn = document.getElementById('check-btn');
+  const nextBtn = document.getElementById('next-btn');
+  const resultText = document.getElementById('result-text');
+
+  // لخلط مصفوفة الخيارات عشوائياً
+  function shuffleArray(array) {
+    let arr = array.slice();
+    for (let i = arr.length -1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i +1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function loadQuestion(index) {
+    resultText.textContent = "";
+    nextBtn.disabled = true;
+    checkBtn.disabled = false;
+    selectEl.disabled = false;
+
+    const q = questions[index];
+    const optionsShuffled = shuffleArray(q.options);
+
+    questionTextEl.innerHTML = q.textTemplate.replace("{blank}", "");
+
+    selectEl.innerHTML = '<option value="">-- اختر --</option>';
+    optionsShuffled.forEach(opt => {
+      const optionEl = document.createElement('option');
+      optionEl.value = opt;
+      optionEl.textContent = opt;
+      selectEl.appendChild(optionEl);
+    });
+  }
+
+  checkBtn.addEventListener('click', () => {
+    const selected = selectEl.value;
+    if (!selected) {
+      resultText.textContent = "يرجى اختيار إجابة 🧐";
+      resultText.className = "result wrong";
+      return;
+    }
+    checkBtn.disabled = true;
+    selectEl.disabled = true;
+
+    const correctAnswer = questions[currentIndex].correct;
+    if (selected === correctAnswer) {
+      resultText.textContent = "رائع! إجابة صحيحة 🎉👏";
+      resultText.className = "result correct";
+    } else {
+      resultText.textContent = `أوه! الإجابة الصحيحة هي: "${correctAnswer}" ❌😅`;
+      resultText.className = "result wrong";
+    }
+    nextBtn.disabled = false;
+  });
+
+  nextBtn.addEventListener('click', () => {
+    currentIndex = (currentIndex + 1) % questions.length;
+    loadQuestion(currentIndex);
+  });
+
+  loadQuestion(currentIndex);
+
+  // إضافة حركة تتبع الماوس للشخصية المرحة
+  const followCursor = document.getElementById('follow-cursor');
+  document.addEventListener('mousemove', e => {
+    const x = e.clientX + 20; // مسافة صغيرة يمين المؤشر
+    const y = e.clientY + 20; // مسافة صغيرة أسفل المؤشر
+    followCursor.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+  });
+</script>
+
+</body>
+</html>

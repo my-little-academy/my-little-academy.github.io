@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>لعبة الطرح العشري الممتعة</title>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --info: #7209b7;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --decimal: #b5179e;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Arial Arabic', 'Segoe UI', Tahoma, sans-serif;
+            margin: 0;
+            padding: 20px;
+            text-align: right;
+            min-height: 100vh;
+        }
+        
+        .game-container {
+            max-width: 850px;
+            margin: 30px auto;
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .game-header {
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .game-header h1 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .game-body {
+            padding: 30px;
+        }
+        
+        .card-rows-container {
+            background: rgba(255,255,255,0.8);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+        
+        .card-row {
+            display: flex;
+            margin: 10px 0;
+            justify-content: flex-end;
+            align-items: center;
+        }
+        
+        .card {
+            width: 70px;
+            height: 90px;
+            color: white;
+            margin: 0 6px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 100%);
+            z-index: 1;
+        }
+        
+        .place-row .card {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            height: 60px;
+            font-size: 16px;
+            box-shadow: 0 4px 8px rgba(67, 97, 238, 0.3);
+        }
+        
+        .minuend-row .card {
+            background: linear-gradient(135deg, var(--success), #3a86ff);
+            box-shadow: 0 4px 8px rgba(76, 201, 240, 0.3);
+        }
+        
+        .subtrahend-row .card {
+            background: linear-gradient(135deg, var(--danger), #b5179e);
+            box-shadow: 0 4px 8px rgba(247, 37, 133, 0.3);
+        }
+        
+        .result-row .card {
+            background: linear-gradient(135deg, var(--warning), #f3722c);
+            box-shadow: 0 4px 8px rgba(248, 150, 30, 0.3);
+        }
+        
+        .decimal-card {
+            background: linear-gradient(135deg, var(--decimal), var(--info)) !important;
+            font-size: 36px;
+            box-shadow: 0 4px 8px rgba(114, 9, 183, 0.3) !important;
+        }
+        
+        .empty-card {
+            background: var(--light) !important;
+            color: var(--dark);
+            border: 2px dashed #adb5bd;
+            box-shadow: 0 4px 8px rgba(33, 37, 41, 0.1) !important;
+        }
+        
+        .empty-card::before {
+            display: none;
+        }
+        
+        .card:hover:not(.place-row .card) {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0,0,0,0.2);
+        }
+        
+        .selected {
+            border: 3px solid #ffd60a;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 214, 10, 0.5);
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 214, 10, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 214, 10, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 214, 10, 0); }
+        }
+        
+        .number-pad {
+            display: flex;
+            justify-content: center;
+            flex-wrap: nowrap;
+            margin: 20px 0;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 10px;
+        }
+        
+        .number-btn {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(67, 97, 238, 0.3);
+            transition: all 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        
+        .number-btn:hover {
+            transform: scale(1.1) translateY(-3px);
+            box-shadow: 0 8px 15px rgba(67, 97, 238, 0.4);
+        }
+        
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 25px;
+        }
+        
+        .control-btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, var(--dark), #495057);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(33, 37, 41, 0.3);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 150px;
+        }
+        
+        .control-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(33, 37, 41, 0.4);
+        }
+        
+        #message {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--dark);
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            background: rgba(248, 249, 250, 0.8);
+            text-align: center;
+            border-right: 4px solid var(--primary);
+        }
+        
+        .row-label {
+            width: 110px;
+            text-align: center;
+            font-weight: bold;
+            color: var(--dark);
+            background: rgba(248, 249, 250, 0.8);
+            padding: 10px;
+            border-radius: 8px;
+            margin-left: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .borrow-circle {
+            position: absolute;
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #ff4757, #ff6b81);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            cursor: pointer;
+            top: -18px;
+            right: 17px;
+            z-index: 2;
+            box-shadow: 0 3px 6px rgba(255, 71, 87, 0.3);
+            transition: all 0.3s;
+        }
+        
+        .borrow-circle:hover {
+            transform: scale(1.15) translateY(-2px);
+            box-shadow: 0 5px 10px rgba(255, 71, 87, 0.4);
+        }
+        
+        .divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            margin: 15px 0;
+            border: none;
+        }
+        
+        /* تصميم متجاوب */
+        @media (max-width: 768px) {
+            .game-container {
+                margin: 15px;
+                border-radius: 20px;
+            }
+            
+            .card {
+                width: 55px;
+                height: 75px;
+                font-size: 22px;
+                margin: 0 4px;
+            }
+            
+            .number-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+            }
+            
+            .control-btn {
+                padding: 10px 20px;
+                min-width: 120px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <h1>لعبة الطرح العشري الممتعة</h1>
+        </div>
+        
+        <div class="game-body">
+            <div class="card-rows-container">
+                <!-- صف المنازل -->
+                <div class="card-row place-row">
+                    <div class="row-label">المنازل</div>
+                    <div class="card">عشرات</div>
+                    <div class="card">آحاد</div>
+                    <div class="card">فاصلة</div>
+                    <div class="card">أعشار</div>
+                    <div class="card">أجزاء المئة</div>
+                    <div class="card">أجزاء الألف</div>
+                </div>
+                
+                <!-- صف المطروح منه -->
+                <div class="card-row minuend-row">
+                    <div class="row-label">المطروح منه</div>
+                    <!-- سيتم ملؤها بالجافاسكريبت -->
+                </div>
+                
+                <!-- صف المطروح -->
+                <div class="card-row subtrahend-row">
+                    <div class="row-label">المطروح</div>
+                    <!-- سيتم ملؤها بالجافاسكريبت -->
+                </div>
+                
+                <!-- خط فاصل -->
+                <div class="divider"></div>
+                
+                <!-- صف النتيجة -->
+                <div class="card-row result-row">
+                    <div class="row-label">النتيجة</div>
+                    <!-- سيتم ملؤها بالجافاسكريبت -->
+                </div>
+            </div>
+            
+            <!-- لوحة الأرقام -->
+            <div class="number-pad">
+                <button class="number-btn" data-number="0">0</button>
+                <button class="number-btn" data-number="1">1</button>
+                <button class="number-btn" data-number="2">2</button>
+                <button class="number-btn" data-number="3">3</button>
+                <button class="number-btn" data-number="4">4</button>
+                <button class="number-btn" data-number="5">5</button>
+                <button class="number-btn" data-number="6">6</button>
+                <button class="number-btn" data-number="7">7</button>
+                <button class="number-btn" data-number="8">8</button>
+                <button class="number-btn" data-number="9">9</button>
+            </div>
+            
+            <!-- أزرار التحكم -->
+            <div class="control-buttons">
+                <button class="control-btn" id="check-btn">تحقق</button>
+                <button class="control-btn" id="change-btn">تغيير الأرقام</button>
+            </div>
+            
+            <div id="message">اختر أرقام النتيجة من لوحة الأرقام</div>
+        </div>
+    </div>
+
+    <script>
+        // تعريف البطاقات
+        const places = ["عشرات", "آحاد", "فاصلة", "أعشار", "أجزاء المئة", "أجزاء الألف"];
+        let minuends = [0, 0, '.', 0, 0, 0];
+        let subtrahends = [0, 0, '.', 0, 0, 0];
+        let results = ['', '', '.', '', '', ''];
+        
+        let selectedCard = null;
+        const decimalPosition = 2;
+
+        function createCards() {
+            const placeRow = document.querySelector('.place-row');
+            const minuendRow = document.querySelector('.minuend-row');
+            const subtrahendRow = document.querySelector('.subtrahend-row');
+            const resultRow = document.querySelector('.result-row');
+            
+            // مسح البطاقات الحالية
+            clearRow(placeRow);
+            clearRow(minuendRow);
+            clearRow(subtrahendRow);
+            clearRow(resultRow);
+            
+            // إضافة البطاقات الجديدة
+            addPlaceCards(placeRow);
+            addMinuendCards(minuendRow);
+            addSubtrahendCards(subtrahendRow);
+            addResultCards(resultRow);
+        }
+        
+        function clearRow(row) {
+            while (row.children.length > 1) {
+                row.removeChild(row.lastChild);
+            }
+        }
+        
+        function addPlaceCards(row) {
+            places.forEach(place => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.textContent = place;
+                row.appendChild(card);
+            });
+        }
+        
+        function addMinuendCards(row) {
+            minuends.forEach((value, index) => {
+                const card = createCard(value, index, 'minuend');
+                if (index !== decimalPosition && index > 0) {
+                    addBorrowCircle(card, index);
+                }
+                row.appendChild(card);
+            });
+        }
+        
+        function addSubtrahendCards(row) {
+            subtrahends.forEach((value, index) => {
+                row.appendChild(createCard(value, index, 'subtrahend'));
+            });
+        }
+        
+        function addResultCards(row) {
+            results.forEach((value, index) => {
+                const card = createCard(value, index, 'result');
+                if (index !== decimalPosition) {
+                    card.addEventListener('click', () => selectResultCard(card));
+                }
+                row.appendChild(card);
+            });
+        }
+        
+        function createCard(value, index, type) {
+            const card = document.createElement('div');
+            const isDecimal = index === decimalPosition;
+            
+            card.className = isDecimal ? 'card decimal-card' : 'card';
+            if (type === 'result' && !isDecimal && value === '') {
+                card.classList.add('empty-card');
+            }
+            
+            card.textContent = value;
+            card.dataset.type = type;
+            card.dataset.index = index;
+            
+            return card;
+        }
+        
+        function addBorrowCircle(card, index) {
+            const circle = document.createElement('div');
+            circle.className = 'borrow-circle';
+            circle.textContent = '↓';
+            circle.dataset.index = index;
+            circle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                handleBorrow(index);
+            });
+            card.appendChild(circle);
+        }
+        
+        function selectResultCard(card) {
+            if (selectedCard) {
+                selectedCard.classList.remove('selected');
+            }
+            selectedCard = card;
+            selectedCard.classList.add('selected');
+            document.getElementById('message').textContent = 'اختر رقماً من لوحة الأرقام';
+        }
+        
+        function handleBorrow(index) {
+            const borrowFrom = index - (index === decimalPosition + 1 ? 2 : 1);
+            
+            if (parseInt(minuends[index]) >= parseInt(subtrahends[index])) {
+                alert('لا حاجة للاستلاف هنا');
+                return;
+            }
+            
+            if (borrowFrom < 0 || parseInt(minuends[borrowFrom]) < 1) {
+                alert('لا يمكن الاستلاف من الخانة السابقة');
+                return;
+            }
+            
+            minuends[borrowFrom] -= 1;
+            minuends[index] += 10;
+            updateMinuendDisplay();
+        }
+        
+        function updateMinuendDisplay() {
+            const minuendRow = document.querySelector('.minuend-row');
+            clearRow(minuendRow);
+            addMinuendCards(minuendRow);
+        }
+        
+        function generateRandomNumbers() {
+            // توليد أرقام عشوائية مع ضمان أن المطروح منه أكبر
+            minuends = minuends.map((val, index) => 
+                index === decimalPosition ? '.' : Math.floor(Math.random() * 10)
+            );
+            
+            subtrahends = subtrahends.map((val, index) => {
+                if (index === decimalPosition) return '.';
+                return Math.floor(Math.random() * (parseInt(minuends[index]) + 1));
+            });
+            
+            results = results.map((val, index) => 
+                index === decimalPosition ? '.' : ''
+            );
+        }
+        
+        function initEvents() {
+            document.querySelectorAll('.number-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (selectedCard) {
+                        const num = this.dataset.number;
+                        const index = parseInt(selectedCard.dataset.index);
+                        
+                        selectedCard.textContent = num;
+                        results[index] = num;
+                        selectedCard.classList.remove('selected', 'empty-card');
+                        
+                        // البحث عن الخانة التالية الفارغة
+                        let nextIndex = -1;
+                        for (let i = index + 1; i < results.length; i++) {
+                            if (i !== decimalPosition && results[i] === '') {
+                                nextIndex = i;
+                                break;
+                            }
+                        }
+                        
+                        if (nextIndex !== -1) {
+                            const nextCard = document.querySelector(`.result-row .card[data-index="${nextIndex}"]`);
+                            selectResultCard(nextCard);
+                        } else {
+                            selectedCard = null;
+                        }
+                    }
+                });
+            });
+            
+            document.getElementById('check-btn').addEventListener('click', checkAnswer);
+            document.getElementById('change-btn').addEventListener('click', resetGame);
+        }
+        
+        function checkAnswer() {
+            const minuend = parseFloat(
+                `${minuends[0]}${minuends[1]}.${minuends[3]}${minuends[4]}${minuends[5]}`
+            );
+            
+            const subtrahend = parseFloat(
+                `${subtrahends[0]}${subtrahends[1]}.${subtrahends[3]}${subtrahends[4]}${subtrahends[5]}`
+            );
+            
+            const result = parseFloat(
+                `${results[0] || 0}${results[1] || 0}.${results[3] || 0}${results[4] || 0}${results[5] || 0}`
+            );
+            
+            if (Math.abs(result - (minuend - subtrahend)) < 0.001) {
+                document.getElementById('message').textContent = 'إجابة صحيحة! أحسنت!';
+                colorResultCards(true);
+            } else {
+                document.getElementById('message').textContent = 
+                    `إجابة خاطئة! الجواب الصحيح: ${(minuend - subtrahend).toFixed(3)}`;
+                colorResultCards(false);
+            }
+        }
+        
+        function colorResultCards(isCorrect) {
+            document.querySelectorAll('.result-row .card:not(.decimal-card)').forEach(card => {
+                if (isCorrect) {
+                    card.style.background = 'linear-gradient(135deg, #2ecc71, #27ae60)';
+                } else {
+                    card.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
+                }
+            });
+        }
+        
+        function resetGame() {
+            generateRandomNumbers();
+            createCards();
+            document.getElementById('message').textContent = 'اختر أرقام النتيجة من لوحة الأرقام';
+            selectedCard = null;
+        }
+        
+        // بدء اللعبة
+        window.onload = function() {
+            generateRandomNumbers();
+            createCards();
+            initEvents();
+        };
+    </script>
+</body>
+</html>

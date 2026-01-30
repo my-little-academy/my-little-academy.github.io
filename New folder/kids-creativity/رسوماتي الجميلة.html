@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رسوماتي الجميلة - معرض الفن الصغير</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .paint-drops {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .drop {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: fall 8s linear infinite;
+        }
+
+        .drop:nth-child(1) { left: 10%; animation-delay: 0s; background: #ff6b6b; width: 20px; height: 20px; }
+        .drop:nth-child(2) { left: 30%; animation-delay: -2s; background: #4ecdc4; width: 15px; height: 15px; }
+        .drop:nth-child(3) { left: 50%; animation-delay: -4s; background: #45b7d1; width: 25px; height: 25px; }
+        .drop:nth-child(4) { left: 70%; animation-delay: -6s; background: #96ceb4; width: 18px; height: 18px; }
+        .drop:nth-child(5) { left: 90%; animation-delay: -1s; background: #ffeaa7; width: 22px; height: 22px; }
+
+        @keyframes fall {
+            0% { transform: translateY(-100vh) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px 20px;
+            border-radius: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(15px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            border-radius: 25px;
+            z-index: -1;
+            animation: rainbow-border 3s linear infinite;
+        }
+
+        @keyframes rainbow-border {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        .header h1 {
+            font-size: 3.5em;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .breadcrumb {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 15px 25px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+        }
+
+        .breadcrumb a {
+            color: #666;
+            text-decoration: none;
+            margin: 0 5px;
+        }
+
+        .breadcrumb a:hover {
+            color: #ff6b6b;
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #ff6b6b;
+            margin-bottom: 10px;
+        }
+
+        .filter-section {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .filter-title {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid #ff6b6b;
+            background: transparent;
+            color: #ff6b6b;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            background: #ff6b6b;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .age-slider {
+            margin: 20px 0;
+        }
+
+        .age-slider input {
+            width: 300px;
+            margin: 0 10px;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .artwork-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .artwork-card:hover {
+            transform: translateY(-10px) rotate(1deg);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .artwork-image {
+            width: 100%;
+            height: 250px;
+            background: linear-gradient(45deg, #ff9a9e, #fecfef, #fecfef);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4em;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .artwork-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            flex-direction: column;
+        }
+
+        .artwork-card:hover .artwork-overlay {
+            opacity: 1;
+        }
+
+        .artwork-info {
+            padding: 20px;
+        }
+
+        .artwork-title {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .artist-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .artist-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .artist-details {
+            flex: 1;
+        }
+
+        .artist-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .artist-age {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .artwork-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .vote-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .vote-btn {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .vote-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .vote-btn.liked {
+            color: #ff6b6b;
+        }
+
+        .weekly-contest {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 25px;
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .weekly-contest::before {
+            content: '🏆';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            font-size: 8em;
+            opacity: 0.1;
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .contest-title {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .winner-spotlight {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .winner-card {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            min-width: 200px;
+        }
+
+        .winner-position {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .upload-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 25px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .upload-title {
+            font-size: 2.2em;
+            color: #ff6b6b;
+            margin-bottom: 20px;
+        }
+
+        .upload-area {
+            border: 3px dashed #ff6b6b;
+            border-radius: 20px;
+            padding: 60px 20px;
+            margin: 30px 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area:hover {
+            border-color: #4ecdc4;
+            background: rgba(255, 107, 107, 0.05);
+            transform: scale(1.02);
+        }
+
+        .upload-area::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 107, 107, 0.1) 50%, transparent 70%);
+            animation: shine 3s infinite;
+            pointer-events: none;
+        }
+
+        .form-group {
+            margin: 20px 0;
+            text-align: right;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: #ff6b6b;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+
+        .drawing-tips {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+        }
+
+        .tips-title {
+            font-size: 1.8em;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .tip-item {
+            background: linear-gradient(135deg, #ffeaa7, #fab1a0);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .tip-item:hover {
+            transform: scale(1.05);
+        }
+
+        .tip-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 40px 0;
+        }
+
+        .page-btn {
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #ff6b6b;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .page-btn:hover, .page-btn.active {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5em;
+            }
+            
+            .gallery {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-buttons {
+                justify-content: center;
+            }
+            
+            .winner-spotlight {
+                flex-direction: column;
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 2em;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close-modal:hover {
+            color: #ff6b6b;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(30deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(30deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="paint-drops">
+        <div class="drop"></div>
+        <div class="drop"></div>
+        <div class="drop"></div>
+        <div class="drop"></div>
+        <div class="drop"></div>
+    </div>
+
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="#" onclick="goBack()">🏠 الرئيسية</a> > 
+            <a href="#" onclick="goBack()">إبداعات الأطفال</a> > 
+            <strong>رسوماتي الجميلة</strong>
+        </div>
+
+        <header class="header">
+            <h1><i class="fas fa-palette"></i> رسوماتي الجميلة</h1>
+            <p>🎨 معرض الفن الصغير - حيث تتحول الألوان إلى أحلام جميلة! 🌈</p>
+        </header>
+
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-number">247</div>
+                <div>لوحة فنية</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">89</div>
+                <div>فنان صغير</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">1,352</div>
+                <div>إعجاب هذا الشهر</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">156</div>
+                <div>رسمة جديدة هذا الأسبوع</div>
+            </div>
+        </div>
+
+        <div class="weekly-contest">
+            <h2 class="contest-title">🏆 مسابقة أجمل لوحة هذا الأسبوع</h2>
+            <p>صوت لأجمل لوحة واربح جوائز قيمة!</p>
+            
+            <div class="winner-spotlight">
+                <div class="winner-card">
+                    <div class="winner-position">🥇</div>
+                    <h4>سارة أحمد</h4>
+                    <p>9 سنوات</p>
+                    <p>"حديقة الأحلام"</p>
+                    <small>1,247 صوت</small>
+                </div>
+                <div class="winner-card">
+                    <div class="winner-position">🥈</div>
+                    <h4>محمد علي</h4>
+                    <p>8 سنوات</p>
+                    <p>"البحر والقلعة"</p>
+                    <small>1,156 صوت</small>
+                </div>
+                <div class="winner-card">
+                    <div class="winner-position">🥉</div>
+                    <h4>نور حسن</h4>
+                    <p>10 سنوات</p>
+                    <p>"عائلة السعادة"</p>
+                    <small>987 صوت</small>
+                </div>
+            </div>
+            
+            <button class="btn" onclick="viewContest()">شاهد جميع المتسابقين</button>
+        </div>
+
+        <div class="filter-section">
+            <h3 class="filter-title">🔍 ابحث واستكشف</h3>
+            
+            <div class="filter-buttons">
+                <button class="filter-btn active" onclick="filterArtwork('all')">الكل</button>
+                <button class="filter-btn" onclick="filterArtwork('animals')">🐾 حيوانات</button>
+                <button class="filter-btn" onclick="filterArtwork('nature')">🌿 طبيعة</button>
+                <button class="filter-btn" onclick="filterArtwork('family')">👨‍👩‍👧‍👦 عائلة</button>
+                <button class="filter-btn" onclick="filterArtwork('fantasy')">🦄 خيال</button>
+                <button class="filter-btn" onclick="filterArtwork('school')">🏫 مدرسة</button>
+                <button class="filter-btn" onclick="filterArtwork('sports')">⚽ رياضة</button>
+            </div>
+            
+            <div class="age-slider">
+                <label>العمر: </label>
+                <input type="range" min="5" max="15" value="10" id="ageFilter" onchange="updateAgeFilter(this.value)">
+                <span id="ageDisplay">جميع الأعمار</span>
+            </div>
+        </div>
+
+        <div class="gallery" id="artworkGallery">
+            <!-- عمل فني 1 -->
+            <div class="artwork-card" data-category="animals" data-age="8">
+                <div class="artwork-image">
+                    🦁🌳
+                    <div class="artwork-overlay">
+                        <i class="fas fa-search-plus" style="font-size: 2em; margin-bottom: 10px;"></i>
+                        <p>انقر للعرض بحجم أكبر</p>
+                    </div>
+                </div>
+                <div class="artwork-info">
+                    <h4 class="artwork-title">ملك الغابة</h4>
+                    <div class="artist-info">
+                        <div class="artist-avatar">ل</div>
+                        <div class="artist-details">
+                            <div class="artist-name">ليلى محمد</div>
+                            <div class="artist-age">8 سنوات</div>
+                        </div>
+                    </div>
+                    <p style="color: #666; font-size: 0.9em;">رسمت هذا الأسد لأنه شجاع مثل بابا!</p>
+                    <div class="artwork-actions">
+                        <div class="vote-section">
+                            <button class="vote-btn" onclick="likeArtwork(this)">❤️</button>
+                            <span>127</span>
+                            <button class="vote-btn" onclick="shareArtwork()">📤</button>
+                        </div>
+                        <small style="color: #999;">منذ 3 أيام</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- عمل فني 2 -->
+            <div class="artwork-card" data-category="family" data-age="9">
+                <div class="artwork-image">
+                    👨‍👩‍👧‍👦🏠
+                    <div class="artwork-overlay">
+                        <i class="fas fa-search-plus" style="font-size: 2em; margin-bottom: 10px;"></i>
+                        <p>انقر للعرض بحجم أكبر</p>
+                    </div>
+                </div>
+                <div class="artwork-info">
+                    <h4 class="artwork-title">عائلتي السعيدة</h4>
+                    <div class="artist-info">
+                        <div class="artist-avatar">أ</div>
+                        <div class="artist-details">
+                            <div class="artist-name">أحمد سالم</div>
+                            <div class="artist-age">9 سنوات</div>
+                        </div>
+                    </div>
+                    <p style="color: #666; font-size: 0.9em;">هذه عائلتي أمام بيتنا الجديد</p>
+                    <div class="artwork-actions">
+                        <div class="vote-section">
+                            <button class="vote-btn" onclick="likeArtwork(this)">❤️</button>
+                            <span>203</span>
+                            <button class="vote-btn" onclick="shareArtwork()">📤</button>
+                        </div>
+                        <small style="color: #999;">منذ يومين</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- عمل فني 3 -->
+            <div class="artwork-card" data-category="nature" data-age="7">
+                <div class="artwork-image">
+                    🌈🌸🦋
+                    <div class="artwork-overlay">
+                        <i class="fas fa-search-plus" style="font-size: 2em; margin-bottom: 10px;"></i>
+                        <p>انقر للعرض بحجم أكبر</p>
+                    </div>
+                </div>
+                <div class="artwork-info">
+                    <h4 class="artwork-title">حديقة الألوان</h4>
+                    <div class="artist-info">
+                        <div class="artist-avatar">ف</div>
+                        <div class="artist-details">
+                            <div class="artist-name">فاطمة حسن</div>
+                            <div class="artist-age">7 سنوات</div>
+                        </div>
+                    </div>
+                    <p style="color: #666; font-size: 0.9em;">شاهدت هذا المنظر في حديقة الحي</p>
+                    <div class="artwork-actions">
+                        <div class="vote-section">
+                            <button class="vote-btn liked" onclick="likeArtwork(this)">❤️</button>
+                            <span>89</span>
+                            <button class="vote-btn" onclick="shareArtwork()">📤</button>
+                        </div>
+                        <small style="color: #999;">منذ 5 أيام</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- عمل فني 4 -->
+            <div class="artwork-card" data-category="fantasy" data-age="10">
+                <div class="artwork-image">
+                    🦄🏰✨
+                    <div class="artwork-overlay">
+                        <i class="fas fa-search-plus" style="font-size: 2em; margin-bottom: 10px;"></i>
+                        <p>انقر للعرض بحجم أكبر</p>
+                    </div>
+                </div>
+                <div class="artwork-info">
+                    <h4 class="artwork-title">قلعة الأحلام</h4>
+                    <div class="artist-info">
+                        <div class="artist-avatar">م</div>
+                        <div class="artist-details">
+                            <div class="artist-name">مريم علي</div>
+                            <div class="artist-age">10 سنوات</div>
+                        </div>
+                    </div>
+                    <p style="color: #666; font-size: 0.9em;">قلعة سحرية حيث تعيش الوحيدات القرنية</p>
+                    <div class="artwork-actions">
+                        <div class="vote-section">
+                            <button class="vote-btn" onclick="likeArtwork(this)">❤️</button>
+                            <span>156</span>
+                            <button class="vote-btn" onclick="shareArtwork()">📤</button>
+                        </div>
+                        <small style="color: #999;">منذ أسبوع</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- عمل فني 5 -->
+            <div class="artwork-card" data-category="school" data-age="8">
+                <div class="artwork-image">
+                    🏫📚👩‍🏫
+                    <div class="artwork-overlay">
+                        <i class="fas fa-search-plus" style="font-size: 2em; margin-bottom: 10px;"></i>
+                        <p>انقر للعرض بحجم أكبر</p>
+                    </div>
+                </div>
+                <div class="artwork-info">
+                    <h4 class="artwork-title">يوم في المدرسة</h4>
+                    <div class="artist-info">
+                        <div class="artist-avatar">ي</div>
+                        <div class="artist-details">
+                            <div class="artist-name">يوسف أحمد</div>
+                            <div class="artist-age">8 سنوات</div>
+                        </div>
+                    </div>
+                    <p style="color: #666; font-size: 0.9em;">أحب مدرستي ومعلمتي الطيبة</p>
+                    <div class="artwork-actions">
+                

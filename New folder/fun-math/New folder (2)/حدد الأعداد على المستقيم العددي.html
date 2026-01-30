@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>المستقيم العددي الدقيق</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      direction: rtl;
+      background: #f0f9f7;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #00796b;
+    }
+
+    .number-line {
+      position: relative;
+      width: 90%;
+      height: 80px;
+      margin: 40px auto;
+      border-top: 4px solid #333;
+    }
+
+    .tick {
+      position: absolute;
+      background-color: #333;
+    }
+
+    .tick.big {
+      height: 20px;
+      width: 2px;
+      top: -10px;
+    }
+
+    .tick.small {
+      height: 10px;
+      width: 1px;
+      top: -5px;
+    }
+
+    .label {
+      position: absolute;
+      top: 20px;
+      font-size: 14px;
+      color: #333;
+      transform: translateX(-50%);
+    }
+
+    .dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      position: absolute;
+      top: -30px;
+    }
+
+    .green { background-color: green; }
+    .blue { background-color: blue; }
+    .red { background-color: red; }
+    .yellow { background-color: goldenrod; }
+
+    .inputs {
+      margin-top: 30px;
+    }
+
+    .inputs div {
+      margin: 10px;
+    }
+
+    input[type="number"] {
+      padding: 5px;
+      font-size: 16px;
+      width: 100px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #00796b;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>حدد الأعداد على المستقيم العددي</h1>
+
+  <div class="number-line" id="line">
+    <!-- يتم إدراج التدريجات آليًا -->
+  </div>
+
+  <div class="inputs">
+    <div>🟢 الأخضر: <input type="number" id="green"></div>
+    <div>🔵 الأزرق: <input type="number" id="blue"></div>
+    <div>🔴 الأحمر: <input type="number" id="red"></div>
+    <div>🟡 الأصفر: <input type="number" id="yellow"></div>
+  </div>
+
+  <button onclick="checkAnswers()">تحقق</button>
+
+  <div class="result" id="result"></div>
+
+  <script>
+    const start = 6700;
+    const end = 7400;
+    const container = document.getElementById("line");
+    const totalUnits = end - start;
+    const step = 10;
+    const width = container.offsetWidth;
+
+    // إنشاء التدريجات
+    for (let i = 0; i <= totalUnits; i += step) {
+      const value = start + i;
+      const left = ((value - start) / totalUnits) * 100;
+
+      const tick = document.createElement("div");
+      tick.className = "tick";
+      tick.style.left = `${left}%`;
+
+      if (value % 100 === 0) {
+        tick.classList.add("big");
+
+        const label = document.createElement("div");
+        label.className = "label";
+        label.style.left = `${left}%`;
+        label.innerText = value;
+        container.appendChild(label);
+      } else {
+        tick.classList.add("small");
+      }
+
+      container.appendChild(tick);
+    }
+
+    // النقاط الملونة
+    const points = [
+      { color: "green", value: 6840 },
+      { color: "blue", value: 7030 },
+      { color: "red", value: 7210 },
+      { color: "yellow", value: 7330 },
+    ];
+
+    points.forEach(point => {
+      const left = ((point.value - start) / totalUnits) * 100;
+      const dot = document.createElement("div");
+      dot.className = `dot ${point.color}`;
+      dot.style.left = `${left}%`;
+      container.appendChild(dot);
+    });
+
+    // التحقق من الإجابات
+    function checkAnswers() {
+      const answers = {
+        green: document.getElementById("green").value,
+        blue: document.getElementById("blue").value,
+        red: document.getElementById("red").value,
+        yellow: document.getElementById("yellow").value,
+      };
+
+      if (
+        answers.green == 6840 &&
+        answers.blue == 7030 &&
+        answers.red == 7210 &&
+        answers.yellow == 7330
+      ) {
+        document.getElementById("result").innerText = "🎉 أحسنت! كل الإجابات صحيحة!";
+        document.getElementById("result").style.color = "green";
+      } else {
+        document.getElementById("result").innerText = "❌ حاول من جديد وتحقق من المسافات بين التدريجات.";
+        document.getElementById("result").style.color = "red";
+      }
+    }
+  </script>
+
+</body>
+</html>

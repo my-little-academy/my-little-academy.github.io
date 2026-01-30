@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة تحليل المقاطع الصوتية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Amiri', serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            perspective: 1000px;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .game-container {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .card {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            transform-style: preserve-3d;
+            transition: all 0.5s ease;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background: linear-gradient(90deg, #ff9a9e 0%, #fad0c4 100%);
+        }
+        
+        .card:hover {
+            transform: translateY(-10px) rotateX(5deg);
+            box-shadow: 0 30px 50px rgba(0,0,0,0.2);
+        }
+        
+        .word {
+            font-size: 3.5rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .correct-syllables {
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .correct-syllables h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .syllable {
+            display: inline-block;
+            font-size: 1.5rem;
+            margin: 0 5px;
+            color: #2c3e50;
+        }
+        
+        .options-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .syllable-option {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 10px 15px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transform-style: preserve-3d;
+        }
+        
+        .syllable-option:hover {
+            transform: translateY(-5px) rotateY(10deg);
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+            border-color: #a1c4fd;
+        }
+        
+        .syllable-option.selected {
+            background: #a1c4fd;
+            color: white;
+            border-color: #a1c4fd;
+            transform: translateY(-5px);
+        }
+        
+        .syllable-option.correct {
+            background: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+        
+        .syllable-option.incorrect {
+            background: #f44336;
+            color: white;
+            border-color: #f44336;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px rgba(0,0,0,0.2);
+        }
+        
+        .submit-btn:active {
+            transform: translateY(1px);
+        }
+        
+        .feedback {
+            font-size: 1.3rem;
+            margin-top: 20px;
+            min-height: 30px;
+            color: #2c3e50;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .next-btn {
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .next-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px rgba(0,0,0,0.2);
+        }
+        
+        .progress-container {
+            width: 100%;
+            max-width: 500px;
+            background: #f1f1f1;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            height: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ff9a9e 0%, #fad0c4 100%);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            border-radius: 50%;
+            animation: fall 5s linear forwards;
+            z-index: 1000;
+        }
+        
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .word {
+                font-size: 2.5rem;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>لعبة تحليل المقاطع الصوتية</h1>
+    
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+    
+    <div class="game-container">
+        <div class="card" id="card">
+            <div class="word" id="currentWord"></div>
+            
+            <div class="correct-syllables" id="correctSyllables" style="display: none;">
+                <h3>التقطيع الصحيح:</h3>
+                <div id="correctSyllablesList"></div>
+            </div>
+            
+            <div class="options-container" id="optionsContainer"></div>
+            
+            <button class="submit-btn" id="submitBtn">تحقق</button>
+            <button class="next-btn" id="nextBtn">الكلمة التالية</button>
+            
+            <div class="feedback" id="feedback"></div>
+        </div>
+    </div>
+    
+    <script>
+        const words = [
+            {
+                word: "ذَهَبَ",
+                syllables: ["ذَ", "هـَ", "ـبَ"]
+            },
+            {
+                word: "قَدِمَ",
+                syllables: ["قَـ", "ـدِ", "مَ"]
+            },
+            {
+                word: "كَتَبَ",
+                syllables: ["كـَ", "ـتَ", "ـبَ"]
+            },
+            {
+                word: "كتابًا",
+                syllables: ["كِـ", "ـتَا", "بـًا"]
+            },
+            {
+                word: "قلمًا",
+                syllables: ["قَـ", "ـلَـ", "ـمًا"]
+            },
+            {
+                word: "حقيبةً",
+                syllables: ["حَـ", "ـقِـيـ", "ـبَـ", "ـةً"]
+            },
+            {
+                word: "ملجآنِ",
+                syllables: ["مَلـْ", "ـجَـ", "ـأَاْ", "نِ"]
+            },
+            {
+                word: "آكُلُ",
+                syllables: ["أَأْ", "كُــ", "ــلُ"]
+            },
+            {
+                word: "يقرأانِ",
+                syllables: ["يَقْـ", "ـرَ", "أَاْ", "نِ"]
+            },
+            {
+                word: "ردَّ",
+                syllables: ["رَدْ", "دَ"]
+            },
+            {
+                word: "ضَمَّ",
+                syllables: ["ضَـمْ", "مَ"]
+            },
+            {
+                word: "هَبَّ",
+                syllables: ["هَـبْ", "بَ"]
+            },
+            {
+                word: "عطايا",
+                syllables: ["عَـ", "ـطا", "يا"]
+            },
+            {
+                word: "ورودي",
+                syllables: ["وُ", "رو", "دي"]
+            },
+            {
+                word: "يزورون",
+                syllables: ["يَـ", "ـزو", "ـرو", "نَ"]
+            },
+            {
+                word: "البيتُ",
+                syllables: ["اَلـ", "ـبَيْـ", "ـتُ"]
+            },
+            {
+                word: "الوطن",
+                syllables: ["الْـ", "ـوَ", "طَـ", "ـنُ"]
+            },
+            {
+                word: "الحِصان",
+                syllables: ["اَلْـ", "ـحِـ", "ـصا", "نُ"]
+            },
+            {
+                word: "اَلرِّيحُ",
+                syllables: ["اَلرْ", "رِيـ", "ـحُ"]
+            },
+            {
+                word: "الدَّواءُ",
+                syllables: ["اَلدْ", "دَ", "وَا", "ءُ"]
+            },
+            {
+                word: "الصَّباحُ",
+                syllables: ["اَلـصْـ", "ـصَـ", "ـبَا", "حُ"]
+            }
+        ];
+        
+        // Game state
+        let currentWordIndex = 0;
+        let selectedSyllables = [];
+        let score = 0;
+        let totalQuestions = words.length;
+        
+        // DOM elements
+        const currentWordEl = document.getElementById('currentWord');
+        const correctSyllablesEl = document.getElementById('correctSyllables');
+        const correctSyllablesListEl = document.getElementById('correctSyllablesList');
+        const optionsContainerEl = document.getElementById('optionsContainer');
+        const submitBtn = document.getElementById('submitBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const feedbackEl = document.getElementById('feedback');
+        const progressBarEl = document.getElementById('progressBar');
+        const cardEl = document.getElementById('card');
+        
+        // Initialize game
+        function initGame() {
+            showWord();
+            updateProgress();
+            
+            // Add mouse move effect for 3D card
+            cardEl.addEventListener('mousemove', (e) => {
+                let xAxis = (window.innerWidth / 2 - e.pageX) / 25;
+                let yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+                cardEl.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+            });
+            
+            // Reset card position when mouse leaves
+            cardEl.addEventListener('mouseleave', () => {
+                cardEl.style.transform = 'rotateY(0deg) rotateX(0deg)';
+            });
+        }
+        
+        // Show current word and options
+        function showWord() {
+            const currentWord = words[currentWordIndex];
+            currentWordEl.textContent = currentWord.word;
+            
+            // Clear previous selections
+            selectedSyllables = [];
+            optionsContainerEl.innerHTML = '';
+            correctSyllablesEl.style.display = 'none';
+            feedbackEl.textContent = '';
+            nextBtn.style.display = 'none';
+            submitBtn.style.display = 'block';
+            
+            // Create all possible syllables (correct + some incorrect)
+            let allSyllables = [...currentWord.syllables];
+            
+            // Add some incorrect syllables from other words
+            const otherWords = words.filter((_, i) => i !== currentWordIndex);
+            for (let i = 0; i < 3; i++) {
+                const randomWord = otherWords[Math.floor(Math.random() * otherWords.length)];
+                const randomSyllable = randomWord.syllables[Math.floor(Math.random() * randomWord.syllables.length)];
+                if (!allSyllables.includes(randomSyllable)) {
+                    allSyllables.push(randomSyllable);
+                }
+            }
+            
+            // Shuffle syllables
+            allSyllables = shuffleArray(allSyllables);
+            
+            // Create syllable options
+            allSyllables.forEach(syllable => {
+                const syllableEl = document.createElement('div');
+                syllableEl.classList.add('syllable-option');
+                syllableEl.textContent = syllable;
+                syllableEl.addEventListener('click', () => toggleSyllable(syllable, syllableEl));
+                optionsContainerEl.appendChild(syllableEl);
+            });
+            
+            // Prepare correct syllables display
+            correctSyllablesListEl.innerHTML = '';
+            currentWord.syllables.forEach(syllable => {
+                const syllableEl = document.createElement('span');
+                syllableEl.classList.add('syllable');
+                syllableEl.textContent = syllable;
+                correctSyllablesListEl.appendChild(syllableEl);
+            });
+        }
+        
+        // Toggle syllable selection
+        function toggleSyllable(syllable, element) {
+            const index = selectedSyllables.indexOf(syllable);
+            
+            if (index === -1) {
+                selectedSyllables.push(syllable);
+                element.classList.add('selected');
+            } else {
+                selectedSyllables.splice(index, 1);
+                element.classList.remove('selected');
+            }
+        }
+        
+        // Check the answer
+        function checkAnswer() {
+            const currentWord = words[currentWordIndex];
+            const correctSyllables = currentWord.syllables;
+            
+            // Check if selected syllables match the correct ones
+            const isCorrect = arraysEqual(selectedSyllables, correctSyllables);
+            
+            // Show feedback
+            if (isCorrect) {
+                feedbackEl.textContent = 'إجابة صحيحة! أحسنت!';
+                feedbackEl.style.color = '#4CAF50';
+                score++;
+                createConfetti();
+            } else {
+                feedbackEl.textContent = 'إجابة خاطئة، حاول مرة أخرى!';
+                feedbackEl.style.color = '#f44336';
+            }
+            
+            // Show correct syllables
+            correctSyllablesEl.style.display = 'block';
+            
+            // Highlight selected options
+            const optionElements = document.querySelectorAll('.syllable-option');
+            optionElements.forEach(el => {
+                if (selectedSyllables.includes(el.textContent)) {
+                    el.classList.add(correctSyllables.includes(el.textContent) ? 'correct' : 'incorrect');
+                } else if (correctSyllables.includes(el.textContent)) {
+                    el.classList.add('correct');
+                }
+            });
+            
+            // Disable all options
+            optionElements.forEach(el => {
+                el.style.pointerEvents = 'none';
+            });
+            
+            // Show next button
+            submitBtn.style.display = 'none';
+            nextBtn.style.display = 'block';
+        }
+        
+        // Move to next word
+        function nextWord() {
+            currentWordIndex++;
+            
+            if (currentWordIndex < words.length) {
+                showWord();
+                updateProgress();
+            } else {
+                // Game over
+                currentWordEl.textContent = 'انتهت اللعبة!';
+                optionsContainerEl.innerHTML = '';
+                correctSyllablesEl.style.display = 'none';
+                submitBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+                feedbackEl.textContent = `نقاطك: ${score} من ${totalQuestions}`;
+                feedbackEl.style.color = '#2c3e50';
+                createConfetti();
+            }
+        }
+        
+        // Update progress bar
+        function updateProgress() {
+            const progress = ((currentWordIndex + 1) / words.length) * 100;
+            progressBarEl.style.width = `${progress}%`;
+        }
+        
+        // Helper function to shuffle array
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+        
+        // Helper function to compare arrays
+        function arraysEqual(a, b) {
+            if (a === b) return true;
+            if (a == null || b == null) return false;
+            if (a.length !== b.length) return false;
+            
+            for (let i = 0; i < a.length; ++i) {
+                if (a[i] !== b[i]) return false;
+            }
+            return true;
+        }
+        
+        // Create confetti effect
+        function createConfetti() {
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                
+                // Random color
+                const colors = ['#ff9a9e', '#fad0c4', '#a1c4fd', '#c2e9fb', '#84fab0', '#8fd3f4'];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.backgroundColor = color;
+                
+                // Random position
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.top = '-10px';
+                
+                // Random size
+                const size = Math.random() * 10 + 5;
+                confetti.style.width = `${size}px`;
+                confetti.style.height = `${size}px`;
+                
+                // Random animation duration
+                const duration = Math.random() * 3 + 2;
+                confetti.style.animationDuration = `${duration}s`;
+                
+                document.body.appendChild(confetti);
+                
+                // Remove confetti after animation
+                setTimeout(() => {
+                    confetti.remove();
+                }, duration * 1000);
+            }
+        }
+        
+        // Event listeners
+        submitBtn.addEventListener('click', checkAnswer);
+        nextBtn.addEventListener('click', nextWord);
+        
+        // Start the game
+        initGame();
+    </script>
+</body>
+</html>

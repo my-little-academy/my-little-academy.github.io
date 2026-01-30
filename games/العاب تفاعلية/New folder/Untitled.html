@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8" />
+<title>لعبة رتب الكلمات - جمل صحيحة (بترتيب مقلوب)</title>
+<style>
+  /* خلفية مريحة */
+  body {
+    margin: 0;
+    background: linear-gradient(135deg, #f6d365, #fda085);
+    font-family: 'Cairo', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #4a342e;
+    padding: 30px 15px;
+  }
+
+  /* عنوان اللعبة */
+  h1 {
+    font-size: 3rem;
+    color: #fff;
+    text-shadow: 0 0 10px #fca311;
+    margin-bottom: 25px;
+  }
+
+  /* صندوق اللعبة */
+  #game-container {
+    background: #fff7e6;
+    border-radius: 25px;
+    box-shadow: 0 0 20px #fca311aa;
+    padding: 30px 25px;
+    width: 100%;
+    max-width: 700px;
+    text-align: center;
+  }
+
+  /* تعليمات */
+  #instructions {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    color: #9c6644;
+  }
+
+  /* منطقة ترتيب الكلمات */
+  #sentence-area {
+    min-height: 70px;
+    background: #fff3e0;
+    border: 3px dashed #f77f00;
+    border-radius: 25px;
+    padding: 10px 15px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start; /* الكلمات تبدأ من اليمين */
+    gap: 12px;
+    margin-bottom: 25px;
+    direction: rtl; /* اتجاه النص عربي طبيعي */
+  }
+
+  /* بنك الكلمات المختلطة */
+  #word-bank {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    min-height: 70px;
+  }
+
+  /* بطاقة كلمة قابلة للسحب */
+  .word-card {
+    background: linear-gradient(145deg, #fcbf49, #f77f00);
+    padding: 14px 22px;
+    border-radius: 20px;
+    color: white;
+    font-weight: 700;
+    font-size: 1.4rem;
+    cursor: grab;
+    box-shadow: 0 0 12px #f77f00cc;
+    user-select: none;
+    transition: transform 0.2s ease;
+  }
+  .word-card:active {
+    cursor: grabbing;
+    transform: scale(1.1);
+  }
+
+  /* زر التحقق */
+  #check-btn {
+    background: #f77f00;
+    border: none;
+    padding: 16px 50px;
+    color: white;
+    font-weight: 700;
+    font-size: 1.5rem;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 0 20px #f77f00cc;
+    transition: background-color 0.3s ease;
+  }
+  #check-btn:hover {
+    background-color: #d65a00;
+  }
+
+  /* زر التالي */
+  #next-btn {
+    background: #4caf50;
+    border: none;
+    padding: 16px 50px;
+    color: white;
+    font-weight: 700;
+    font-size: 1.5rem;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 0 20px #4caf5080;
+    margin-top: 20px;
+    display: none;
+    transition: background-color 0.3s ease;
+  }
+  #next-btn:hover {
+    background-color: #388e3c;
+  }
+
+  /* رسالة النتائج */
+  #result-message {
+    font-size: 1.6rem;
+    margin-top: 25px;
+    font-weight: 700;
+  }
+  #result-message.correct {
+    color: #4caf50;
+    text-shadow: 0 0 8px #4caf50bb;
+  }
+  #result-message.incorrect {
+    color: #d32f2f;
+    text-shadow: 0 0 8px #d32f2fbb;
+  }
+</style>
+</head>
+<body>
+
+<h1>لعبة رتب الكلمات</h1>
+
+<div id="game-container">
+  <div id="instructions">اسحب الكلمات من الأسفل لترتيبها في الجملة الصحيحة بالمنتصف</div>
+
+  <!-- المنطقة لترتيب الكلمات -->
+  <div id="sentence-area" ondragover="allowDrop(event)" ondrop="drop(event)"></div>
+
+  <!-- بنك الكلمات المختلطة -->
+  <div id="word-bank"></div>
+
+  <button id="check-btn">تحقق</button>
+  <button id="next-btn">السؤال التالي</button>
+
+  <div id="result-message"></div>
+</div>
+
+<script>
+  // مصفوفة الجمل والكلمات
+  const sentences = [
+    {
+      correct: ["يحب", "الطفل", "القراءة", "كل", "يوم"],
+      example: "يحب الطفل القراءة كل يوم"
+    },
+    {
+      correct: ["السماء", "صافية", "اليوم", "هي"],
+      example: "السماء هي صافية اليوم"
+    },
+    {
+      correct: ["ذهب", "الأرنب", "إلى", "الحقل", "بسرعة"],
+      example: "ذهب الأرنب إلى الحقل بسرعة"
+    },
+    {
+      correct: ["المدرسة", "مكان", "للتعلم", "هي"],
+      example: "المدرسة هي مكان للتعلم"
+    },
+    {
+      correct: ["أكل", "الولد", "تفاحة", "حمراء"],
+      example: "أكل الولد تفاحة حمراء"
+    }
+  ];
+
+  let currentIndex = 0;
+
+  // عناصر DOM
+  const sentenceArea = document.getElementById('sentence-area');
+  const wordBank = document.getElementById('word-bank');
+  const checkBtn = document.getElementById('check-btn');
+  const nextBtn = document.getElementById('next-btn');
+  const resultMessage = document.getElementById('result-message');
+
+  // دالة السماح بالسحب
+  function drag(event) {
+    event.dataTransfer.setData("text", event.target.id);
+  }
+
+  // السماح بالإفلات
+  function allowDrop(event) {
+    event.preventDefault();
+  }
+
+  // دالة إفلات الكلمات مع فحص اكتمال السحب
+  function drop(event) {
+    event.preventDefault();
+    const draggedId = event.dataTransfer.getData("text");
+    const draggedElem = document.getElementById(draggedId);
+
+    // نضيف الكلمة إلى منطقة الجملة فقط إذا ليست موجودة هناك
+    if (!sentenceArea.contains(draggedElem)) {
+      sentenceArea.appendChild(draggedElem);
+      checkIfComplete();
+    }
+  }
+
+  // دالة لتحميل السؤال الحالي
+  function loadQuestion(index) {
+    sentenceArea.innerHTML = '';
+    wordBank.innerHTML = '';
+    resultMessage.textContent = '';
+    nextBtn.style.display = 'none';
+    checkBtn.disabled = false;
+
+    // خلط الكلمات لعرضها في بنك الكلمات
+    const correctWords = sentences[index].correct.slice();
+    const shuffledWords = shuffleArray(correctWords);
+
+    // إنشاء بطاقات الكلمات في بنك الكلمات
+    shuffledWords.forEach((word, i) => {
+      const wordDiv = document.createElement('div');
+      wordDiv.className = 'word-card';
+      wordDiv.textContent = word;
+      wordDiv.id = `word-${index}-${i}`;
+      wordDiv.draggable = true;
+      wordDiv.addEventListener('dragstart', drag);
+      wordBank.appendChild(wordDiv);
+    });
+  }
+
+  // دالة خلط المصفوفة (فيشر-يت)
+  function shuffleArray(array) {
+    let currentIndex = array.length, randomIndex;
+    while (currentIndex !== 0) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+      [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+    }
+    return array;
+  }
+
+  // فحص اكتمال السحب وترتيب الكلمات بالعكس داخل الجملة
+  function checkIfComplete() {
+    const totalWords = sentences[currentIndex].correct.length;
+    const arrangedWordsCount = sentenceArea.children.length;
+
+    if (arrangedWordsCount === totalWords) {
+      // عكس ترتيب الكلمات في منطقة الجملة
+      let words = Array.from(sentenceArea.children);
+      words.forEach(word => sentenceArea.removeChild(word));
+      words.reverse().forEach(word => sentenceArea.appendChild(word));
+    }
+  }
+
+  // التحقق من صحة الجملة المرتبة
+  function checkAnswer() {
+    const arrangedWords = Array.from(sentenceArea.children).map(div => div.textContent);
+    const correctWords = sentences[currentIndex].correct;
+
+    if (arrangedWords.length !== correctWords.length) {
+      resultMessage.textContent = "الرجاء ترتيب جميع الكلمات!";
+      resultMessage.className = "incorrect";
+      return;
+    }
+
+    let isCorrect = true;
+    for (let i = 0; i < correctWords.length; i++) {
+      if (arrangedWords[i] !== correctWords[i]) {
+        isCorrect = false;
+        break;
+      }
+    }
+
+    if (isCorrect) {
+      resultMessage.textContent = "أحسنت! الجملة صحيحة 🎉";
+      resultMessage.className = "correct";
+      checkBtn.disabled = true;
+      nextBtn.style.display = 'inline-block';
+    } else {
+      resultMessage.textContent = "حاول مرة أخرى 🤔";
+      resultMessage.className = "incorrect";
+    }
+  }
+
+  // الانتقال للسؤال التالي
+  function nextQuestion() {
+    currentIndex++;
+    if (currentIndex >= sentences.length) {
+      alert("لقد انتهت اللعبة! شكراً للعبك.");
+      currentIndex = 0;
+    }
+    loadQuestion(currentIndex);
+    resultMessage.textContent = '';
+    nextBtn.style.display = 'none';
+    checkBtn.disabled = false;
+  }
+
+  // تحميل أول سؤال عند بدء اللعبة
+  loadQuestion(currentIndex);
+
+  // ربط الأزرار بالأحداث
+  checkBtn.addEventListener('click', checkAnswer);
+  nextBtn.addEventListener('click', nextQuestion);
+</script>
+
+</body>
+</html>

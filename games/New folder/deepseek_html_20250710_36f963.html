@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بطل الشهامة - خالد بن الوليد</title>
+    <style>
+        :root {
+            --hero-blue: #1A3A8F;
+            --hero-gold: #FFD700;
+            --hero-red: #E63946;
+            --hero-light: #F8F4E3;
+            --hero-dark: #0A1F4D;
+        }
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--hero-light);
+            margin: 0;
+            padding: 0;
+            background-image: url('https://i.imgur.com/YbJqW3a.png');
+            background-size: 40%;
+            background-blend-mode: overlay;
+        }
+        
+        .hero-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .game-header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .game-title {
+            font-size: 2.8em;
+            color: var(--hero-blue);
+            margin: 0;
+            position: relative;
+            display: inline-block;
+            background: linear-gradient(45deg, var(--hero-blue), var(--hero-red));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 3px 3px 0 rgba(0,0,0,0.1);
+        }
+        
+        .game-subtitle {
+            color: var(--hero-dark);
+            font-size: 1.3em;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+        
+        .character-container {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+            position: relative;
+        }
+        
+        .character {
+            width: 150px;
+            height: 250px;
+            background-image: url('https://i.imgur.com/JR8lQ7W.jpg');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: bottom;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .character-status {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--hero-blue);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        
+        .scenario-container {
+            background-color: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            border: 3px solid var(--hero-gold);
+            position: relative;
+        }
+        
+        .scenario-container:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(90deg, var(--hero-blue), var(--hero-red));
+        }
+        
+        .scenario-text {
+            font-size: 1.2em;
+            line-height: 1.8;
+            color: var(--hero-dark);
+            margin-bottom: 25px;
+            padding-right: 20px;
+            position: relative;
+        }
+        
+        .scenario-text:before {
+            content: "💬";
+            position: absolute;
+            right: -10px;
+            top: -10px;
+            font-size: 1.5em;
+        }
+        
+        .choices-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .choice-card {
+            background-color: white;
+            border: 2px solid var(--hero-blue);
+            border-radius: 15px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .choice-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border-color: var(--hero-red);
+        }
+        
+        .choice-card:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--hero-blue), var(--hero-red));
+        }
+        
+        .choice-icon {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+            color: var(--hero-blue);
+        }
+        
+        .choice-text {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .choice-desc {
+            font-size: 0.9em;
+            color: #555;
+        }
+        
+        .feedback-container {
+            background-color: rgba(26, 58, 143, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 25px;
+            display: none;
+            border-left: 5px solid var(--hero-gold);
+        }
+        
+        .feedback-title {
+            font-weight: bold;
+            color: var(--hero-blue);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .feedback-title:before {
+            content: "✨";
+            margin-left: 10px;
+        }
+        
+        .feedback-text {
+            line-height: 1.7;
+        }
+        
+        .next-scenario-btn {
+            background: linear-gradient(45deg, var(--hero-blue), var(--hero-red));
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 20px auto 0;
+            display: block;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .next-scenario-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        
+        .virtues-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .virtue {
+            text-align: center;
+            padding: 15px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            width: 120px;
+            margin: 10px;
+            border: 2px solid var(--hero-gold);
+        }
+        
+        .virtue-icon {
+            font-size: 2em;
+            color: var(--hero-blue);
+            margin-bottom: 10px;
+        }
+        
+        .virtue-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .virtue-score {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--hero-red);
+        }
+        
+        .result-screen {
+            text-align: center;
+            padding: 30px;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-top: 30px;
+            display: none;
+            border: 3px solid var(--hero-gold);
+        }
+        
+        .result-title {
+            font-size: 2em;
+            color: var(--hero-blue);
+            margin-bottom: 20px;
+        }
+        
+        .result-image {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+            background-image: url('https://i.imgur.com/JR8lQ7W.jpg');
+            background-size: cover;
+            background-position: center;
+            border-radius: 50%;
+            border: 5px solid var(--hero-gold);
+        }
+        
+        .result-message {
+            font-size: 1.2em;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+        
+        .restart-btn {
+            background: linear-gradient(45deg, var(--hero-red), var(--hero-blue));
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .restart-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        
+        @media (max-width: 600px) {
+            .choices-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .game-title {
+                font-size: 2em;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="hero-container">
+        <div class="game-header">
+            <h1 class="game-title">بطل الشهامة</h1>
+            <p class="game-subtitle">ساعد خالد بن الوليد في اتخاذ القرارات الصحيحة وتعلم القيم النبيلة!</p>
+        </div>
+        
+        <div class="character-container">
+            <div class="character" id="character"></div>
+            <div class="character-status" id="character-status">قوة الشخصية: 50%</div>
+        </div>
+        
+        <div class="virtues-container" id="virtues-container">
+            <div class="virtue">
+                <div class="virtue-icon">🛡️</div>
+                <div class="virtue-name">الشجاعة</div>
+                <div class="virtue-score" id="courage-score">50</div>
+            </div>
+            <div class="virtue">
+                <div class="virtue-icon">🧠</div>
+                <div class="virtue-name">الحكمة</div>
+                <div class="virtue-score" id="wisdom-score">50</div>
+            </div>
+            <div class="virtue">
+                <div class="virtue-icon">🤝</div>
+                <div class="virtue-name">العدل</div>
+                <div class="virtue-score" id="justice-score">50</div>
+            </div>
+        </div>
+        
+        <div class="scenario-container" id="scenario-container">
+            <div class="scenario-text" id="scenario-text">
+                بينما كان خالد بن الوليد يتفقد جنوده قبل المعركة، وجد جندياً شاباً يبكي لأنه فقد سيفه. ماذا يجب أن يفعل خالد في هذا الموقف؟
+            </div>
+            
+            <div class="choices-grid" id="choices-grid">
+                <div class="choice-card" onclick="makeChoice(1)">
+                    <div class="choice-icon">⚔️</div>
+                    <div class="choice-text">يعاقب الجندي على إهماله</div>
+                    <div class="choice-desc">لتعليمه المسؤولية والانضباط</div>
+                </div>
+                <div class="choice-card" onclick="makeChoice(2)">
+                    <div class="choice-icon">🛡️</div>
+                    <div class="choice-text">يعطيه سيفه الخاص</div>
+                    <div class="choice-desc">لإظهار الكرم والثقة به</div>
+                </div>
+                <div class="choice-card" onclick="makeChoice(3)">
+                    <div class="choice-icon">🔍</div>
+                    <div class="choice-text">يساعده في البحث عن السيف</div>
+                    <div class="choice-desc">لتعليمه العمل الجماعي والتعاون</div>
+                </div>
+            </div>
+            
+            <div class="feedback-container" id="feedback-container">
+                <div class="feedback-title">تعلم من خالد</div>
+                <div class="feedback-text" id="feedback-text"></div>
+            </div>
+            
+            <button class="next-scenario-btn" id="next-btn" onclick="nextScenario()">الموقف التالي</button>
+        </div>
+        
+        <div class="result-screen" id="result-screen">
+            <div class="result-title" id="result-title">أحسنت!</div>
+            <div class="result-image"></div>
+            <div class="result-message" id="result-message">
+                لقد تعلمت الكثير من القيم النبيلة من خالد بن الوليد! استمر في تطبيق هذه المبادئ في حياتك اليومية.
+            </div>
+            <button class="restart-btn" onclick="restartGame()">العب مرة أخرى</button>
+        </div>
+    </div>
+
+    <script>
+        // سيناريوهات اللعبة
+        const scenarios = [
+            {
+                text: "بينما كان خالد بن الوليد يتفقد جنوده قبل المعركة، وجد جندياً شاباً يبكي لأنه فقد سيفه. ماذا يجب أن يفعل خالد في هذا الموقف؟",
+                choices: [
+                    {
+                        text: "يعاقب الجندي على إهماله",
+                        desc: "لتعليمه المسؤولية والانضباط",
+                        courage: 5,
+                        wisdom: -5,
+                        justice: 10,
+                        feedback: "خالد علم أن العدل مهم، لكنه أيضاً كان حكيماً في تعامله مع الجنود. العقاب ليس دائماً الحل الأفضل."
+                    },
+                    {
+                        text: "يعطيه سيفه الخاص",
+                        desc: "لإظهار الكرم والثقة به",
+                        courage: 10,
+                        wisdom: -10,
+                        justice: -5,
+                        feedback: "الكرم صفة جميلة، لكن خالد كان يعلم أن القائد يحتاج إلى سلاحه في المعركة. هناك حلول أخرى."
+                    },
+                    {
+                        text: "يساعده في البحث عن السيف",
+                        desc: "لتعليمه العمل الجماعي والتعاون",
+                        courage: 5,
+                        wisdom: 10,
+                        justice: 5,
+                        feedback: "أحسنت! خالد علم أن القيادة الحقيقية هي في مساعدة الآخرين والعمل الجماعي."
+                    }
+                ]
+            },
+            {
+                text: "أثناء المعركة، طلب أحد قادة الأعداء الأمان مقابل معلومات مهمة. كيف يجب أن يتصرف خالد؟",
+                choices: [
+                    {
+                        text: "يرفض ويعتبره خدعة",
+                        desc: "الحذر في الحرب ضروري",
+                        courage: 15,
+                        wisdom: -10,
+                        justice: -5,
+                        feedback: "الشجاعة مهمة، لكن خالد كان يعلم أن الحكمة في الاستماع قد تكسبه معركة بدون قتال."
+                    },
+                    {
+                        text: "يستمع إليه ثم يتخذ القرار",
+                        desc: "الموازنة بين الحذر والفرصة",
+                        courage: 5,
+                        wisdom: 15,
+                        justice: 10,
+                        feedback: "هذا هو اختيار خالد الحقيقي! كان يزن الأمور بحكمة ويتخذ القرار الأنسب."
+                    },
+                    {
+                        text: "يقبله فوراً ويعد بحمايته",
+                        desc: "إظهار سماحة الإسلام",
+                        courage: -5,
+                        wisdom: 5,
+                        justice: 15,
+                        feedback: "العدل من صفات المسلم، لكن خالد كان حريصاً أيضاً على أمان جيشه."
+                    }
+                ]
+            },
+            {
+                text: "بعد النصر في المعركة، كيف يجب أن يعامل خالد الأسرى من النساء والأطفال؟",
+                choices: [
+                    {
+                        text: "يأسرهم ويطلب فدية",
+                        desc: "كما كانت عادة الحروب",
+                        courage: 5,
+                        wisdom: -5,
+                        justice: -10,
+                        feedback: "خالد كان يعامل الأسرى معاملة إنسانية، فقد علمه الإسلام الرحمة حتى في الحرب."
+                    },
+                    {
+                        text: "يطلق سراحهم بدون فدية",
+                        desc: "إظهار رحمة الإسلام",
+                        courage: -5,
+                        wisdom: 10,
+                        justice: 15,
+                        feedback: "أحسنت! هذا ما فعله خالد حقاً، فقد كان رحيماً حتى بأعدائه."
+                    },
+                    {
+                        text: "يستعبدهم ويوزعهم على الجنود",
+                        desc: "مكافأة للجيش المنتصر",
+                        courage: -10,
+                        wisdom: -15,
+                        justice: -20,
+                        feedback: "هذا ضد تعاليم الإسلام الذي حرم ظلم الضعفاء حتى في الحرب."
+                    }
+                ]
+            },
+            {
+                text: "عند تقسيم الغنائم بعد المعركة، ماذا يجب أن يفعل خالد؟",
+                choices: [
+                    {
+                        text: "يأخذ نصيباً أكبر كقائد",
+                        desc: "مكافأة على قيادته",
+                        courage: -10,
+                        wisdom: -5,
+                        justice: -15,
+                        feedback: "خالد كان زاهداً في الدنيا، ولم يكن يأخذ إلا ما يستحقه كأي جندي."
+                    },
+                    {
+                        text: "يوزعها بالتساوي مع الجنود",
+                        desc: "العدل في التوزيع",
+                        courage: 5,
+                        wisdom: 10,
+                        justice: 15,
+                        feedback: "هذا ما فعله خالد حقاً! كان عادلاً في توزيع الغنائم حتى مع كونه القائد."
+                    },
+                    {
+                        text: "يتبرع بنصيبه للفقراء",
+                        desc: "الكرم والإيثار",
+                        courage: 10,
+                        wisdom: 5,
+                        justice: 10,
+                        feedback: "خالد كان كريماً جداً، وكان يفضل الآخرين على نفسه في كثير من الأحيان."
+                    }
+                ]
+            }
+        ];
+        
+        // حالة اللعبة
+        let currentScenario = 0;
+        let gameState = {
+            courage: 50,
+            wisdom: 50,
+            justice: 50
+        };
+        
+        // تحميل السيناريو الحالي
+        function loadScenario(index) {
+            if (index >= scenarios.length) {
+                showResults();
+                return;
+            }
+            
+            const scenario = scenarios[index];
+            document.getElementById('scenario-text').textContent = scenario.text;
+            
+            const choicesGrid = document.getElementById('choices-grid');
+            choicesGrid.innerHTML = '';
+            
+            scenario.choices.forEach((choice, i) => {
+                const choiceCard = document.createElement('div');
+                choiceCard.className = 'choice-card';
+                choiceCard.onclick = function() { makeChoice(i); };
+                choiceCard.innerHTML = `
+                    <div class="choice-icon">${i === 0 ? '⚔️' : i === 1 ? '🛡️' : '🔍'}</div>
+                    <div class="choice-text">${choice.text}</div>
+                    <div class="choice-desc">${choice.desc}</div>
+                `;
+                choicesGrid.appendChild(choiceCard);
+            });
+            
+            document.getElementById('feedback-container').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+        }
+        
+        // اتخاذ قرار
+        function makeChoice(choiceIndex) {
+            const scenario = scenarios[currentScenario];
+            const choice = scenario.choices[choiceIndex];
+            
+            // تحديث الإحصائيات
+            gameState.courage = Math.max(0, Math.min(100, gameState.courage + choice.courage));
+            gameState.wisdom = Math.max(0, Math.min(100, gameState.wisdom + choice.wisdom));
+            gameState.justice = Math.max(0, Math.min(100, gameState.justice + choice.justice));
+            
+            // عرض التغذية الراجعة
+            document.getElementById('feedback-text').textContent = choice.feedback;
+            document.getElementById('feedback-container').style.display = 'block';
+            document.getElementById('next-btn').style.display = 'block';
+            
+            // تحديث واجهة المستخدم
+            updateStats();
+        }
+        
+        // التقدم إلى السيناريو التالي
+        function nextScenario() {
+            currentScenario++;
+            loadScenario(currentScenario);
+        }
+        
+        // تحديث الإحصائيات
+        function updateStats() {
+            document.getElementById('courage-score').textContent = gameState.courage;
+            document.getElementById('wisdom-score').textContent = gameState.wisdom;
+            document.getElementById('justice-score').textContent = gameState.justice;
+            
+            // تحديث حالة الشخصية
+            const avgScore = (gameState.courage + gameState.wisdom + gameState.justice) / 3;
+            document.getElementById('character-status').textContent = `قوة الشخصية: ${Math.round(avgScore)}%`;
+            
+            // تغيير مظهر الشخصية حسب الأداء
+            const character = document.getElementById('character');
+            if (avgScore > 70) {
+                character.style.filter = "brightness(1.1) saturate(1.2)";
+            } else if (avgScore < 30) {
+                character.style.filter = "brightness(0.9) grayscale(20%)";
+            } else {
+                character.style.filter = "none";
+            }
+        }
+        
+        // عرض النتائج النهائية
+        function showResults() {
+            document.getElementById('scenario-container').style.display = 'none';
+            const resultScreen = document.getElementById('result-screen');
+            const resultTitle = document.getElementById('result-title');
+            const resultMessage = document.getElementById('result-message');
+            
+            resultScreen.style.display = 'block';
+            
+            const avgScore = (gameState.courage + gameState.wisdom + gameState.justice) / 3;
+            
+            if (avgScore >= 70) {
+                resultTitle.textContent = "بطل عظيم!";
+                resultMessage.textContent = "لقد تعلمت جيداً من خالد بن الوليد! شجاعتك وحكمتك وعدلك تشبه صفات هذا البطل العظيم. استمر في تطبيق هذه القيم في حياتك اليومية.";
+            } else if (avgScore >= 40) {
+                resultTitle.textContent = "عمل جيد!";
+                resultMessage.textContent = "لقد تعلمت بعض القيم من خالد بن الوليد، لكن هناك مجال للتحسين. حاول أن تقرأ أكثر عن سيرته لتتعلم المزيد من الدروس.";
+            } else {
+                resultTitle.textContent = "حاول مرة أخرى!";
+                resultMessage.textContent = "يمكنك أن تتعلم الكثير من خالد بن الوليد إذا تأملت في قراراتك. لا تيأس، فكلنا نتعلم من أخطائنا.";
+            }
+        }
+        
+        // إعادة تشغيل اللعبة
+        function restartGame() {
+            currentScenario = 0;
+            gameState = {
+                courage: 50,
+                wisdom: 50,
+                justice: 50
+            };
+            
+            document.getElementById('scenario-container').style.display = 'block';
+            document.getElementById('result-screen').style.display = 'none';
+            
+            updateStats();
+            loadScenario(0);
+        }
+        
+        // بدء اللعبة
+        loadScenario(0);
+        updateStats();
+    </script>
+</body>
+</html>

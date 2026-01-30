@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة المنازل العددية بالتمثيل الكامل</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            text-align: center;
+            padding: 10px;
+            margin: 0;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2e8b57;
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+        .place-value {
+            display: flex;
+            justify-content: center;
+            margin: 15px 0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .box {
+            margin: 5px;
+            text-align: center;
+            flex: 1;
+            min-width: 160px;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.05);
+        }
+        .box-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 16px;
+            color: #2e8b57;
+        }
+        .shape-container {
+            width: 160px;
+            height: 160px;
+            border: 1px dashed #ccc;
+            border-radius: 5px;
+            padding: 5px;
+            background-color: white;
+            margin: 0 auto;
+            position: relative;
+            overflow: auto;
+        }
+        .square {
+            width: 10px;
+            height: 10px;
+            margin: 1px;
+            background-color: #ff9999;
+            float: left;
+        }
+        .rod {
+            width: 12px;
+            height: 120px;
+            background-color: #99ff99;
+            margin: 2px;
+            float: left;
+            position: relative;
+        }
+        .rod .square {
+            position: absolute;
+            left: 1px;
+        }
+        .hundred-block {
+            width: 120px;
+            height: 120px;
+            background-color: #9999ff;
+            margin: 2px;
+            float: left;
+            position: relative;
+        }
+        .thousand-block {
+            width: 130px;
+            height: 130px;
+            background-color: #ffff99;
+            margin: 2px;
+            float: left;
+            position: relative;
+        }
+        .controls {
+            margin: 15px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        button {
+            padding: 8px 15px;
+            margin: 0 3px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            flex: 1;
+            min-width: 100px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        input {
+            padding: 8px;
+            width: 100px;
+            font-size: 14px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            flex: 1;
+            min-width: 80px;
+            max-width: 120px;
+        }
+        .result {
+            font-size: 18px;
+            margin: 15px 0;
+            min-height: 30px;
+            color: #2e8b57;
+            font-weight: bold;
+            padding: 8px;
+            background-color: #f0f8ff;
+            border-radius: 5px;
+        }
+        .explanation {
+            background-color: #e6f7ff;
+            padding: 12px;
+            border-radius: 5px;
+            margin-top: 15px;
+            text-align: right;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .visual-container {
+            min-height: 200px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 5px;
+            padding: 10px;
+            border: 1px dashed #ddd;
+            border-radius: 5px;
+            margin: 10px 0;
+            background-color: white;
+            overflow: auto;
+        }
+        .value-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .count-label {
+            font-size: 11px;
+            color: #888;
+            margin-top: 3px;
+        }
+        .scroll-note {
+            font-size: 11px;
+            color: #888;
+            margin-top: 5px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>لعبة المنازل العددية بالتمثيل الكامل</h1>
+        <p>كل وحدة تمثل العدد الحقيقي للمربعات بدقة</p>
+        
+        <div class="controls">
+            <input type="number" id="numberInput" min="0" max="9999" placeholder="أدخل رقماً">
+            <button onclick="showNumber()">اظهر العدد</button>
+            <button onclick="clearAll()">مسح الكل</button>
+        </div>
+        
+        <div class="result" id="result"></div>
+        
+        <div class="visual-container" id="visualRepresentation">
+            <!-- التمثيل المرئي سيظهر هنا -->
+        </div>
+        <div class="scroll-note">يمكنك تحريك المنطقة أعلاه لعرض كل العناصر</div>
+        
+        <div class="place-value">
+            <div class="box">
+                <div class="box-title">الوحدات</div>
+                <div class="shape-container" id="units">
+                    <!-- المربعات ستضاف هنا -->
+                </div>
+                <div class="value-label">كل مربع = 1</div>
+                <div class="count-label" id="units-count">العدد: 0</div>
+            </div>
+            <div class="box">
+                <div class="box-title">العشرات</div>
+                <div class="shape-container" id="tens">
+                    <!-- القضبان ستضاف هنا -->
+                </div>
+                <div class="value-label">كل قضيب = 10 مربعات</div>
+                <div class="count-label" id="tens-count">العدد: 0</div>
+            </div>
+            <div class="box">
+                <div class="box-title">المئات</div>
+                <div class="shape-container" id="hundreds">
+                    <!-- كتل المئات ستضاف هنا -->
+                </div>
+                <div class="value-label">كل كتلة = 100 مربع</div>
+                <div class="count-label" id="hundreds-count">العدد: 0</div>
+            </div>
+            <div class="box">
+                <div class="box-title">الآلاف</div>
+                <div class="shape-container" id="thousands">
+                    <!-- كتل الآلاف ستضاف هنا -->
+                </div>
+                <div class="value-label">كل كتلة = 1000 مربع</div>
+                <div class="count-label" id="thousands-count">العدد: 0</div>
+            </div>
+        </div>
+        
+        <div class="explanation">
+            <h3>كيفية اللعب والملاحظات:</h3>
+            <p>1. أدخل رقماً بين 0 و 9999 ثم اضغط "اظهر العدد"</p>
+            <p>2. كل قضيب (عشرات) يحتوي بالضبط على 10 مربعات مرتبة عمودياً</p>
+            <p>3. كل كتلة مئات (مئات) تحتوي بالضبط على 100 مربع (10×10)</p>
+            <p>4. كل كتلة آلاف تحتوي بالضبط على 1000 مربع (10 صفائح)</p>
+            <p>5. يمكنك تحريك مناطق العرض لعرض كل العناصر</p>
+            <p>6. جرب أرقاماً مختلفة لترى العلاقة بين المنازل</p>
+        </div>
+    </div>
+
+    <script>
+        function showNumber() {
+            const numberInput = document.getElementById('numberInput');
+            const resultDiv = document.getElementById('result');
+            const visualContainer = document.getElementById('visualRepresentation');
+            const number = parseInt(numberInput.value);
+            
+            if (isNaN(number) || number < 0 || number > 9999) {
+                alert("الرجاء إدخال رقم بين 0 و 9999");
+                return;
+            }
+            
+            resultDiv.textContent = "العدد: " + number.toLocaleString();
+            visualContainer.innerHTML = '';
+            
+            // تفكيك العدد إلى منازله
+            let remaining = number;
+            
+            const thousands = Math.floor(remaining / 1000);
+            remaining = remaining % 1000;
+            
+            const hundreds = Math.floor(remaining / 100);
+            remaining = remaining % 100;
+            
+            const tens = Math.floor(remaining / 10);
+            const units = remaining % 10;
+            
+            // تحديث العداد
+            document.getElementById('units-count').textContent = `العدد: ${units}`;
+            document.getElementById('tens-count').textContent = `العدد: ${tens}`;
+            document.getElementById('hundreds-count').textContent = `العدد: ${hundreds}`;
+            document.getElementById('thousands-count').textContent = `العدد: ${thousands}`;
+            
+            // عرض التمثيل المرئي الكلي
+            createVisualRepresentation(visualContainer, thousands, hundreds, tens, units);
+            
+            // عرض الأشكال في كل قسم
+            displayUnits('units', units);
+            displayTens('tens', tens);
+            displayHundreds('hundreds', hundreds);
+            displayThousands('thousands', thousands);
+        }
+        
+        function createVisualRepresentation(container, thousands, hundreds, tens, units) {
+            // عرض كتل الآلاف
+            for (let i = 0; i < thousands; i++) {
+                const thousandBlock = document.createElement('div');
+                thousandBlock.className = 'thousand-block';
+                
+                // إضافة 10 صفائح (10×100) داخل كل كتلة آلاف
+                for (let f = 0; f < 10; f++) {
+                    const flat = document.createElement('div');
+                    flat.className = 'hundred-block';
+                    thousandBlock.appendChild(flat);
+                }
+                
+                container.appendChild(thousandBlock);
+            }
+            
+            // عرض كتل المئات
+            for (let i = 0; i < hundreds; i++) {
+                const hundredBlock = document.createElement('div');
+                hundredBlock.className = 'hundred-block';
+                container.appendChild(hundredBlock);
+            }
+            
+            // عرض القضبان (العشرات)
+            for (let i = 0; i < tens; i++) {
+                const rod = document.createElement('div');
+                rod.className = 'rod';
+                
+                // إضافة 10 مربعات في كل قضيب
+                for (let j = 0; j < 10; j++) {
+                    const square = document.createElement('div');
+                    square.className = 'square';
+                    square.style.top = (j * 12) + 'px';
+                    rod.appendChild(square);
+                }
+                
+                container.appendChild(rod);
+            }
+            
+            // عرض المربعات الصغيرة (الوحدات)
+            for (let i = 0; i < units; i++) {
+                const square = document.createElement('div');
+                square.className = 'square';
+                container.appendChild(square);
+            }
+        }
+        
+        function displayUnits(containerId, count) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            const squaresPerRow = 10;
+            const rows = Math.ceil(count / squaresPerRow);
+            
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < squaresPerRow; j++) {
+                    if (i * squaresPerRow + j >= count) break;
+                    
+                    const square = document.createElement('div');
+                    square.className = 'square';
+                    container.appendChild(square);
+                }
+            }
+        }
+        
+        function displayTens(containerId, count) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            for (let i = 0; i < count; i++) {
+                const rod = document.createElement('div');
+                rod.className = 'rod';
+                
+                // إضافة 10 مربعات في كل قضيب
+                for (let j = 0; j < 10; j++) {
+                    const square = document.createElement('div');
+                    square.className = 'square';
+                    square.style.top = (j * 12) + 'px';
+                    rod.appendChild(square);
+                }
+                
+                container.appendChild(rod);
+            }
+        }
+        
+        function displayHundreds(containerId, count) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            for (let i = 0; i < count; i++) {
+                const hundredBlock = document.createElement('div');
+                hundredBlock.className = 'hundred-block';
+                
+                // إضافة 100 مربع في كل كتلة مئات (10×10)
+                for (let row = 0; row < 10; row++) {
+                    for (let col = 0; col < 10; col++) {
+                        const square = document.createElement('div');
+                        square.className = 'square';
+                        square.style.position = 'absolute';
+                        square.style.left = (col * 12) + 'px';
+                        square.style.top = (row * 12) + 'px';
+                        hundredBlock.appendChild(square);
+                    }
+                }
+                
+                container.appendChild(hundredBlock);
+            }
+        }
+        
+        function displayThousands(containerId, count) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            for (let i = 0; i < count; i++) {
+                const thousandBlock = document.createElement('div');
+                thousandBlock.className = 'thousand-block';
+                
+                // إضافة 10 صفائح في كل كتلة آلاف
+                for (let f = 0; f < 10; f++) {
+                    const flat = document.createElement('div');
+                    flat.className = 'hundred-block';
+                    flat.style.position = 'absolute';
+                    flat.style.left = (f % 5 * 26) + 'px';
+                    flat.style.top = (Math.floor(f / 5) * 26) + 'px';
+                    thousandBlock.appendChild(flat);
+                }
+                
+                container.appendChild(thousandBlock);
+            }
+        }
+        
+        function clearAll() {
+            document.getElementById('numberInput').value = '';
+            document.getElementById('result').textContent = '';
+            document.getElementById('visualRepresentation').innerHTML = '';
+            document.getElementById('thousands').innerHTML = '';
+            document.getElementById('hundreds').innerHTML = '';
+            document.getElementById('tens').innerHTML = '';
+            document.getElementById('units').innerHTML = '';
+            
+            // إعادة تعيين العدادات
+            document.getElementById('units-count').textContent = 'العدد: 0';
+            document.getElementById('tens-count').textContent = 'العدد: 0';
+            document.getElementById('hundreds-count').textContent = 'العدد: 0';
+            document.getElementById('thousands-count').textContent = 'العدد: 0';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>لعبة تركيب صورة</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #f0f9ff;
+      font-family: 'Comic Sans MS', cursive;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-evenly;
+    }
+
+    h1 {
+      color: #4a90e2;
+      margin: 10px 0 0 0;
+      font-size: 1.5em;
+    }
+
+    p {
+      margin: 0;
+      font-size: 1em;
+    }
+
+    .game-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+
+    #puzzle-board {
+      display: grid;
+      grid-template-columns: repeat(2, 100px);
+      gap: 8px;
+    }
+
+    .puzzle-piece {
+      width: 100px;
+      height: 100px;
+      border: 2px solid #ccc;
+      background-size: 200px 200px;
+      background-image: url('https://i.imgur.com/6v5Fctt.png');
+      cursor: grab;
+    }
+
+    .drop-zone {
+      width: 100px;
+      height: 100px;
+      border: 3px dashed #ddd;
+      background-color: #fff;
+    }
+
+    .pieces-container {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+  </style>
+</head>
+<body>
+  <h1>🚢 لعبة تركيب السفينة!</h1>
+  <p>اسحب القطع وضعها في أماكنها الصحيحة!</p>
+
+  <div class="game-container">
+    <div id="puzzle-board">
+      <div class="drop-zone" data-pos="1"></div>
+      <div class="drop-zone" data-pos="2"></div>
+      <div class="drop-zone" data-pos="3"></div>
+      <div class="drop-zone" data-pos="4"></div>
+    </div>
+
+    <div class="pieces-container">
+      <div class="puzzle-piece" draggable="true" id="piece1" style="background-position: 0px 0px;"></div>
+      <div class="puzzle-piece" draggable="true" id="piece2" style="background-position: -100px 0px;"></div>
+      <div class="puzzle-piece" draggable="true" id="piece3" style="background-position: 0px -100px;"></div>
+      <div class="puzzle-piece" draggable="true" id="piece4" style="background-position: -100px -100px;"></div>
+    </div>
+  </div>
+
+  <script>
+    const pieces = document.querySelectorAll('.puzzle-piece');
+    const zones = document.querySelectorAll('.drop-zone');
+
+    pieces.forEach(piece => {
+      piece.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', e.target.id);
+      });
+    });
+
+    zones.forEach((zone, index) => {
+      zone.addEventListener('dragover', e => {
+        e.preventDefault();
+        zone.style.backgroundColor = '#e0f7fa';
+      });
+
+      zone.addEventListener('dragleave', () => {
+        zone.style.backgroundColor = '#fff';
+      });
+
+      zone.addEventListener('drop', e => {
+        const pieceId = e.dataTransfer.getData('text/plain');
+        const piece = document.getElementById(pieceId);
+        if (!zone.hasChildNodes()) {
+          zone.appendChild(piece);
+          zone.style.backgroundColor = '#fff';
+          checkCompletion();
+        }
+      });
+    });
+
+    function checkCompletion() {
+      const positions = ['piece1', 'piece2', 'piece3', 'piece4'];
+      const correct = [...zones].every((zone, i) => zone.firstChild?.id === positions[i]);
+      if (correct) {
+        setTimeout(() => alert("🎉 ممتاز! اكتملت صورة السفينة!"), 100);
+      }
+    }
+  </script>
+</body>
+</html>

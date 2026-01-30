@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🎨 لعبة الرسم والتلوين للأطفال</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            touch-action: manipulation;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            min-height: 100vh;
+            padding: 10px;
+            overflow-x: auto;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 5px solid #ff6b9d;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ff6b9d, #c44569);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '🌟';
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            font-size: 2em;
+            animation: twinkle 2s infinite;
+        }
+
+        .header::after {
+            content: '🎈';
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 2em;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .title {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .game-area {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: flex-start;
+        }
+
+        .tools-panel {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-radius: 15px;
+            min-width: 280px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            flex: 1;
+        }
+
+        .tools-section {
+            margin-bottom: 25px;
+        }
+
+        .tools-title {
+            color: white;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .coloring-pages {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .coloring-page {
+            width: 60px;
+            height: 60px;
+            border: 3px solid white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+        }
+
+        .coloring-page:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(255,255,255,0.3);
+        }
+
+        .coloring-page.active {
+            border-color: #ff6b9d;
+            background: #ffe0ec;
+            transform: scale(1.1);
+        }
+
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .color-btn {
+            width: 50px;
+            height: 50px;
+            border: 3px solid white;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .color-btn:hover {
+            transform: scale(1.1);
+            border-color: #fff;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        .color-btn.active {
+            border-color: #ff6b9d;
+            transform: scale(1.2);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+        }
+
+        .brush-sizes {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .brush-size {
+            width: 40px;
+            height: 40px;
+            border: 2px solid white;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+        }
+
+        .brush-size::after {
+            content: '';
+            background: #333;
+            border-radius: 50%;
+        }
+
+        .brush-size.small::after {
+            width: 8px;
+            height: 8px;
+        }
+
+        .brush-size.medium::after {
+            width: 16px;
+            height: 16px;
+        }
+
+        .brush-size.large::after {
+            width: 24px;
+            height: 24px;
+        }
+
+        .brush-size.active {
+            border-color: #ff6b9d;
+            background: #ffe0ec;
+            transform: scale(1.1);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .btn-clear {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+        }
+
+        .btn-save {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+        }
+
+        .btn-eraser {
+            background: linear-gradient(45deg, #ffa726, #ff7043);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        .canvas-container {
+            flex: 2;
+            min-width: 300px;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border: 5px solid #ff6b9d;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            border: 3px dashed #ff6b9d;
+            border-radius: 10px;
+            background: #fafafa;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        #drawingCanvas {
+            display: block;
+            cursor: crosshair;
+            background: white;
+            width: 100%;
+            height: auto;
+            touch-action: none;
+        }
+
+        .canvas-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            opacity: 0.3;
+            width: 100%;
+            height: auto;
+        }
+
+        .fun-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #ff6b9d;
+            border-radius: 50%;
+            animation: sparkle 2s infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        .stickers {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .sticker {
+            width: 40px;
+            height: 40px;
+            border: 2px solid white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+        }
+
+        .sticker:hover {
+            transform: scale(1.1);
+            border-color: #ff6b9d;
+        }
+
+        .sticker.active {
+            border-color: #ff6b9d;
+            background: #ffe0ec;
+            transform: scale(1.1);
+        }
+
+        .mode-indicator {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #ff6b9d;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            z-index: 1001;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .game-area {
+                flex-direction: column;
+            }
+            
+            .canvas-container {
+                order: -1;
+                min-width: auto;
+            }
+            
+            .tools-panel {
+                min-width: auto;
+            }
+            
+            .title {
+                font-size: 1.8em;
+            }
+            
+            .subtitle {
+                font-size: 1em;
+            }
+            
+            .mode-indicator {
+                display: block;
+            }
+            
+            .coloring-page, .color-btn, .brush-size, .sticker {
+                transform: scale(0.9);
+            }
+            
+            .coloring-page:hover, .color-btn:hover, .brush-size:hover, .sticker:hover {
+                transform: scale(1);
+            }
+            
+            .btn {
+                padding: 10px 15px;
+                font-size: 0.9em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 15px;
+            }
+            
+            .title {
+                font-size: 1.5em;
+            }
+            
+            .coloring-page {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2em;
+            }
+            
+            .color-btn {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .brush-size {
+                width: 30px;
+                height: 30px;
+            }
+            
+            .brush-size.small::after {
+                width: 6px;
+                height: 6px;
+            }
+            
+            .brush-size.medium::after {
+                width: 12px;
+                height: 12px;
+            }
+            
+            .brush-size.large::after {
+                width: 18px;
+                height: 18px;
+            }
+            
+            .sticker {
+                width: 35px;
+                height: 35px;
+                font-size: 1.2em;
+            }
+        }
+
+        /* تأثيرات جديدة */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #f00;
+            border-radius: 50%;
+            animation: fall 5s linear forwards;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .success-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            z-index: 1002;
+            text-align: center;
+            font-size: 1.5em;
+            color: #ff6b9d;
+            font-weight: bold;
+            display: none;
+            animation: bounceIn 0.5s;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            70% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="mode-indicator" id="modeIndicator">🖌️ وضع الرسم</div>
+    <div class="success-message" id="successMessage">تم الحفظ بنجاح! 🎉</div>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🎨 لعبة الرسم والتلوين</h1>
+            <p class="subtitle">ارسم وألوان واستمتع بالإبداع!</p>
+        </div>
+
+        <div class="game-area">
+            <div class="canvas-container">
+                <div class="canvas-wrapper">
+                    <canvas id="drawingCanvas" width="600" height="500"></canvas>
+                    <canvas id="templateCanvas" class="canvas-overlay" width="600" height="500"></canvas>
+                </div>
+            </div>
+
+            <div class="tools-panel">
+                <div class="tools-section">
+                    <h3 class="tools-title">🖼️ اختر الرسمة</h3>
+                    <div class="coloring-pages">
+                        <div class="coloring-page active" data-template="blank">📝</div>
+                        <div class="coloring-page" data-template="cat">🐱</div>
+                        <div class="coloring-page" data-template="flower">🌸</div>
+                        <div class="coloring-page" data-template="house">🏠</div>
+                        <div class="coloring-page" data-template="car">🚗</div>
+                        <div class="coloring-page" data-template="tree">🌳</div>
+                        <div class="coloring-page" data-template="sun">☀️</div>
+                        <div class="coloring-page" data-template="butterfly">🦋</div>
+                    </div>
+                </div>
+
+                <div class="tools-section">
+                    <h3 class="tools-title">🎨 اختر اللون</h3>
+                    <div class="color-palette">
+                        <div class="color-btn active" style="background: #ff6b9d" data-color="#ff6b9d"></div>
+                        <div class="color-btn" style="background: #4ecdc4" data-color="#4ecdc4"></div>
+                        <div class="color-btn" style="background: #45b7d1" data-color="#45b7d1"></div>
+                        <div class="color-btn" style="background: #f9ca24" data-color="#f9ca24"></div>
+                        <div class="color-btn" style="background: #6c5ce7" data-color="#6c5ce7"></div>
+                        <div class="color-btn" style="background: #a29bfe" data-color="#a29bfe"></div>
+                        <div class="color-btn" style="background: #fd79a8" data-color="#fd79a8"></div>
+                        <div class="color-btn" style="background: #00b894" data-color="#00b894"></div>
+                        <div class="color-btn" style="background: #e17055" data-color="#e17055"></div>
+                        <div class="color-btn" style="background: #81ecec" data-color="#81ecec"></div>
+                        <div class="color-btn" style="background: #fab1a0" data-color="#fab1a0"></div>
+                        <div class="color-btn" style="background: #00cec9" data-color="#00cec9"></div>
+                    </div>
+                </div>
+
+                <div class="tools-section">
+                    <h3 class="tools-title">🖌️ حجم الفرشاة</h3>
+                    <div class="brush-sizes">
+                        <div class="brush-size small" data-size="5"></div>
+                        <div class="brush-size medium active" data-size="15"></div>
+                        <div class="brush-size large" data-size="25"></div>
+                    </div>
+                </div>
+
+                <div class="tools-section">
+                    <h3 class="tools-title">✨ ملصقات</h3>
+                    <div class="stickers">
+                        <div class="sticker" data-sticker="⭐">⭐</div>
+                        <div class="sticker" data-sticker="❤️">❤️</div>
+                        <div class="sticker" data-sticker="🌈">🌈</div>
+                        <div class="sticker" data-sticker="🎈">🎈</div>
+                        <div class="sticker" data-sticker="🌟">🌟</div>
+                        <div class="sticker" data-sticker="🎉">🎉</div>
+                        <div class="sticker" data-sticker="💫">💫</div>
+                        <div class="sticker" data-sticker="🌙">🌙</div>
+                    </div>
+                </div>
+
+                <div class="tools-section">
+                    <h3 class="tools-title">🔧 الأدوات</h3>
+                    <div class="action-buttons">
+                        <button class="btn btn-eraser" id="eraserBtn">🧹 ممحاة</button>
+                        <button class="btn btn-clear" id="clearBtn">🗑️ مسح الكل</button>
+                        <button class="btn btn-save" id="saveBtn">💾 حفظ</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="fun-elements" id="funElements"></div>
+
+    <script>
+        // متغيرات اللعبة
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        const templateCanvas = document.getElementById('templateCanvas');
+        const templateCtx = templateCanvas.getContext('2d');
+        const modeIndicator = document.getElementById('modeIndicator');
+        const successMessage = document.getElementById('successMessage');
+        const eraserBtn = document.getElementById('eraserBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        
+        let isDrawing = false;
+        let currentColor = '#ff6b9d';
+        let currentSize = 15;
+        let isErasing = false;
+        let stickerMode = false;
+        let currentSticker = '';
+        let lastX = 0;
+        let lastY = 0;
+
+        // إعدادات الرسم
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.strokeStyle = currentColor;
+        ctx.lineWidth = currentSize;
+
+        // ضبط حجم الكانفاس للشاشات المختلفة
+        function resizeCanvas() {
+            const canvasWrapper = canvas.parentElement;
+            const width = canvasWrapper.clientWidth - 6; // طرح عرض الحدود
+            const height = width * (5/6); // نسبة الارتفاع إلى العرض
+            
+            canvas.width = width;
+            canvas.height = height;
+            templateCanvas.width = width;
+            templateCanvas.height = height;
+            
+            // إعادة رسم القالب الحالي
+            const activeTemplate = document.querySelector('.coloring-page.active').dataset.template;
+            if (templates[activeTemplate]) {
+                templates[activeTemplate]();
+            }
+        }
+
+        // قوالب الرسم
+        const templates = {
+            blank: () => {
+                templateCtx.clearRect(0, 0, templateCanvas.width, templateCanvas.height);
+            },
+            cat: () => {
+                const scale = canvas.width / 600;
+                templateCtx.clearRect(0, 0, templateCanvas.width, templateCanvas.height);
+                templateCtx.strokeStyle = '#ddd';
+                templateCtx.lineWidth = 2 * scale;
+                templateCtx.beginPath();
+                
+                // الرأس
+                templateCtx.arc(300 * scale, 200 * scale, 80 * scale, 0, Math.PI * 2);
+                // الأذنين
+                templateCtx.moveTo(250 * scale, 150 * scale);
+                templateCtx.lineTo(270 * scale, 120 * scale);
+                templateCtx.lineTo(290 * scale, 150 * scale);
+                templateCtx.moveTo(310 * scale, 150 * scale);
+                templateCtx.lineTo(330 * scale, 120 * scale);
+                templateCtx.lineTo(350 * scale, 150 * scale);
+                // العينين
+                templateCtx.arc(275 * scale, 180 * scale, 10 * scale, 0, Math.PI * 2);
+                templateCtx.moveTo(335 * scale, 180 * scale);
+                templateCtx.arc(325 * scale, 180 * scale, 10 * scale, 0, Math.PI * 2);
+                // الأنف
+                templateCtx.moveTo(300 * scale, 200 * scale);
+                templateCtx.lineTo(290 * scale, 210 * scale);
+                templateCtx.lineTo(310 * scale, 210 * scale);
+                templateCtx.closePath();
+                // الفم
+                templateCtx.moveTo(300 * scale, 210 * scale);
+                templateCtx.lineTo(285 * scale, 230 * scale);
+                templateCtx.moveTo(300 * scale, 210 * scale);
+                templateCtx.lineTo(315 * scale, 230 * scale);
+                
+                templateCtx.stroke();
+            },
+            flower: () => {
+                const scale = canvas.width / 600;
+                templateCtx.clearRect(0, 0, templateCanvas.width, templateCanvas.height);
+                templateCtx.strokeStyle = '#ddd';
+                templateCtx.lineWidth = 2 * scale;
+                templateCtx.beginPath();
+                
+                // مركز الزهرة
+                templateCtx.arc(300 * scale, 200 * scale, 30 * scale, 0, Math.PI * 2);
+                // البتلات
+                for (let i = 0; i < 8; i++) {
+                    const angle = (i * Math.PI * 2) / 8;
+                    const x = 300 * scale + Math.cos(angle) * 60 * scale;
+                    const y = 200 * scale + Math.sin(angle) * 60 * scale;
+                    templateCtx.moveTo(300 * scale + Math.cos(angle) * 30 * scale, 200 * scale + Math.sin(angle) * 30 * scale);
+                    templateCtx.arc(x, y, 25 * scale, 0, Math.PI * 2);
+                }
+                // الساق
+                templateCtx.moveTo(300 * scale, 230 * scale);
+                templateCtx.lineTo(300 * scale, 400 * scale);
+                // الأوراق
+                templateCtx.moveTo(300 * scale, 300 * scale);
+                templateCtx.quadraticCurveTo(250 * scale, 280 * scale, 270 * scale, 320 * scale);
+                templateCtx.quadraticCurveTo(300 * scale, 340 * scale, 300 * scale, 300 * scale);
+                templateCtx.moveTo(300 * scale, 350 * scale);
+                templateCtx.quadraticCurveTo(350 * scale, 330 * scale, 330 * scale, 370 * scale);
+                templateCtx.quadraticCurveTo(300 * scale, 390 * scale, 300 * scale, 350 * scale);
+                
+                templateCtx.stroke();
+            },
+            house: () => {
+                const scale = canvas.width / 600;
+                templateCtx.clearRect(0, 0, templateCanvas.width, templateCanvas.height);
+                templateCtx.strokeStyle = '#ddd';
+                templateCtx.lineWidth = 2 * scale;
+                templateCtx.beginPath();
+                
+                // المنزل الأساسي
+                templateCtx.rect(200 * scale, 250 * scale, 200 * scale, 150 * scale);
+                // السقف
+                templateCtx.moveTo(200 * scale, 250 * scale);
+                templateCtx.lineTo(300 * scale, 150 * scale);
+                templateCtx.lineTo(400 * scale, 250 * scale);
+                templateCtx.closePath();
+                // الباب
+                templateCtx.rect(270 * scale, 320 * scale, 60 * scale, 80 * scale);
+                // النوافذ
+                templateCtx.rect(220 * scale, 280 * scale, 40 * scale, 40 * scale);
+                templateCtx.rect(340 * scale, 280 * scale, 40 * scale, 40 * scale);
+                // خطوط النوافذ
+                templateCtx.moveTo(240 * scale, 280 * scale);
+                templateCtx.lineTo(240 * scale, 320 * scale);
+                templateCtx.moveTo(220 * scale, 300 * scale);
+                templateCtx.lineTo(260 * scale, 300 * scale);
+                templateCtx.moveTo(360 * scale, 280 * scale);
+                templateCtx.lineTo(360 * scale, 320 * scale);
+                templateCtx.moveTo(340 * scale, 300 * scale);
+                templateCtx.lineTo(380 * scale, 300 * scale);
+                
+                templateCtx.stroke();
+            },
+            car: () => {
+                const scale = canvas.width / 600;
+                templateCtx.clearRect(0, 0, templateCanvas.width, templateCanvas.height);
+                templateCtx.strokeStyle = '#ddd';
+                templateCtx.lineWidth = 2 * scale;
+                templateCtx.beginPath();
+                
+                // جسم السيارة
+                templateCtx.rect(150 * scale, 280 * scale, 300 * scale, 80 * scale);
+                // السقف
+                templateCtx.rect(200 * scale, 220 * scale, 200 * scale, 60 * scale);
+                // العجلات
+                templateCtx.arc(200 * scale, 360 * scale, 30 * scale, 0, Math.PI * 2);
+                templateCtx.moveTo(430 * scale, 360 * scale);
+                templateCtx.arc(400 * scale, 360 * scale, 30 * scale, 0, Math.PI * 2);
+                // النوافذ
+                templateCtx.rect(220 * scale, 240 * scale, 70 * scale, 40 * scale);
+                templateCtx.rect(310 * scale, 240 * scale, 70 * scale, 40 * scale);
+                // الأبواب
+                templateCtx.moveTo(290 * scale, 280 * scale);
+                templateCtx.lineTo(290 * scale, 360 * scale);
+                templateCtx.moveTo(310 * scale, 280 * scale);
+                templateCtx.lineTo(310 * scale, 360 * scale);
+                
+                templateCtx.stroke();
+            },
+            tree: () => {
+                const scale = canvas.width / 600;
+                templateCtx.clearRect(0, 0, templateCanvas.width, templateCanvas.height);
+                templateCtx.strokeStyle = '#ddd';
+                templateCtx.lineWidth = 2 * scale;
+                templateCtx.beginPath();
+                
+                // الجذع
+                templateCtx.rect(280 * scale, 300 * scale, 40 * scale, 100 * scale);
+                // التاج
+                templateCtx.arc(300 * scale, 200 * scale, 80 * scale, 0, Math.PI * 2);
+                templateCtx.moveTo(350 * scale, 250 * scale);
+                templateCtx.arc(330 * scale, 230 * scale, 50 * scale, 0, Math.PI * 2);
+                templateCtx.moveTo(300 * scale, 250 * scale);
+                templateCtx.arc(270 * scale, 230 * scale, 50 * scale, 0, Math.PI * 2);
+                // الفروع
+                templateCtx.moveTo(300 * scale, 280 * scale);
+                templateCtx.lineTo(250 * scale, 200 * scale);
+                templateCtx.moveTo(300 * scale, 280 * scale);
+                templateCtx.lineTo(350 * scale, 200 * scale);
+                templateCtx.moveTo(300 * scale, 300 * scale);
+                templateCtx.lineTo(260 * scale, 250 * scale);
+                templateCtx.moveTo(300 * scale, 300 * scale);
+                templateCtx.lineTo(340 * scale, 250 * scale);
+                
+                templateCtx.stroke();
+            },
+            sun: () => {
+                const scale = canvas.width / 600;
+                templateCtx.clearRect(0, 0, templateCanvas.width, templateCanvas.height);
+                templateCtx.strokeStyle = '#ddd';
+                templateCtx.lineWidth = 2 * scale;
+                templateCtx.beginPath();
+                
+                // الشمس
+                templateCtx.arc(300 * scale, 200 * scale, 60 * scale, 0, Math.PI * 2);
+                // الأشعة
+                for (let i = 0; i < 12; i++) {
+                    const angle = (i * Math.PI * 2) / 12;
+                    const x1 = 300 * scale + Math.cos(angle) * 70 * scale;
+                    const y1 = 200 * scale + Math.sin(angle) * 70 * scale;
+                    const x2 = 300 * scale + Math.cos(angle) * 100 * scale;
+                    const y2 = 200 * scale + Math.sin(angle) * 100 * scale;
+                    templateCtx.moveTo(x1, y1);
+                    templateCtx.lineTo(x2, y2);
+                }
+                // الوجه
+                templateCtx.moveTo(285 * scale, 180 * scale);
+                templateCtx.arc(280 * scale, 180 * scale, 5 * scale, 0, Math.PI * 2);
+                templateCtx.moveTo(325 * scale, 180 * scale);
+                templateCtx.arc(320 * scale, 180 * scale, 5 * scale, 0, Math.PI * 2);
+                templateCtx.moveTo(280 * scale, 220 * scale);
+                templateCtx.quadraticCurveTo(300 * scale, 240 * scale, 320 * scale, 220 * scale);
+                
+                templateCtx.stroke();
+            },
+            butterfly: () => {
+                const scale = canvas.width / 600;
+                templateCtx.clearRect(0, 0, templateCanvas.width, templateCanvas.height);
+                templateCtx.strokeStyle = '#ddd';
+                templateCtx.lineWidth = 2 * scale;
+                templateCtx.beginPath();
+                
+                // الجسم
+                templateCtx.moveTo(300 * scale, 150 * scale);
+                templateCtx.lineTo(300 * scale, 350 * scale);
+                // الأجنحة العلوية
+                templateCtx.moveTo(300 * scale, 200 * scale);
+                templateCtx.quadraticCurveTo(250 * scale, 150 * scale, 220 * scale, 200 * scale);
+                templateCtx.quadraticCurveTo(250 * scale, 250 * scale, 300 * scale, 200 * scale);
+                templateCtx.moveTo(300 * scale, 200 * scale);
+                templateCtx.quadraticCurveTo(350 * scale, 150 * scale, 380 * scale, 200 * scale);
+                templateCtx.quadraticCurveTo(350 * scale, 250 * scale, 300 * scale, 200 * scale);
+                // الأجنحة السفلية
+                templateCtx.moveTo(300 * scale, 250 * scale);
+                templateCtx.quadraticCurveTo(260 * scale, 280 * scale, 240 * scale, 320 * scale);
+                templateCtx.quadraticCurveTo(270 * scale, 350 * scale, 300 * scale, 250 * scale);
+                templateCtx.moveTo(300 * scale, 250 * scale);
+                templateCtx.quadraticCurveTo(340 * scale, 280 * scale, 360 * scale, 320 * scale);
+                templateCtx.quadraticCurveTo(330 * scale, 350 * scale, 300 * scale, 250 * scale);
+                // قرون الاستشعار
+                templateCtx.moveTo(300 * scale, 150 * scale);
+                templateCtx.lineTo(290 * scale, 130 * scale);
+                templateCtx.moveTo(300 * scale, 150 * scale);
+                templateCtx.lineTo(310 * scale, 130 * scale);
+                
+                templateCtx.stroke();
+            }
+        };
+
+        // وظائف الرسم
+        function startDrawing(e) {
+            if (stickerMode) {
+                addSticker(e);
+                return;
+            }
+            
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            lastX = (e.clientX - rect.left) * scaleX;
+            lastY = (e.clientY - rect.top) * scaleY;
+            
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            
+            // رسم نقطة أولية للضغطات السريعة
+            ctx.globalCompositeOperation = isErasing ? 'destination-out' : 'source-over';
+            ctx.strokeStyle = currentColor;
+            ctx.lineWidth = currentSize;
+            ctx.arc(lastX, lastY, currentSize/2, 0, Math.PI * 2);
+            ctx.fillStyle = currentColor;
+            ctx.fill();
+            
+            createSparkle(lastX, lastY);
+        }
+
+        function draw(e) {
+            if (!isDrawing || stickerMode) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            const currentX = (e.clientX - rect.left) * scaleX;
+            const currentY = (e.clientY - rect.top) * scaleY;
+            
+            ctx.globalCompositeOperation = isErasing ? 'destination-out' : 'source-over';
+            ctx.strokeStyle = isErasing ? 'rgba(0,0,0,1)' : currentColor;
+            ctx.lineWidth = currentSize;
+            
+            ctx.lineTo(currentX, currentY);
+            ctx.stroke();
+            
+            lastX = currentX;
+            lastY = currentY;
+            
+            // إضافة تأثير الشرارة
+            if (!isErasing) {
+                createSparkle(currentX, currentY);
+            }
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+            ctx.beginPath();
+        }
+
+        function addSticker(e) {
+            if (!currentSticker) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            const x = (e.clientX - rect.left) * scaleX;
+            const y = (e.clientY - rect.top) * scaleY;
+            
+            ctx.font = `${currentSize * 2}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = currentColor;
+            ctx.fillText(currentSticker, x, y);
+            
+            createSparkle(x, y);
+        }
+
+        function createSparkle(x, y) {
+            if (window.innerWidth < 768) return; // لا تظهر التأثيرات على الهواتف
+            
+            const rect = canvas.getBoundingClientRect();
+            const sparkle = document.createElement('div');
+            sparkle.className = 'sparkle';
+            sparkle.style.left = (x * (rect.width / canvas.width) + rect.left + 'px';
+            sparkle.style.top = (y * (rect.height / canvas.height) + rect.top + 'px';
+            sparkle.style.background = currentColor;
+            
+            document.getElementById('funElements').appendChild(sparkle);
+            
+            setTimeout(() => {
+                sparkle.remove();
+            }, 2000);
+        }
+
+        function toggleEraser() {
+            isErasing = !isErasing;
+            stickerMode = false;
+            canvas.style.cursor = isErasing ? 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23ff6b9d\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><path d=\'M7 21h10\'/><path d=\'M12 21v-4\'/><path d=\'M3 15l4-4 4 4 6-6 4 4\'/></svg>") 12 12, auto' : 'crosshair';
+            
+            modeIndicator.textContent = isErasing ? '🧹 وضع المحو' : '🖌️ وضع الرسم';
+            
+            // إزالة التحديد من الملصقات
+            document.querySelectorAll('.sticker').forEach(s => s.classList.remove('active'));
+            
+            // تغيير لون زر الممحاة عند التفعيل
+            eraserBtn.style.background = isErasing ? 
+                'linear-gradient(45deg, #ff7043, #ffa726)' : 
+                'linear-gradient(45deg, #ffa726, #ff7043)';
+        }
+
+        function clearCanvas() {
+            if (confirm('هل تريد مسح الرسمة بالكامل؟')) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                createConfetti();
+            }
+        }
+
+        function saveDrawing() {
+            const link = document.createElement('a');
+            link.download = 'رسمتي-الأطفال-' + new Date().toLocaleDateString() + '.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            
+            // عرض رسالة النجاح
+            successMessage.style.display = 'block';
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 2000);
+            
+            createConfetti();
+        }
+
+        function createConfetti() {
+            if (window.innerWidth < 768) return; // لا تظهر التأثيرات على الهواتف
+            
+            const colors = ['#ff6b9d', '#4ecdc4', '#f9ca24', '#6c5ce7', '#00b894', '#fd79a8'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * window.innerWidth + 'px';
+                confetti.style.top = -10 + 'px';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = Math.random() * 10 + 5 + 'px';
+                confetti.style.height = Math.random() * 10 + 5 + 'px';
+                confetti.style.animationDuration = Math.random() * 3 + 2 + 's';
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                
+                document.getElementById('funElements').appendChild(confetti);
+                
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+
+        // إعداد مستمعي الأحداث
+        function setupEventListeners() {
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+
+            // دعم اللمس للأجهزة المحمولة
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent('mousedown', {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            }, { passive: false });
+
+            canvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent('mousemove', {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            }, { passive: false });
+
+            canvas.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                const mouseEvent = new MouseEvent('mouseup', {});
+                canvas.dispatchEvent(mouseEvent);
+            }, { passive: false });
+
+            // مستمعي الأحداث للأدوات
+            document.querySelectorAll('.coloring-page').forEach(page => {
+                page.addEventListener('click', function() {
+                    document.querySelectorAll('.coloring-page').forEach(p => p.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const template = this.dataset.template;
+                    if (templates[template]) {
+                        templates[template]();
+                    }
+                });
+            });
+
+            document.querySelectorAll('.color-btn').forEach(colorBtn => {
+                colorBtn.addEventListener('click', function() {
+                    document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    currentColor = this.dataset.color;
+                    isErasing = false;
+                    stickerMode = false;
+                    canvas.style.cursor = 'crosshair';
+                    modeIndicator.textContent = '🖌️ وضع الرسم';
+                    
+                    // إعادة تعيين زر الممحاة
+                    eraserBtn.style.background = 'linear-gradient(45deg, #ffa726, #ff7043)';
+                });
+            });
+
+            document.querySelectorAll('.brush-size').forEach(sizeBtn => {
+                sizeBtn.addEventListener('click', function() {
+                    document.querySelectorAll('.brush-size').forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    currentSize = parseInt(this.dataset.size);
+                });
+            });
+
+            document.querySelectorAll('.sticker').forEach(stickerBtn => {
+                stickerBtn.addEventListener('click', function() {
+                    document.querySelectorAll('.sticker').forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    currentSticker = this.dataset.sticker;
+                    stickerMode = true;
+                    isErasing = false;
+                    canvas.style.cursor = 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23ff6b9d\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polygon points=\'12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2\'/></svg>") 12 12, pointer';
+                    modeIndicator.textContent = '✨ وضع الملصقات';
+                    
+                    // إعادة تعيين زر الممحاة
+                    eraserBtn.style.background = 'linear-gradient(45deg, #ffa726, #ff7043)';
+                });
+            });
+
+            // أحداث الأزرار
+            eraserBtn.addEventListener('click', toggleEraser);
+            clearBtn.addEventListener('click', clearCanvas);
+            saveBtn.addEventListener('click', saveDrawing);
+        }
+
+        // تهيئة اللعبة
+        function initGame() {
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            setupEventListeners();
+            
+            // تحميل القالب الافتراضي
+            templates.blank();
+            
+            // إضافة تأثيرات ممتعة عشوائية
+            setInterval(() => {
+                if (Math.random() < 0.1 && window.innerWidth >= 768) {
+                    createRandomSparkle();
+                }
+            }, 3000);
+        }
+
+        function createRandomSparkle() {
+            const colors = ['#ff6b9d', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7'];
+            const sparkle = document.createElement('div');
+            sparkle.className = 'sparkle';
+            sparkle.style.left = Math.random() * window.innerWidth + 'px';
+            sparkle.style.top = Math.random() * window.innerHeight + 'px';
+            sparkle.style.background = colors[Math.floor(Math.random() * colors.length)];
+            
+            document.getElementById('funElements').appendChild(sparkle);
+            
+            setTimeout(() => {
+                sparkle.remove();
+            }, 2000);
+        }
+
+        // بدء اللعبة
+        initGame();
+    </script>
+</body>
+</html>

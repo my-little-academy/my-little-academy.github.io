@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار فهم درس الصلاة</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .question {
+            font-size: 20px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .option {
+            background-color: #3498db;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .option:hover {
+            background-color: #2980b9;
+        }
+        .score {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .next-btn {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            display: none;
+        }
+        .next-btn:hover {
+            background-color: #219653;
+        }
+        .result {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 20px;
+            display: none;
+        }
+        .progress-bar {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .progress {
+            height: 10px;
+            background-color: #27ae60;
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>اختبار فهم درس الصلاة</h1>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div class="score" id="score">النقاط: 0</div>
+        <div class="question" id="question"></div>
+        <div class="options" id="options"></div>
+        <button class="next-btn" id="next-btn">السؤال التالي</button>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "كم عدد ركعات صلاة الفرض؟",
+                options: ["ركعتان", "ثلاث ركعات", "أربع ركعات", "تختلف حسب الصلاة"],
+                answer: 3
+            },
+            {
+                question: "ما هي أول صلاة فرضت على المسلمين؟",
+                options: ["الفجر", "الظهر", "العصر", "المغرب"],
+                answer: 0
+            },
+            {
+                question: "ما هي السورة التي تقرأ في كل ركعة من الصلاة؟",
+                options: ["سورة الفاتحة", "سورة الإخلاص", "سورة البقرة", "سورة الناس"],
+                answer: 0
+            },
+            {
+                question: "ما هو الشرط الأساسي لصحة الصلاة؟",
+                options: ["الوضوء", "ارتداء الملابس الجميلة", "الصلاة في المسجد", "الصلاة جماعة"],
+                answer: 0
+            },
+            {
+                question: "ما هو وقت صلاة العصر؟",
+                options: ["بعد زوال الشمس", "عند غروب الشمس", "عند انتصاف الشمس في السماء", "عندما يصير ظل كل شيء مثله"],
+                answer: 3
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        const questionElement = document.getElementById('question');
+        const optionsElement = document.getElementById('options');
+        const scoreElement = document.getElementById('score');
+        const nextButton = document.getElementById('next-btn');
+        const resultElement = document.getElementById('result');
+        const progressElement = document.getElementById('progress');
+
+        function loadQuestion() {
+            const q = questions[currentQuestion];
+            questionElement.textContent = q.question;
+            
+            optionsElement.innerHTML = '';
+            q.options.forEach((option, index) => {
+                const button = document.createElement('div');
+                button.textContent = option;
+                button.classList.add('option');
+                button.addEventListener('click', () => selectOption(index));
+                optionsElement.appendChild(button);
+            });
+            
+            progressElement.style.width = `${(currentQuestion / questions.length) * 100}%`;
+            nextButton.style.display = 'none';
+        }
+
+        function selectOption(index) {
+            const q = questions[currentQuestion];
+            const options = document.querySelectorAll('.option');
+            
+            options.forEach(option => {
+                option.style.pointerEvents = 'none';
+            });
+            
+            if (index === q.answer) {
+                options[index].style.backgroundColor = '#27ae60';
+                score++;
+                scoreElement.textContent = `النقاط: ${score}`;
+            } else {
+                options[index].style.backgroundColor = '#e74c3c';
+                options[q.answer].style.backgroundColor = '#27ae60';
+            }
+            
+            nextButton.style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            questionElement.style.display = 'none';
+            optionsElement.style.display = 'none';
+            nextButton.style.display = 'none';
+            
+            const percentage = Math.round((score / questions.length) * 100);
+            resultElement.textContent = `إنجاز رائع! لقد حصلت على ${score} من ${questions.length} (${percentage}%)`;
+            resultElement.style.display = 'block';
+            progressElement.style.width = '100%';
+            
+            if (percentage >= 80) {
+                resultElement.style.color = '#27ae60';
+            } else if (percentage >= 50) {
+                resultElement.style.color = '#f39c12';
+            } else {
+                resultElement.style.color = '#e74c3c';
+            }
+        }
+
+        nextButton.addEventListener('click', nextQuestion);
+        loadQuestion();
+    </script>
+</body>
+</html>

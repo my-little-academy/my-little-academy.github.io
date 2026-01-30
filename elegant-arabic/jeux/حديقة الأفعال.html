@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حديقة الأفعال</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sky-start: #99B2D8;
+            --sky-end: #C8E3FF;
+            --field-color: #6a9c3c;
+            --cloud-color: #f0f0f0;
+            --petal-color-1: #ffb8d1;
+            --petal-color-2: #ffe0b3;
+            --petal-color-3: #c2e6ff;
+            --leaf-color: #55a02e;
+            --question-card-bg: rgba(255, 255, 255, 0.85);
+            --button-bg: #80c746;
+            --button-hover-bg: #71b43d;
+            --wrong-bg: #ff6666;
+            --correct-bg: #4caf50;
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Scheherazade New', serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(to bottom, var(--sky-start), var(--sky-end));
+            position: relative;
+            user-select: none;
+            color: #333;
+        }
+
+        .animated-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .cloud {
+            position: absolute;
+            background: var(--cloud-color);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: cloud-move linear infinite;
+        }
+
+        .cloud:nth-child(1) {
+            width: 150px;
+            height: 50px;
+            top: 10%;
+            left: -10%;
+            animation-duration: 40s;
+        }
+
+        .cloud:nth-child(2) {
+            width: 200px;
+            height: 70px;
+            top: 25%;
+            left: -20%;
+            animation-duration: 50s;
+        }
+
+        .cloud:nth-child(3) {
+            width: 100px;
+            height: 40px;
+            top: 15%;
+            left: -5%;
+            animation-duration: 60s;
+        }
+
+        @keyframes cloud-move {
+            from { transform: translateX(0); }
+            to { transform: translateX(120vw); }
+        }
+
+        .particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: var(--petal-color-1);
+            border-radius: 50%;
+            animation: particle-float ease-in-out infinite;
+            opacity: 0.8;
+        }
+
+        .particle:nth-child(2n) { background-color: var(--petal-color-2); }
+        .particle:nth-child(3n) { background-color: var(--petal-color-3); }
+
+        @keyframes particle-float {
+            0% { transform: translateY(0) rotate(0); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+
+        .game-container {
+            position: relative;
+            width: 90%;
+            max-width: 800px;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 10;
+        }
+
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            direction: rtl;
+        }
+
+        .hud-item {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .hud-item span {
+            margin-right: 10px;
+        }
+
+        .hud-item img {
+            width: 30px;
+            height: 30px;
+        }
+
+        .question-card {
+            background-color: var(--question-card-bg);
+            padding: 30px;
+            border-radius: 25px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(5px);
+            width: 100%;
+            max-width: 600px;
+            transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+        }
+
+        .question-card h2 {
+            margin-bottom: 20px;
+            font-size: 2rem;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        .options-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .option-button {
+            background-color: var(--button-bg);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-family: inherit;
+        }
+
+        .option-button:hover {
+            background-color: var(--button-hover-bg);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .option-button.wrong {
+            background-color: var(--wrong-bg);
+            animation: shake 0.5s;
+        }
+
+        .option-button.correct {
+            background-color: var(--correct-bg);
+            transform: scale(1.1);
+            animation: none;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+
+        .garden {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            background-color: var(--field-color);
+            border-top: 5px solid #5a8731;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 20px;
+            padding-bottom: 20px;
+            box-sizing: border-box;
+            z-index: 5;
+        }
+
+        .flower-container {
+            position: absolute;
+            bottom: 0;
+            animation: flower-appear 0.5s ease-out;
+            transform-origin: bottom center;
+        }
+
+        @keyframes flower-appear {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .flower {
+            position: relative;
+            width: 50px;
+            height: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stem {
+            width: 5px;
+            height: 70px;
+            background-color: var(--leaf-color);
+            border-radius: 5px;
+            position: relative;
+        }
+
+        .petals {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.5s ease-out;
+        }
+
+        .petal {
+            position: absolute;
+            width: 20px;
+            height: 30px;
+            border-radius: 50%;
+            opacity: 0;
+            transform: scale(0);
+            animation: petal-grow 1s forwards ease-in-out;
+        }
+        
+        @keyframes petal-grow {
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .petal.color-1 { background-color: #ff5e62; }
+        .petal.color-2 { background-color: #ff9966; }
+        .petal.color-3 { background-color: #ffcc5c; }
+        .petal.color-4 { background-color: #7b4397; }
+
+        .petal:nth-child(1) { transform: rotate(0deg); }
+        .petal:nth-child(2) { transform: rotate(72deg); }
+        .petal:nth-child(3) { transform: rotate(144deg); }
+        .petal:nth-child(4) { transform: rotate(216deg); }
+        .petal:nth-child(5) { transform: rotate(288deg); }
+    </style>
+</head>
+<body>
+
+    <div class="animated-background">
+        <div class="cloud"></div>
+        <div class="cloud"></div>
+        <div class="cloud"></div>
+    </div>
+
+    <div id="particles-container" class="animated-background"></div>
+
+    <div class="game-container">
+        <div class="hud">
+            <div class="hud-item">
+                <span id="score-counter">النقاط: 0</span>
+            </div>
+            <div class="hud-item">
+                <span id="flower-counter">الزهور: 0</span>
+            </div>
+        </div>
+        
+        <div id="game-area">
+            <div id="question-card" class="question-card">
+                <h2 id="question-text"></h2>
+                <div id="options-container" class="options-container"></div>
+            </div>
+        </div>
+
+        <div id="garden" class="garden"></div>
+    </div>
+
+<script>
+    // Game variables
+    let score = 0;
+    let flowersPlanted = 0;
+    let currentQuestionIndex = 0;
+    
+    // DOM elements
+    const scoreCounter = document.getElementById('score-counter');
+    const flowerCounter = document.getElementById('flower-counter');
+    const questionCard = document.getElementById('question-card');
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const garden = document.getElementById('garden');
+    const particlesContainer = document.getElementById('particles-container');
+
+    // Questions array
+    const questions = [
+        {
+            text: "في جملة 'يلعب أحمد بالكرة'، ما هي الكلمة التي تدل على حدث؟",
+            options: ["أحمد", "يلعب", "الكرة"],
+            answer: "يلعب"
+        },
+        {
+            text: "أي من الكلمات التالية هي فعل مضارع؟",
+            options: ["كتب", "يكتب", "مكتوب"],
+            answer: "يكتب"
+        },
+        {
+            text: "أكمل الجملة التالية بفعل مناسب: 'الطيور ____ في السماء'.",
+            options: ["جميلة", "تطير", "غيمة"],
+            answer: "تطير"
+        },
+        {
+            text: "أين يوجد الفعل في جملة 'تشرق الشمس من الشرق'؟",
+            options: ["الشمس", "تشرق", "الشرق"],
+            answer: "تشرق"
+        },
+        {
+            text: "اختر الكلمة التي تدل على فعل:",
+            options: ["بيت", "يقرأ", "باب"],
+            answer: "يقرأ"
+        },
+        {
+            text: "أي من هذه الكلمات هي فعل؟",
+            options: ["سيارة", "كتاب", "تسبح"],
+            answer: "تسبح"
+        },
+        {
+            text: "اكتشف الفعل في الجملة: 'الولد يرسم لوحة جميلة'.",
+            options: ["الولد", "يرسم", "لوحة"],
+            answer: "يرسم"
+        },
+        {
+            text: "اختر الفعل المناسب للجملة: 'القطة ____ الحليب'.",
+            options: ["يشرب", "شربت", "طعام"],
+            answer: "شربت"
+        }
+    ];
+
+    // Initialize game
+    document.addEventListener('DOMContentLoaded', () => {
+        setupGame();
+        startParticleEffects();
+    });
+
+    // Setup the game state and display the first question
+    function setupGame() {
+        if (currentQuestionIndex < questions.length) {
+            displayQuestion(questions[currentQuestionIndex]);
+        } else {
+            endGame();
+        }
+    }
+
+    // Display a question and its options
+    function displayQuestion(q) {
+        questionText.textContent = q.text;
+        optionsContainer.innerHTML = '';
+        q.options.forEach(option => {
+            const button = document.createElement('button');
+            button.className = 'option-button';
+            button.textContent = option;
+            button.onclick = () => handleAnswer(option, q.answer, button);
+            optionsContainer.appendChild(button);
+        });
+        questionCard.style.transform = 'scale(1)';
+        questionCard.style.opacity = '1';
+    }
+
+    // Handle user's answer
+    function handleAnswer(selected, correct, button) {
+        // Disable all buttons to prevent multiple clicks
+        const allButtons = optionsContainer.querySelectorAll('.option-button');
+        allButtons.forEach(btn => btn.disabled = true);
+
+        if (selected === correct) {
+            // Correct answer
+            button.classList.add('correct');
+            score += 10;
+            flowersPlanted++;
+            updateHUD();
+            plantFlower();
+            
+            // Move to the next question after a delay
+            setTimeout(() => {
+                questionCard.style.transform = 'scale(0.8)';
+                questionCard.style.opacity = '0';
+                setTimeout(() => {
+                    currentQuestionIndex++;
+                    setupGame();
+                }, 500); // Wait for the transition to finish
+            }, 1000);
+            
+        } else {
+            // Wrong answer
+            button.classList.add('wrong');
+            // Re-enable buttons after a short animation
+            setTimeout(() => {
+                allButtons.forEach(btn => btn.disabled = false);
+                button.classList.remove('wrong');
+            }, 500);
+        }
+    }
+
+    // Update score and flower counters
+    function updateHUD() {
+        scoreCounter.textContent = `النقاط: ${score}`;
+        flowerCounter.textContent = `الزهور: ${flowersPlanted}`;
+    }
+
+    // Plant a new flower in the garden
+    function plantFlower() {
+        const flowerContainer = document.createElement('div');
+        flowerContainer.className = 'flower-container';
+        
+        // Random position for the flower
+        const position = Math.random() * 80 + 10; // 10% to 90% of garden width
+        flowerContainer.style.left = `${position}%`;
+
+        const flower = document.createElement('div');
+        flower.className = 'flower';
+        flower.innerHTML = `
+            <div class="petals">
+                <div class="petal color-1" style="transform: rotate(0deg);"></div>
+                <div class="petal color-2" style="transform: rotate(72deg);"></div>
+                <div class="petal color-3" style="transform: rotate(144deg);"></div>
+                <div class="petal color-4" style="transform: rotate(216deg);"></div>
+                <div class="petal color-1" style="transform: rotate(288deg);"></div>
+            </div>
+            <div class="stem"></div>
+        `;
+        flowerContainer.appendChild(flower);
+        garden.appendChild(flowerContainer);
+    }
+
+    // End of game screen
+    function endGame() {
+        questionText.textContent = "أحسنت! لقد أصبحت حديقة الأفعال مكتملة.";
+        optionsContainer.innerHTML = `
+            <p>لقد قمت بزراعة ${flowersPlanted} زهرة وجمعت ${score} نقطة.</p>
+        `;
+        questionCard.style.transform = 'scale(1)';
+        questionCard.style.opacity = '1';
+    }
+
+    // Generate floating particles
+    function startParticleEffects() {
+        for (let i = 0; i < 50; i++) {
+            createParticle();
+        }
+    }
+
+    function createParticle() {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        const size = Math.random() * 10 + 5; // 5px to 15px
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+
+        const colors = [
+            'var(--petal-color-1)',
+            'var(--petal-color-2)',
+            'var(--petal-color-3)',
+            'var(--leaf-color)',
+            '#ffffff' // For sparkle effect
+        ];
+        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+        particle.style.backgroundColor = randomColor;
+
+        const leftPosition = Math.random() * 100; // 0% to 100%
+        particle.style.left = `${leftPosition}vw`;
+
+        const duration = Math.random() * 20 + 15; // 15s to 35s
+        particle.style.animationDuration = `${duration}s`;
+
+        const delay = Math.random() * 10; // 0s to 10s delay
+        particle.style.animationDelay = `${delay}s`;
+
+        particlesContainer.appendChild(particle);
+
+        // Remove particle after animation to prevent DOM clutter
+        particle.addEventListener('animationend', () => {
+            particle.remove();
+            createParticle(); // Create a new one to keep the effect going
+        });
+    }
+
+</script>
+
+</body>
+</html>

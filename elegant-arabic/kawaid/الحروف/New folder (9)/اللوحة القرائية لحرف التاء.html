@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اللوحة القرائية لحرف التاء</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #8BC34A;
+            --accent-color: #CDDC39;
+            --light-color: #F1F8E9;
+            --dark-color: #2E7D32;
+            --text-color: #333;
+            --shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #f9f9f9;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+            color: white;
+            text-align: center;
+            padding: 2rem 1rem;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="white" opacity="0.1"><text x="50%" y="50%" font-size="30" text-anchor="middle" dominant-baseline="middle">ت</text></svg>');
+            background-size: 100px;
+            z-index: 0;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        /* نظام الشبكة للبطاقات */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        /* تصميم البطاقات */
+        .card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .letter-display {
+            font-size: 5rem;
+            color: var(--dark-color);
+            margin: 1rem 0;
+            text-align: center;
+            line-height: 1;
+        }
+
+        .examples {
+            margin: 1rem 0;
+            width: 100%;
+        }
+
+        .example-word {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem;
+            border-bottom: 1px dashed #eee;
+        }
+
+        .pronunciation {
+            background-color: var(--light-color);
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin-top: auto;
+            width: 100%;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .pronunciation i {
+            color: var(--primary-color);
+            margin-left: 0.5rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .pronunciation i:hover {
+            transform: scale(1.2);
+        }
+
+        .card-image {
+            width: 100%;
+            height: 150px;
+            object-fit: contain;
+            margin: 1rem 0;
+        }
+
+        /* أقسام تفاعلية */
+        .interactive-section {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: var(--shadow);
+        }
+
+        .section-title {
+            color: var(--dark-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        /* قسم بناء الكلمات */
+        .word-builder {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .letters-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .letter-btn {
+            width: 60px;
+            height: 60px;
+            font-size: 1.8rem;
+            border: none;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .letter-btn:hover {
+            background-color: var(--accent-color);
+            transform: scale(1.1);
+        }
+
+        .letter-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .word-display {
+            min-height: 80px;
+            border: 2px dashed var(--secondary-color);
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            margin: 1rem 0;
+            padding: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--dark-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: var(--light-color);
+            color: var(--text-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+        }
+
+        /* قسم تحليل الكلمات */
+        .word-analysis {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .word-input-container {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .word-input {
+            flex-grow: 1;
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            min-width: 200px;
+        }
+
+        .syllables-display {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin: 1rem 0;
+            min-height: 60px;
+        }
+
+        .syllable {
+            background-color: var(--light-color);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .syllable i {
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .feedback {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            text-align: center;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .feedback.show {
+            opacity: 1;
+        }
+
+        .feedback.success {
+            background-color: #E8F5E9;
+            color: var(--dark-color);
+        }
+
+        .feedback.error {
+            background-color: #FFEBEE;
+            color: #C62828;
+        }
+
+        footer {
+            background: linear-gradient(to right, var(--dark-color), var(--primary-color));
+            color: white;
+            text-align: center;
+            padding: 2rem 1rem;
+            margin-top: 2rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        .footer-links a:hover {
+            opacity: 0.8;
+        }
+
+        /* تصميم متجاوب */
+        @media (max-width: 768px) {
+            .cards-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+
+            .letter-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+
+            header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .interactive-section {
+                padding: 1rem;
+            }
+
+            .letter-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+        }
+
+        /* تأثيرات حركية */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .bounce {
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>اللوحة القرائية لحرف التاء</h1>
+        <p>تعلم حرف التاء بطريقة تفاعلية ممتعة وشاملة</p>
+    </header>
+
+    <div class="container">
+        <!-- بطاقات أشكال حرف التاء -->
+        <div class="cards-grid">
+            <!-- بطاقة التاء المفتوحة -->
+            <div class="card">
+                <div class="card-header">تاء مفتوحة</div>
+                <div class="card-body">
+                    <div class="letter-display">تَ</div>
+                    <img src="https://via.placeholder.com/300x150?text=تَ+مفتوحة" alt="تاء مفتوحة" class="card-image">
+                    <div class="examples">
+                        <div class="example-word">
+                            <span>تَمْر</span>
+                            <span class="pronunciation">ta-mr <i class="fas fa-volume-up" onclick="speak('تمر')"></i></span>
+                        </div>
+                        <div class="example-word">
+                            <span>تَفّاح</span>
+                            <span class="pronunciation">tuf-faah <i class="fas fa-volume-up" onclick="speak('تفاح')"></i></span>
+                        </div>
+                        <div class="example-word">
+                            <span>تَاج</span>
+                            <span class="pronunciation">taaj <i class="fas fa-volume-up" onclick="speak('تاج')"></i></span>
+                        </div>
+                    </div>
+                    <div class="pronunciation">
+                        النطق: تَ + حركة الفتح (أَ) <i class="fas fa-volume-up" onclick="speak('تَ')"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- بطاقة التاء المضمومة -->
+            <div class="card">
+                <div class="card-header">تاء مضمومة</div>
+                <div class="card-body">
+                    <div class="letter-display">تُ</div>
+                    <img src="https://via.placeholder.com/300x150?text=تُ+مضمومة" alt="تاء مضمومة" class="card-image">
+                    <div class="examples">
+                        <div class="example-word">
+                            <span>تُفّاح</span>
+                            <span class="pronunciation">tuf-faah <i class="fas fa-volume-up" onclick="speak('تفاح')"></i></span>
+                        </div>
+                        <div class="example-word">
+                            <span>تُراب</span>
+                            <span class="pronunciation">tu-raab <i class="fas fa-volume-up" onclick="speak('تراب')"></i></span>
+                        </div>
+                        <div class="example-word">
+                            <span>تُوت</span>
+                            <span class="pronunciation">tuut <i class="fas fa-volume-up" onclick="speak('توت')"></i></span>
+                        </div>
+                    </div>
+                    <div class="pronunciation">
+                        النطق: تُ + حركة الضم (أُ) <i class="fas fa-volume-up" onclick="speak('تُ')"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- بطاقة التاء المكسورة -->
+            <div class="card">
+                <div class="card-header">تاء مكسورة</div>
+                <div class="card-body">
+                    <div class="letter-display">تِ</div>
+                    <img src="https://via.placeholder.com/300x150?text=تِ+مكسورة" alt="تاء مكسورة" class="card-image">
+                    <div class="examples">
+                        <div class="example-word">
+                            <span>تِلْفاز</span>
+                            <span class="pronunciation">til-faaz <i class="fas fa-volume-up" onclick="speak('تلفاز')"></i></span>
+                        </div>
+                        <div class="example-word">
+                            <span>تِيس</span>
+                            <span class="pronunciation">tiis <i class="fas fa-volume-up" onclick="speak('تيس')"></i></span>
+                        </div>
+                        <div class="example-word">
+                            <span>تِين</span>
+                            <span class="pronunciation">tiin <i class="fas fa-volume-up" onclick="speak('تين')"></i></span>
+                        </div>
+                    </div>
+                    <div class="pronunciation">
+                        النطق: تِ + حركة الكسر (إِ) <i class="fas fa-volume-up" onclick="speak('تِ')"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- بطاقة التاء الساكنة -->
+            <div class="card">
+                <div class="card-header">تاء ساكنة</div>
+                <div class="card-body">
+                    <div class="letter-display">تْ</div>
+                    <img src="https://via.placeholder.com/300x150?text=تْ+ساكنة" alt="تاء ساكنة" class="card-image">
+                    <div class="examples">
+                        <div class="example-word">
+                            <span>مَتْ</span>
+                            <span class="pronunciation">mat <i class="fas fa-volume-up" onclick="speak('مت')"></i></span>
+                        </div>
+                        <div class="example-word">
+                            <span>بَيْتْ</span>
+                            <span class="pronunciation">bayt <i class="fas fa-volume-up" onclick="speak('بيت')"></i></span>
+                        </div>
+                        <div class="example-word">
+                            <span>فَتْ</span>
+                            <span class="pronunciation">fat <i class="fas fa-volume-up" onclick="speak('فت')"></i></span>
+                        </div>
+                    </div>
+                    <div class="pronunciation">
+                        النطق: تْ بدون حركة (سكون) <i class="fas fa-volume-up" onclick="speak('تْ')"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- بطاقة التاء مع المدود -->
+            <div class="card">
+                <div class="card-header">تاء مع المدود</div>
+                <div class="card-body">
+                    <div class="letter-display">تَا - تُو - تِي</div>
+                    <img src="https://via.placeholder.com/300x150?text=تاء+مع+المدود" alt="تاء مع المدود" class="card-image">
+                    <div class="examples">
+                        <div class="example-word">
+                            <span>تَاج</span>
+                            <span class="pronunciation">taaaj <i class="fas fa-volume-up" onclick="speak('تاج')"></i></span>
+                        </div>
+                        <div class="example-word">
+                            <span>تُوت</span>
+                            <span class="pronunciation">tuuut <i class="fas fa-volume-up" onclick="speak('توت')"></i></span>
+                        </div>
+                        <div class="example-word">
+                            <span>تِين</span>
+                            <span class="pronunciation">tiiin <i class="fas fa-volume-up" onclick="speak('تين')"></i></span>
+                        </div>
+                    </div>
+                    <div class="pronunciation">
+                        النطق: ت + مد بالألف أو الواو أو الياء <i class="fas fa-volume-up" onclick="speak('تَا تُو تِي')"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- بطاقة التاء المشددة -->
+            <div class="card">
+                <div class="card-header">تاء مشددة</div>
+                <div class="card-body">
+                    <div class="letter-display">تّ</div>
+                    <img src="https://via.placeholder.com/300x150?text=تّ+مشددة" alt="تاء مشددة" class="card-image">
+                    <div class="examples">
+                        <div class="example-word">
+                            <span>تَمَّ</span>
+                            <span class="pronunciation">tam-ma <i class="fas fa-volume-up" onclick="speak('تم')"></i></span>
+                        </div>
+                        <div class="example-word">
+                            <span>بَتَّ</span>
+                            <span class="pronunciation">bat-ta <i class="fas fa-volume-up" onclick="speak('بت')"></i></span>
+                        </div>
+                        <div class="example-word">
+                            <span>فَتَّ</span>
+                            <span class="pronunciation">fat-ta <i class="fas fa-volume-up" onclick="speak('فت')"></i></span>
+                        </div>
+                    </div>
+                    <div class="pronunciation">
+                        النطق: تّ مع التشديد (ت مضاعفة) <i class="fas fa-volume-up" onclick="speak('تّ')"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- قسم بناء الكلمات -->
+        <div class="interactive-section">
+            <h2 class="section-title">بناء الكلمات بحرف التاء</h2>
+            <div class="word-builder">
+                <p>اختر الحروف لتركيب كلمة تحتوي على حرف التاء:</p>
+                
+                <div class="letters-container">
+                    <button class="letter-btn" onclick="addLetter('ا')">ا</button>
+                    <button class="letter-btn" onclick="addLetter('ب')">ب</button>
+                    <button class="letter-btn" onclick="addLetter('ت')">ت</button>
+                    <button class="letter-btn" onclick="addLetter('ث')">ث</button>
+                    <button class="letter-btn" onclick="addLetter('ج')">ج</button>
+                    <button class="letter-btn" onclick="addLetter('ح')">ح</button>
+                    <button class="letter-btn" onclick="addLetter('خ')">خ</button>
+                    <button class="letter-btn" onclick="addLetter('د')">د</button>
+                    <button class="letter-btn" onclick="addLetter('ذ')">ذ</button>
+                    <button class="letter-btn" onclick="addLetter('ر')">ر</button>
+                    <button class="letter-btn" onclick="addLetter('ز')">ز</button>
+                    <button class="letter-btn" onclick="addLetter('س')">س</button>
+                    <button class="letter-btn" onclick="addLetter('ش')">ش</button>
+                    <button class="letter-btn" onclick="addLetter('ف')">ف</button>
+                    <button class="letter-btn" onclick="addLetter('ل')">ل</button>
+                    <button class="letter-btn" onclick="addLetter('م')">م</button>
+                    <button class="letter-btn" onclick="addLetter('ن')">ن</button>
+                    <button class="letter-btn" onclick="addLetter('ه')">ه</button>
+                    <button class="letter-btn" onclick="addLetter('و')">و</button>
+                    <button class="letter-btn" onclick="addLetter('ي')">ي</button>
+                </div>
+                
+                <div class="word-display" id="wordDisplay"></div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="speakWord()">
+                        <i class="fas fa-volume-up"></i> استمع للكلمة
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearWord()">
+                        <i class="fas fa-trash-alt"></i> مسح
+                    </button>
+                    <button class="btn btn-primary" onclick="checkWord()">
+                        <i class="fas fa-check"></i> تحقق
+                    </button>
+                </div>
+                
+                <div class="feedback" id="wordFeedback"></div>
+            </div>
+        </div>
+
+        <!-- قسم تحليل الكلمات -->
+        <div class="interactive-section">
+            <h2 class="section-title">تحليل الكلمات إلى مقاطع صوتية</h2>
+            <div class="word-analysis">
+                <p>اكتب كلمة تحتوي على حرف التاء وسنقوم بتحليلها:</p>
+                
+                <div class="word-input-container">
+                    <input type="text" class="word-input" id="wordInput" placeholder="أدخل كلمة هنا...">
+                    <button class="btn btn-primary" onclick="analyzeWord()">
+                        <i class="fas fa-search"></i> حلل الكلمة
+                    </button>
+                </div>
+                
+                <div class="syllables-display" id="syllablesDisplay"></div>
+                
+                <div class="feedback" id="analysisFeedback"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-links">
+            <a href="#">الصفحة الرئيسية</a>
+            <a href="#">حروف أخرى</a>
+            <a href="#">تمارين إضافية</a>
+            <a href="#">تواصل معنا</a>
+        </div>
+        <p>© 2023 اللوحة القرائية - جميع الحقوق محفوظة</p>
+    </footer>
+
+    <script>
+        // دالة النطق باستخدام Web Speech API
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'ar-SA'; // اللغة العربية - السعودية
+                utterance.rate = 0.8; // سرعة النطق
+                speechSynthesis.speak(utterance);
+            } else {
+                alert('عذرًا، هذه الميزة غير مدعومة في متصفحك. يرجى استخدام متصفح حديث.');
+            }
+        }
+
+        // متغيرات قسم بناء الكلمات
+        let currentWord = [];
+
+        // إضافة حرف إلى الكلمة
+        function addLetter(letter) {
+            currentWord.push(letter);
+            updateWordDisplay();
+        }
+
+        // تحديث عرض الكلمة
+        function updateWordDisplay() {
+            const wordDisplay = document.getElementById('wordDisplay');
+            wordDisplay.innerHTML = currentWord.join('');
+        }
+
+        // مسح الكلمة
+        function clearWord() {
+            currentWord = [];
+            updateWordDisplay();
+            hideFeedback('wordFeedback');
+        }
+
+        // نطق الكلمة
+        function speakWord() {
+            if (currentWord.length > 0) {
+                speak(currentWord.join(''));
+            } else {
+                showFeedback('wordFeedback', 'الرجاء إدخال كلمة أولاً', 'error');
+            }
+        }
+
+        // التحقق من الكلمة
+        function checkWord() {
+            const word = currentWord.join('');
+            if (word.length === 0) {
+                showFeedback('wordFeedback', 'الرجاء إدخال كلمة أولاً', 'error');
+                return;
+            }
+
+            if (word.includes('ت')) {
+                showFeedback('wordFeedback', 'أحسنت! الكلمة تحتوي على حرف التاء', 'success');
+            } else {
+                showFeedback('wordFeedback', 'الكلمة لا تحتوي على حرف التاء، حاول مرة أخرى', 'error');
+            }
+        }
+
+        // تحليل الكلمة إلى مقاطع
+        function analyzeWord() {
+            const wordInput = document.getElementById('wordInput').value.trim();
+            const syllablesDisplay = document.getElementById('syllablesDisplay');
+            
+            if (!wordInput) {
+                showFeedback('analysisFeedback', 'الرجاء إدخال كلمة أولاً', 'error');
+                return;
+            }
+
+            if (!wordInput.includes('ت')) {
+                showFeedback('analysisFeedback', 'الكلمة يجب أن تحتوي على حرف التاء', 'error');
+                return;
+            }
+
+            // تحليل بسيط للمقاطع (يمكن تطويره)
+            const syllables = [];
+            let currentSyllable = '';
+            
+            for (let i = 0; i < wordInput.length; i++) {
+                currentSyllable += wordInput[i];
+                
+                // قاعدة بسيطة لتقسيم المقاطع
+                if (i < wordInput.length - 1 && 
+                    (isVowel(wordInput[i]) || wordInput[i] === 'ا' || wordInput[i] === 'و' || wordInput[i] === 'ي') &&
+                    !isVowel(wordInput[i+1])) {
+                    syllables.push(currentSyllable);
+                    currentSyllable = '';
+                }
+            }
+            
+            if (currentSyllable) {
+                syllables.push(currentSyllable);
+            }
+
+            // عرض المقاطع
+            syllablesDisplay.innerHTML = '';
+            syllables.forEach(syllable => {
+                const syllableElement = document.createElement('div');
+                syllableElement.className = 'syllable';
+                syllableElement.innerHTML = `${syllable} <i class="fas fa-volume-up" onclick="speak('${syllable}')"></i>`;
+                syllablesDisplay.appendChild(syllableElement);
+            });
+
+            showFeedback('analysisFeedback', `تم تحليل الكلمة إلى ${syllables.length} مقطع`, 'success');
+        }
+
+        // التحقق إذا كان الحرف حركة
+        function isVowel(char) {
+            return ['َ', 'ُ', 'ِ', 'ً', 'ٌ', 'ٍ'].includes(char);
+        }
+
+        // عرض رسائل التغذية الراجعة
+        function showFeedback(elementId, message, type) {
+            const feedbackElement = document.getElementById(elementId);
+            feedbackElement.textContent = message;
+            feedbackElement.className = `feedback show ${type}`;
+            
+            // إخفاء الرسالة بعد 3 ثواني
+            setTimeout(() => {
+                hideFeedback(elementId);
+            }, 3000);
+        }
+
+        // إخفاء رسائل التغذية الراجعة
+        function hideFeedback(elementId) {
+            const feedbackElement = document.getElementById(elementId);
+            feedbackElement.className = 'feedback';
+        }
+
+        // جعل بعض العناصر تنبض لجذب الانتباه
+        document.addEventListener('DOMContentLoaded', () => {
+            const letters = document.querySelectorAll('.letter-btn');
+            letters.forEach((letter, index) => {
+                if (letter.textContent === 'ت') {
+                    letter.classList.add('pulse');
+                }
+                
+                // تأثير عند التحميل
+                setTimeout(() => {
+                    letter.classList.add('bounce');
+                    setTimeout(() => {
+                        letter.classList.remove('bounce');
+                    }, 1000);
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>

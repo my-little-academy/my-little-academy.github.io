@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة تعلم الحروف العربية</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans Arabic', sans-serif;
+            background: linear-gradient(135deg, #ff9a56, #ffcf71, #a8e6cf, #7fcdcd);
+            min-height: 100vh;
+            padding: 20px;
+            animation: gradientShift 10s ease-in-out infinite;
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% { background: linear-gradient(135deg, #ff9a56, #ffcf71, #a8e6cf, #7fcdcd); }
+            50% { background: linear-gradient(135deg, #ffcf71, #a8e6cf, #7fcdcd, #ff9a56); }
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            grid-template-columns: 200px 1fr 200px;
+            gap: 20px;
+            height: 100vh;
+        }
+        
+        .header {
+            grid-column: 1 / -1;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .letter-display {
+            grid-column: 2;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .selected-letter {
+            font-size: 4rem;
+            color: #e74c3c;
+            margin-bottom: 30px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .letter-forms {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .form-card {
+            background: rgba(74, 144, 226, 0.1);
+            border: 3px solid #4a90e2;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            min-width: 120px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(74, 144, 226, 0.3);
+        }
+        
+        .form-letter {
+            font-size: 3rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .form-label {
+            color: #4a90e2;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .letters-grid {
+            display: grid;
+            grid-template-rows: repeat(14, 1fr);
+            gap: 10px;
+            height: 100%;
+        }
+        
+        .letter-card {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 15px;
+            padding: 15px;
+            font-size: 2rem;
+            font-weight: 600;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .letter-card:hover {
+            transform: scale(1.1);
+            background: #3498db;
+            color: white;
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+        }
+        
+        .letter-card.active {
+            background: #e74c3c;
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4);
+        }
+        
+        .movements-section {
+            grid-column: 1 / -1;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .movements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 15px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .movement-card {
+            background: rgba(46, 204, 113, 0.1);
+            border: 3px solid #2ecc71;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .movement-card:hover {
+            transform: translateY(-3px);
+            background: #2ecc71;
+            color: white;
+            box-shadow: 0 8px 20px rgba(46, 204, 113, 0.3);
+        }
+        
+        .movement-card.active {
+            background: #e67e22;
+            color: white;
+            border-color: #e67e22;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(230, 126, 34, 0.3);
+        }
+        
+        .movement-symbol {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        
+        .movement-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .welcome-message {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 1.5rem;
+            margin-top: 50px;
+        }
+        
+        .result-display {
+            background: rgba(155, 89, 182, 0.1);
+            border: 3px solid #9b59b6;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .result-letter {
+            font-size: 3.5rem;
+            color: #8e44ad;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .result-description {
+            color: #9b59b6;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto 1fr auto;
+            }
+            
+            .letters-grid {
+                grid-template-columns: repeat(7, 1fr);
+                grid-template-rows: repeat(4, 1fr);
+            }
+            
+            .letter-forms {
+                gap: 20px;
+            }
+            
+            .form-card {
+                min-width: 100px;
+                padding: 15px;
+            }
+            
+            .form-letter {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌟 لعبة تعلم الحروف العربية 🌟</h1>
+            <p style="color: #7f8c8d; font-size: 1.2rem;">اضغط على حرف لتتعلم أشكاله المختلفة</p>
+        </div>
+        
+        <div class="letters-grid" id="leftGrid">
+            <!-- سيتم إنشاؤها بـ JavaScript -->
+        </div>
+        
+        <div class="letter-display">
+            <div id="selectedLetter" class="selected-letter"></div>
+            <div id="letterForms" class="letter-forms"></div>
+            <div id="resultDisplay"></div>
+            <div id="welcomeMessage" class="welcome-message">
+                اختر حرفاً من الجانبين لتبدأ التعلم! 📚✨
+            </div>
+        </div>
+        
+        <div class="letters-grid" id="rightGrid">
+            <!-- سيتم إنشاؤها بـ JavaScript -->
+        </div>
+        
+        <div class="movements-section">
+            <div class="movements-grid" id="movementsGrid">
+                <!-- سيتم إنشاؤها بـ JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // الحروف العربية
+        const arabicLetters = [
+            'ا', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص',
+            'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'هـ', 'و', 'ي'
+        ];
+        
+        // أشكال الحروف
+        const letterForms = {
+            'ا': { isolated: 'ا', beginning: 'ا', middle: 'ا', end: 'ا' },
+            'ب': { isolated: 'ب', beginning: 'بـ', middle: 'ـبـ', end: 'ـب' },
+            'ت': { isolated: 'ت', beginning: 'تـ', middle: 'ـتـ', end: 'ـت' },
+            'ث': { isolated: 'ث', beginning: 'ثـ', middle: 'ـثـ', end: 'ـث' },
+            'ج': { isolated: 'ج', beginning: 'جـ', middle: 'ـجـ', end: 'ـج' },
+            'ح': { isolated: 'ح', beginning: 'حـ', middle: 'ـحـ', end: 'ـح' },
+            'خ': { isolated: 'خ', beginning: 'خـ', middle: 'ـخـ', end: 'ـخ' },
+            'د': { isolated: 'د', beginning: 'د', middle: 'د', end: 'ـد' },
+            'ذ': { isolated: 'ذ', beginning: 'ذ', middle: 'ذ', end: 'ـذ' },
+            'ر': { isolated: 'ر', beginning: 'ر', middle: 'ر', end: 'ـر' },
+            'ز': { isolated: 'ز', beginning: 'ز', middle: 'ز', end: 'ـز' },
+            'س': { isolated: 'س', beginning: 'سـ', middle: 'ـسـ', end: 'ـس' },
+            'ش': { isolated: 'ش', beginning: 'شـ', middle: 'ـشـ', end: 'ـش' },
+            'ص': { isolated: 'ص', beginning: 'صـ', middle: 'ـصـ', end: 'ـص' },
+            'ض': { isolated: 'ض', beginning: 'ضـ', middle: 'ـضـ', end: 'ـض' },
+            'ط': { isolated: 'ط', beginning: 'طـ', middle: 'ـطـ', end: 'ـط' },
+            'ظ': { isolated: 'ظ', beginning: 'ظـ', middle: 'ـظـ', end: 'ـظ' },
+            'ع': { isolated: 'ع', beginning: 'عـ', middle: 'ـعـ', end: 'ـع' },
+            'غ': { isolated: 'غ', beginning: 'غـ', middle: 'ـغـ', end: 'ـغ' },
+            'ف': { isolated: 'ف', beginning: 'فـ', middle: 'ـفـ', end: 'ـف' },
+            'ق': { isolated: 'ق', beginning: 'قـ', middle: 'ـقـ', end: 'ـق' },
+            'ك': { isolated: 'ك', beginning: 'كـ', middle: 'ـكـ', end: 'ـك' },
+            'ل': { isolated: 'ل', beginning: 'لـ', middle: 'ـلـ', end: 'ـل' },
+            'م': { isolated: 'م', beginning: 'مـ', middle: 'ـمـ', end: 'ـم' },
+            'ن': { isolated: 'ن', beginning: 'نـ', middle: 'ـنـ', end: 'ـن' },
+            'هـ': { isolated: 'هـ', beginning: 'هـ', middle: 'ـهـ', end: 'ـه' },
+            'و': { isolated: 'و', beginning: 'و', middle: 'و', end: 'ـو' },
+            'ي': { isolated: 'ي', beginning: 'يـ', middle: 'ـيـ', end: 'ـي' }
+        };
+        
+        // الحركات
+        const movements = [
+            { symbol: 'َ', name: 'فتحة', type: 'short', position: 'beginning' },
+            { symbol: 'ِ', name: 'كسرة', type: 'short', position: 'beginning' },
+            { symbol: 'ُ', name: 'ضمة', type: 'short', position: 'beginning' },
+            { symbol: 'ْ', name: 'سكون', type: 'short', position: 'beginning' },
+            { symbol: 'ا', name: 'مد بالألف', type: 'long', position: 'middle' },
+            { symbol: 'و', name: 'مد بالواو', type: 'long', position: 'middle' },
+            { symbol: 'ي', name: 'مد بالياء', type: 'long', position: 'middle' },
+            { symbol: 'ً', name: 'تنوين فتح', type: 'tanween', position: 'end' },
+            { symbol: 'ٍ', name: 'تنوين كسر', type: 'tanween', position: 'end' },
+            { symbol: 'ٌ', name: 'تنوين ضم', type: 'tanween', position: 'end' }
+        ];
+        
+        let selectedLetter = '';
+        let selectedMovement = null;
+        
+        // إنشاء شبكة الحروف
+        function createLetterGrids() {
+            const leftGrid = document.getElementById('leftGrid');
+            const rightGrid = document.getElementById('rightGrid');
+            
+            // الشبكة اليسرى - أول 14 حرف
+            for (let i = 0; i < 14; i++) {
+                const button = document.createElement('button');
+                button.className = 'letter-card';
+                button.textContent = arabicLetters[i];
+                button.onclick = () => selectLetter(arabicLetters[i], button);
+                leftGrid.appendChild(button);
+            }
+            
+            // الشبكة اليمنى - باقي الحروف
+            for (let i = 14; i < arabicLetters.length; i++) {
+                const button = document.createElement('button');
+                button.className = 'letter-card';
+                button.textContent = arabicLetters[i];
+                button.onclick = () => selectLetter(arabicLetters[i], button);
+                rightGrid.appendChild(button);
+            }
+        }
+        
+        // إنشاء شبكة الحركات
+        function createMovementsGrid() {
+            const grid = document.getElementById('movementsGrid');
+            
+            movements.forEach((movement, index) => {
+                const card = document.createElement('div');
+                card.className = 'movement-card';
+                card.onclick = () => selectMovement(movement, card);
+                
+                card.innerHTML = `
+                    <div class="movement-symbol">${movement.symbol}</div>
+                    <div class="movement-label">${movement.name}</div>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+        
+        // اختيار حرف
+        function selectLetter(letter, element) {
+            // إزالة التحديد من جميع الحروف
+            document.querySelectorAll('.letter-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            // تحديد الحرف المختار
+            element.classList.add('active');
+            selectedLetter = letter;
+            
+            // عرض الحرف وأشكاله
+            displayLetter(letter);
+            
+            // إخفاء رسالة الترحيب
+            document.getElementById('welcomeMessage').style.display = 'none';
+            
+            // إعادة تعيين الحركة المختارة
+            selectedMovement = null;
+            document.querySelectorAll('.movement-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            document.getElementById('resultDisplay').innerHTML = '';
+        }
+        
+        // عرض الحرف وأشكاله
+        function displayLetter(letter) {
+            document.getElementById('selectedLetter').textContent = letter;
+            
+            const formsContainer = document.getElementById('letterForms');
+            const forms = letterForms[letter];
+            
+            formsContainer.innerHTML = `
+                <div class="form-card">
+                    <div class="form-letter">${forms.beginning}</div>
+                    <div class="form-label">بداية الكلمة</div>
+                </div>
+                <div class="form-card">
+                    <div class="form-letter">${forms.middle}</div>
+                    <div class="form-label">وسط الكلمة</div>
+                </div>
+                <div class="form-card">
+                    <div class="form-letter">${forms.end}</div>
+                    <div class="form-label">نهاية الكلمة</div>
+                </div>
+            `;
+        }
+        
+        // اختيار حركة
+        function selectMovement(movement, element) {
+            if (!selectedLetter) {
+                alert('اختر حرفاً أولاً! 😊');
+                return;
+            }
+            
+            // إزالة التحديد من جميع الحركات
+            document.querySelectorAll('.movement-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            // تحديد الحركة المختارة
+            element.classList.add('active');
+            selectedMovement = movement;
+            
+            // عرض النتيجة
+            displayResult();
+        }
+        
+        // عرض النتيجة
+        function displayResult() {
+            const resultContainer = document.getElementById('resultDisplay');
+            const forms = letterForms[selectedLetter];
+            let resultLetter = '';
+            let description = '';
+            
+            switch (selectedMovement.type) {
+                case 'short':
+                    resultLetter = forms.beginning + selectedMovement.symbol;
+                    description = `حرف ${selectedLetter} في بداية الكلمة مع ${selectedMovement.name}`;
+                    break;
+                    
+                case 'long':
+                    if (selectedMovement.symbol === 'ا') {
+                        resultLetter = forms.middle + 'َا';
+                    } else if (selectedMovement.symbol === 'و') {
+                        resultLetter = forms.middle + 'ُو';
+                    } else if (selectedMovement.symbol === 'ي') {
+                        resultLetter = forms.middle + 'ِي';
+                    }
+                    description = `حرف ${selectedLetter} في وسط الكلمة مع ${selectedMovement.name}`;
+                    break;
+                    
+                case 'tanween':
+                    if (selectedMovement.symbol === 'ً') {
+                        resultLetter = forms.end + selectedMovement.symbol + 'ا';
+                    } else {
+                        resultLetter = forms.end + selectedMovement.symbol;
+                    }
+                    description = `حرف ${selectedLetter} في نهاية الكلمة مع ${selectedMovement.name}`;
+                    break;
+            }
+            
+            resultContainer.innerHTML = `
+                <div class="result-display">
+                    <div class="result-letter">${resultLetter}</div>
+                    <div class="result-description">${description}</div>
+                </div>
+            `;
+        }
+        
+        // تهيئة اللعبة
+        function initGame() {
+            createLetterGrids();
+            createMovementsGrid();
+        }
+        
+        // بدء اللعبة عند تحميل الصفحة
+        window.onload = initGame;
+    </script>
+</body>
+</html>

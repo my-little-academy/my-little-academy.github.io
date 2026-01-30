@@ -1,0 +1,1169 @@
+        <div class="conjugation-grid" id="conjugationGrid">
+            <!-- Les conjugaisons seront générées ici -->
+        </div><!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conjugueur de Verbes Français</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Marker Felt', cursive, sans-serif;
+            background: linear-gradient(45deg, #FFE066, #FF6B9D, #A8E6CF, #C1A5F3, #FFB366);
+            background-size: 400% 400%;
+            animation: gradientShift 6s ease infinite;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border: 5px solid #FFE066;
+            position: relative;
+        }
+
+        .container::before {
+            content: "🌟✨🎈";
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            font-size: 2em;
+            z-index: 1;
+        }
+
+        .container::after {
+            content: "🎉🌈🦋";
+            position: absolute;
+            top: -15px;
+            right: 20px;
+            font-size: 2em;
+            z-index: 1;
+        }
+
+        h1 {
+            text-align: center;
+            background: linear-gradient(45deg, #FF6B9D, #FFE066, #A8E6CF, #C1A5F3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 30px;
+            font-size: 3em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            transform: rotate(-2deg);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: rotate(-2deg) translateY(0); }
+            40% { transform: rotate(-2deg) translateY(-10px); }
+            60% { transform: rotate(-2deg) translateY(-5px); }
+        }
+
+        .verb-selector {
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, #FFE066, #FFB366);
+            padding: 20px;
+            border-radius: 25px;
+            border: 3px dashed #FF6B9D;
+        }
+
+        .verb-selector label {
+            font-size: 1.4em;
+            color: #4a5568;
+            margin-right: 15px;
+            font-weight: 800;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .verb-selector select {
+            padding: 15px 25px;
+            font-size: 1.2em;
+            border: 4px solid #FF6B9D;
+            border-radius: 20px;
+            background: white;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Comic Sans MS', cursive;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(255, 107, 157, 0.3);
+        }
+
+        .verb-selector select:hover {
+            border-color: #A8E6CF;
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(168, 230, 207, 0.4);
+        }
+
+        .conjugation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .tense-card {
+            background: white;
+            border-radius: 25px;
+            padding: 25px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 4px solid;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tense-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .tense-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .present { border-color: #A8E6CF; }
+        .passe-compose { border-color: #FFB366; }
+        .imparfait { border-color: #C1A5F3; }
+        .futur { border-color: #87CEEB; }
+
+        .tense-title {
+            font-size: 1.6em;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 20px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 2;
+            transform: rotate(-1deg);
+        }
+
+        .present .tense-title { 
+            background: linear-gradient(135deg, #A8E6CF, #7FD3B1); 
+            box-shadow: 0 5px 15px rgba(168, 230, 207, 0.4);
+        }
+        .passe-compose .tense-title { 
+            background: linear-gradient(135deg, #FFB366, #FF9A40); 
+            box-shadow: 0 5px 15px rgba(255, 179, 102, 0.4);
+        }
+        .imparfait .tense-title { 
+            background: linear-gradient(135deg, #C1A5F3, #A584E8); 
+            box-shadow: 0 5px 15px rgba(193, 165, 243, 0.4);
+        }
+        .futur .tense-title { 
+            background: linear-gradient(135deg, #87CEEB, #70B8D4); 
+            box-shadow: 0 5px 15px rgba(135, 206, 235, 0.4);
+        }
+
+        .conjugation-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .conjugation-table td {
+            padding: 15px 18px;
+            border-bottom: 3px solid #FFE066;
+            transition: all 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .conjugation-table td:hover {
+            background: linear-gradient(135deg, #FFF8DC, #F0E68C);
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 230, 102, 0.3);
+        }
+
+        .pronoun {
+            font-weight: 900;
+            color: #4a5568;
+            width: 35%;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .verb-form {
+            color: #2d3748;
+            font-weight: 700;
+            font-size: 1.2em;
+        }
+
+        .verb-stem {
+            color: #2d3748;
+        }
+
+        .verb-ending {
+            font-weight: 900;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        /* Couleurs plus vives et enfantines pour chaque pronom */
+        .ending-je { color: #FF1493; text-shadow: 2px 2px 4px rgba(255,20,147,0.3); }      /* Rose vif */
+        .ending-tu { color: #FF6347; text-shadow: 2px 2px 4px rgba(255,99,71,0.3); }      /* Rouge tomate */
+        .ending-il { color: #32CD32; text-shadow: 2px 2px 4px rgba(50,205,50,0.3); }      /* Vert lime */
+        .ending-nous { color: #1E90FF; text-shadow: 2px 2px 4px rgba(30,144,255,0.3); }    /* Bleu ciel */
+        .ending-vous { color: #9370DB; text-shadow: 2px 2px 4px rgba(147,112,219,0.3); }    /* Violet moyen */
+        .ending-ils { color: #FFA500; text-shadow: 2px 2px 4px rgba(255,165,0,0.3); }     /* Orange vif */
+
+        .verb-infinitive {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            color: #4a5568;
+            font-weight: 900;
+            background: linear-gradient(135deg, #FFE066, #FFB366, #A8E6CF);
+            padding: 20px;
+            border-radius: 25px;
+            border: 4px solid #FF6B9D;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            transform: rotate(-1deg);
+            position: relative;
+        }
+
+        .verb-infinitive::before {
+            content: "🎯";
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5em;
+        }
+
+        .verb-infinitive::after {
+            content: "📚";
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5em;
+        }
+
+        .game-section {
+            background: linear-gradient(135deg, #FFE066, #FF6B9D);
+            border-radius: 30px;
+            padding: 25px;
+            margin: 30px 0;
+            border: 5px solid #A8E6CF;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        .game-section::before {
+            content: "🎮🎯🏆";
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 1.5em;
+        }
+
+        .game-title {
+            text-align: center;
+            font-size: 2em;
+            font-weight: 900;
+            color: white;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+
+        .game-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .game-btn {
+            background: linear-gradient(135deg, #A8E6CF, #7FD3B1);
+            border: 3px solid #32CD32;
+            border-radius: 20px;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #2d3748;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(168,230,207,0.3);
+        }
+
+        .game-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(168,230,207,0.5);
+        }
+
+        .game-btn.danger {
+            background: linear-gradient(135deg, #FF6B9D, #FF4081);
+            border-color: #FF1493;
+        }
+
+        .game-area {
+            background: white;
+            border-radius: 25px;
+            padding: 25px;
+            border: 4px dashed #C1A5F3;
+            min-height: 200px;
+            position: relative;
+        }
+
+        .question-card {
+            background: linear-gradient(135deg, #C1A5F3, #A584E8);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            color: white;
+            font-size: 1.3em;
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .answer-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .answer-btn {
+            background: linear-gradient(135deg, #FFE066, #FFB366);
+            border: 3px solid #FFA500;
+            border-radius: 15px;
+            padding: 15px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            color: #2d3748;
+        }
+
+        .answer-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(255,165,0,0.4);
+        }
+
+        .answer-btn.correct {
+            background: linear-gradient(135deg, #A8E6CF, #7FD3B1);
+            border-color: #32CD32;
+            animation: correctAnswer 0.6s ease;
+        }
+
+        .answer-btn.wrong {
+            background: linear-gradient(135deg, #FF6B9D, #FF4081);
+            border-color: #FF1493;
+            animation: wrongAnswer 0.6s ease;
+        }
+
+        @keyframes correctAnswer {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes wrongAnswer {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            background: linear-gradient(135deg, #87CEEB, #70B8D4);
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .feedback-message {
+            text-align: center;
+            font-size: 1.4em;
+            font-weight: bold;
+            padding: 15px;
+            border-radius: 20px;
+            margin: 15px 0;
+            transition: all 0.3s ease;
+        }
+
+        .feedback-success {
+            background: linear-gradient(135deg, #A8E6CF, #7FD3B1);
+            color: #2d3748;
+            border: 3px solid #32CD32;
+        }
+
+        .feedback-error {
+            background: linear-gradient(135deg, #FF6B9D, #FF4081);
+            color: white;
+            border: 3px solid #FF1493;
+        }
+
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .confetti {
+            position: absolute;
+            font-size: 2em;
+            animation: confettiFall 3s linear infinite;
+        }
+
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .drag-drop-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .pronoun-box, .verb-box {
+            background: linear-gradient(135deg, #FFE066, #FFB366);
+            border: 3px dashed #FF6B9D;
+            border-radius: 20px;
+            padding: 20px;
+            min-height: 150px;
+            text-align: center;
+            position: relative;
+        }
+
+        .draggable-item {
+            background: linear-gradient(135deg, #C1A5F3, #A584E8);
+            border: 2px solid #9370DB;
+            border-radius: 15px;
+            padding: 10px 15px;
+            margin: 5px;
+            display: inline-block;
+            cursor: move;
+            color: white;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .draggable-item:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(147,112,219,0.4);
+        }
+
+        .drop-zone {
+            background: rgba(255,255,255,0.5);
+            border: 2px dashed #A8E6CF;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 10px;
+            min-height: 40px;
+            transition: all 0.3s ease;
+        }
+
+        .drop-zone.drag-over {
+            background: rgba(168,230,207,0.3);
+            border-color: #32CD32;
+            transform: scale(1.05);
+        }
+
+        .tense-card {
+            animation: fadeIn 0.6s ease forwards;
+        }
+
+        .tense-card:nth-child(1) { animation-delay: 0.1s; }
+        .tense-card:nth-child(2) { animation-delay: 0.2s; }
+        .tense-card:nth-child(3) { animation-delay: 0.3s; }
+        .tense-card:nth-child(4) { animation-delay: 0.4s; }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .conjugation-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🇫🇷 Conjugueur de Verbes Français</h1>
+        
+        <div class="verb-selector">
+            <label for="verbSelect">Choisissez un verbe:</label>
+            <select id="verbSelect">
+                <option value="être">être</option>
+                <option value="avoir">avoir</option>
+                <option value="aller">aller</option>
+                <option value="faire">faire</option>
+                <option value="dire">dire</option>
+                <option value="venir">venir</option>
+                <option value="voir">voir</option>
+                <option value="savoir">savoir</option>
+                <option value="pouvoir">pouvoir</option>
+                <option value="vouloir">vouloir</option>
+                <option value="prendre">prendre</option>
+                <option value="partir">partir</option>
+                <option value="mettre">mettre</option>
+                <option value="tenir">tenir</option>
+                <option value="sortir">sortir</option>
+                <option value="finir">finir</option>
+                <option value="choisir">choisir</option>
+                <option value="parler">parler</option>
+                <option value="manger">manger</option>
+                <option value="jouer">jouer</option>
+            </select>
+        </div>
+
+        <div class="verb-infinitive" id="verbInfinitive">
+            Verbe: être
+        </div>
+        
+        <div style="text-align: center; margin-bottom: 20px; background: linear-gradient(135deg, #FFE066, #A8E6CF); padding: 20px; border-radius: 25px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); border: 4px dashed #FF6B9D; position: relative;">
+            <div style="position: absolute; top: -10px; left: 20px; font-size: 2em;">🌈</div>
+            <div style="position: absolute; top: -10px; right: 20px; font-size: 2em;">🎨</div>
+            <h3 style="margin-bottom: 15px; color: #4a5568; font-family: 'Comic Sans MS', cursive; font-size: 1.3em; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);">🎪 Code couleur des terminaisons magiques! 🎪</h3>
+            <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; font-size: 1em; font-weight: bold;">
+                <span style="background: white; padding: 8px 15px; border-radius: 20px; border: 3px solid #FF1493; box-shadow: 0 3px 10px rgba(255,20,147,0.3);"><strong style="color: #FF1493;">je</strong> 🌸</span>
+                <span style="background: white; padding: 8px 15px; border-radius: 20px; border: 3px solid #FF6347; box-shadow: 0 3px 10px rgba(255,99,71,0.3);"><strong style="color: #FF6347;">tu</strong> 🍎</span>
+                <span style="background: white; padding: 8px 15px; border-radius: 20px; border: 3px solid #32CD32; box-shadow: 0 3px 10px rgba(50,205,50,0.3);"><strong style="color: #32CD32;">il/elle</strong> 🍀</span>
+                <span style="background: white; padding: 8px 15px; border-radius: 20px; border: 3px solid #1E90FF; box-shadow: 0 3px 10px rgba(30,144,255,0.3);"><strong style="color: #1E90FF;">nous</strong> 🌊</span>
+                <span style="background: white; padding: 8px 15px; border-radius: 20px; border: 3px solid #9370DB; box-shadow: 0 3px 10px rgba(147,112,219,0.3);"><strong style="color: #9370DB;">vous</strong> 🍇</span>
+                <span style="background: white; padding: 8px 15px; border-radius: 20px; border: 3px solid #FFA500; box-shadow: 0 3px 10px rgba(255,165,0,0.3);"><strong style="color: #FFA500;">ils/elles</strong> 🌻</span>
+            </div>
+        </div>
+
+        <div class="game-section" id="gameSection">
+            <div class="game-title">🎪 Jeux de Conjugaison Amusants! 🎪</div>
+            
+            <div class="game-controls">
+                <button class="game-btn" onclick="startQuizGame()">🧠 Quiz Rapide</button>
+                <button class="game-btn" onclick="startDragDropGame()">🎯 Glisser-Déposer</button>
+                <button class="game-btn" onclick="startSpeedGame()">⚡ Défi Vitesse</button>
+                <button class="game-btn danger" onclick="resetGames()">🔄 Recommencer</button>
+            </div>
+            
+            <div class="score-board" id="scoreBoard" style="display: none;">
+                <div>🏆 Points: <span id="score">0</span></div>
+                <div>✅ Correct: <span id="correct">0</span></div>
+                <div>❌ Erreurs: <span id="wrong">0</span></div>
+                <div>⏰ Temps: <span id="timer">0</span>s</div>
+            </div>
+            
+            <div class="game-area" id="gameArea">
+                <div style="text-align: center; font-size: 1.5em; color: #4a5568; font-weight: bold;">
+                    🎮 Choisissez un jeu ci-dessus pour commencer à jouer! 🎮
+                </div>
+            </div>
+            
+            <div class="feedback-message" id="feedbackMessage" style="display: none;"></div>
+        </div>
+
+        <div class="celebration" id="celebration"></div>
+    </div>
+
+    <script>
+        // Game variables
+        let gameScore = 0;
+        let correctAnswers = 0;
+        let wrongAnswers = 0;
+        let gameTimer = 0;
+        let timerInterval;
+        let currentGame = null;
+        let currentQuestion = {};
+
+        // Game functions
+        function resetGames() {
+            gameScore = 0;
+            correctAnswers = 0;
+            wrongAnswers = 0;
+            gameTimer = 0;
+            clearInterval(timerInterval);
+            currentGame = null;
+            
+            document.getElementById('scoreBoard').style.display = 'none';
+            document.getElementById('gameArea').innerHTML = `
+                <div style="text-align: center; font-size: 1.5em; color: #4a5568; font-weight: bold;">
+                    🎮 اختر لعبة من الأعلى لبدء المتعة! 🎮
+                </div>
+            `;
+            document.getElementById('feedbackMessage').style.display = 'none';
+        }
+
+        function updateScore() {
+            document.getElementById('score').textContent = gameScore;
+            document.getElementById('correct').textContent = correctAnswers;
+            document.getElementById('wrong').textContent = wrongAnswers;
+            document.getElementById('timer').textContent = gameTimer;
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                gameTimer++;
+                updateScore();
+            }, 1000);
+        }
+
+        function showFeedback(message, isCorrect) {
+            const feedbackEl = document.getElementById('feedbackMessage');
+            feedbackEl.textContent = message;
+            feedbackEl.className = `feedback-message ${isCorrect ? 'feedback-success' : 'feedback-error'}`;
+            feedbackEl.style.display = 'block';
+            
+            setTimeout(() => {
+                feedbackEl.style.display = 'none';
+            }, 2000);
+        }
+
+        function createConfetti() {
+            const celebration = document.getElementById('celebration');
+            const emojis = ['🎉', '🎊', '⭐', '🌟', '✨', '🎈', '🎁', '🏆'];
+            
+            for (let i = 0; i < 20; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.animationDelay = Math.random() * 3 + 's';
+                celebration.appendChild(confetti);
+                
+                setTimeout(() => {
+                    if (confetti.parentNode) {
+                        confetti.parentNode.removeChild(confetti);
+                    }
+                }, 3000);
+            }
+        }
+
+        function generateQuizQuestion() {
+            const verbList = Object.keys(verbs);
+            const selectedVerb = verbList[Math.floor(Math.random() * verbList.length)];
+            const tenses = ['present', 'passeCompose', 'imparfait', 'futur'];
+            const selectedTense = tenses[Math.floor(Math.random() * tenses.length)];
+            const pronounIndex = Math.floor(Math.random() * 6);
+            
+            const correctAnswer = verbs[selectedVerb][selectedTense][pronounIndex];
+            const wrongAnswers = [];
+            
+            // Generate wrong answers
+            while (wrongAnswers.length < 3) {
+                const randomVerb = verbList[Math.floor(Math.random() * verbList.length)];
+                const wrongAnswer = verbs[randomVerb][selectedTense][pronounIndex];
+                if (wrongAnswer !== correctAnswer && !wrongAnswers.includes(wrongAnswer)) {
+                    wrongAnswers.push(wrongAnswer);
+                }
+            }
+            
+            const allAnswers = [correctAnswer, ...wrongAnswers];
+            allAnswers.sort(() => Math.random() - 0.5);
+            
+            return {
+                verb: selectedVerb,
+                tense: selectedTense,
+                pronoun: pronouns[pronounIndex],
+                correctAnswer: correctAnswer,
+                options: allAnswers
+            };
+        }
+
+        function startQuizGame() {
+            currentGame = 'quiz';
+            document.getElementById('scoreBoard').style.display = 'flex';
+            startTimer();
+            
+            showNextQuestion();
+        }
+
+        function showNextQuestion() {
+            if (currentGame !== 'quiz') return;
+            
+            currentQuestion = generateQuizQuestion();
+            const tenseNames = {
+                present: 'le présent',
+                passeCompose: 'le passé composé',
+                imparfait: "l'imparfait",
+                futur: 'le futur simple'
+            };
+            
+            document.getElementById('gameArea').innerHTML = `
+                <div class="question-card">
+                    🎯 Conjuguez le verbe "${currentQuestion.verb}" avec "${currentQuestion.pronoun}" au ${tenseNames[currentQuestion.tense]}
+                </div>
+                <div class="answer-options">
+                    ${currentQuestion.options.map(option => 
+                        `<button class="answer-btn" onclick="checkQuizAnswer('${option}')">${currentQuestion.pronoun} ${option}</button>`
+                    ).join('')}
+                </div>
+            `;
+        }
+
+        function checkQuizAnswer(selectedAnswer) {
+            const buttons = document.querySelectorAll('.answer-btn');
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                if (btn.textContent.includes(selectedAnswer)) {
+                    if (selectedAnswer === currentQuestion.correctAnswer) {
+                        btn.className = 'answer-btn correct';
+                        gameScore += 10;
+                        correctAnswers++;
+                        showFeedback('🎉 Excellent! Bonne réponse!', true);
+                        createConfetti();
+                    } else {
+                        btn.className = 'answer-btn wrong';
+                        wrongAnswers++;
+                        showFeedback(`❌ Oops! La bonne réponse était: ${currentQuestion.pronoun} ${currentQuestion.correctAnswer}`, false);
+                    }
+                } else if (btn.textContent.includes(currentQuestion.correctAnswer)) {
+                    btn.className = 'answer-btn correct';
+                }
+            });
+            
+            updateScore();
+            setTimeout(showNextQuestion, 3000);
+        }
+
+        function startDragDropGame() {
+            currentGame = 'dragdrop';
+            document.getElementById('scoreBoard').style.display = 'flex';
+            startTimer();
+            
+            currentQuestion = generateQuizQuestion();
+            const conjugatedForm = currentQuestion.correctAnswer;
+            const scrambledLetters = conjugatedForm.split('').sort(() => Math.random() - 0.5);
+            
+            document.getElementById('gameArea').innerHTML = `
+                <div class="question-card">
+                    🎯 Glissez les lettres pour former: ${currentQuestion.pronoun} _____ (${currentQuestion.verb})
+                </div>
+                <div class="drag-drop-area">
+                    <div class="pronoun-box">
+                        <h4>📝 Lettres disponibles</h4>
+                        <div id="letterBank">
+                            ${scrambledLetters.map((letter, index) => 
+                                `<span class="draggable-item" draggable="true" ondragstart="dragStart(event)" data-letter="${letter}" id="letter-${index}">${letter}</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                    <div class="verb-box">
+                        <h4>🎯 Formez le mot ici</h4>
+                        <div class="drop-zone" ondrop="dropLetter(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" id="dropZone"></div>
+                        <button class="game-btn" onclick="checkDragDropAnswer()" style="margin-top: 15px;">✅ Vérifier</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function dragStart(e) {
+            e.dataTransfer.setData("text/plain", e.target.id);
+        }
+
+        function allowDrop(e) {
+            e.preventDefault();
+            e.target.classList.add('drag-over');
+        }
+
+        function dragLeave(e) {
+            e.target.classList.remove('drag-over');
+        }
+
+        function dropLetter(e) {
+            e.preventDefault();
+            e.target.classList.remove('drag-over');
+            const data = e.dataTransfer.getData("text/plain");
+            const draggedElement = document.getElementById(data);
+            if (draggedElement && e.target.classList.contains('drop-zone')) {
+                e.target.appendChild(draggedElement);
+                draggedElement.draggable = false;
+            }
+        }
+
+        function checkDragDropAnswer() {
+            const dropZone = document.getElementById('dropZone');
+            const formedWord = Array.from(dropZone.children).map(el => el.dataset.letter).join('');
+            
+            if (formedWord === currentQuestion.correctAnswer) {
+                gameScore += 15;
+                correctAnswers++;
+                showFeedback('🎉 Parfait! Vous avez formé le mot correctement!', true);
+                createConfetti();
+            } else {
+                wrongAnswers++;
+                showFeedback(`❌ Pas tout à fait! Le mot correct était: ${currentQuestion.correctAnswer}`, false);
+            }
+            
+            updateScore();
+            setTimeout(() => {
+                if (currentGame === 'dragdrop') {
+                    startDragDropGame();
+                }
+            }, 3000);
+        }
+
+        function startSpeedGame() {
+            currentGame = 'speed';
+            document.getElementById('scoreBoard').style.display = 'flex';
+            startTimer();
+            
+            let questionsAnswered = 0;
+            const maxQuestions = 10;
+            
+            function showSpeedQuestion() {
+                if (questionsAnswered >= maxQuestions) {
+                    clearInterval(timerInterval);
+                    showFeedback(`🏁 Jeu terminé! Score final: ${gameScore} points en ${gameTimer} secondes!`, true);
+                    createConfetti();
+                    return;
+                }
+                
+                currentQuestion = generateQuizQuestion();
+                questionsAnswered++;
+                
+                document.getElementById('gameArea').innerHTML = `
+                    <div class="question-card">
+                        ⚡ Question ${questionsAnswered}/${maxQuestions}: ${currentQuestion.pronoun} + ${currentQuestion.verb} = ?
+                    </div>
+                    <div class="answer-options">
+                        ${currentQuestion.options.map(option => 
+                            `<button class="answer-btn" onclick="checkSpeedAnswer('${option}')">${option}</button>`
+                        ).join('')}
+                    </div>
+                `;
+            }
+            
+            window.checkSpeedAnswer = function(selectedAnswer) {
+                if (selectedAnswer === currentQuestion.correctAnswer) {
+                    gameScore += 5;
+                    correctAnswers++;
+                    showFeedback('⚡ Correct!', true);
+                } else {
+                    wrongAnswers++;
+                    showFeedback(`❌ ${currentQuestion.correctAnswer}`, false);
+                }
+                
+                updateScore();
+                setTimeout(showSpeedQuestion, 1000);
+            };
+            
+            showSpeedQuestion();
+        }
+
+        // Fonction pour séparer le radical de la terminaison
+        function separateVerbParts(verb, conjugation, tense, pronounIndex) {
+            // Pour les verbes irréguliers comme être, avoir, aller, etc.
+            const irregularVerbs = ['être', 'avoir', 'aller', 'faire', 'dire', 'venir', 'voir', 'savoir', 'pouvoir', 'vouloir', 'prendre', 'partir', 'mettre', 'tenir', 'sortir'];
+            
+            if (irregularVerbs.includes(verb)) {
+                // Pour les verbes irréguliers, on met tout en couleur
+                return { stem: '', ending: conjugation };
+            }
+            
+            // Pour les verbes réguliers
+            if (verb.endsWith('er')) {
+                // Verbes du 1er groupe
+                const stem = verb.slice(0, -2);
+                if (tense === 'present') {
+                    const endings = ['e', 'es', 'e', 'ons', 'ez', 'ent'];
+                    const ending = endings[pronounIndex];
+                    return { stem: stem, ending: ending };
+                }
+                if (tense === 'imparfait') {
+                    const endings = ['ais', 'ais', 'ait', 'ions', 'iez', 'aient'];
+                    const ending = endings[pronounIndex];
+                    return { stem: stem, ending: ending };
+                }
+                if (tense === 'futur') {
+                    const endings = ['ai', 'as', 'a', 'ons', 'ez', 'ont'];
+                    const ending = endings[pronounIndex];
+                    return { stem: verb, ending: ending };
+                }
+                if (tense === 'passeCompose') {
+                    return { stem: '', ending: conjugation };
+                }
+            }
+            
+            if (verb.endsWith('ir') && (verb === 'finir' || verb === 'choisir')) {
+                // Verbes du 2ème groupe
+                const stem = verb.slice(0, -2);
+                if (tense === 'present') {
+                    const endings = ['is', 'is', 'it', 'issons', 'issez', 'issent'];
+                    const ending = endings[pronounIndex];
+                    const stemWithIss = pronounIndex >= 3 ? stem + 'iss' : stem;
+                    return { stem: stemWithIss, ending: pronounIndex >= 3 ? ending.slice(3) : ending };
+                }
+                if (tense === 'imparfait') {
+                    const endings = ['issais', 'issais', 'issait', 'issions', 'issiez', 'issaient'];
+                    const ending = endings[pronounIndex];
+                    return { stem: stem, ending: ending };
+                }
+                if (tense === 'futur') {
+                    const endings = ['ai', 'as', 'a', 'ons', 'ez', 'ont'];
+                    const ending = endings[pronounIndex];
+                    return { stem: verb, ending: ending };
+                }
+                if (tense === 'passeCompose') {
+                    return { stem: '', ending: conjugation };
+                }
+            }
+            
+            // Pour les autres verbes, on met tout en couleur
+            return { stem: '', ending: conjugation };
+        }
+
+        const verbs = {
+            être: {
+                present: ["suis", "es", "est", "sommes", "êtes", "sont"],
+                passeCompose: ["ai été", "as été", "a été", "avons été", "avez été", "ont été"],
+                imparfait: ["étais", "étais", "était", "étions", "étiez", "étaient"],
+                futur: ["serai", "seras", "sera", "serons", "serez", "seront"]
+            },
+            avoir: {
+                present: ["ai", "as", "a", "avons", "avez", "ont"],
+                passeCompose: ["ai eu", "as eu", "a eu", "avons eu", "avez eu", "ont eu"],
+                imparfait: ["avais", "avais", "avait", "avions", "aviez", "avaient"],
+                futur: ["aurai", "auras", "aura", "aurons", "aurez", "auront"]
+            },
+            aller: {
+                present: ["vais", "vas", "va", "allons", "allez", "vont"],
+                passeCompose: ["suis allé(e)", "es allé(e)", "est allé(e)", "sommes allé(e)s", "êtes allé(e)s", "sont allé(e)s"],
+                imparfait: ["allais", "allais", "allait", "allions", "alliez", "allaient"],
+                futur: ["irai", "iras", "ira", "irons", "irez", "iront"]
+            },
+            faire: {
+                present: ["fais", "fais", "fait", "faisons", "faites", "font"],
+                passeCompose: ["ai fait", "as fait", "a fait", "avons fait", "avez fait", "ont fait"],
+                imparfait: ["faisais", "faisais", "faisait", "faisions", "faisiez", "faisaient"],
+                futur: ["ferai", "feras", "fera", "ferons", "ferez", "feront"]
+            },
+            dire: {
+                present: ["dis", "dis", "dit", "disons", "dites", "disent"],
+                passeCompose: ["ai dit", "as dit", "a dit", "avons dit", "avez dit", "ont dit"],
+                imparfait: ["disais", "disais", "disait", "disions", "disiez", "disaient"],
+                futur: ["dirai", "diras", "dira", "dirons", "direz", "diront"]
+            },
+            venir: {
+                present: ["viens", "viens", "vient", "venons", "venez", "viennent"],
+                passeCompose: ["suis venu(e)", "es venu(e)", "est venu(e)", "sommes venu(e)s", "êtes venu(e)s", "sont venu(e)s"],
+                imparfait: ["venais", "venais", "venait", "venions", "veniez", "venaient"],
+                futur: ["viendrai", "viendras", "viendra", "viendrons", "viendrez", "viendront"]
+            },
+            voir: {
+                present: ["vois", "vois", "voit", "voyons", "voyez", "voient"],
+                passeCompose: ["ai vu", "as vu", "a vu", "avons vu", "avez vu", "ont vu"],
+                imparfait: ["voyais", "voyais", "voyait", "voyions", "voyiez", "voyaient"],
+                futur: ["verrai", "verras", "verra", "verrons", "verrez", "verront"]
+            },
+            savoir: {
+                present: ["sais", "sais", "sait", "savons", "savez", "savent"],
+                passeCompose: ["ai su", "as su", "a su", "avons su", "avez su", "ont su"],
+                imparfait: ["savais", "savais", "savait", "savions", "saviez", "savaient"],
+                futur: ["saurai", "sauras", "saura", "saurons", "saurez", "sauront"]
+            },
+            pouvoir: {
+                present: ["peux", "peux", "peut", "pouvons", "pouvez", "peuvent"],
+                passeCompose: ["ai pu", "as pu", "a pu", "avons pu", "avez pu", "ont pu"],
+                imparfait: ["pouvais", "pouvais", "pouvait", "pouvions", "pouviez", "pouvaient"],
+                futur: ["pourrai", "pourras", "pourra", "pourrons", "pourrez", "pourront"]
+            },
+            vouloir: {
+                present: ["veux", "veux", "veut", "voulons", "voulez", "veulent"],
+                passeCompose: ["ai voulu", "as voulu", "a voulu", "avons voulu", "avez voulu", "ont voulu"],
+                imparfait: ["voulais", "voulais", "voulait", "voulions", "vouliez", "voulaient"],
+                futur: ["voudrai", "voudras", "voudra", "voudrons", "voudrez", "voudront"]
+            },
+            prendre: {
+                present: ["prends", "prends", "prend", "prenons", "prenez", "prennent"],
+                passeCompose: ["ai pris", "as pris", "a pris", "avons pris", "avez pris", "ont pris"],
+                imparfait: ["prenais", "prenais", "prenait", "prenions", "preniez", "prenaient"],
+                futur: ["prendrai", "prendras", "prendra", "prendrons", "prendrez", "prendront"]
+            },
+            partir: {
+                present: ["pars", "pars", "part", "partons", "partez", "partent"],
+                passeCompose: ["suis parti(e)", "es parti(e)", "est parti(e)", "sommes parti(e)s", "êtes parti(e)s", "sont parti(e)s"],
+                imparfait: ["partais", "partais", "partait", "partions", "partiez", "partaient"],
+                futur: ["partirai", "partiras", "partira", "partirons", "partirez", "partiront"]
+            },
+            mettre: {
+                present: ["mets", "mets", "met", "mettons", "mettez", "mettent"],
+                passeCompose: ["ai mis", "as mis", "a mis", "avons mis", "avez mis", "ont mis"],
+                imparfait: ["mettais", "mettais", "mettait", "mettions", "mettiez", "mettaient"],
+                futur: ["mettrai", "mettras", "mettra", "mettrons", "mettrez", "mettront"]
+            },
+            tenir: {
+                present: ["tiens", "tiens", "tient", "tenons", "tenez", "tiennent"],
+                passeCompose: ["ai tenu", "as tenu", "a tenu", "avons tenu", "avez tenu", "ont tenu"],
+                imparfait: ["tenais", "tenais", "tenait", "tenions", "teniez", "tenaient"],
+                futur: ["tiendrai", "tiendras", "tiendra", "tiendrons", "tiendrez", "tiendront"]
+            },
+            sortir: {
+                present: ["sors", "sors", "sort", "sortons", "sortez", "sortent"],
+                passeCompose: ["suis sorti(e)", "es sorti(e)", "est sorti(e)", "sommes sorti(e)s", "êtes sorti(e)s", "sont sorti(e)s"],
+                imparfait: ["sortais", "sortais", "sortait", "sortions", "sortiez", "sortaient"],
+                futur: ["sortirai", "sortiras", "sortira", "sortirons", "sortirez", "sortiront"]
+            },
+            finir: {
+                present: ["finis", "finis", "finit", "finissons", "finissez", "finissent"],
+                passeCompose: ["ai fini", "as fini", "a fini", "avons fini", "avez fini", "ont fini"],
+                imparfait: ["finissais", "finissais", "finissait", "finissions", "finissiez", "finissaient"],
+                futur: ["finirai", "finiras", "finira", "finirons", "finirez", "finiront"]
+            },
+            choisir: {
+                present: ["choisis", "choisis", "choisit", "choisissons", "choisissez", "choisissent"],
+                passeCompose: ["ai choisi", "as choisi", "a choisi", "avons choisi", "avez choisi", "ont choisi"],
+                imparfait: ["choisissais", "choisissais", "choisissait", "choisissions", "choisissiez", "choisissaient"],
+                futur: ["choisirai", "choisiras", "choisira", "choisirons", "choisirez", "choisiront"]
+            },
+            parler: {
+                present: ["parle", "parles", "parle", "parlons", "parlez", "parlent"],
+                passeCompose: ["ai parlé", "as parlé", "a parlé", "avons parlé", "avez parlé", "ont parlé"],
+                imparfait: ["parlais", "parlais", "parlait", "parlions", "parliez", "parlaient"],
+                futur: ["parlerai", "parleras", "parlera", "parlerons", "parlerez", "parleront"]
+            },
+            manger: {
+                present: ["mange", "manges", "mange", "mangeons", "mangez", "mangent"],
+                passeCompose: ["ai mangé", "as mangé", "a mangé", "avons mangé", "avez mangé", "ont mangé"],
+                imparfait: ["mangeais", "mangeais", "mangeait", "mangions", "mangiez", "mangeaient"],
+                futur: ["mangerai", "mangeras", "mangera", "mangerons", "mangerez", "mangeront"]
+            },
+            jouer: {
+                present: ["joue", "joues", "joue", "jouons", "jouez", "jouent"],
+                passeCompose: ["ai joué", "as joué", "a joué", "avons joué", "avez joué", "ont joué"],
+                imparfait: ["jouais", "jouais", "jouait", "jouions", "jouiez", "jouaient"],
+                futur: ["jouerai", "joueras", "jouera", "jouerons", "jouerez", "joueront"]
+            }
+        };
+
+        const pronouns = ["je", "tu", "il/elle", "nous", "vous", "ils/elles"];
+        
+        function displayConjugation(verb) {
+            const verbData = verbs[verb];
+            const grid = document.getElementById('conjugationGrid');
+            const verbInfinitive = document.getElementById('verbInfinitive');
+            
+            verbInfinitive.textContent = `Verbe: ${verb}`;
+            
+            grid.innerHTML = '';
+            
+            const tenses = [
+                { name: 'Le Présent', key: 'present', class: 'present' },
+                { name: 'Le Passé Composé', key: 'passeCompose', class: 'passe-compose' },
+                { name: "L'Imparfait", key: 'imparfait', class: 'imparfait' },
+                { name: 'Le Futur Simple', key: 'futur', class: 'futur' }
+            ];
+            
+            tenses.forEach(tense => {
+                const card = document.createElement('div');
+                card.className = `tense-card ${tense.class}`;
+                
+                const title = document.createElement('div');
+                title.className = 'tense-title';
+                title.textContent = tense.name;
+                
+                const table = document.createElement('table');
+                table.className = 'conjugation-table';
+                
+                verbData[tense.key].forEach((form, index) => {
+                    const row = document.createElement('tr');
+                    
+                    const pronounCell = document.createElement('td');
+                    pronounCell.className = 'pronoun';
+                    pronounCell.textContent = pronouns[index];
+                    
+                    const verbCell = document.createElement('td');
+                    verbCell.className = 'verb-form';
+                    
+                    // Séparer le radical de la terminaison
+                    const parts = separateVerbParts(verb, form, tense.key, index);
+                    const endingClasses = ['ending-je', 'ending-tu', 'ending-il', 'ending-nous', 'ending-vous', 'ending-ils'];
+                    
+                    if (parts.stem) {
+                        const stemSpan = document.createElement('span');
+                        stemSpan.className = 'verb-stem';
+                        stemSpan.textContent = parts.stem;
+                        
+                        const endingSpan = document.createElement('span');
+                        endingSpan.className = `verb-ending ${endingClasses[index]}`;
+                        endingSpan.textContent = parts.ending;
+                        
+                        verbCell.appendChild(stemSpan);
+                        verbCell.appendChild(endingSpan);
+                    } else {
+                        const endingSpan = document.createElement('span');
+                        endingSpan.className = `verb-ending ${endingClasses[index]}`;
+                        endingSpan.textContent = parts.ending;
+                        verbCell.appendChild(endingSpan);
+                    }
+                    
+                    row.appendChild(pronounCell);
+                    row.appendChild(verbCell);
+                    table.appendChild(row);
+                });
+                
+                card.appendChild(title);
+                card.appendChild(table);
+                grid.appendChild(card);
+            });
+        }
+        
+        document.getElementById('verbSelect').addEventListener('change', function() {
+            displayConjugation(this.value);
+        });
+        
+        // Affichage initial
+        displayConjugation('être');
+    </script>
+</body>
+</html>

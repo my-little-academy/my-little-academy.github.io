@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>مملكة النحو – بطاقات دروس للأطفال</title>
+  <meta name="description" content="صفحة ويب تفاعلية جميلة لعرض دروس النحو للأطفال على شكل بطاقات تتضمن صورة وعنوان ومقدمة." />
+
+  <!-- ألوان وخطوط قابلة للتخصيص عبر :root -->
+  <style>
+    :root {
+      --bg: #fff8f1;            /* خلفية دافئة للأطفال */
+      --card: #ffffff;           /* خلفية البطاقات */
+      --text: #263238;           /* لون النص */
+      --muted: #607d8b;          /* نص ثانوي */
+      --brand: #ff7043;          /* لون أساسي (زر/تمييز) */
+      --brand-2: #ffd54f;        /* لون ثانٍ لشرائط */
+      --ok: #43a047;             /* نجاح */
+      --warn: #fb8c00;           /* تحذير */
+      --shadow: 0 10px 30px rgba(0,0,0,.08);
+      --radius: 18px;            /* استدارة العناصر */
+      --font-size: 18px;         /* حجم الأساس */
+    }
+
+    /* وضع ليلي اختياري */
+    .theme-dark {
+      --bg: #0f172a;
+      --card: #111827;
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --brand: #34d399;
+      --brand-2: #60a5fa;
+      --shadow: 0 10px 30px rgba(0,0,0,.45);
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: system-ui, "Tajawal", "Cairo", Arial, sans-serif;
+      background: radial-gradient(1200px 600px at 100% -20%, var(--brand-2)10%, transparent 60%),
+                  radial-gradient(900px 500px at -10% 120%, #ffe0b2 10%, transparent 60%),
+                  var(--bg);
+      color: var(--text);
+      font-size: var(--font-size);
+      line-height: 1.6;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+    header.hero {
+      display: grid;
+      gap: 18px;
+      align-items: center;
+      grid-template-columns: 1fr;
+      margin-bottom: 16px;
+    }
+    .hero-title {
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .logo {
+      width: 56px; height: 56px; border-radius: 50%;
+      display: grid; place-items: center; font-size: 28px; background: var(--brand-2);
+      box-shadow: var(--shadow);
+    }
+    h1 { margin: 0; font-size: clamp(24px, 3.4vw, 36px); }
+    .hero-sub { margin: 0; color: var(--muted); font-size: clamp(14px, 2vw, 18px); }
+
+    .controls { display: flex; gap: 12px; flex-wrap: wrap; }
+    .control {
+      background: var(--card); border: 1px solid #0001; box-shadow: var(--shadow);
+      border-radius: 999px; padding: 8px 14px; display: inline-flex; gap: 8px; align-items: center;
+    }
+    .control input[type="search"] { border: 0; outline: 0; background: transparent; min-width: 220px; }
+    .control select, .control button, .chip { border: 0; background: transparent; color: inherit; }
+    .btn {
+      background: var(--brand); color: #111; font-weight: 700; border-radius: 999px;
+      padding: 10px 16px; border: none; cursor: pointer; transition: transform .05s ease;
+    }
+    .btn:active { transform: translateY(1px) scale(.98); }
+
+    .cards {
+      display: grid; gap: 18px; margin-top: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    }
+
+    .card {
+      background: var(--card); border-radius: var(--radius); overflow: clip; box-shadow: var(--shadow);
+      display: grid; grid-template-rows: 150px auto; border: 1px solid #0001;
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .card:focus-within, .card:hover { transform: translateY(-3px); box-shadow: 0 14px 36px rgba(0,0,0,.12); }
+
+    .thumb {
+      position: relative; background-size: cover; background-position: center; isolation: isolate;
+    }
+    .thumb::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.25), rgba(0,0,0,0)); }
+    .tag {
+      position: absolute; top: 10px; left: 10px; z-index: 1; background: #fff; color: #111;
+      padding: 4px 10px; border-radius: 999px; font-size: 12px; box-shadow: var(--shadow);
+    }
+
+    .content { padding: 14px 14px 4px; display: grid; gap: 10px; }
+    .title { font-weight: 800; font-size: 20px; margin: 0; }
+    .intro { color: var(--muted); margin: 0; }
+
+    details { border-top: 1px dashed #0002; padding: 10px 14px 14px; }
+    summary { cursor: pointer; list-style: none; font-weight: 700; }
+    summary::-webkit-details-marker { display: none; }
+
+    .meta { display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip { background: #00000010; padding: 4px 10px; border-radius: 999px; font-size: 12px; }
+
+    /* شارة المستوى على الحافة */
+    .ribbon {
+      position: absolute; top: 0; right: 0; width: 0; height: 0; border-top: 56px solid var(--brand);
+      border-left: 56px solid transparent; filter: drop-shadow(0 4px 6px rgba(0,0,0,.18));
+    }
+    .ribbon span {
+      position: absolute; top: -44px; right: 4px; transform: rotate(45deg); color: #111; font-weight: 900; font-size: 12px;
+    }
+
+    /* إمكانية تكبير الخط للأطفال */
+    .large-font { --font-size: 20px; }
+
+    /* احترام تفضيل تقليل الحركة */
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+    }
+
+    footer { text-align: center; color: var(--muted); padding: 24px 0 40px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="hero" aria-label="مقدمة الصفحة والتحكم">
+      <div class="hero-title">
+        <div class="logo" aria-hidden="true">🕌</div>
+        <div>
+          <h1>مملكة النحو – بطاقات دروس ممتعة</h1>
+          <p class="hero-sub">اختر بطاقة لتقرأ مقدمة مبسطة، ثم افتح تفاصيل الدرس مع أمثلة وتمارين سريعة.</p>
+        </div>
+      </div>
+
+      <div class="controls" role="group" aria-label="أدوات البحث والفرز">
+        <label class="control" title="بحث عن درس">
+          🔎
+          <input id="search" type="search" placeholder="ابحث عن درس: المبتدأ، المضارع، التنوين…" aria-label="بحث" />
+        </label>
+
+        <label class="control" title="تصفية حسب المستوى">
+          🎯 مستوى
+          <select id="levelFilter" aria-label="تصفية حسب المستوى">
+            <option value="all">الكل</option>
+            <option value="مبتدئ">مبتدئ</option>
+            <option value="متوسط">متوسط</option>
+            <option value="متقدم">متقدم</option>
+          </select>
+        </label>
+
+        <button id="toggleFont" class="control btn" type="button" title="تبديل حجم الخط">🔤 خط أوضح</button>
+        <button id="toggleTheme" class="control btn" type="button" title="تبديل الوضع اللوني">🌗 الوضع الليلي</button>
+      </div>
+    </header>
+
+    <!-- شبكة البطاقات -->
+    <section id="cards" class="cards" aria-live="polite">
+
+      <!-- نموذج بطاقة 1 -->
+      <article class="card" data-title="المبتدأ والخبر" data-tags="جملة اسمية,مبتدئ" data-level="مبتدئ">
+        <div class="thumb" style="background-image:url('images/nahw/mobtada-khabar.jpg');">
+          <span class="tag">جملة اسمية</span>
+          <div class="ribbon"><span>مبتدئ</span></div>
+        </div>
+        <div class="content">
+          <h3 class="title">المبتدأ والخبر</h3>
+          <p class="intro">كل جملة اسمية تبدأ باسم نسميه <strong>المبتدأ</strong>، وتخبرنا عنه كلمة أو أكثر نسميها <strong>الخبر</strong>. مثل: <em>الطفلُ مجتهدٌ</em>.</p>
+          <div class="meta">
+            <span class="chip">هدف: تمييز المبتدأ والخبر</span>
+            <span class="chip">أداة: تلوين الكلمات</span>
+          </div>
+        </div>
+        <details>
+          <summary aria-label="فتح تفاصيل درس المبتدأ والخبر">📖 اقرأ التفاصيل والأنشطة</summary>
+          <ul>
+            <li><b>قاعدة سريعة:</b> المبتدأ مرفوع دائمًا، والخبر يتبع المبتدأ رفعًا.</li>
+            <li><b>أمثلة:</b> القلمُ جديدٌ – السماءُ صافيةٌ.</li>
+            <li><b>نشاط فوري:</b> ظلّل المبتدأ بالأخضر والخبر بالأصفر في الجمل: <em>المعلمُ رحيمٌ</em>، <em>الحديقةُ جميلةٌ</em>.</li>
+          </ul>
+          <button class="btn" data-quickquiz>أسئلة سريعة</button>
+        </details>
+      </article>
+
+      <!-- بطاقة 2 -->
+      <article class="card" data-title="الفعل الماضي" data-tags="أزمنة,أفعال" data-level="مبتدئ">
+        <div class="thumb" style="background-image:url('images/nahw/past-verb.jpg');">
+          <span class="tag">الأفعال</span>
+          <div class="ribbon"><span>مبتدئ</span></div>
+        </div>
+        <div class="content">
+          <h3 class="title">الفعل الماضي</h3>
+          <p class="intro">هو ما دلّ على حدث وقع <strong>في الزمن الماضي</strong>، مثل: <em>كتبَ</em>، <em>لعبَ</em>، <em>قرأَ</em>.</p>
+          <div class="meta">
+            <span class="chip">هدف: التعرف إلى دلالة الزمن</span>
+            <span class="chip">نشاط: ترتيب زمني</span>
+          </div>
+        </div>
+        <details>
+          <summary>📖 اقرأ التفاصيل والأنشطة</summary>
+          <ul>
+            <li>يُبنى الماضي غالبًا على <b>الفتح</b>، مثل: كَتَبَ.</li>
+            <li>تمييز الماضي من المضارع: الماضي يحدث وانتهى، المضارع يحدث الآن.</li>
+            <li><b>نشاط:</b> ضع أفعالًا ماضية مكان النقاط: (.. الطفلُ الكرةَ، .. البنتُ القصةَ).</li>
+          </ul>
+          <button class="btn" data-quickquiz>أسئلة سريعة</button>
+        </details>
+      </article>
+
+      <!-- بطاقة 3 -->
+      <article class="card" data-title="الفعل المضارع" data-tags="أزمنة,أفعال" data-level="مبتدئ">
+        <div class="thumb" style="background-image:url('images/nahw/present-verb.jpg');">
+          <span class="tag">الأفعال</span>
+          <div class="ribbon"><span>مبتدئ</span></div>
+        </div>
+        <div class="content">
+          <h3 class="title">الفعل المضارع</h3>
+          <p class="intro">يدلّ على حدث <strong>يقع الآن أو يستمر</strong>، وغالبًا يبدأ بأحد حروف <b>نأتي</b> (ن، أ، ت، ي): نكتب، أقرأ، تلعَب، يدرس.</p>
+          <div class="meta">
+            <span class="chip">هدف: تمييز الزمن</span>
+            <span class="chip">أداة: بطاقات حروف (نأتي)</span>
+          </div>
+        </div>
+        <details>
+          <summary>📖 اقرأ التفاصيل والأنشطة</summary>
+          <ul>
+            <li>يرفع بالضمة: <em>يكتبُ</em>، وينصب ويجزم بحسب الأدوات.</li>
+            <li><b>نشاط:</b> كوّن أفعالًا مضارعة تبدأ بحروف (نأتي) من الجذور: (ك ت ب)، (ل ع ب).</li>
+          </ul>
+          <button class="btn" data-quickquiz>أسئلة سريعة</button>
+        </details>
+      </article>
+
+      <!-- بطاقة 4 -->
+      <article class="card" data-title="علامات الإعراب الأصلية" data-tags="إعراب,رفع,نصب,جر" data-level="متوسط">
+        <div class="thumb" style="background-image:url('images/nahw/case-endings.jpg');">
+          <span class="tag">الإعراب</span>
+          <div class="ribbon"><span>متوسط</span></div>
+        </div>
+        <div class="content">
+          <h3 class="title">علامات الإعراب الأصلية</h3>
+          <p class="intro">هي الحركات التي تُظهر وظيفة الكلمة: <strong>الضمة للرفع</strong>، <strong>الفتحة للنصب</strong>، <strong>الكسرة للجر</strong>، و<strong>السكون للجزم</strong>.</p>
+          <div class="meta">
+            <span class="chip">هدف: ربط العلامة بالوظيفة</span>
+            <span class="chip">نشاط: تلوين الحركات</span>
+          </div>
+        </div>
+        <details>
+          <summary>📖 اقرأ التفاصيل والأنشطة</summary>
+          <ul>
+            <li>أمثلة: <em>الولدُ نشيطٌ</em> (رفع)، <em>أحبُّ القراءةَ</em> (نصب)، <em>مررتُ بالحديقةِ</em> (جر).</li>
+            <li><b>نشاط:</b> ضع حركة المناسبة تحت كل كلمة بحسب موقعها.</li>
+          </ul>
+          <button class="btn" data-quickquiz>أسئلة سريعة</button>
+        </details>
+      </article>
+
+      <!-- بطاقة 5 -->
+      <article class="card" data-title="التنوين" data-tags="تهجئة,إملاء" data-level="مبتدئ">
+        <div class="thumb" style="background-image:url('images/nahw/tanween.jpg');">
+          <span class="tag">الإملاء</span>
+          <div class="ribbon"><span>مبتدئ</span></div>
+        </div>
+        <div class="content">
+          <h3 class="title">التنوين</h3>
+          <p class="intro">هو نونٌ ساكنة تُنطق ولا تُكتب، تلحق آخر الاسم: تنوين الضم، الفتح، الكسر. مثال: بيتٌ – بيتًا – بيتٍ.</p>
+          <div class="meta">
+            <span class="chip">هدف: التمييز السمعي والبصري</span>
+            <span class="chip">نشاط: بطاقات كلمات</span>
+          </div>
+        </div>
+        <details>
+          <summary>📖 اقرأ التفاصيل والأنشطة</summary>
+          <ul>
+            <li>لا يدخل التنوين على الأسماء المعرّفة بـ"ال".</li>
+            <li><b>نشاط:</b> اختر الكلمات التي تقبل التنوين: <em>قلم، المدرسة، شجرة</em>.</li>
+          </ul>
+          <button class="btn" data-quickquiz>أسئلة سريعة</button>
+        </details>
+      </article>
+
+      <!-- بطاقة 6 -->
+      <article class="card" data-title="الجملة الفعلية" data-tags="أركان الجملة,فعل,فاعل" data-level="متوسط">
+        <div class="thumb" style="background-image:url('images/nahw/verb-sentence.jpg');">
+          <span class="tag">التراكيب</span>
+          <div class="ribbon"><span>متوسط</span></div>
+        </div>
+        <div class="content">
+          <h3 class="title">الجملة الفعلية</h3>
+          <p class="intro">تبدأ بفعل ثم فاعل، وقد يأتي المفعول به. مثال: <em>قرأَ التلميذُ القصةَ</em>.</p>
+          <div class="meta">
+            <span class="chip">هدف: ترتيب الأركان</span>
+            <span class="chip">نشاط: إعادة ترتيب كلمات</span>
+          </div>
+        </div>
+        <details>
+          <summary>📖 اقرأ التفاصيل والأنشطة</summary>
+          <ul>
+            <li>الفعل يدل على الحدث، والفاعل مَن قام به، والمفعول به وقع عليه الحدث.</li>
+            <li><b>نشاط:</b> رتّب: (القصةَ – التلميذُ – قرأَ) لتكوين جملة صحيحة.</li>
+          </ul>
+          <button class="btn" data-quickquiz>أسئلة سريعة</button>
+        </details>
+      </article>
+
+    </section>
+
+    <footer>
+      © <span id="year"></span> مملكة النحو – تعلم بمرح 🌟
+    </footer>
+  </div>
+
+  <dialog id="quizDialog" aria-labelledby="quizTitle">
+    <form method="dialog" style="min-width: min(92vw, 520px); padding: 0; border: 0;">
+      <div style="background: var(--card); color: var(--text); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden;">
+        <header style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #0001;">
+          <strong id="quizTitle">أسئلة سريعة</strong>
+          <button class="btn" value="cancel" type="submit">إغلاق</button>
+        </header>
+        <div id="quizBody" style="padding:16px;display:grid;gap:12px;">
+          <!-- يُملأ عبر السكربت -->
+        </div>
+        <footer style="padding:14px 16px; border-top:1px solid #0001; display:flex; gap:8px; justify-content:flex-end;">
+          <button class="btn" value="again" type="button" id="againBtn">سؤال جديد</button>
+          <button class="btn" value="ok" type="submit">تمّ</button>
+        </footer>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    // خزن التفضيلات محليًا
+    const root = document.documentElement;
+    const cards = document.getElementById('cards');
+    const search = document.getElementById('search');
+    const levelFilter = document.getElementById('levelFilter');
+    const toggleFont = document.getElementById('toggleFont');
+    const toggleTheme = document.getElementById('toggleTheme');
+    const quizDialog = document.getElementById('quizDialog');
+    const quizBody = document.getElementById('quizBody');
+    const againBtn = document.getElementById('againBtn');
+
+    // سنة تلقائية
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // استعادة التفضيلات
+    (function restorePrefs(){
+      const prefTheme = localStorage.getItem('nahw-theme');
+      const prefFont = localStorage.getItem('nahw-font');
+      if (prefTheme === 'dark') document.body.classList.add('theme-dark');
+      if (prefFont === 'large') document.body.classList.add('large-font');
+    })();
+
+    // تبديل الخط
+    toggleFont.addEventListener('click', () => {
+      document.body.classList.toggle('large-font');
+      localStorage.setItem('nahw-font', document.body.classList.contains('large-font') ? 'large' : 'normal');
+    });
+
+    // تبديل الوضع الليلي
+    toggleTheme.addEventListener('click', () => {
+      document.body.classList.toggle('theme-dark');
+      localStorage.setItem('nahw-theme', document.body.classList.contains('theme-dark') ? 'dark' : 'light');
+    });
+
+    // بحث + تصفية مستوى
+    function applyFilters(){
+      const q = search.value.trim().toLowerCase();
+      const lvl = levelFilter.value;
+
+      const items = cards.querySelectorAll('.card');
+      items.forEach(card => {
+        const title = card.dataset.title.toLowerCase();
+        const tags = (card.dataset.tags || '').toLowerCase();
+        const level = card.dataset.level;
+        const matchesText = !q || title.includes(q) || tags.includes(q);
+        const matchesLevel = lvl === 'all' || level === lvl;
+        card.style.display = (matchesText && matchesLevel) ? 'grid' : 'none';
+      });
+    }
+    search.addEventListener('input', applyFilters);
+    levelFilter.addEventListener('change', applyFilters);
+
+    // حوار الأسئلة السريعة البسيط
+    const questionBank = {
+      'المبتدأ والخبر': [
+        {q:'عيِّن المبتدأ والخبر: "الحديقةُ واسعةٌ"', a:'الحديقةُ: مبتدأ، واسعةٌ: خبر'},
+        {q:'صحّح الإعراب: "الطالبُ مجتهدًا"', a:'الخبر يجب أن يكون مرفوعًا: مجتهدٌ'},
+      ],
+      'الفعل الماضي': [
+        {q:'حوِّل إلى الماضي: "يكتبُ الطفلُ الدرسَ"', a:'كتبَ الطفلُ الدرسَ'},
+        {q:'علامة بناء الفعل الماضي في "قرأتُ"؟', a:'مبني على السكون لاتصاله بتاء الفاعل'},
+      ],
+      'الفعل المضارع': [
+        {q:'أدخل أداة نصب على "يقرأُ":', a:'لن يقرأَ / كي يقرأَ'},
+        {q:'اذكر حرفًا من حروف نأتي واصنع فعلاً:', a:'مثال: ن + كتب = نكتب'},
+      ],
+      'علامات الإعراب الأصلية': [
+        {q:'ضع الحركة المناسبة: "جاءَ ___ معلّمٌ" (طالب)', a:'جاءَ طالبٌ (رفع: ضمة)'},
+        {q:'ما علامة الجر في "بالقلمِ"؟', a:'الكسرة'},
+      ],
+      'التنوين': [
+        {q:'اختر الكلمة التي لا تقبل التنوين: كتابٌ / المدرسةُ / فناءٌ', a:'المدرسةُ لأنها معرّفة بـ ال'},
+        {q:'حوّل: بيتٌ ➜ بيتًا (اذكر الحركة)', a:'تنوين الضم إلى تنوين الفتح'},
+      ],
+      'الجملة الفعلية': [
+        {q:'رتّب: (الحديقةَ – زارَ – الأطفالُ)', a:'زارَ الأطفالُ الحديقةَ'},
+        {q:'حدّد الفاعل في: "كتبَ التلميذُ الواجبَ"', a:'التلميذُ'},
+      ],
+    };
+
+    function openQuickQuiz(title){
+      const set = questionBank[title] || [{q:'سؤال عام: ما أجمل ما تعلمت؟', a:'شاركنا إجابتك😊'}];
+      const item = set[Math.floor(Math.random()*set.length)];
+      quizBody.innerHTML = `
+        <label><b>${item.q}</b></label>
+        <input type="text" placeholder="اكتب إجابتك هنا" style="padding:10px;border-radius:12px;border:1px solid #0002;">
+        <details style="border:0;padding:0;">
+          <summary style="cursor:pointer;color:var(--brand);">أرني الإجابة المقترحة</summary>
+          <p style="margin:8px 0 0;">${item.a}</p>
+        </details>
+      `;
+      quizDialog.showModal();
+      againBtn.onclick = () => openQuickQuiz(title);
+    }
+
+    cards.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-quickquiz]');
+      if (!btn) return;
+      const card = e.target.closest('.card');
+      openQuickQuiz(card?.dataset.title || '');
+    });
+
+    // صور بديلة إن لم تتوفر الملفات المحلية
+    document.querySelectorAll('.thumb').forEach((el) => {
+      const url = el.style.backgroundImage.replace(/^url\("?|"?\)$/g, '').slice(4, -1);
+      const img = new Image();
+      img.onload = () => {};
+      img.onerror = () => {
+        el.style.backgroundImage = 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)';
+        el.insertAdjacentHTML('beforeend', '<div aria-hidden="true" style="position:absolute;bottom:8px;right:10px;font-size:40px;filter:drop-shadow(0 3px 4px rgba(0,0,0,.25));">📚</div>');
+      };
+      img.src = url;
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ملك النحو للأطفال</title>
+    <style>
+        /* الأنماط العامة */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Amiri', serif; /* خط عربي تقليدي */
+            background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            direction: rtl; /* لجعل الاتجاه من اليمين لليسار */
+            text-align: right;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            max-width: 1000px;
+            width: 100%;
+            border: 5px dashed #4CAF50; /* لون أخضر جميل */
+        }
+
+        .game-title {
+            text-align: center;
+            color: #2196F3; /* لون أزرق جذاب */
+            font-size: 3em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            font-weight: bold;
+            background: linear-gradient(to right, #FFC107, #FF5722); /* تدرج ألوان دافئ */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            padding: 10px;
+            border-radius: 15px;
+        }
+
+        .board {
+            width: 700px; /* زيادة حجم اللوحة قليلاً */
+            height: 700px;
+            margin: 0 auto 30px;
+            position: relative;
+            background: #e0f2f7; /* خلفية فاتحة للوحة */
+            border: 5px solid #03A9F4; /* إطار أزرق ساطع */
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M50 0L61.8 38.2L100 38.2L69.1 61.8L80.9 100L50 76.4L19.1 100L30.9 61.8L0 38.2L38.2 38.2Z" fill="%234FC3F7" opacity="0.2"/></svg>'); /* نمط نجوم خفيف */
+            background-size: 80px 80px;
+        }
+
+        .space {
+            position: absolute;
+            background: linear-gradient(145deg, #ffffff, #f0f8ff);
+            border: 3px solid #64B5F6; /* إطار أزرق فاتح للمربعات */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+            color: #263238;
+            padding: 5px;
+        }
+
+        .space:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 20;
+        }
+
+        .space.owned-1 {
+            background: linear-gradient(145deg, #BBDEFB, #64B5F6);
+            color: white;
+            border-color: #2196F3;
+        }
+
+        .space.owned-2 {
+            background: linear-gradient(145deg, #FFCDD2, #EF9A9A);
+            color: white;
+            border-color: #F44336;
+        }
+
+        .corner {
+            width: 100px; /* زيادة حجم زوايا اللوحة */
+            height: 100px;
+            font-size: 14px;
+            background: linear-gradient(145deg, #9FA8DA, #5C6BC0); /* لون بنفسجي مزرق */
+            color: white;
+            border-radius: 20px;
+        }
+
+        .side {
+            width: 90px; /* حجم المربعات الجانبية */
+            height: 70px;
+            font-size: 12px;
+        }
+
+        /* مواضع المربعات (لعبة بمربعات أكثر لتناسب المحتوى النحوي) */
+        /* الصف السفلي (من اليمين إلى اليسار) - 7 مربعات جانبية + 2 زاوية = 9 */
+        .start { bottom: 0px; right: 600px; } /* البداية */
+        .space1 { bottom: 0px; right: 510px; }
+        .space2 { bottom: 0px; right: 420px; }
+        .space3 { bottom: 0px; right: 330px; }
+        .space4 { bottom: 0px; right: 240px; }
+        .space5 { bottom: 0px; right: 150px; }
+        .space6 { bottom: 0px; right: 60px; }
+        .punishment { bottom: 0px; right: 0px; } /* عقوبة */
+
+        /* الصف الأيمن (من الأسفل إلى الأعلى) - 7 مربعات جانبية + 1 زاوية = 8 */
+        .space7 { bottom: 90px; right: 0px; }
+        .space8 { bottom: 180px; right: 0px; }
+        .space9 { bottom: 270px; right: 0px; }
+        .space10 { bottom: 360px; right: 0px; }
+        .space11 { bottom: 450px; right: 0px; }
+        .space12 { bottom: 540px; right: 0px; }
+        .gift { top: 0px; right: 0px; } /* هدية */
+
+        /* الصف العلوي (من اليمين إلى اليسار) - 7 مربعات جانبية + 1 زاوية = 8 */
+        .space13 { top: 0px; right: 90px; }
+        .space14 { top: 0px; right: 180px; }
+        .space15 { top: 0px; right: 270px; }
+        .space16 { top: 0px; right: 360px; }
+        .space17 { top: 0px; right: 450px; }
+        .space18 { top: 0px; right: 540px; }
+        .goto-punishment { top: 0px; right: 600px; } /* اذهب للعقوبة */
+
+        /* الصف الأيسر (من الأعلى إلى الأسفل) - 7 مربعات جانبية + 1 زاوية = 8 */
+        .space19 { top: 90px; right: 600px; }
+        .space20 { top: 180px; right: 600px; }
+        .space21 { top: 270px; right: 600px; }
+        .space22 { top: 360px; right: 600px; }
+        .space23 { top: 450px; right: 600px; }
+        .space24 { top: 540px; right: 600px; }
+
+        .player {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.6s ease-in-out; /* حركة أبطأ وأكثر سلاسة */
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .player1 {
+            background: #2196F3;
+            transform: translate(-45px, 15px); /* تعديل ليتناسب مع الحجم الجديد */
+        }
+
+        .player2 {
+            background: #F44336;
+            transform: translate(-15px, 15px); /* تعديل ليتناسب مع الحجم الجديد */
+        }
+
+        .center-area {
+            position: absolute;
+            top: 150px; /* تعديل ليتناسب مع الحجم الجديد */
+            right: 150px; /* تعديل ليتناسب مع الحجم الجديد */
+            width: 400px; /* زيادة حجم المنطقة المركزية */
+            height: 400px;
+            background: linear-gradient(135deg, #B2EBF2 0%, #80DEEA 100%); /* لون سماوي فاتح */
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #263238;
+            text-align: center;
+            box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 4px dotted #FFC107; /* حدود صفراء منقطة */
+        }
+
+        .center-logo {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #4CAF50; /* لون أخضر جميل */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+
+        .player-info {
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            flex: 1;
+            text-align: center;
+            border: 3px dashed;
+            transition: all 0.3s ease;
+        }
+
+        .player-info.player1 {
+            border-color: #2196F3;
+            background: linear-gradient(145deg, #E3F2FD, #BBDEFB);
+        }
+
+        .player-info.player2 {
+            border-color: #F44336;
+            background: linear-gradient(145deg, #FFEBEE, #FFCDD2);
+        }
+
+        .player-info.current-player {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .player-info h3 {
+            margin-bottom: 10px;
+            font-size: 1.8em;
+            color: #263238;
+        }
+
+        .player-info p {
+            font-size: 1.2em;
+            margin: 8px 0;
+        }
+
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(145deg, #A5D6A7, #81C784); /* لون أخضر فاتح */
+            color: #263238;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 3px solid #fff;
+            min-width: 180px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn.danger {
+            background: linear-gradient(145deg, #EF9A9A, #E57373); /* لون أحمر ناعم */
+            color: white;
+        }
+
+        .btn.primary {
+            background: linear-gradient(145deg, #90CAF9, #64B5F6); /* لون أزرق ناعم */
+            color: #263238;
+        }
+
+        .dice-area {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 25px; /* مسافة أكبر بين النرد */
+            margin: 20px 0;
+        }
+
+        .dice {
+            width: 70px; /* حجم أكبر للنرد */
+            height: 70px;
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            border: 3px solid #42A5F5; /* إطار أزرق للنرد */
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: #263238;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.1s ease;
+        }
+
+        .dice.rolling {
+            animation: roll 0.5s ease-in-out;
+        }
+
+        @keyframes roll {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(90deg) scale(1.2); }
+            50% { transform: rotate(180deg) scale(1); }
+            75% { transform: rotate(270deg) scale(1.2); }
+        }
+
+        .log {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 15px;
+            max-height: 250px; /* ارتفاع أكبر لسجل اللعبة */
+            overflow-y: auto;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+            direction: rtl;
+            text-align: right;
+            border: 2px solid #B0BEC5; /* لون رمادي فاتح للحدود */
+        }
+
+        .log-entry {
+            padding: 8px 0;
+            border-bottom: 1px dashed #CFD8DC; /* خط منقط فاتح */
+            font-size: 17px;
+            color: #37474F;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            direction: rtl;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto; /* تعديل الهامش لظهور أفضل */
+            padding: 40px; /* زيادة حجم التبطين */
+            border-radius: 25px;
+            width: 90%;
+            max-width: 600px; /* عرض أكبر للنافذة المنبثقة */
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 5px solid #FFC107; /* إطار أصفر ساطع */
+            background: linear-gradient(145deg, #fff, #f7f7f7);
+            position: relative;
+        }
+
+        .close {
+            color: #aaa;
+            float: left; /* زر الإغلاق على اليسار للغة العربية */
+            font-size: 36px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute; /* تحديد الموضع بالدقة */
+            top: 15px;
+            left: 20px;
+        }
+
+        .close:hover {
+            color: #F44336;
+        }
+
+        .current-player {
+            border: 4px solid #FFC107 !important; /* إبراز اللاعب الحالي بحدود صفراء */
+            box-shadow: 0 0 20px rgba(255, 193, 7, 0.5);
+        }
+
+        .rule-text {
+            font-size: 1.4em;
+            color: #3F51B5; /* لون أزرق غامق للنصوص التعليمية */
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .question-text {
+            font-size: 1.5em;
+            color: #D32F2F; /* لون أحمر للسؤال */
+            margin-bottom: 25px;
+            font-weight: bold;
+            line-height: 1.5;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .option-btn {
+            background: #E0E0E0;
+            border: 2px solid #BDBDBD;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #424242;
+            width: 100%;
+            text-align: center;
+        }
+
+        .option-btn:hover {
+            background: #CFD8DC;
+            border-color: #90A4AE;
+            transform: scale(1.02);
+        }
+
+        .option-btn.correct {
+            background: #A5D6A7; /* أخضر للإجابة الصحيحة */
+            border-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+        }
+
+        .option-btn.incorrect {
+            background: #FFCDD2; /* أحمر للإجابة الخاطئة */
+            border-color: #F44336;
+            color: white;
+            font-weight: bold;
+        }
+
+        .feedback-message {
+            margin-top: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .feedback-message.correct {
+            color: #4CAF50;
+        }
+
+        .feedback-message.incorrect {
+            color: #F44336;
+        }
+
+        .emoji {
+            font-size: 20px; /* حجم أكبر للإيموجي */
+            margin: 0 5px;
+        }
+
+        /* تأثيرات إضافية للأطفال */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); } /* ارتداد أكبر */
+        }
+
+        .bounce {
+            animation: bounce 0.6s infinite; /* حركة أبطأ قليلاً */
+        }
+
+        .confetti {
+            position: fixed;
+            width: 12px; /* حجم أكبر للقصاصات */
+            height: 12px;
+            background-color: #f00;
+            opacity: 0;
+            z-index: 1001;
+            animation: confetti 3s ease-in-out forwards; /* إضافة forwards لإبقاء الحالة النهائية */
+        }
+
+        @keyframes confetti {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(600px) rotate(720deg); opacity: 0; } /* سقوط أطول ودوران أكثر */
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="game-title">✨ ملك النحو ✨</h1>
+        
+        <div class="game-info">
+            <div class="player-info player1 current-player" id="player-info-1">
+                <h3>👑 اللاعب الأول</h3>
+                <p>🌟 النقاط: <span id="player1-score">0</span></p>
+                <p>📚 القواعد المتقنة: <span id="player1-mastered">0</span></p>
+            </div>
+            <div class="player-info player2" id="player-info-2">
+                <h3>🧝‍♀️ اللاعب الثاني</h3>
+                <p>🌟 النقاط: <span id="player2-score">0</span></p>
+                <p>📚 القواعد المتقنة: <span id="player2-mastered">0</span></p>
+            </div>
+        </div>
+
+        <div class="board">
+            <div class="space corner start">
+                <span class="emoji">🏁</span><br>نقطة البداية<br>ابدأ رحلتك
+            </div>
+            <div class="space corner punishment">
+                <span class="emoji">⚠️</span><br>توقف دور<br>لمراجعة!
+            </div>
+            <div class="space corner gift">
+                <span class="emoji">🎁</span><br>مكافأة<br>نقطة مجانية!
+            </div>
+            <div class="space corner goto-punishment">
+                <span class="emoji">↩️</span><br>اذهب للعقوبة<br>راجع دروسك!
+            </div>
+
+            <div class="space side space1" data-id="1">الاسم<br><span class="emoji">🔑</span></div>
+            <div class="space side space2" data-id="2">الفعل<br><span class="emoji">🔑</span></div>
+            <div class="space side space3" data-id="3">الحرف<br><span class="emoji">🔑</span></div>
+            <div class="space side space4" data-id="4">الجملة الاسمية<br><span class="emoji">💡</span></div>
+            <div class="space side space5" data-id="5">الجملة الفعلية<br><span class="emoji">💡</span></div>
+            <div class="space side space6" data-id="6">المبتدأ والخبر<br><span class="emoji">💡</span></div>
+
+            <div class="space side space7" data-id="7">الفاعل<br><span class="emoji">✍️</span></div>
+            <div class="space side space8" data-id="8">المفعول به<br><span class="emoji">✍️</span></div>
+            <div class="space side space9" data-id="9">علامات الإعراب<br><span class="emoji">✍️</span></div>
+            <div class="space side space10" data-id="10">المذكر والمؤنث<br><span class="emoji">🤔</span></div>
+            <div class="space side space11" data-id="11">المفرد والمثنى<br><span class="emoji">🤔</span></div>
+            <div class="space side space12" data-id="12">الجمع<br><span class="emoji">🤔</span></div>
+
+            <div class="space side space13" data-id="13">الفعل الماضي<br><span class="emoji">⏳</span></div>
+            <div class="space side space14" data-id="14">الفعل المضارع<br><span class="emoji">⏳</span></div>
+            <div class="space side space15" data-id="15">فعل الأمر<br><span class="emoji">⏳</span></div>
+            <div class="space side space16" data-id="16">حروف الجر<br><span class="emoji">🔗</span></div>
+            <div class="space side space17" data-id="17">حروف العطف<br><span class="emoji">🔗</span></div>
+            <div class="space side space18" data-id="18">الأفعال الناسخة<br><span class="emoji">🔄</span></div>
+
+            <div class="space side space19" data-id="19">الأسماء الخمسة<br><span class="emoji">⭐</span></div>
+            <div class="space side space20" data-id="20">النعت<br><span class="emoji">✨</span></div>
+            <div class="space side space21" data-id="21">الحال<br><span class="emoji">🏃</span></div>
+            <div class="space side space22" data-id="22">التمييز<br><span class="emoji">🔍</span></div>
+            <div class="space side space23" data-id="23">الاستثناء<br><span class="emoji">➖</span></div>
+            <div class="space side space24" data-id="24">المنادى<br><span class="emoji">🗣️</span></div>
+
+            <div class="center-area">
+                <div class="center-logo">ملك النحو</div>
+                <p>مرحباً بك في رحلة النحو الممتعة!</p>
+                <div class="dice-area">
+                    <div class="dice" id="dice1">1</div>
+                    <div class="dice" id="dice2">1</div>
+                </div>
+                <p>الخطوات: <span id="dice-total">2</span></p>
+            </div>
+
+            <div class="player player1" id="player1">1</div>
+            <div class="player player2" id="player2">2</div>
+        </div>
+
+        <div class="controls">
+            <button class="btn primary" id="roll-dice">🎲 ارم النرد</button>
+            <button class="btn danger" id="end-turn" disabled>⏭️ انهاء الدور</button>
+            <button class="btn" id="reset-game">🔄 لعبة جديدة</button>
+        </div>
+
+        <div class="log" id="game-log">
+            <div class="log-entry"><strong>أهلاً بك في لعبة "ملك النحو" لتتقن قواعد لغتنا الجميلة!</strong></div>
+            <div class="log-entry">👑 دور اللاعب الأول - ارمِ النرد لتبدأ!</div>
+        </div>
+    </div>
+
+    <div id="grammar-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modal-title">عنوان الدرس/السؤال</h2>
+            <p id="modal-content" class="rule-text"></p>
+            <div id="options-container" class="options-container" style="display: none;">
+                </div>
+            <p id="feedback-message" class="feedback-message" style="display: none;"></p>
+            <button class="btn primary" id="modal-action-btn">حسناً / التالي</button>
+        </div>
+    </div>
+
+    <div id="game-over-modal" class="modal">
+        <div class="modal-content">
+            <h2 style="color: #e84393;">🎉 انتهت اللعبة! 🎉</h2>
+            <p id="winner-message" style="font-size: 1.6em; margin: 20px 0; font-weight: bold;"></p>
+            <button class="btn primary" id="new-game">🔄 ابدأ لعبة جديدة</button>
+        </div>
+    </div>
+
+    <script>
+        class GrammarGame {
+            constructor() {
+                this.currentPlayer = 1;
+                this.players = {
+                    1: { name: "👑 اللاعب الأول", score: 0, position: 0, masteredRules: [], turnsSkipped: 0 },
+                    2: { name: "🧝‍♀️ اللاعب الثاني", score: 0, position: 0, masteredRules: [], turnsSkipped: 0 }
+                };
+                this.grammarSpaces = this.initializeGrammarSpaces();
+                this.boardPositions = this.initializeBoardPositions(); // تحديد المواقع X, Y للعرض
+                this.gameLog = document.getElementById('game-log');
+                this.diceRolled = false;
+                this.gameActive = true;
+                this.initializeEventListeners();
+                this.updateDisplay();
+                this.updatePlayerPositions();
+                this.updateControlButtons();
+            }
+
+            initializeGrammarSpaces() {
+                // قواعد نحوية مبسطة وأسئلة مناسبة للأطفال
+                const spacesData = [
+                    // Start (position 0)
+                    { id: 0, type: 'start', name: 'نقطة البداية' },
+                    // Regular spaces (1-24)
+                    { id: 1, type: 'rule', name: 'الاسم', content: 'الاسم هو كل كلمة تدل على إنسان، حيوان، نبات، جماد، أو مكان. مثال: (أحمد، أسد، تفاحة، قلم، مدرسة).' },
+                    { id: 2, type: 'rule', name: 'الفعل', content: 'الفعل هو كلمة تدل على حدث مرتبط بزمن. أنواع الفعل: ماضٍ، مضارع، أمر. مثال: (أكل، يأكل، كُلْ).' },
+                    { id: 3, type: 'rule', name: 'الحرف', content: 'الحرف كلمة لا يظهر معناها إلا مع كلمة أخرى. مثال: (في، على، إلى، و، ثم).' },
+                    { id: 4, type: 'question', name: 'الجملة الاسمية', question: 'ما هي الجملة الاسمية؟', options: ['تبدأ بفعل', 'تبدأ باسم', 'تبدأ بحرف'], answer: 'تبدأ باسم' },
+                    { id: 5, type: 'question', name: 'الجملة الفعلية', question: 'ما هي الجملة الفعلية؟', options: ['تبدأ باسم', 'تبدأ بفعل', 'تبدأ بحرف'], answer: 'تبدأ بفعل' },
+                    { id: 6, type: 'rule', name: 'المبتدأ والخبر', content: 'الجملة الاسمية تتكون من مبتدأ وخبر. المبتدأ هو الاسم الذي تبدأ به الجملة، والخبر هو الذي يخبرنا عن المبتدأ ويكمل المعنى. مثال: "الشمسُ مشرقةٌ".' },
+
+                    // Punishment (position 7)
+                    { id: 7, type: 'punishment', name: 'توقف دور لمراجعة!' },
+
+                    { id: 8, type: 'question', name: 'الفاعل', question: 'في جملة "لعب الولدُ بالكرة"، من هو الفاعل؟', options: ['الكرة', 'لعب', 'الولدُ'], answer: 'الولدُ' },
+                    { id: 9, type: 'question', name: 'المفعول به', question: 'في جملة "قرأ أحمدُ الكتابَ"، ما هو المفعول به؟', options: ['قرأ', 'أحمدُ', 'الكتابَ'], answer: 'الكتابَ' },
+                    { id: 10, type: 'rule', name: 'علامات الإعراب', content: 'علامات الإعراب الأساسية هي: الضمة للرفع، الفتحة للنصب، الكسرة للجر، السكون للجزم. مثال: "الولدُ" (مرفوع بالضمة)، "الكتابَ" (منصوب بالفتحة).' },
+                    { id: 11, type: 'question', name: 'المذكر والمؤنث', question: 'كلمة "نافذة" هل هي مذكر أم مؤنث؟', options: ['مذكر', 'مؤنث'], answer: 'مؤنث' },
+                    { id: 12, type: 'question', name: 'المفرد والمثنى', question: 'ما هو مثنى كلمة "كتاب"؟', options: ['كتب', 'كتابان', 'مكتبة'], answer: 'كتابان' },
+                    { id: 13, type: 'rule', name: 'الجمع', content: 'الجمع يدل على أكثر من اثنين. هناك جمع مذكر سالم (معلمون)، جمع مؤنث سالم (معلمات)، وجمع تكسير (أقلام).' },
+
+                    // Gift (position 14)
+                    { id: 14, type: 'gift', name: 'مكافأة نقطة مجانية!' },
+
+                    { id: 15, type: 'question', name: 'الفعل الماضي', question: 'في جملة "كتبَ الطالبُ الدرس"، ما نوع الفعل "كتبَ"؟', options: ['مضارع', 'ماضٍ', 'أمر'], answer: 'ماضٍ' },
+                    { id: 16, type: 'question', name: 'الفعل المضارع', question: 'ما هو الفعل المضارع من "شرب"؟', options: ['شرب', 'اشرب', 'يشرب'], answer: 'يشرب' },
+                    { id: 17, type: 'rule', name: 'فعل الأمر', content: 'فعل الأمر هو طلب فعل شيء في المستقبل. مثال: "اكتبْ درسك"، "اجلسْ بهدوء".' },
+                    { id: 18, type: 'question', name: 'حروف الجر', question: 'في جملة "ذهبتُ إلى المدرسة"، ما هو حرف الجر؟', options: ['ذهبتُ', 'المدرسة', 'إلى'], answer: 'إلى' },
+                    { id: 19, type: 'question', name: 'حروف العطف', question: 'ما هو حرف العطف في جملة "جاء محمدٌ وعليٌ"؟', options: ['جاء', 'محمدٌ', 'و'], answer: 'و' },
+                    { id: 20, type: 'rule', name: 'الأفعال الناسخة (كان وأخواتها)', content: 'كان وأخواتها تدخل على الجملة الاسمية فترفع المبتدأ ويسمى اسمها، وتنصب الخبر ويسمى خبرها. مثال: "كان الجوُّ جميلاً".' },
+
+                    // Go to Punishment (position 21)
+                    { id: 21, type: 'goto-punishment', name: 'اذهب للعقوبة!' },
+
+                    { id: 22, type: 'rule', name: 'الأسماء الخمسة', content: 'هي: أب، أخ، حم، فو، ذو. تُرفع بالواو، تُنصب بالألف، تُجر بالياء. مثال: "أبوك كريمٌ".' },
+                    { id: 23, type: 'question', name: 'النعت (الصفة)', question: 'في جملة "رأيتُ وردةً جميلةً"، ما هي الكلمة التي تصف الوردة؟', options: ['رأيتُ', 'وردةً', 'جميلةً'], answer: 'جميلةً' },
+                    { id: 24, type: 'rule', name: 'الحال', content: 'الحال اسم يبين هيئة صاحبه عند وقوع الفعل. يكون منصوباً دائماً. مثال: "عاد الطالبُ مسروراً".' },
+                    { id: 25, type: 'question', name: 'التمييز', question: 'في "اشتريتُ عشرين كتاباً"، ما هو التمييز؟', options: ['اشتريتُ', 'عشرين', 'كتاباً'], answer: 'كتاباً' },
+                    { id: 26, type: 'rule', name: 'الاستثناء', content: 'هو إخراج ما بعد "إلا" من حكم ما قبلها. مثال: "حضر الطلابُ إلا واحداً".' },
+                    { id: 27, type: 'question', name: 'المنادى', question: 'في "يا طالبَ العلمِ اجتهدْ"، ما هو المنادى؟', options: ['اجتهدْ', 'العلمِ', 'طالبَ'], answer: 'طالبَ' }
+                ];
+
+                const spacesMap = {};
+                spacesData.forEach(space => {
+                    spacesMap[space.id] = space;
+                });
+                return spacesMap;
+            }
+
+            initializeBoardPositions() {
+                // تحديد المواقع الدقيقة لكل مربع على اللوحة (Top, Right)
+                return [
+                    { top: 600, right: 600 }, // 0: Start
+                    { top: 600, right: 510 }, // 1
+                    { top: 600, right: 420 }, // 2
+                    { top: 600, right: 330 }, // 3
+                    { top: 600, right: 240 }, // 4
+                    { top: 600, right: 150 }, // 5
+                    { top: 600, right: 60 },  // 6
+                    { top: 600, right: 0 },   // 7: Punishment
+
+                    { top: 510, right: 0 },  // 8
+                    { top: 420, right: 0 },  // 9
+                    { top: 330, right: 0 },  // 10
+                    { top: 240, right: 0 },  // 11
+                    { top: 150, right: 0 },  // 12
+                    { top: 60, right: 0 },   // 13
+                    { top: 0, right: 0 },    // 14: Gift
+
+                    { top: 0, right: 90 },   // 15
+                    { top: 0, right: 180 },  // 16
+                    { top: 0, right: 270 },  // 17
+                    { top: 0, right: 360 },  // 18
+                    { top: 0, right: 450 },  // 19
+                    { top: 0, right: 540 },  // 20
+                    { top: 0, right: 600 },  // 21: Go to Punishment
+
+                    { top: 90, right: 600 },  // 22
+                    { top: 180, right: 600 }, // 23
+                    { top: 270, right: 600 }, // 24
+                    { top: 360, right: 600 }, // 25
+                    { top: 450, right: 600 }, // 26
+                    { top: 540, right: 600 }  // 27
+                ];
+            }
+
+            initializeEventListeners() {
+                document.getElementById('roll-dice').addEventListener('click', () => this.rollDice());
+                document.getElementById('end-turn').addEventListener('click', () => this.endTurn());
+                document.getElementById('reset-game').addEventListener('click', () => this.resetGame());
+                document.getElementById('modal-action-btn').addEventListener('click', () => this.handleModalAction());
+                document.getElementById('new-game').addEventListener('click', () => this.resetGame());
+
+                document.querySelectorAll('.close').forEach(close => {
+                    close.addEventListener('click', (e) => {
+                        e.target.closest('.modal').style.display = 'none';
+                        this.updateControlButtons();
+                    });
+                });
+
+                window.addEventListener('click', (e) => {
+                    const grammarModal = document.getElementById('grammar-modal');
+                    const gameOverModal = document.getElementById('game-over-modal');
+
+                    if (e.target === grammarModal || e.target === gameOverModal) {
+                        e.target.style.display = 'none';
+                        this.updateControlButtons();
+                    }
+                });
+            }
+
+            updateControlButtons() {
+                const rollDiceBtn = document.getElementById('roll-dice');
+                const endTurnBtn = document.getElementById('end-turn');
+                const grammarModal = document.getElementById('grammar-modal');
+
+                rollDiceBtn.disabled = this.diceRolled || !this.gameActive || grammarModal.style.display === 'block';
+                endTurnBtn.disabled = !this.diceRolled || !this.gameActive || grammarModal.style.display === 'block';
+            }
+
+            addLog(message) {
+                const entry = document.createElement('div');
+                entry.classList.add('log-entry');
+                entry.innerHTML = message;
+                this.gameLog.prepend(entry);
+                // Keep only the last 10 entries to avoid overflowing
+                while (this.gameLog.children.length > 10) {
+                    this.gameLog.removeChild(this.gameLog.lastChild);
+                }
+                this.gameLog.scrollTop = 0;
+            }
+
+            updateDisplay() {
+                document.getElementById('player1-score').textContent = this.players[1].score;
+                document.getElementById('player1-mastered').textContent = this.players[1].masteredRules.length;
+                document.getElementById('player2-score').textContent = this.players[2].score;
+                document.getElementById('player2-mastered').textContent = this.players[2].masteredRules.length;
+
+                // تحديث اللاعب النشط
+                document.getElementById('player-info-1').classList.remove('current-player');
+                document.getElementById('player-info-2').classList.remove('current-player');
+                document.getElementById(`player-info-${this.currentPlayer}`).classList.add('current-player');
+
+                // تحديث المربعات المتقنة (يمكن إعطائها لوناً خاصاً)
+                document.querySelectorAll('.space').forEach(spaceElement => {
+                    const id = parseInt(spaceElement.dataset.id);
+                    spaceElement.classList.remove('owned-1', 'owned-2'); // إعادة تعيين الألوان
+                    if (this.players[1].masteredRules.includes(id)) {
+                        spaceElement.classList.add('owned-1');
+                    } else if (this.players[2].masteredRules.includes(id)) {
+                        spaceElement.classList.add('owned-2');
+                    }
+                });
+
+                this.updateControlButtons();
+            }
+
+            rollDice() {
+                if (this.diceRolled || !this.gameActive) return;
+
+                const currentPlayer = this.players[this.currentPlayer];
+                if (currentPlayer.turnsSkipped > 0) {
+                    this.addLog(`⚠️ ${currentPlayer.name} لا يمكنه اللعب هذا الدور، تبقى له ${currentPlayer.turnsSkipped} دور في العقوبة.`);
+                    currentPlayer.turnsSkipped--;
+                    this.diceRolled = true; // يعتبر النرد قد رمي لهذا الدور
+                    this.updateControlButtons();
+                    return;
+                }
+                
+                const dice1 = Math.floor(Math.random() * 6) + 1;
+                const dice2 = Math.floor(Math.random() * 6) + 1;
+                const total = dice1 + dice2;
+
+                document.getElementById('dice1').classList.add('rolling');
+                document.getElementById('dice2').classList.add('rolling');
+
+                setTimeout(() => {
+                    document.getElementById('dice1').textContent = dice1;
+                    document.getElementById('dice2').textContent = dice2;
+                    document.getElementById('dice-total').textContent = total;
+                    document.getElementById('dice1').classList.remove('rolling');
+                    document.getElementById('dice2').classList.remove('rolling');
+
+                    this.addLog(`🎲 ${this.players[this.currentPlayer].name} رمى النرد: ${dice1} + ${dice2} = ${total} خطوة.`);
+                    this.movePlayer(total);
+                    this.diceRolled = true;
+                    this.updateControlButtons();
+                }, 500);
+            }
+
+            movePlayer(steps) {
+                const player = this.players[this.currentPlayer];
+                const oldPosition = player.position;
+                player.position = (player.position + steps) % this.boardPositions.length;
+
+                if (player.position < oldPosition && player.position !== 0) { // مر بالبداية
+                    player.score += 50;
+                    this.addLog(`💰 ${player.name} مر بنقطة البداية وحصل على 50 نقطة مكافأة!`);
+                }
+
+                this.updatePlayerPositions();
+                setTimeout(() => {
+                    this.handleLanding();
+                    this.updateDisplay();
+                }, 600);
+            }
+
+            updatePlayerPositions() {
+                for (let i = 1; i <= 2; i++) {
+                    const player = this.players[i];
+                    const pos = this.boardPositions[player.position];
+                    const playerElement = document.getElementById(`player${i}`);
+                    
+                    if (playerElement && pos) {
+                        // تعديل مواقع اللاعبين ليظهروا بجانب بعضهم على المربع
+                        playerElement.style.right = (pos.right + (i === 1 ? 45 : 15)) + 'px';
+                        playerElement.style.top = (pos.top + 30) + 'px';
+                    }
+                }
+            }
+
+            handleLanding() {
+                const player = this.players[this.currentPlayer];
+                const currentSpace = this.grammarSpaces[player.position];
+
+                this.addLog(`📍 ${player.name} هبط على مربع: "${currentSpace.name}".`);
+
+                document.getElementById('modal-title').textContent = currentSpace.name;
+                document.getElementById('options-container').style.display = 'none'; // إخفاء الخيارات افتراضياً
+                document.getElementById('feedback-message').style.display = 'none';
+                document.getElementById('modal-action-btn').textContent = 'حسناً';
+                document.getElementById('modal-action-btn').onclick = () => this.handleModalAction(); // إعادة تعيين لضمان التحديد الصحيح
+
+                if (currentSpace.type === 'rule') {
+                    document.getElementById('modal-content').textContent = currentSpace.content;
+                    document.getElementById('grammar-modal').style.display = 'block';
+                    // إضافة القاعدة المتقنة للاعب إذا لم تكن موجودة
+                    if (!player.masteredRules.includes(currentSpace.id)) {
+                        player.masteredRules.push(currentSpace.id);
+                        player.score += 20; // مكافأة على تعلم قاعدة جديدة
+                        this.addLog(`🎉 ${player.name} أتقن قاعدة "${currentSpace.name}" وحصل على 20 نقطة!`);
+                    }
+                } else if (currentSpace.type === 'question') {
+                    document.getElementById('modal-content').textContent = currentSpace.question;
+                    this.displayQuestionOptions(currentSpace);
+                    document.getElementById('grammar-modal').style.display = 'block';
+                    document.getElementById('modal-action-btn').disabled = true; // تعطيل زر "التالي" حتى يتم الإجابة
+                } else if (currentSpace.type === 'punishment') {
+                    player.turnsSkipped += 1; // توقف دور واحد
+                    this.addLog(`⚠️ ${player.name} توقف دوراً واحداً للعقوبة!`);
+                    document.getElementById('modal-content').textContent = 'عليك مراجعة دروسك! ستتوقف دوراً واحداً.';
+                    document.getElementById('grammar-modal').style.display = 'block';
+                } else if (currentSpace.type === 'gift') {
+                    player.score += 100; // مكافأة كبيرة
+                    this.addLog(`🎁 ${player.name} حصل على 100 نقطة هدية مجانية!`);
+                    document.getElementById('modal-content').textContent = 'يا لك من محظوظ! حصلت على 100 نقطة مكافأة!';
+                    document.getElementById('grammar-modal').style.display = 'block';
+                } else if (currentSpace.type === 'goto-punishment') {
+                    player.position = 7; // الذهاب إلى مربع العقوبة مباشرة
+                    player.turnsSkipped += 2; // عقوبة أكبر
+                    this.updatePlayerPositions();
+                    this.addLog(`👮‍♂️ ${player.name} ذهب إلى مربع العقوبة مباشرة! سيتوقف دورين!`);
+                    document.getElementById('modal-content').textContent = 'للأسف! عليك الذهاب إلى مربع العقوبة وستتوقف دورين لمراجعة دروسك.';
+                    document.getElementById('grammar-modal').style.display = 'block';
+                }
+
+                this.updateControlButtons();
+            }
+
+            displayQuestionOptions(space) {
+                const optionsContainer = document.getElementById('options-container');
+                optionsContainer.innerHTML = ''; // مسح الخيارات القديمة
+                optionsContainer.style.display = 'flex';
+
+                space.options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.classList.add('option-btn');
+                    button.textContent = option;
+                    button.onclick = () => this.checkAnswer(option, space.answer, space.id);
+                    optionsContainer.appendChild(button);
+                });
+            }
+
+            checkAnswer(selectedOption, correctAnswer, spaceId) {
+                const feedbackMessage = document.getElementById('feedback-message');
+                const modalActionButton = document.getElementById('modal-action-btn');
+                const optionsButtons = document.querySelectorAll('.option-btn');
+                const player = this.players[this.currentPlayer];
+
+                optionsButtons.forEach(btn => {
+                    btn.disabled = true; // تعطيل الأزرار بعد الاختيار
+                    if (btn.textContent === correctAnswer) {
+                        btn.classList.add('correct');
+                    } else if (btn.textContent === selectedOption) {
+                        btn.classList.add('incorrect');
+                    }
+                });
+
+                if (selectedOption === correctAnswer) {
+                    feedbackMessage.textContent = 'أحسنت! إجابة صحيحة! 🎉';
+                    feedbackMessage.classList.remove('incorrect');
+                    feedbackMessage.classList.add('correct');
+                    player.score += 50; // مكافأة على الإجابة الصحيحة
+                    if (!player.masteredRules.includes(spaceId)) {
+                        player.masteredRules.push(spaceId);
+                    }
+                    this.addConfetti();
+                    this.addLog(`✅ ${player.name} أجاب إجابة صحيحة على سؤال "${this.grammarSpaces[spaceId].name}" وحصل على 50 نقطة!`);
+                } else {
+                    feedbackMessage.textContent = `للأسف، إجابة خاطئة. الإجابة الصحيحة هي: "${correctAnswer}" 😔`;
+                    feedbackMessage.classList.remove('correct');
+                    feedbackMessage.classList.add('incorrect');
+                    player.score = Math.max(0, player.score - 20); // خصم نقاط على الإجابة الخاطئة
+                    this.addLog(`❌ ${player.name} أجاب إجابة خاطئة على سؤال "${this.grammarSpaces[spaceId].name}" وخسر 20 نقطة.`);
+                }
+                feedbackMessage.style.display = 'block';
+                modalActionButton.disabled = false; // تفعيل زر "التالي"
+                this.updateDisplay();
+            }
+
+            handleModalAction() {
+                document.getElementById('grammar-modal').style.display = 'none';
+                this.updateControlButtons();
+                // إذا كانت هناك شروط لإنهاء اللعبة
+                this.checkGameOver();
+            }
+
+            endTurn() {
+                if (!this.diceRolled || !this.gameActive) return;
+
+                this.diceRolled = false;
+                this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
+                this.addLog(`➡️ دور ${this.players[this.currentPlayer].name}`);
+                this.updateDisplay();
+                this.updateControlButtons();
+            }
+
+            checkGameOver() {
+                // شروط انتهاء اللعبة (مثال: الوصول إلى عدد معين من النقاط أو إتقان كل القواعد)
+                const player1 = this.players[1];
+                const player2 = this.players[2];
+
+                const totalQuestionSpaces = Object.values(this.grammarSpaces).filter(s => s.type === 'question').length;
+                
+                let winner = null;
+                if (player1.masteredRules.length >= totalQuestionSpaces && player1.score > player2.score) {
+                    winner = player1;
+                } else if (player2.masteredRules.length >= totalQuestionSpaces && player2.score > player1.score) {
+                    winner = player2;
+                }
+
+                if (winner) {
+                    this.gameActive = false;
+                    document.getElementById('winner-message').textContent = `تهانينا، ${winner.name} هو ملك النحو! 🏆`;
+                    document.getElementById('game-over-modal').style.display = 'block';
+                    this.addConfetti(200); // قصاصات أكثر للفائز
+                    this.updateControlButtons();
+                } else if (player1.score <= 0 && player2.score <= 0 && player1.position !== 0 && player2.position !== 0) {
+                     // حالة نادرة لانتهاء اللعب بالخسارة إذا نفدت النقاط
+                    this.gameActive = false;
+                    document.getElementById('winner-message').textContent = `للأسف، لم يتمكن أي لاعب من الفوز! 😔`;
+                    document.getElementById('game-over-modal').style.display = 'block';
+                    this.updateControlButtons();
+                }
+            }
+
+            resetGame() {
+                this.currentPlayer = 1;
+                this.players = {
+                    1: { name: "👑 اللاعب الأول", score: 0, position: 0, masteredRules: [], turnsSkipped: 0 },
+                    2: { name: "🧝‍♀️ اللاعب الثاني", score: 0, position: 0, masteredRules: [], turnsSkipped: 0 }
+                };
+                // إعادة تعيين مالكي المربعات (إذا كانت مطبقة)
+                document.querySelectorAll('.space').forEach(spaceElement => {
+                    spaceElement.classList.remove('owned-1', 'owned-2');
+                });
+                this.diceRolled = false;
+                this.gameActive = true;
+                this.gameLog.innerHTML = '<div class="log-entry"><strong>أهلاً بك في لعبة "ملك النحو" لتتقن قواعد لغتنا الجميلة!</strong></div><div class="log-entry">👑 دور اللاعب الأول - ارمِ النرد لتبدأ!</div>';
+                document.getElementById('game-over-modal').style.display = 'none';
+                document.getElementById('grammar-modal').style.display = 'none';
+                this.updateDisplay();
+                this.updatePlayerPositions();
+                this.updateControlButtons();
+            }
+
+            addConfetti(count = 50) {
+                for (let i = 0; i < count; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.classList.add('confetti');
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.top = Math.random() * 100 + 'vh';
+                    confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                    document.body.appendChild(confetti);
+
+                    // إزالة قصاصات الورق بعد انتهاء الأنميشن
+                    confetti.addEventListener('animationend', () => {
+                        confetti.remove();
+                    });
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new GrammarGame();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>اللوحة القرائية لحرف التاء</title>
+  <style>
+    /* Reset & base */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f4f8;
+      color: #2c3e50;
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    h1, h2, h3 {
+      margin: 0.5em 0;
+      font-weight: 700;
+      color: #1a237e;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+    }
+    header, footer {
+      background: linear-gradient(90deg, #4a90e2, #357ABD);
+      color: white;
+      padding: 1rem 2rem;
+      text-align: center;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    footer {
+      background: linear-gradient(90deg, #357ABD, #4a90e2);
+      font-size: 0.9rem;
+    }
+    main {
+      flex: 1;
+      padding: 1rem 2rem 3rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* Grid container for cards */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+    }
+
+    /* Card style */
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+      padding: 1rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: default;
+      position: relative;
+    }
+    .card:hover, .card:focus-within {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 25px rgba(0,0,0,0.2);
+      outline: none;
+    }
+
+    /* Large letter */
+    .letter {
+      font-size: 5rem;
+      font-weight: 900;
+      color: #1a237e;
+      margin-bottom: 0.3rem;
+      user-select: none;
+      text-shadow: 2px 2px 5px rgba(74, 144, 226, 0.3);
+    }
+
+    /* State name */
+    .state-name {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #2c3e50;
+      margin-bottom: 0.5rem;
+      text-align: center;
+      font-family: 'Cairo', sans-serif;
+    }
+
+    /* Examples */
+    .examples {
+      font-size: 1rem;
+      color: #34495e;
+      margin-bottom: 0.8rem;
+      text-align: center;
+      direction: rtl;
+      font-family: 'Amiri', serif;
+    }
+
+    /* Audio button */
+    .audio-btn {
+      background: #4a90e2;
+      border: none;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      color: white;
+      font-size: 1.3rem;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(74, 144, 226, 0.6);
+      transition: background-color 0.3s ease, transform 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.8rem;
+    }
+    .audio-btn:hover, .audio-btn:focus {
+      background: #357ABD;
+      transform: scale(1.1);
+      outline: none;
+      box-shadow: 0 6px 15px rgba(53, 122, 189, 0.8);
+    }
+
+    /* Illustration */
+    .illustration {
+      width: 100%;
+      max-height: 120px;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      user-select: none;
+      pointer-events: none;
+    }
+
+    /* Interactive sections container */
+    .interactive-sections {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* Section style */
+    section {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+      padding: 1.5rem 2rem;
+      font-family: 'Cairo', sans-serif;
+    }
+    section h2 {
+      color: #1a237e;
+      margin-bottom: 1rem;
+      text-align: center;
+      font-weight: 800;
+      font-size: 1.8rem;
+    }
+    section p.instructions {
+      font-size: 1rem;
+      color: #34495e;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    /* Building words section */
+    .build-word {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .letter-tile {
+      background: #4a90e2;
+      color: white;
+      font-size: 2rem;
+      font-weight: 700;
+      width: 55px;
+      height: 55px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      box-shadow: 0 4px 10px rgba(74, 144, 226, 0.6);
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+    .letter-tile:hover, .letter-tile:focus {
+      background: #357ABD;
+      transform: scale(1.1);
+      outline: none;
+      box-shadow: 0 6px 15px rgba(53, 122, 189, 0.8);
+    }
+    .word-display {
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: #1a237e;
+      min-height: 3rem;
+      margin-bottom: 1rem;
+      text-align: center;
+      user-select: none;
+      letter-spacing: 0.15em;
+    }
+    .btn-clear {
+      background: #e74c3c;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(231, 76, 60, 0.7);
+      transition: background-color 0.3s ease, transform 0.3s ease;
+      display: block;
+      margin: 0 auto;
+    }
+    .btn-clear:hover, .btn-clear:focus {
+      background: #c0392b;
+      transform: scale(1.05);
+      outline: none;
+      box-shadow: 0 6px 15px rgba(192, 57, 43, 0.9);
+    }
+
+    /* Word analysis section */
+    .analysis-input {
+      width: 100%;
+      max-width: 320px;
+      font-size: 1.3rem;
+      padding: 0.5rem 1rem;
+      border-radius: 12px;
+      border: 2px solid #4a90e2;
+      margin: 0 auto 1rem;
+      display: block;
+      text-align: center;
+      font-family: 'Amiri', serif;
+      transition: border-color 0.3s ease;
+    }
+    .analysis-input:focus {
+      border-color: #357ABD;
+      outline: none;
+      box-shadow: 0 0 8px #357ABD;
+    }
+    .btn-analyze {
+      background: #4a90e2;
+      color: white;
+      border: none;
+      padding: 0.7rem 1.5rem;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(74, 144, 226, 0.7);
+      transition: background-color 0.3s ease, transform 0.3s ease;
+      display: block;
+      margin: 0 auto 1rem;
+    }
+    .btn-analyze:hover, .btn-analyze:focus {
+      background: #357ABD;
+      transform: scale(1.05);
+      outline: none;
+      box-shadow: 0 6px 15px rgba(53, 122, 189, 0.9);
+    }
+    .analysis-result {
+      font-size: 1.2rem;
+      color: #2c3e50;
+      text-align: center;
+      min-height: 2rem;
+      font-weight: 700;
+      user-select: none;
+    }
+    .analysis-result.success {
+      color: #27ae60;
+    }
+    .analysis-result.error {
+      color: #e74c3c;
+    }
+
+    /* Icons */
+    .icon-sound {
+      width: 20px;
+      height: 20px;
+      fill: white;
+      pointer-events: none;
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 600px) {
+      main {
+        padding: 1rem 1rem 2rem;
+      }
+      .letter {
+        font-size: 4rem;
+      }
+      .word-display {
+        font-size: 2rem;
+      }
+      .letter-tile {
+        width: 48px;
+        height: 48px;
+        font-size: 1.7rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>اللوحة القرائية لحرف التاء</h1>
+  </header>
+
+  <main>
+    <!-- Grid of letter cards -->
+    <section aria-label="بطاقات تعليمية لحرف التاء">
+      <h2>أشكال حرف التاء المختلفة</h2>
+      <div class="cards-grid" role="list">
+        <!-- Card template -->
+        <article class="card" role="listitem" tabindex="0" aria-label="تاء مفتوحة">
+          <div class="letter" aria-hidden="true">تَ</div>
+          <div class="state-name">تاء مفتوحة</div>
+          <div class="examples">تَفَّاح، تَمر، تَلميذ</div>
+          <button class="audio-btn" aria-label="استماع إلى نطق تاء مفتوحة" type="button" data-text="تَ">
+            <svg class="icon-sound" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10v4h4l5 5V5L7 10H3z"/></svg>
+          </button>
+          <img class="illustration" src="https://i.imgur.com/6r2ZJ0V.png" alt="صورة تفاحة" loading="lazy" />
+        </article>
+
+        <article class="card" role="listitem" tabindex="0" aria-label="تاء مضمومة">
+          <div class="letter" aria-hidden="true">تُ</div>
+          <div class="state-name">تاء مضمومة</div>
+          <div class="examples">تُفاح، تُمر، تُلميذ</div>
+          <button class="audio-btn" aria-label="استماع إلى نطق تاء مضمومة" type="button" data-text="تُ">
+            <svg class="icon-sound" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10v4h4l5 5V5L7 10H3z"/></svg>
+          </button>
+          <img class="illustration" src="https://i.imgur.com/6r2ZJ0V.png" alt="صورة تفاحة" loading="lazy" />
+        </article>
+
+        <article class="card" role="listitem" tabindex="0" aria-label="تاء مكسورة">
+          <div class="letter" aria-hidden="true">تِ</div>
+          <div class="state-name">تاء مكسورة</div>
+          <div class="examples">تِلميذ، تِمر، تِفاح</div>
+          <button class="audio-btn" aria-label="استماع إلى نطق تاء مكسورة" type="button" data-text="تِ">
+            <svg class="icon-sound" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10v4h4l5 5V5L7 10H3z"/></svg>
+          </button>
+          <img class="illustration" src="https://i.imgur.com/6r2ZJ0V.png" alt="صورة تفاحة" loading="lazy" />
+        </article>
+
+        <article class="card" role="listitem" tabindex="0" aria-label="تاء ساكنة">
+          <div class="letter" aria-hidden="true">تْ</div>
+          <div class="state-name">تاء ساكنة</div>
+          <div class="examples">بَتْر، كَتْب، مَسْتْ</div>
+          <button class="audio-btn" aria-label="استماع إلى نطق تاء ساكنة" type="button" data-text="تْ">
+            <svg class="icon-sound" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10v4h4l5 5V5L7 10H3z"/></svg>
+          </button>
+          <img class="illustration" src="https://i.imgur.com/4YkY9lZ.png" alt="صورة كتاب" loading="lazy" />
+        </article>
+
+        <article class="card" role="listitem" tabindex="0" aria-label="تاء مع مدود">
+          <div class="letter" aria-hidden="true">تَا</div>
+          <div class="state-name">تاء مع مدود</div>
+          <div class="examples">تَاج، تَابِع، تَارِيخ</div>
+          <button class="audio-btn" aria-label="استماع إلى نطق تاء مع مدود" type="button" data-text="تَا">
+            <svg class="icon-sound" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10v4h4l5 5V5L7 10H3z"/></svg>
+          </button>
+          <img class="illustration" src="https://i.imgur.com/8hWJm3p.png" alt="صورة تاج" loading="lazy" />
+        </article>
+
+        <article class="card" role="listitem" tabindex="0" aria-label="تاء مشددة">
+          <div class="letter" aria-hidden="true">تّ</div>
+          <div class="state-name">تاء مشددة</div>
+          <div class="examples">تَّمْر، مَتَّى، تَّلْميذ</div>
+          <button class="audio-btn" aria-label="استماع إلى نطق تاء مشددة" type="button" data-text="تّ">
+            <svg class="icon-sound" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10v4h4l5 5V5L7 10H3z"/></svg>
+          </button>
+          <img class="illustration" src="https://i.imgur.com/6r2ZJ0V.png" alt="صورة تمر" loading="lazy" />
+        </article>
+      </div>
+    </section>
+
+    <!-- Interactive sections -->
+    <div class="interactive-sections">
+
+      <!-- Building words -->
+      <section aria-label="بناء الكلمات بحرف التاء">
+        <h2>بناء الكلمات</h2>
+        <p class="instructions">اضغط على الحروف لتركيب كلمة تحتوي على حرف التاء</p>
+        <div class="build-word" role="list" aria-live="polite" aria-atomic="true" aria-relevant="additions removals">
+          <button class="letter-tile" type="button" aria-label="حرف ت">ت</button>
+          <button class="letter-tile" type="button" aria-label="حرف ا">ا</button>
+          <button class="letter-tile" type="button" aria-label="حرف ب">ب</button>
+          <button class="letter-tile" type="button" aria-label="حرف ر">ر</button>
+          <button class="letter-tile" type="button" aria-label="حرف م">م</button>
+          <button class="letter-tile" type="button" aria-label="حرف ل">ل</button>
+          <button class="letter-tile" type="button" aria-label="حرف ي">ي</button>
+          <button class="letter-tile" type="button" aria-label="حرف ذ">ذ</button>
+          <button class="letter-tile" type="button" aria-label="حرف ن">ن</button>
+          <button class="letter-tile" type="button" aria-label="حرف د">د</button>
+          <button class="letter-tile" type="button" aria-label="حرف س">س</button>
+          <button class="letter-tile" type="button" aria-label="حرف ف">ف</button>
+        </div>
+        <div class="word-display" aria-live="polite" aria-atomic="true" aria-label="الكلمة التي تم تركيبها" tabindex="0" role="textbox" aria-readonly="true"></div>
+        <button class="btn-clear" type="button" aria-label="مسح الكلمة">مسح الكلمة</button>
+      </section>
+
+      <!-- Word analysis -->
+      <section aria-label="تحليل الكلمات">
+        <h2>تحليل الكلمات إلى مقاطع صوتية</h2>
+        <p class="instructions">أدخل كلمة تحتوي على حرف التاء ثم اضغط تحليل</p>
+        <input type="text" class="analysis-input" aria-label="ادخل كلمة لتحليلها" placeholder="مثال: تفاح" autocomplete="off" />
+        <button class="btn-analyze" type="button" aria-label="تحليل الكلمة">تحليل</button>
+        <div class="analysis-result" aria-live="polite" aria-atomic="true"></div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2025 اللوحة القرائية لحرف التاء - تعليم ممتع وشيق للأطفال</p>
+  </footer>
+
+  <script>
+    // Audio pronunciation for cards and built words using Web Speech API
+    document.querySelectorAll('.audio-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const text = btn.dataset.text;
+        speak(text);
+      });
+    });
+
+    // Speak function using Web Speech API
+    function speak(text) {
+      if (!('speechSynthesis' in window)) {
+        alert('جهازك لا يدعم خاصية النطق الصوتي.');
+        return;
+      }
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'ar-SA';
+      utterance.rate = 0.9;
+      window.speechSynthesis.cancel(); // Stop any ongoing speech
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // Interactive build word section
+    const buildWordContainer = document.querySelector('.build-word');
+    const wordDisplay = document.querySelector('.word-display');
+    const btnClear = document.querySelector('.btn-clear');
+
+    let builtWord = '';
+
+    buildWordContainer.querySelectorAll('.letter-tile').forEach(tile => {
+      tile.addEventListener('click', () => {
+        builtWord += tile.textContent;
+        wordDisplay.textContent = builtWord;
+        speak(tile.textContent);
+      });
+      tile.addEventListener('keydown', e => {
+        if(e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          tile.click();
+        }
+      });
+    });
+
+    btnClear.addEventListener('click', () => {
+      builtWord = '';
+      wordDisplay.textContent = '';
+      btnClear.focus();
+    });
+
+    // Word analysis section
+    const analysisInput = document.querySelector('.analysis-input');
+    const btnAnalyze = document.querySelector('.btn-analyze');
+    const analysisResult = document.querySelector('.analysis-result');
+
+    // Simple Arabic syllable segmentation function
+    function segmentArabic(word) {
+      // This is a simplified segmentation based on vowels and consonants.
+      // Arabic syllables roughly: CV, CVC, CVV, etc.
+      // For demo, split on vowels (short: َ ُ ِ and long: ا و ي)
+      // and shadda (ّ) handled as doubling consonant.
+      const vowels = ['َ', 'ُ', 'ِ', 'ا', 'و', 'ي'];
+      const shadda = 'ّ';
+
+      let syllables = [];
+      let current = '';
+      for (let i = 0; i < word.length; i++) {
+        const ch = word[i];
+        current += ch;
+        if (vowels.includes(ch)) {
+          syllables.push(current);
+          current = '';
+        } else if (ch === shadda) {
+          // double consonant, add to current syllable
+          // do nothing special, just continue
+        } else {
+          // check next char to decide if syllable ends
+          const next = word[i+1] || '';
+          if (vowels.includes(next) || next === '') {
+            if(current) {
+              syllables.push(current);
+              current = '';
+            }
+          }
+        }
+      }
+      if(current) syllables.push(current);
+      return syllables.filter(s => s.trim() !== '');
+    }
+
+    btnAnalyze.addEventListener('click', () => {
+      const word = analysisInput.value.trim();
+      analysisResult.classList.remove('error', 'success');
+      if (!word) {
+        analysisResult.textContent = 'يرجى إدخال كلمة.';
+        analysisResult.classList.add('error');
+        return;
+      }
+      if (!word.includes('ت') && !word.includes('تَ') && !word.includes('تُ') && !word.includes('تِ') && !word.includes('تْ') && !word.includes('تّ') && !word.includes('تَا')) {
+        analysisResult.textContent = 'الكلمة يجب أن تحتوي على حرف التاء.';
+        analysisResult.classList.add('error');
+        return;
+      }
+      // Segment word
+      const syllables = segmentArabic(word);
+      if (syllables.length === 0) {
+        analysisResult.textContent = 'تعذر تحليل الكلمة.';
+        analysisResult.classList.add('error');
+        return;
+      }
+      analysisResult.textContent = 'المقاطع الصوتية: ' + syllables.join(' - ');
+      analysisResult.classList.add('success');
+      speak(word);
+    });
+
+    analysisInput.addEventListener('keydown', e => {
+      if(e.key === 'Enter') {
+        btnAnalyze.click();
+      }
+    });
+  </script>
+</body>
+</html>

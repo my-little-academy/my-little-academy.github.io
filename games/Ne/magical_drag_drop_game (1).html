@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة السحب والإفلات السحرية</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive;
+            background: linear-gradient(45deg, #ff9a9e, #fecfef, #fecfef, #ffd89b);
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 48px;
+            color: #ff6b6b;
+            text-shadow: 3px 3px 0px #fff, 6px 6px 0px #ff9999;
+            margin-bottom: 10px;
+            animation: titlePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes titlePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .subtitle {
+            font-size: 24px;
+            color: #4ecdc4;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .game-area {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .items-container {
+            width: 100%;
+            order: 1;
+        }
+
+        .container-title {
+            font-size: 28px;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .draggable-items {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 15px;
+            padding: 20px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            border: 3px dashed #ff6b6b;
+            min-height: 200px;
+            justify-items: center;
+            align-items: center;
+        }
+
+        .drag-item {
+            width: 120px;
+            height: 120px;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            transition: all 0.3s ease;
+            border: 3px solid #fff;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .drag-item:active {
+            cursor: grabbing;
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .drag-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.3);
+        }
+
+        .drag-item .emoji {
+            font-size: 48px;
+            margin-bottom: 5px;
+            animation: bounce 1s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .drag-item .label {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+        }
+
+        .drop-zones {
+            width: 100%;
+            order: 2;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .drop-zone {
+            min-height: 150px;
+            padding: 20px;
+            border-radius: 20px;
+            border: 4px dashed #4ecdc4;
+            background: rgba(255,255,255,0.8);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .drop-zone::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(78,205,196,0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .drop-zone:hover::before {
+            transform: translateX(100%);
+        }
+
+        .drop-zone.drag-over {
+            border-color: #ff6b6b;
+            background: rgba(255,107,107,0.2);
+            transform: scale(1.02);
+            box-shadow: 0 15px 40px rgba(255,107,107,0.4);
+        }
+
+        .zone-title {
+            font-size: 22px;
+            color: #4ecdc4;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+        }
+
+        .zone-hint {
+            font-size: 16px;
+            color: #666;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .score-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(45deg, #ffeaa7, #fdcb6e);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .score-item {
+            text-align: center;
+            color: #2d3436;
+            font-weight: bold;
+        }
+
+        .score-value {
+            font-size: 32px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .score-label {
+            font-size: 16px;
+        }
+
+        .magic-effects {
+            position: absolute;
+            pointer-events: none;
+            font-size: 30px;
+            animation: magicFloat 2s ease-out forwards;
+        }
+
+        @keyframes magicFloat {
+            0% { transform: translateY(0) scale(0.5); opacity: 0; }
+            50% { transform: translateY(-50px) scale(1.2); opacity: 1; }
+            100% { transform: translateY(-100px) scale(0.8); opacity: 0; }
+        }
+
+        .sparkles {
+            position: absolute;
+            pointer-events: none;
+            font-size: 20px;
+            animation: sparkle 1.5s ease-out forwards;
+        }
+
+        @keyframes sparkle {
+            0% { transform: scale(0) rotate(0deg); opacity: 0; }
+            50% { transform: scale(1.5) rotate(180deg); opacity: 1; }
+            100% { transform: scale(0) rotate(360deg); opacity: 0; }
+        }
+
+        .floating-shapes {
+            position: absolute;
+            pointer-events: none;
+            opacity: 0.6;
+            animation: floatShapes 6s ease-in-out infinite;
+        }
+
+        @keyframes floatShapes {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(180deg); }
+        }
+
+        .success-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(45deg, #00b894, #00cec9);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            font-size: 24px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            z-index: 1000;
+            animation: successPop 0.8s ease-out;
+        }
+
+        @keyframes successPop {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            80% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .reset-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #e17055, #d63031);
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .reset-btn:hover {
+            transform: scale(1.1) rotate(360deg);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+
+        /* الألوان للعناصر */
+        .animals { background: linear-gradient(45deg, #fd79a8, #fdcb6e); }
+        .fruits { background: linear-gradient(45deg, #a29bfe, #6c5ce7); }
+        .colors { background: linear-gradient(45deg, #00b894, #00cec9); }
+        .shapes { background: linear-gradient(45deg, #e17055, #d63031); }
+        .vehicles { background: linear-gradient(45deg, #0984e3, #74b9ff); }
+        .food { background: linear-gradient(45deg, #e84393, #fd79a8); }
+
+        .dragging {
+            opacity: 0.7;
+            transform: scale(1.1) rotate(5deg);
+            z-index: 1000;
+        }
+
+        .correct-drop {
+            animation: correctDrop 0.5s ease-out;
+        }
+
+        @keyframes correctDrop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .wrong-drop {
+            animation: wrongDrop 0.5s ease-out;
+        }
+
+        @keyframes wrongDrop {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+            100% { transform: translateX(0); }
+        }
+
+        @media (max-width: 768px) {
+            .game-area {
+                flex-direction: column;
+            }
+            
+            .title {
+                font-size: 36px;
+            }
+            
+            .draggable-items {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            }
+            
+            .drag-item {
+                width: 100px;
+                height: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- الأشكال المتحركة في الخلفية -->
+    <div class="floating-shapes" style="top: 10%; left: 5%; font-size: 40px;">⭐</div>
+    <div class="floating-shapes" style="top: 20%; right: 10%; font-size: 35px; animation-delay: 1s;">🌙</div>
+    <div class="floating-shapes" style="bottom: 30%; left: 8%; font-size: 30px; animation-delay: 2s;">☁️</div>
+    <div class="floating-shapes" style="bottom: 15%; right: 5%; font-size: 45px; animation-delay: 3s;">🌈</div>
+
+    <div class="game-container">
+        <div class="game-header">
+            <h1 class="title">🎯 لعبة السحب والإفلات السحرية 🎯</h1>
+            <p class="subtitle">اسحب العناصر إلى المكان الصحيح وتعلم بطريقة ممتعة!</p>
+        </div>
+
+        <div class="score-panel">
+            <div class="score-item">
+                <span class="score-value" id="correct-count">0</span>
+                <span class="score-label">✅ صحيح</span>
+            </div>
+            <div class="score-item">
+                <span class="score-value" id="wrong-count">0</span>
+                <span class="score-label">❌ خطأ</span>
+            </div>
+            <div class="score-item">
+                <span class="score-value" id="total-score">0</span>
+                <span class="score-label">🏆 النتيجة</span>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div class="items-container">
+                <div class="container-title">🎁 اسحب العناصر من هنا</div>
+                <div class="draggable-items" id="draggable-items">
+                    <!-- الحيوانات -->
+                    <div class="drag-item animals" draggable="true" data-category="animals">
+                        <span class="emoji">🐱</span>
+                        <span class="label">قطة</span>
+                    </div>
+                    <div class="drag-item animals" draggable="true" data-category="animals">
+                        <span class="emoji">🐶</span>
+                        <span class="label">كلب</span>
+                    </div>
+                    <div class="drag-item animals" draggable="true" data-category="animals">
+                        <span class="emoji">🐸</span>
+                        <span class="label">ضفدع</span>
+                    </div>
+                    
+                    <!-- الفواكه -->
+                    <div class="drag-item fruits" draggable="true" data-category="fruits">
+                        <span class="emoji">🍎</span>
+                        <span class="label">تفاح</span>
+                    </div>
+                    <div class="drag-item fruits" draggable="true" data-category="fruits">
+                        <span class="emoji">🍌</span>
+                        <span class="label">موز</span>
+                    </div>
+                    <div class="drag-item fruits" draggable="true" data-category="fruits">
+                        <span class="emoji">🍇</span>
+                        <span class="label">عنب</span>
+                    </div>
+                    
+                    <!-- الألوان -->
+                    <div class="drag-item colors" draggable="true" data-category="colors">
+                        <span class="emoji">🔴</span>
+                        <span class="label">أحمر</span>
+                    </div>
+                    <div class="drag-item colors" draggable="true" data-category="colors">
+                        <span class="emoji">🟢</span>
+                        <span class="label">أخضر</span>
+                    </div>
+                    <div class="drag-item colors" draggable="true" data-category="colors">
+                        <span class="emoji">🔵</span>
+                        <span class="label">أزرق</span>
+                    </div>
+                    
+                    <!-- المركبات -->
+                    <div class="drag-item vehicles" draggable="true" data-category="vehicles">
+                        <span class="emoji">🚗</span>
+                        <span class="label">سيارة</span>
+                    </div>
+                    <div class="drag-item vehicles" draggable="true" data-category="vehicles">
+                        <span class="emoji">✈️</span>
+                        <span class="label">طائرة</span>
+                    </div>
+                    <div class="drag-item vehicles" draggable="true" data-category="vehicles">
+                        <span class="emoji">🚢</span>
+                        <span class="label">سفينة</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="drop-zones">
+                <div class="drop-zone" data-category="animals">
+                    <div style="text-align: center; width: 100%;">
+                        <div class="zone-title">🐾 الحيوانات</div>
+                        <div class="zone-hint">اسحب الحيوانات هنا</div>
+                    </div>
+                </div>
+                
+                <div class="drop-zone" data-category="fruits">
+                    <div style="text-align: center; width: 100%;">
+                        <div class="zone-title">🍓 الفواكه</div>
+                        <div class="zone-hint">اسحب الفواكه هنا</div>
+                    </div>
+                </div>
+                
+                <div class="drop-zone" data-category="colors">
+                    <div style="text-align: center; width: 100%;">
+                        <div class="zone-title">🌈 الألوان</div>
+                        <div class="zone-hint">اسحب الألوان هنا</div>
+                    </div>
+                </div>
+                
+                <div class="drop-zone" data-category="vehicles">
+                    <div style="text-align: center; width: 100%;">
+                        <div class="zone-title">🚀 المركبات</div>
+                        <div class="zone-hint">اسحب المركبات هنا</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="reset-btn" onclick="resetGame()" title="إعادة تشغيل اللعبة">
+        🔄
+    </button>
+
+    <script>
+        let correctCount = 0;
+        let wrongCount = 0;
+        let totalScore = 0;
+        let draggedElement = null;
+
+        // إعداد الأحداث
+        document.addEventListener('DOMContentLoaded', function() {
+            setupDragAndDrop();
+            updateScoreDisplay();
+        });
+
+        function setupDragAndDrop() {
+            const draggableItems = document.querySelectorAll('.drag-item');
+            const dropZones = document.querySelectorAll('.drop-zone');
+
+            // إعداد العناصر القابلة للسحب
+            draggableItems.forEach(item => {
+                item.addEventListener('dragstart', handleDragStart);
+                item.addEventListener('dragend', handleDragEnd);
+            });
+
+            // إعداد مناطق الإسقاط
+            dropZones.forEach(zone => {
+                zone.addEventListener('dragover', handleDragOver);
+                zone.addEventListener('dragenter', handleDragEnter);
+                zone.addEventListener('dragleave', handleDragLeave);
+                zone.addEventListener('drop', handleDrop);
+            });
+        }
+
+        function handleDragStart(e) {
+            draggedElement = e.target;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', e.target.outerHTML);
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+
+        function handleDragEnter(e) {
+            e.preventDefault();
+            e.target.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.target.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.target.classList.remove('drag-over');
+            
+            if (!draggedElement) return;
+
+            const draggedCategory = draggedElement.getAttribute('data-category');
+            const dropZoneCategory = e.target.getAttribute('data-category') || 
+                                   e.target.closest('.drop-zone').getAttribute('data-category');
+
+            if (draggedCategory === dropZoneCategory) {
+                // إجابة صحيحة
+                correctCount++;
+                totalScore += 10;
+                
+                // إضافة العنصر إلى منطقة الإسقاط
+                const dropZone = e.target.classList.contains('drop-zone') ? e.target : e.target.closest('.drop-zone');
+                const clonedElement = draggedElement.cloneNode(true);
+                clonedElement.classList.add('correct-drop');
+                clonedElement.draggable = false;
+                clonedElement.style.transform = 'scale(0.8)';
+                clonedElement.style.margin = '5px';
+                
+                dropZone.appendChild(clonedElement);
+                
+                // إزالة العنصر الأصلي
+                draggedElement.remove();
+                
+                // تأثيرات بصرية للنجاح
+                createMagicEffects(e.clientX, e.clientY, '✨', '#00b894');
+                createSparkles(e.clientX, e.clientY);
+                
+                // إخفاء النص التوجيهي
+                const hint = dropZone.querySelector('.zone-hint');
+                if (hint) hint.style.display = 'none';
+                
+            } else {
+                // إجابة خاطئة
+                wrongCount++;
+                totalScore = Math.max(0, totalScore - 5);
+                
+                // تأثيرات بصرية للخطأ
+                createMagicEffects(e.clientX, e.clientY, '❌', '#d63031');
+                draggedElement.classList.add('wrong-drop');
+                
+                setTimeout(() => {
+                    draggedElement.classList.remove('wrong-drop');
+                }, 500);
+            }
+            
+            updateScoreDisplay();
+            checkGameComplete();
+            draggedElement = null;
+        }
+
+        function createMagicEffects(x, y, emoji, color) {
+            const effect = document.createElement('div');
+            effect.className = 'magic-effects';
+            effect.textContent = emoji;
+            effect.style.left = x + 'px';
+            effect.style.top = y + 'px';
+            effect.style.color = color;
+            document.body.appendChild(effect);
+            
+            setTimeout(() => {
+                effect.remove();
+            }, 2000);
+        }
+
+        function createSparkles(x, y) {
+            const sparkleEmojis = ['✨', '⭐', '🌟', '💫', '🎆'];
+            
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkles';
+                    sparkle.textContent = sparkleEmojis[Math.floor(Math.random() * sparkleEmojis.length)];
+                    sparkle.style.left = (x + Math.random() * 100 - 50) + 'px';
+                    sparkle.style.top = (y + Math.random() * 100 - 50) + 'px';
+                    sparkle.style.color = `hsl(${Math.random() * 360}, 70%, 60%)`;
+                    document.body.appendChild(sparkle);
+                    
+                    setTimeout(() => {
+                        sparkle.remove();
+                    }, 1500);
+                }, i * 100);
+            }
+        }
+
+        function updateScoreDisplay() {
+            document.getElementById('correct-count').textContent = correctCount;
+            document.getElementById('wrong-count').textContent = wrongCount;
+            document.getElementById('total-score').textContent = totalScore;
+        }
+
+        function checkGameComplete() {
+            const remainingItems = document.querySelectorAll('#draggable-items .drag-item');
+            
+            if (remainingItems.length === 0) {
+                setTimeout(() => {
+                    showSuccessMessage();
+                }, 500);
+            }
+        }
+
+        function showSuccessMessage() {
+            const message = document.createElement('div');
+            message.className = 'success-message';
+            message.innerHTML = `
+                <h2>🎉 مبروك! لقد أكملت اللعبة! 🎉</h2>
+                <p>الإجابات الصحيحة: ${correctCount}</p>
+                <p>الإجابات الخاطئة: ${wrongCount}</p>
+                <p>النتيجة النهائية: ${totalScore} نقطة</p>
+                <button onclick="resetGame()" style="
+                    margin-top: 20px;
+                    padding: 10px 20px;
+                    background: #fff;
+                    border: none;
+                    border-radius: 10px;
+                    cursor: pointer;
+                    font-size: 16px;
+                    color: #333;
+                ">العب مرة أخرى</button>
+            `;
+            document.body.appendChild(message);
+            
+            // إزالة الرسالة بعد 5 ثوان
+            setTimeout(() => {
+                message.remove();
+            }, 5000);
+            
+            // إضافة احتفالية
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    createSparkles(
+                        Math.random() * window.innerWidth,
+                        Math.random() * window.innerHeight
+                    );
+                }, i * 200);
+            }
+        }
+
+        function resetGame() {
+            // إعادة تعيين المتغيرات
+            correctCount = 0;
+            wrongCount = 0;
+            totalScore = 0;
+            
+            // إعادة تحميل الصفحة
+            location.reload();
+        }
+
+        // إضافة تأثيرات صوتية وهمية
+        function playSound(type) {
+            console.log(`🔊 تشغيل صوت: ${type}`);
+            // يمكن إضافة الأصوات الفعلية هنا لاحقاً
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة رمي الجمرات - مناسك الحج</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #8B4513, #DEB887, #F4A460);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 800px;
+            width: 90%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .header {
+            position: relative;
+            z-index: 2;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 2.5em;
+            color: #2C5530;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .game-area {
+            position: relative;
+            z-index: 2;
+            height: 400px;
+            background: linear-gradient(to bottom, #87CEEB, #F0E68C);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .jamarat-container {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 80px;
+        }
+
+        .jamarat {
+            width: 60px;
+            height: 80px;
+            background: linear-gradient(to bottom, #8B4513, #654321);
+            border-radius: 30px 30px 5px 5px;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .jamarat:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .jamarat::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 20px;
+            background: #A0522D;
+            border-radius: 10px;
+        }
+
+        .jamarat-label {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.9em;
+            color: #2C5530;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .stone {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: radial-gradient(circle, #696969, #2F4F4F);
+            border-radius: 50%;
+            transition: all 0.5s ease;
+            z-index: 10;
+        }
+
+        .controls {
+            position: relative;
+            z-index: 2;
+            margin-bottom: 20px;
+        }
+
+        .stone-counter {
+            font-size: 1.5em;
+            color: #2C5530;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .throw-button {
+            background: linear-gradient(45deg, #228B22, #32CD32);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            margin: 0 10px;
+        }
+
+        .throw-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .throw-button:active {
+            transform: translateY(0);
+        }
+
+        .throw-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .score-board {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2C5530;
+        }
+
+        .message {
+            position: relative;
+            z-index: 2;
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: bold;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .miss {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .complete {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .reset-button {
+            background: linear-gradient(45deg, #FF6B6B, #FF8E8E);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+
+        .reset-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .floating-score {
+            position: absolute;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #228B22;
+            pointer-events: none;
+            z-index: 20;
+            animation: floatUp 1s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #FFD700;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particle 1s ease-out forwards;
+        }
+
+        @keyframes particle {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0) translateY(-30px);
+            }
+        }
+
+        .pilgrims {
+            position: absolute;
+            bottom: 10px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 1;
+        }
+
+        .pilgrim {
+            width: 20px;
+            height: 30px;
+            background: linear-gradient(to bottom, #8B4513, #654321);
+            border-radius: 10px 10px 0 0;
+            position: relative;
+            animation: sway 3s ease-in-out infinite;
+        }
+
+        .pilgrim::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 15px;
+            height: 15px;
+            background: #DEB887;
+            border-radius: 50%;
+        }
+
+        @keyframes sway {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+
+        .clouds {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            z-index: 1;
+        }
+
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50px;
+            animation: float 20s linear infinite;
+        }
+
+        .cloud:nth-child(1) {
+            width: 60px;
+            height: 30px;
+            top: 20px;
+            left: -60px;
+            animation-delay: 0s;
+        }
+
+        .cloud:nth-child(2) {
+            width: 80px;
+            height: 40px;
+            top: 60px;
+            left: -80px;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(calc(100vw + 100px)); }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1 class="title">🕋 لعبة رمي الجمرات</h1>
+            <p class="subtitle">شعيرة مقدسة من مناسك الحج الشريف</p>
+        </div>
+
+        <div class="game-area">
+            <div class="clouds">
+                <div class="cloud"></div>
+                <div class="cloud"></div>
+            </div>
+            
+            <div class="jamarat-container">
+                <div class="jamarat" data-jamarat="صغرى">
+                    <div class="jamarat-label">الجمرة الصغرى</div>
+                </div>
+                <div class="jamarat" data-jamarat="وسطى">
+                    <div class="jamarat-label">الجمرة الوسطى</div>
+                </div>
+                <div class="jamarat" data-jamarat="كبرى">
+                    <div class="jamarat-label">الجمرة الكبرى</div>
+                </div>
+            </div>
+
+            <div class="pilgrims">
+                <div class="pilgrim"></div>
+                <div class="pilgrim"></div>
+                <div class="pilgrim"></div>
+                <div class="pilgrim"></div>
+                <div class="pilgrim"></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="stone-counter">الحصى المتبقي: <span id="stonesLeft">21</span></div>
+            <button class="throw-button" onclick="throwStone('صغرى')">ارمي الجمرة الصغرى</button>
+            <button class="throw-button" onclick="throwStone('وسطى')">ارمي الجمرة الوسطى</button>
+            <button class="throw-button" onclick="throwStone('كبرى')">ارمي الجمرة الكبرى</button>
+        </div>
+
+        <div class="score-board">
+            <div class="score-item">
+                <div class="score-label">الجمرة الصغرى</div>
+                <div class="score-value" id="score-صغرى">0/7</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">الجمرة الوسطى</div>
+                <div class="score-value" id="score-وسطى">0/7</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">الجمرة الكبرى</div>
+                <div class="score-value" id="score-كبرى">0/7</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">النقاط</div>
+                <div class="score-value" id="totalScore">0</div>
+            </div>
+        </div>
+
+        <div class="message" id="message">ابدأ برمي الحصى على الجمرات الثلاث - كل جمرة تحتاج 7 حصيات</div>
+        
+        <button class="reset-button" onclick="resetGame()">إعادة تعيين اللعبة</button>
+    </div>
+
+    <script>
+        let gameState = {
+            stones: 21,
+            scores: { 'صغرى': 0, 'وسطى': 0, 'كبرى': 0 },
+            totalScore: 0,
+            gameCompleted: false
+        };
+
+        function throwStone(jamarat) {
+            if (gameState.stones <= 0 || gameState.gameCompleted) {
+                return;
+            }
+
+            // إنقاص عدد الحصى
+            gameState.stones--;
+            document.getElementById('stonesLeft').textContent = gameState.stones;
+
+            // محاكاة رمي الحصى
+            animateStoneThrow(jamarat);
+
+            // تحديد نجاح الرمي (85% احتمال النجاح)
+            const isHit = Math.random() < 0.85;
+            
+            setTimeout(() => {
+                if (isHit && gameState.scores[jamarat] < 7) {
+                    gameState.scores[jamarat]++;
+                    gameState.totalScore += 10;
+                    showMessage(`أحسنت! أصبت الجمرة ${jamarat}`, 'success');
+                    createParticleEffect(jamarat);
+                    showFloatingScore(jamarat);
+                } else if (!isHit) {
+                    showMessage(`لم تصب الجمرة ${jamarat}. حاول مرة أخرى`, 'miss');
+                } else {
+                    showMessage(`الجمرة ${jamarat} مكتملة بالفعل`, 'miss');
+                }
+
+                updateScores();
+                checkGameCompletion();
+            }, 1000);
+        }
+
+        function animateStoneThrow(jamarat) {
+            const gameArea = document.querySelector('.game-area');
+            const stone = document.createElement('div');
+            stone.className = 'stone';
+            
+            // نقطة البداية
+            stone.style.left = '50%';
+            stone.style.bottom = '10px';
+            
+            gameArea.appendChild(stone);
+
+            // تحديد موقع الجمرة المستهدفة
+            const jamratIndex = jamarat === 'صغرى' ? 0 : jamarat === 'وسطى' ? 1 : 2;
+            const targetX = `calc(50% + ${(jamratIndex - 1) * 80}px)`;
+            
+            // رسم مسار الحصى
+            setTimeout(() => {
+                stone.style.left = targetX;
+                stone.style.bottom = '130px';
+                stone.style.transform = 'rotate(720deg)';
+            }, 50);
+
+            // إزالة الحصى بعد انتهاء الرسوم المتحركة
+            setTimeout(() => {
+                stone.remove();
+            }, 1000);
+        }
+
+        function showFloatingScore(jamarat) {
+            const jamratElements = document.querySelectorAll('.jamarat');
+            const jamratIndex = jamarat === 'صغرى' ? 0 : jamarat === 'وسطى' ? 1 : 2;
+            const jamratElement = jamratElements[jamratIndex];
+            
+            const floatingScore = document.createElement('div');
+            floatingScore.className = 'floating-score';
+            floatingScore.textContent = '+10';
+            
+            const rect = jamratElement.getBoundingClientRect();
+            const gameAreaRect = document.querySelector('.game-area').getBoundingClientRect();
+            
+            floatingScore.style.left = `${rect.left - gameAreaRect.left + rect.width/2}px`;
+            floatingScore.style.top = `${rect.top - gameAreaRect.top}px`;
+            
+            document.querySelector('.game-area').appendChild(floatingScore);
+            
+            setTimeout(() => {
+                floatingScore.remove();
+            }, 1000);
+        }
+
+        function createParticleEffect(jamarat) {
+            const jamratElements = document.querySelectorAll('.jamarat');
+            const jamratIndex = jamarat === 'صغرى' ? 0 : jamarat === 'وسطى' ? 1 : 2;
+            const jamratElement = jamratElements[jamratIndex];
+            
+            for (let i = 0; i < 8; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                const rect = jamratElement.getBoundingClientRect();
+                const gameAreaRect = document.querySelector('.game-area').getBoundingClientRect();
+                
+                particle.style.left = `${rect.left - gameAreaRect.left + rect.width/2 + (Math.random() - 0.5) * 40}px`;
+                particle.style.top = `${rect.top - gameAreaRect.top + rect.height/2 + (Math.random() - 0.5) * 40}px`;
+                
+                document.querySelector('.game-area').appendChild(particle);
+                
+                setTimeout(() => {
+                    particle.remove();
+                }, 1000);
+            }
+        }
+
+        function updateScores() {
+            Object.keys(gameState.scores).forEach(jamarat => {
+                document.getElementById(`score-${jamarat}`).textContent = 
+                    `${gameState.scores[jamarat]}/7`;
+            });
+            document.getElementById('totalScore').textContent = gameState.totalScore;
+        }
+
+        function checkGameCompletion() {
+            const allCompleted = Object.values(gameState.scores).every(score => score >= 7);
+            
+            if (allCompleted) {
+                gameState.gameCompleted = true;
+                showMessage('🎉 مبروك! أتممت رمي الجمرات بنجاح. تقبل الله منك 🎉', 'complete');
+                
+                // إضافة نقاط إضافية لإتمام المناسك
+                gameState.totalScore += 50;
+                document.getElementById('totalScore').textContent = gameState.totalScore;
+                
+                // إضافة تأثير بصري للفوز
+                setTimeout(() => {
+                    document.querySelector('.game-container').style.animation = 'pulse 2s infinite';
+                }, 500);
+            } else if (gameState.stones <= 0) {
+                showMessage('انتهت الحصى! اضغط إعادة تعيين لتجربة مرة أخرى', 'miss');
+            }
+        }
+
+        function showMessage(text, type) {
+            const messageElement = document.getElementById('message');
+            messageElement.textContent = text;
+            messageElement.className = `message ${type}`;
+        }
+
+        function resetGame() {
+            gameState = {
+                stones: 21,
+                scores: { 'صغرى': 0, 'وسطى': 0, 'كبرى': 0 },
+                totalScore: 0,
+                gameCompleted: false
+            };
+            
+            document.getElementById('stonesLeft').textContent = gameState.stones;
+            updateScores();
+            showMessage('ابدأ برمي الحصى على الجمرات الثلاث - كل جمرة تحتاج 7 حصيات', '');
+            document.querySelector('.game-container').style.animation = '';
+        }
+
+        // تهيئة اللعبة
+        updateScores();
+    </script>
+</body>
+</html>

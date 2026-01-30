@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>لعبة قواعد اللغة العربية</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            direction: rtl;
+            text-align: center;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 0;
+        }
+        #gameBoard {
+            margin: 30px auto;
+            width: 90%;
+            max-width: 600px;
+            border: 2px solid #333;
+            padding: 25px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #004085;
+            margin-bottom: 15px;
+        }
+        #question {
+            font-size: 22px;
+            margin-bottom: 25px;
+            min-height: 60px;
+            color: #222;
+        }
+        #choices button {
+            padding: 12px 25px;
+            margin: 10px 8px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 8px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            transition: background-color 0.3s ease;
+            min-width: 120px;
+        }
+        #choices button:hover {
+            background-color: #0056b3;
+        }
+        #feedback {
+            font-size: 20px;
+            margin-top: 20px;
+            min-height: 28px;
+            font-weight: bold;
+        }
+        #startBtn {
+            padding: 14px 35px;
+            font-size: 20px;
+            border-radius: 10px;
+            background-color: #28a745;
+            border: none;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        #startBtn:hover {
+            background-color: #1e7e34;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameBoard">
+        <h1>لعبة قواعد اللغة العربية</h1>
+        <div id="question">اضغط ابدأ لبدء اللعبة</div>
+        <div id="choices"></div>
+        <div id="feedback"></div>
+        <button id="startBtn">ابدأ</button>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "ما هو نوع الكلمة 'الكتاب'؟",
+                choices: ["اسم", "فعل", "حرف"],
+                answer: "اسم"
+            },
+            {
+                question: "اختر الجملة الصحيحة:",
+                choices: ["الولد يلعب", "الولد تلعب", "الولد تلعبون"],
+                answer: "الولد يلعب"
+            },
+            {
+                question: "ما هو زمن الفعل في الجملة 'ذهب إلى المدرسة'؟",
+                choices: ["ماضي", "مضارع", "أمر"],
+                answer: "ماضي"
+            },
+            {
+                question: "ما هو نوع الجملة: 'السماء صافية'؟",
+                choices: ["جملة اسمية", "جملة فعلية"],
+                answer: "جملة اسمية"
+            },
+            {
+                question: "اختر النعت في الجملة: 'رأيت الولد الذكي'",
+                choices: ["رأيت", "الولد", "الذكي"],
+                answer: "الذكي"
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        const questionEl = document.getElementById('question');
+        const choicesEl = document.getElementById('choices');
+        const feedbackEl = document.getElementById('feedback');
+        const startBtn = document.getElementById('startBtn');
+
+        // أصوات للإجابة الصحيحة والخاطئة
+        const correctSound = new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg');
+        const wrongSound = new Audio('https://actions.google.com/sounds/v1/cartoon/boing.ogg');
+
+        function showQuestion() {
+            feedbackEl.textContent = '';
+            const currentQuestion = questions[currentQuestionIndex];
+            questionEl.textContent = currentQuestion.question;
+            choicesEl.innerHTML = '';
+            currentQuestion.choices.forEach(choice => {
+                const btn = document.createElement('button');
+                btn.textContent = choice;
+                btn.onclick = () => checkAnswer(choice);
+                choicesEl.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(choice) {
+            const currentQuestion = questions[currentQuestionIndex];
+            if (choice === currentQuestion.answer) {
+                correctSound.play();
+                feedbackEl.textContent = 'إجابة صحيحة!';
+                feedbackEl.style.color = 'green';
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    setTimeout(showQuestion, 1500);
+                } else {
+                    questionEl.textContent = 'مبروك! لقد أكملت اللعبة.';
+                    choicesEl.innerHTML = '';
+                    startBtn.style.display = 'inline-block';
+                    startBtn.textContent = 'إعادة اللعب';
+                }
+            } else {
+                wrongSound.play();
+                feedbackEl.textContent = 'إجابة خاطئة، حاول مرة أخرى.';
+                feedbackEl.style.color = 'red';
+            }
+        }
+
+        startBtn.onclick = () => {
+            currentQuestionIndex = 0;
+            showQuestion();
+            startBtn.style.display = 'none';
+            feedbackEl.textContent = '';
+        };
+    </script>
+</body>
+</html>

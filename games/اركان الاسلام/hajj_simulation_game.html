@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محاكاة مناسك الحج التفاعلية</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            min-height: 100vh;
+            direction: rtl;
+        }
+
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #f39c12;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .ritual-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .ritual-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .ritual-card.completed {
+            border-color: #27ae60;
+            background: rgba(39, 174, 96, 0.2);
+        }
+
+        .ritual-card.current {
+            border-color: #f39c12;
+            background: rgba(243, 156, 18, 0.2);
+            animation: pulse 2s infinite;
+        }
+
+        .ritual-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(243, 156, 18, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(243, 156, 18, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(243, 156, 18, 0); }
+        }
+
+        .ritual-number {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 40px;
+            height: 40px;
+            background: #f39c12;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .ritual-title {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #f39c12;
+        }
+
+        .ritual-description {
+            font-size: 1em;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .ritual-status {
+            font-size: 0.9em;
+            padding: 5px 10px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .status-completed {
+            background: #27ae60;
+            color: white;
+        }
+
+        .status-current {
+            background: #f39c12;
+            color: white;
+        }
+
+        .status-locked {
+            background: #7f8c8d;
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+            animation: modalSlide 0.3s ease;
+        }
+
+        @keyframes modalSlide {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            left: 25px;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #f39c12;
+        }
+
+        .modal-title {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #f39c12;
+            text-align: center;
+        }
+
+        .modal-text {
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .complete-btn {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 20px auto;
+        }
+
+        .complete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .completion-message {
+            text-align: center;
+            padding: 30px;
+            background: rgba(39, 174, 96, 0.2);
+            border-radius: 15px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .completion-message h2 {
+            color: #27ae60;
+            margin-bottom: 15px;
+            font-size: 2em;
+        }
+
+        .restart-btn {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .info-panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .ritual-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+            display: block;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .game-board {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>🕋 محاكاة مناسك الحج التفاعلية</h1>
+            <p>تعلم مناسك الحج خطوة بخطوة</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div id="progressText">المرحلة: 0 من 10</div>
+        </div>
+
+        <div class="info-panel">
+            <h3>🎯 الهدف من اللعبة:</h3>
+            <p>تعلم مناسك الحج بالترتيب الصحيح. اضغط على كل منسك لتعلم تفاصيله وإتمامه.</p>
+        </div>
+
+        <div class="game-board" id="gameBoard">
+            <!-- سيتم إنشاء البطاقات هنا بواسطة JavaScript -->
+        </div>
+
+        <div class="completion-message" id="completionMessage">
+            <h2>🎉 مبروك! لقد أتممت مناسك الحج بنجاح!</h2>
+            <p>لقد تعلمت جميع مناسك الحج بالترتيب الصحيح. تقبل الله منك!</p>
+            <button class="restart-btn" onclick="restartGame()">ابدأ من جديد</button>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="ritualModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 class="modal-title" id="modalTitle"></h2>
+            <div class="modal-text" id="modalText"></div>
+            <button class="complete-btn" id="completeBtn" onclick="completeRitual()">إتمام هذا المنسك</button>
+        </div>
+    </div>
+
+    <script>
+        const hajjRituals = [
+            {
+                id: 1,
+                title: "الإحرام",
+                icon: "🤲",
+                description: "البداية المقدسة - الدخول في النسك",
+                detailedDescription: "يبدأ الحاج بالإحرام من الميقات، وهو المكان المخصص للإحرام. يلبس الرجل إزاراً ورداءً أبيضين، وتلبس المرأة ملابس ساترة. ينوي الحاج الدخول في النسك مع التلبية: 'لبيك اللهم لبيك، لبيك لا شريك لك لبيك، إن الحمد والنعمة لك والملك، لا شريك لك'.",
+                completed: false,
+                current: true
+            },
+            {
+                id: 2,
+                title: "الطواف",
+                icon: "🕋",
+                description: "الطواف حول الكعبة المشرفة",
+                detailedDescription: "بعد الإحرام، يتوجه الحاج إلى مكة المكرمة لأداء طواف القدوم. يطوف بالكعبة سبعة أشواط، يبدأ من الحجر الأسود وينتهي به. يستحب الاضطباع للرجال (كشف الكتف الأيمن) والرمل (الإسراع) في الأشواط الثلاثة الأولى.",
+                completed: false,
+                current: false
+            },
+            {
+                id: 3,
+                title: "السعي",
+                icon: "🚶‍♂️",
+                description: "السعي بين الصفا والمروة",
+                detailedDescription: "بعد الطواف، يقوم الحاج بالسعي بين الصفا والمروة سبعة أشواط. يبدأ بالصفا وينتهي بالمروة. يستحب الإسراع للرجال في المسعى الأخضر بين العلمين الأخضرين. هذا المنسك يحاكي قصة هاجر أم إسماعيل عليهما السلام.",
+                completed: false,
+                current: false
+            },
+            {
+                id: 4,
+                title: "الوقوف بعرفة",
+                icon: "🌅",
+                description: "الوقوف بعرفة - ركن الحج الأعظم",
+                detailedDescription: "في اليوم التاسع من ذي الحجة، يتوجه الحجاج إلى عرفة للوقوف بها من بعد زوال الشمس حتى غروبها. هذا هو الركن الأعظم للحج، وقد قال النبي ﷺ: 'الحج عرفة'. يستحب الإكثار من الدعاء والتضرع إلى الله في هذا الموقف العظيم.",
+                completed: false,
+                current: false
+            },
+            {
+                id: 5,
+                title: "المبيت بمزدلفة",
+                icon: "🌙",
+                description: "المبيت بمزدلفة والمشعر الحرام",
+                detailedDescription: "بعد غروب شمس عرفة، يتوجه الحجاج إلى مزدلفة للمبيت بها. يصلون المغرب والعشاء جمعاً وقصراً. يستحب الإكثار من الذكر والدعاء، وجمع الحصى لرمي الجمرات. يبقى الحجاج في مزدلفة حتى فجر اليوم العاشر.",
+                completed: false,
+                current: false
+            },
+            {
+                id: 6,
+                title: "رمي الجمرات",
+                icon: "⛰️",
+                description: "رمي جمرة العقبة الكبرى",
+                detailedDescription: "في اليوم العاشر من ذي الحجة (يوم النحر)، يرمي الحجاج جمرة العقبة الكبرى بسبع حصيات. يكبر مع كل حصاة. هذا المنسك يحاكي فعل إبراهيم عليه السلام عندما رمى الشيطان الذي حاول إغواءه عن ذبح ابنه إسماعيل.",
+                completed: false,
+                current: false
+            },
+            {
+                id: 7,
+                title: "الهدي والتحلل",
+                icon: "✂️",
+                description: "ذبح الهدي والتحلل من الإحرام",
+                detailedDescription: "بعد رمي جمرة العقبة، يقوم الحاج بذبح الهدي (إن وجب عليه) ثم يتحلل من إحرامه. يحلق الرجل رأسه أو يقصره، وتأخذ المرأة من أطراف شعرها. بعد ذلك يحل له كل شيء إلا النساء حتى يطوف طواف الإفاضة.",
+                completed: false,
+                current: false
+            },
+            {
+                id: 8,
+                title: "طواف الإفاضة",
+                icon: "🔄",
+                description: "طواف الإفاضة - ركن من أركان الحج",
+                detailedDescription: "بعد التحلل، يعود الحاج إلى مكة لأداء طواف الإفاضة بالكعبة سبعة أشواط. هذا طواف ركن من أركان الحج لا يتم الحج بدونه. بعد هذا الطواف يحل للحاج كل شيء حتى النساء إذا سعى بعده (إن لم يكن سعى من قبل).",
+                completed: false,
+                current: false
+            },
+            {
+                id: 9,
+                title: "طواف الوداع",
+                icon: "👋",
+                description: "طواف الوداع - آخر عهد بالبيت",
+                detailedDescription: "قبل مغادرة مكة، يقوم الحاج بطواف الوداع بالكعبة سبعة أشواط. هذا آخر عهد بالبيت الحرام، ويستحب الإكثار من الدعاء والتضرع. يسقط طواف الوداع عن الحائض والنفساء، ولا يجوز التأخير بعده إلا لحاجة.",
+                completed: false,
+                current: false
+            },
+            {
+                id: 10,
+                title: "إتمام الحج",
+                icon: "🎊",
+                description: "إتمام مناسك الحج بالكامل",
+                detailedDescription: "بعد طواف الوداع، يكون الحاج قد أتم مناسك الحج. تقبل الله منه حجه وجعله مبروراً. الحج المبرور ليس له جزاء إلا الجنة. يستحب للحاج الإكثار من الأعمال الصالحة والمحافظة على ما تعلمه من هذه الرحلة المباركة.",
+                completed: false,
+                current: false
+            }
+        ];
+
+        let currentRitualIndex = 0;
+        let selectedRitual = null;
+
+        function initializeGame() {
+            renderRituals();
+            updateProgress();
+        }
+
+        function renderRituals() {
+            const gameBoard = document.getElementById('gameBoard');
+            gameBoard.innerHTML = '';
+
+            hajjRituals.forEach((ritual, index) => {
+                const ritualCard = document.createElement('div');
+                ritualCard.className = 'ritual-card';
+                
+                if (ritual.completed) {
+                    ritualCard.classList.add('completed');
+                } else if (index === currentRitualIndex) {
+                    ritualCard.classList.add('current');
+                } else if (index > currentRitualIndex) {
+                    ritualCard.classList.add('locked');
+                }
+
+                ritualCard.innerHTML = `
+                    <div class="ritual-number">${ritual.id}</div>
+                    <div class="ritual-icon">${ritual.icon}</div>
+                    <h3 class="ritual-title">${ritual.title}</h3>
+                    <p class="ritual-description">${ritual.description}</p>
+                    <span class="ritual-status ${getStatusClass(ritual, index)}">
+                        ${getStatusText(ritual, index)}
+                    </span>
+                `;
+
+                if (index <= currentRitualIndex) {
+                    ritualCard.addEventListener('click', () => openRitualModal(ritual));
+                }
+
+                gameBoard.appendChild(ritualCard);
+            });
+        }
+
+        function getStatusClass(ritual, index) {
+            if (ritual.completed) return 'status-completed';
+            if (index === currentRitualIndex) return 'status-current';
+            return 'status-locked';
+        }
+
+        function getStatusText(ritual, index) {
+            if (ritual.completed) return '✅ مكتمل';
+            if (index === currentRitualIndex) return '🔄 المرحلة الحالية';
+            return '🔒 مقفل';
+        }
+
+        function openRitualModal(ritual) {
+            selectedRitual = ritual;
+            document.getElementById('modalTitle').textContent = ritual.title;
+            document.getElementById('modalText').textContent = ritual.detailedDescription;
+            
+            const completeBtn = document.getElementById('completeBtn');
+            if (ritual.completed) {
+                completeBtn.textContent = 'تم إتمام هذا المنسك';
+                completeBtn.disabled = true;
+                completeBtn.style.opacity = '0.5';
+            } else {
+                completeBtn.textContent = 'إتمام هذا المنسك';
+                completeBtn.disabled = false;
+                completeBtn.style.opacity = '1';
+            }
+
+            document.getElementById('ritualModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('ritualModal').style.display = 'none';
+        }
+
+        function completeRitual() {
+            if (selectedRitual && !selectedRitual.completed) {
+                selectedRitual.completed = true;
+                
+                if (currentRitualIndex < hajjRituals.length - 1) {
+                    currentRitualIndex++;
+                }
+                
+                closeModal();
+                renderRituals();
+                updateProgress();
+                
+                if (currentRitualIndex >= hajjRituals.length - 1 && hajjRituals[hajjRituals.length - 1].completed) {
+                    showCompletionMessage();
+                }
+            }
+        }
+
+        function updateProgress() {
+            const completedCount = hajjRituals.filter(ritual => ritual.completed).length;
+            const progress = (completedCount / hajjRituals.length) * 100;
+            
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `المرحلة: ${completedCount} من ${hajjRituals.length}`;
+        }
+
+        function showCompletionMessage() {
+            document.getElementById('completionMessage').style.display = 'block';
+            document.getElementById('completionMessage').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function restartGame() {
+            hajjRituals.forEach(ritual => ritual.completed = false);
+            currentRitualIndex = 0;
+            document.getElementById('completionMessage').style.display = 'none';
+            renderRituals();
+            updateProgress();
+        }
+
+        // إغلاق المودال عند النقر خارجه
+        window.onclick = function(event) {
+            const modal = document.getElementById('ritualModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // تشغيل اللعبة عند تحميل الصفحة
+        window.onload = function() {
+            initializeGame();
+        }
+    </script>
+</body>
+</html>

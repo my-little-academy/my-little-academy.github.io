@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>لعبة حروف الجر</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(to bottom, #dff9fb, #f6e58d);
+      text-align: center;
+      padding: 30px;
+    }
+    .game-container {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 20px;
+      max-width: 700px;
+      margin: auto;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+    .sentence {
+      font-size: 26px;
+      margin-bottom: 20px;
+    }
+    .drop-zone {
+      display: inline-block;
+      width: 120px;
+      height: 40px;
+      border: 2px dashed #27ae60;
+      vertical-align: middle;
+      margin: 0 10px;
+      line-height: 40px;
+      font-weight: bold;
+      background-color: #ecf0f1;
+      border-radius: 10px;
+    }
+    .options {
+      margin-top: 30px;
+    }
+    .word {
+      display: inline-block;
+      background-color: #74b9ff;
+      color: white;
+      padding: 10px 15px;
+      margin: 10px;
+      border-radius: 12px;
+      font-size: 18px;
+      cursor: grab;
+      transition: transform 0.2s;
+    }
+    .word:hover {
+      transform: scale(1.1);
+    }
+    .feedback {
+      font-size: 22px;
+      font-weight: bold;
+      margin-top: 20px;
+      min-height: 40px;
+    }
+    .correct { color: green; }
+    .wrong { color: red; }
+    .next-btn {
+      margin-top: 20px;
+      padding: 10px 25px;
+      font-size: 18px;
+      border: none;
+      background-color: #0984e3;
+      color: white;
+      border-radius: 10px;
+      cursor: pointer;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <h1>لعبة حروف الجر</h1>
+    <div class="sentence" id="sentence"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn">التالي</button>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        sentence: "ذهب أحمد ___ المدرسة.",
+        answer: "إلى",
+        options: ["في", "إلى", "من", "على"]
+      },
+      {
+        sentence: "جلست ___ الكرسي.",
+        answer: "على",
+        options: ["من", "إلى", "على", "عن"]
+      },
+      {
+        sentence: "خرج الطفل ___ البيت.",
+        answer: "من",
+        options: ["في", "من", "عن", "إلى"]
+      },
+      {
+        sentence: "الكتاب موضوع ___ الطاولة.",
+        answer: "على",
+        options: ["على", "في", "من", "إلى"]
+      },
+      {
+        sentence: "سافرت ___ المدينة المجاورة.",
+        answer: "إلى",
+        options: ["من", "في", "عن", "إلى"]
+      }
+    ];
+
+    let current = 0;
+    const sentenceEl = document.getElementById('sentence');
+    const optionsEl = document.getElementById('options');
+    const feedbackEl = document.getElementById('feedback');
+    const nextBtn = document.getElementById('nextBtn');
+
+    function renderQuestion() {
+      feedbackEl.textContent = "";
+      nextBtn.style.display = "none";
+      const q = questions[current];
+      sentenceEl.innerHTML = q.sentence.replace("___", `<span class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)" id="dropZone"></span>`);
+      optionsEl.innerHTML = "";
+      shuffle(q.options).forEach(word => {
+        const span = document.createElement("span");
+        span.className = "word";
+        span.draggable = true;
+        span.textContent = word;
+        span.ondragstart = drag;
+        optionsEl.appendChild(span);
+      });
+    }
+
+    function shuffle(arr) {
+      return arr.sort(() => Math.random() - 0.5);
+    }
+
+    function allowDrop(ev) {
+      ev.preventDefault();
+    }
+
+    function drag(ev) {
+      ev.dataTransfer.setData("text", ev.target.textContent);
+    }
+
+    function drop(ev) {
+      ev.preventDefault();
+      const word = ev.dataTransfer.getData("text");
+      ev.target.textContent = word;
+
+      checkAnswer(word);
+    }
+
+    function checkAnswer(selected) {
+      const correct = questions[current].answer;
+      if (selected === correct) {
+        feedbackEl.textContent = "رائع! إجابة صحيحة ✅";
+        feedbackEl.className = "feedback correct";
+        nextBtn.style.display = "inline-block";
+      } else {
+        feedbackEl.textContent = `خطأ! الكلمة الصحيحة هي "${correct}" ❌`;
+        feedbackEl.className = "feedback wrong";
+        nextBtn.style.display = "inline-block";
+      }
+    }
+
+    nextBtn.addEventListener("click", () => {
+      current = (current + 1) % questions.length;
+      renderQuestion();
+    });
+
+    renderQuestion();
+  </script>
+</body>
+</html>

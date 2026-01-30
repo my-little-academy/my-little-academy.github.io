@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <title>لعبة الطرح العشري مع الاستلاف</title>
+  <style>
+    body {
+      font-family: 'Tajawal', sans-serif;
+      background: #f0f4f8;
+      text-align: center;
+      direction: rtl;
+      padding: 30px;
+    }
+
+    .game-container {
+      background: white;
+      max-width: 800px;
+      margin: auto;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .row {
+      display: flex;
+      justify-content: center;
+      margin: 10px 0;
+    }
+
+    .card {
+      width: 50px;
+      height: 50px;
+      margin: 0 5px;
+      font-size: 24px;
+      font-weight: bold;
+      background: #e0e0e0;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .editable {
+      background: #ffffff;
+      border: 2px dashed #999;
+      cursor: text;
+    }
+
+    .editable:focus {
+      outline: none;
+      background: #f9f9f9;
+    }
+
+    .message {
+      margin-top: 20px;
+      font-size: 20px;
+    }
+
+    .success {
+      color: green;
+    }
+
+    .error {
+      color: red;
+    }
+
+    button {
+      margin-top: 15px;
+      font-size: 18px;
+      padding: 10px 20px;
+      background: #4361ee;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="game-container">
+    <h2>اطرح الرقمين واملأ الناتج</h2>
+    <div id="minuend-row" class="row"></div>
+    <div id="subtrahend-row" class="row"></div>
+    <div id="result-row" class="row"></div>
+    <button onclick="checkAnswer()">تحقق من الإجابة</button>
+    <div id="message" class="message"></div>
+  </div>
+
+  <script>
+    const positions = 6;
+    let minuends = [5, 3, ".", 2, 1, 4];
+    let subtrahends = [2, 1, ".", 1, 1, 1];
+    let results = ["", "", ".", "", "", ""];
+
+    function createRow(id, values, editable = false) {
+      const row = document.getElementById(id);
+      row.innerHTML = "";
+      values.forEach((val, i) => {
+        const div = document.createElement("div");
+        div.className = "card";
+        if (editable && val !== ".") {
+          div.contentEditable = true;
+          div.classList.add("editable");
+          div.addEventListener("input", () => {
+            const text = div.innerText.replace(/\D/g, ""); // يقبل رقمًا فقط
+            results[i] = text;
+            div.innerText = text;
+          });
+        } else {
+          div.innerText = val;
+        }
+        row.appendChild(div);
+      });
+    }
+
+    function convertToNumber(arr) {
+      const clean = arr.map(v => (v === "." ? "." : (isNaN(v) || v === "" ? "0" : v.toString())));
+      const joined = clean.join("");
+      return parseFloat(joined);
+    }
+
+    function checkAnswer() {
+      const minuendVal = convertToNumber(minuends);
+      const subtrahendVal = convertToNumber(subtrahends);
+      const resultVal = convertToNumber(results);
+      const expected = parseFloat((minuendVal - subtrahendVal).toFixed(3));
+
+      const msg = document.getElementById("message");
+      if (Math.abs(resultVal - expected) < 0.0001) {
+        msg.textContent = "أحسنت! الإجابة صحيحة ✅";
+        msg.className = "message success";
+      } else {
+        msg.textContent = `الإجابة خاطئة ❌، الجواب الصحيح هو: ${expected}`;
+        msg.className = "message error";
+      }
+    }
+
+    // في البداية
+    createRow("minuend-row", minuends);
+    createRow("subtrahend-row", subtrahends);
+    createRow("result-row", results, true);
+  </script>
+</body>
+</html>

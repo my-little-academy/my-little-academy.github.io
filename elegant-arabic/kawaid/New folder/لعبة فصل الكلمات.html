@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>لعبة فصل الكلمات</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      direction: rtl;
+      background: linear-gradient(to bottom, #f0f4c3, #e6ee9c);
+      text-align: center;
+      padding: 30px;
+    }
+
+    .game-box {
+      background-color: #fffde7;
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 700px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      color: #827717;
+    }
+
+    .joined-text {
+      font-size: 24px;
+      margin: 20px 0;
+      color: #33691e;
+      background-color: #f1f8e9;
+      padding: 15px;
+      border-radius: 12px;
+    }
+
+    input[type="text"] {
+      width: 90%;
+      padding: 12px;
+      font-size: 18px;
+      border: 2px solid #cddc39;
+      border-radius: 12px;
+      margin-top: 15px;
+    }
+
+    button {
+      margin-top: 20px;
+      background-color: #9ccc65;
+      color: #fff;
+      border: none;
+      padding: 10px 25px;
+      font-size: 18px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #7cb342;
+    }
+
+    .feedback {
+      font-size: 20px;
+      margin-top: 15px;
+      color: #2e7d32;
+    }
+
+    .wrong {
+      color: #c62828;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="game-box">
+    <h1>✂️ لعبة فصل الكلمات</h1>
+    <div class="joined-text" id="joinedText">تَشْرَبُٱلْقِطَّةُٱلْحَليبَمِنْطَبَقِها</div>
+    <input type="text" id="userInput" placeholder="اكتب الجملة بعد فصل الكلمات هنا...">
+    <div>
+      <button onclick="checkAnswer()">تحقق ✅</button>
+      <button onclick="loadNewSentence()">🔁 جملة جديدة</button>
+    </div>
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <script>
+    const sentences = [
+      {
+        joined: "تَشْرَبُٱلْقِطَّةُٱلْحَليبَمِنْطَبَقِها",
+        separated: "تَشْرَبُ ٱلْقِطَّةُ ٱلْحَليبَ مِنْ طَبَقِها"
+      },
+      {
+        joined: "يَذْهَبُٱلطِّفْلُٱلَىٱلْمَدْرَسَةِ",
+        separated: "يَذْهَبُ ٱلطِّفْلُ ٱلَى ٱلْمَدْرَسَةِ"
+      },
+      {
+        joined: "رَكِبَٱلرَّجُلُٱلسَّيَّارَةَ",
+        separated: "رَكِبَ ٱلرَّجُلُ ٱلسَّيَّارَةَ"
+      },
+      {
+        joined: "أَكَلَتْٱلْقِطَّةُٱلسَّمَكَةَ",
+        separated: "أَكَلَتْ ٱلْقِطَّةُ ٱلسَّمَكَةَ"
+      },
+      {
+        joined: "يَقْرَأُٱلطِّفْلُٱلْكِتَابَ",
+        separated: "يَقْرَأُ ٱلطِّفْلُ ٱلْكِتَابَ"
+      }
+    ];
+
+    let currentSentence = {};
+
+    function loadNewSentence() {
+      const feedback = document.getElementById("feedback");
+      feedback.textContent = "";
+
+      const random = sentences[Math.floor(Math.random() * sentences.length)];
+      currentSentence = random;
+      document.getElementById("joinedText").textContent = random.joined;
+      document.getElementById("userInput").value = "";
+    }
+
+    function checkAnswer() {
+      const user = document.getElementById("userInput").value.trim();
+      const feedback = document.getElementById("feedback");
+
+      if (user === currentSentence.separated) {
+        feedback.textContent = "✔️ أحسنت! الإجابة صحيحة!";
+        feedback.classList.remove("wrong");
+      } else {
+        feedback.textContent = "❌ حاول مرة أخرى، راجع أماكن الفراغات.";
+        feedback.classList.add("wrong");
+      }
+    }
+
+    window.onload = loadNewSentence;
+  </script>
+
+</body>
+</html>

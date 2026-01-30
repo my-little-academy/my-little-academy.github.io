@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ركن الإيمان بالرسل</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter for general text -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #d4edda, #c3e6cb); /* Soft green gradient for peace and guidance */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden; /* Prevent horizontal scrolling */
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 1s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1, h2 {
+            color: #28A745; /* Green */
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        .nav-buttons button {
+            background-color: #8BC34A; /* Light Green */
+            color: #FFFFFF;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+            border: 2px solid #689F38; /* Darker Green */
+        }
+        .nav-buttons button:hover {
+            background-color: #689F38; /* Darker Green */
+            color: #FFFFFF;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        .section {
+            display: none;
+            padding: 20px 0;
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .section.active {
+            display: block;
+        }
+        .story-text, .pillar-info-text, .quiz-question-text {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 20px;
+        }
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .quiz-options label {
+            display: block;
+            background-color: #f0fff0; /* Honeydew */
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border: 2px solid #90EE90; /* Light Green */
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1.1rem;
+            color: #333;
+        }
+        .quiz-options label:hover {
+            background-color: #e6ffe6;
+            border-color: #689F38; /* Darker Green */
+        }
+        .quiz-options input[type="radio"]:checked + label {
+            background-color: #A5D6A7; /* Light Green */
+            border-color: #4CAF50; /* Green */
+            color: #333;
+            font-weight: 600;
+        }
+        .quiz-feedback {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        .correct {
+            color: #28A745; /* Green */
+        }
+        .incorrect {
+            color: #DC3545; /* Red */
+        }
+        .game-area {
+            background-color: #e8f5e9; /* Lightest Green */
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .game-card {
+            background-color: #dcedc8; /* Light Green */
+            border: 2px solid #8BC34A; /* Light Green */
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            text-align: center;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            width: 180px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            transform: scale(1);
+        }
+        .game-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .game-card.selected {
+            background-color: #A5D6A7; /* Light Green */
+            border-color: #4CAF50; /* Green */
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        .game-card.matched {
+            background-color: #90EE90; /* Light Green */
+            border-color: #3CB371; /* Medium Sea Green */
+            pointer-events: none; /* Disable clicks on matched cards */
+            opacity: 0.7;
+        }
+        .game-buttons button {
+            background-color: #4CAF50; /* Green */
+            color: #FFFFFF;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+            border: none;
+        }
+        .game-buttons button:hover {
+            background-color: #388E3C; /* Dark Green */
+            transform: translateY(-2px);
+        }
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .popup-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .popup-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+        .popup-overlay.show .popup-content {
+            transform: scale(1);
+        }
+        .popup-content h3 {
+            color: #28A745;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+        .popup-content p {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 20px;
+        }
+        .popup-content button {
+            background-color: #8BC34A;
+            color: #FFFFFF;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .popup-content button:hover {
+            background-color: #689F38;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-4xl">ركن الإيمان بالرسل</h1>
+
+        <div class="nav-buttons mb-8">
+            <button onclick="showSection('intro')">المقدمة</button>
+            <button onclick="showSection('story')">القصة المشوقة</button>
+            <button onclick="showSection('what-are-prophets')">من هم الرسل؟</button>
+            <button onclick="showSection('quiz')">اختبر فهمك</button>
+            <button onclick="showSection('games')">ألعاب تفاعلية</button>
+        </div>
+
+        <!-- Introduction Section -->
+        <div id="intro" class="section active">
+            <h2 class="text-3xl">مرحباً يا أصدقائي الصغار!</h2>
+            <p class="story-text">أهلاً بكم في رحلتنا الرابعة في واحة أركان الإيمان! اليوم، سنتعلم عن الركن الرابع: **الإيمان بالرسل**. هيا بنا نتعرف على هؤلاء الأنبياء الكرام الذين اختارهم الله لتبليغ رسالته!</p>
+            <img src="https://placehold.co/400x200/8BC34A/000000?text=الإيمان+بالرسل" alt="" class="mx-auto image-container">
+        </div>
+
+        <!-- Story Section -->
+        <div id="story" class="section">
+            <h2 class="text-3xl">قصتنا المشوقة: مغامرة يوسف مع هداة البشر</h2>
+            <p class="story-text">في مدينة قديمة، كان هناك طفل حكيم ومحب للاستماع إلى القصص اسمه "يوسف". كان يوسف يحب أن يسمع عن الأنبياء والرسل، وكيف أنهم كانوا يعلمون الناس الخير والصلاح.</p>
+            <img src="https://placehold.co/400x200/C8E6C9/000000?text=يوسف+يستمع+للقصص" alt="" class="mx-auto image-container">
+            <p class="story-text">سأل يوسف جده ذات يوم: "يا جدي، من هم الأنبياء والرسل؟ وماذا فعلوا؟" ابتسم الجد وقال: "الأنبياء والرسل يا بني هم أفضل البشر، اختارهم الله تعالى ليكونوا واسطة بينه وبين خلقه، ليبلغوا الناس رسالته ويهدوهم إلى الطريق المستقيم."</p>
+            <img src="https="https://placehold.co/400x200/A5D6A7/000000?text=يوسف+وجده" alt="" class="mx-auto image-container">
+            <p class="story-text">بدأ الجد يشرح ليوسف عن الرسل، وكيف أنهم:</p>
+            <ul class="list-disc list-inside text-right story-text mx-auto max-w-md">
+                <li>**أفضل البشر:** اختارهم الله من بين الناس ليكونوا قدوة حسنة.</li>
+                <li>**صادقون وأمناء:** لا يكذبون أبدًا، ويبلغون رسالة الله كاملة.</li>
+                <li>**دعوا إلى عبادة الله وحده:** كلهم دعوا أقوامهم إلى عبادة الله الواحد الأحد، وترك عبادة الأصنام أو أي شيء آخر.</li>
+                <li>**منهم أولوا العزم:** وهم خمسة من كبار الرسل: نوح، إبراهيم، موسى، عيسى، ومحمد عليهم السلام.</li>
+                <li>**خاتم الأنبياء:** سيدنا محمد صلى الله عليه وسلم هو آخر الأنبياء والمرسلين، ورسالته للناس أجمعين إلى يوم القيامة.</li>
+            </ul>
+            <p class="story-text">شعر يوسف بالحب والتقدير لهؤلاء الرسل الكرام، وأدرك أنهم كانوا نورًا وهداية للبشرية جمعاء.</p>
+        </div>
+
+        <!-- What are Prophets Section -->
+        <div id="what-are-prophets" class="section">
+            <h2 class="text-3xl">من هم الرسل؟ هداة البشرية</h2>
+            <p class="pillar-info-text">هيا نتعرف على الرسل الكرام بشكل أعمق، لنزداد حبًا لهم واتباعًا لهداهم:</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+                <div class="bg-blue-100 p-6 rounded-xl shadow-md border-2 border-blue-300">
+                    <img src="https://placehold.co/100x100/ADD8E6/000000?text=مختارون+من+الله" alt="" class="mx-auto mb-4 rounded-full">
+                    <h3 class="text-xl font-semibold text-blue-800 mb-2">1. اختارهم الله</h3>
+                    <p class="text-gray-700">الرسل هم بشر اختارهم الله تعالى لتبليغ رسالته إلى أقوامهم.</p>
+                </div>
+                <div class="bg-yellow-100 p-6 rounded-xl shadow-md border-2 border-yellow-300">
+                    <img src="https://placehold.co/100x100/FFD700/000000?text=صادقون+وأمناء" alt="" class="mx-auto mb-4 rounded-full">
+                    <h3 class="text-xl font-semibold text-yellow-800 mb-2">2. صادقون وأمناء</h3>
+                    <p class="text-gray-700">يتصفون بالصدق والأمانة والذكاء والشجاعة، ولا يخطئون في تبليغ رسالة الله.</p>
+                </div>
+                <div class="bg-purple-100 p-6 rounded-xl shadow-md border-2 border-purple-300">
+                    <img src="https://placehold.co/100x100/E6E6FA/000000?text=دعوة+التوحيد" alt="" class="mx-auto mb-4 rounded-full">
+                    <h3 class="text-xl font-semibold text-purple-800 mb-2">3. دعوا إلى توحيد الله</h3>
+                    <p class="text-gray-700">كل الرسل دعوا أقوامهم إلى عبادة الله وحده وترك عبادة غيره.</p>
+                </div>
+                <div class="bg-green-100 p-6 rounded-xl shadow-md border-2 border-green-300">
+                    <img src="https://placehold.co/100x100/90EE90/000000?text=محمد+خاتم+الأنبياء" alt="" class="mx-auto mb-4 rounded-full">
+                    <h3 class="text-xl font-semibold text-green-800 mb-2">4. سيدنا محمد صلى الله عليه وسلم</h3>
+                    <p class="text-gray-700">هو خاتم الأنبياء والمرسلين، ورسالته عامة لكل البشر إلى يوم القيامة.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Section -->
+        <div id="quiz" class="section">
+            <h2 class="text-3xl">اختبر فهمك: هل أنت بطل الإيمان بالرسل؟</h2>
+            <p class="quiz-question-text">الآن بعد أن استمعنا لقصة يوسف الممتعة وتعرفنا على الرسل، حان وقت اختبار معلوماتك! أجب عن الأسئلة التالية لتثبت أنك أصبحت بطلًا في فهم الإيمان بالرسل:</p>
+            <div id="quiz-question-container" class="mt-6">
+                <!-- Quiz question will be loaded here by JS -->
+            </div>
+            <div class="quiz-feedback" id="quiz-feedback"></div>
+            <button id="next-question-btn" class="mt-6 bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-full font-bold shadow-lg transition-all" onclick="nextQuestion()">السؤال التالي</button>
+            <button id="restart-quiz-btn" class="mt-6 bg-purple-500 hover:bg-purple-600 text-white py-3 px-6 rounded-full font-bold shadow-lg transition-all hidden" onclick="resetQuiz()">إعادة الاختبار</button>
+        </div>
+
+        <!-- Games Section -->
+        <div id="games" class="section">
+            <h2 class="text-3xl">ألعاب تفاعلية: لنثبت ما تعلمناه!</h2>
+            <p class="story-text">بعد أن اختبرت معلوماتك بنجاح، حان وقت المرح! هيا بنا نلعب لعبة "من هو النبي؟" لتثبيت معلوماتنا:</p>
+
+            <div class="game-area">
+                <h3 class="text-2xl font-bold text-green-700 mb-4">لعبة "من هو النبي؟": اختر اسم النبي الصحيح!</h3>
+                <p class="text-gray-600 mb-6">اقرأ الوصف واختر اسم النبي المناسب.</p>
+                <div id="game-question-display" class="game-card">
+                    <!-- Game question (description) will be loaded here by JS -->
+                </div>
+                <div id="game-options-display" class="flex flex-wrap justify-center gap-4 mt-4">
+                    <!-- Game options (prophet names) will be loaded here by JS -->
+                </div>
+                <div class="game-feedback mt-4 text-lg font-semibold" id="game-game-feedback"></div>
+                <button class="mt-4 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-full font-bold shadow-lg transition-all" onclick="nextGameItem()">التالي</button>
+                <button class="mt-4 bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded-full font-bold shadow-lg transition-all" onclick="resetGame()">إعادة اللعب</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Modal/Popup for alerts -->
+    <div id="custom-popup-overlay" class="popup-overlay">
+        <div class="popup-content">
+            <h3 id="popup-title"></h3>
+            <p id="popup-message"></p>
+            <button onclick="closePopup()">حسناً</button>
+        </div>
+    </div>
+
+    <script>
+        // Function to show custom popup
+        function showPopup(title, message) {
+            document.getElementById('popup-title').innerText = title;
+            document.getElementById('popup-message').innerText = message;
+            document.getElementById('custom-popup-overlay').classList.add('show');
+        }
+
+        // Function to close custom popup
+        function closePopup() {
+            document.getElementById('custom-popup-overlay').classList.remove('show');
+        }
+
+        // --- Section Management ---
+        let currentSection = 'intro';
+
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            // Show the requested section
+            document.getElementById(sectionId).classList.add('active');
+            currentSection = sectionId;
+
+            // Specific actions for sections
+            if (sectionId === 'quiz') {
+                resetQuiz(); // Ensure quiz is reset when navigated to
+            } else if (sectionId === 'games') {
+                resetGame(); // Ensure game is reset and initialized when navigated to
+            }
+        }
+
+        // --- Quiz Logic ---
+        const quizQuestions = [
+            {
+                question: "من هم الرسل؟",
+                options: ["ملائكة", "بشر اختارهم الله لتبليغ رسالته", "جن"],
+                answer: "بشر اختارهم الله لتبليغ رسالته"
+            },
+            {
+                question: "ما هي أول دعوة للرسل لأقوامهم؟",
+                options: ["بناء المساجد", "عبادة الله وحده", "الصيام والصلاة"],
+                answer: "عبادة الله وحده"
+            },
+            {
+                question: "هل الرسل صادقون وأمناء؟",
+                options: ["نعم دائماً", "أحياناً", "لا"],
+                answer: "نعم دائماً"
+            },
+            {
+                question: "من هو خاتم الأنبياء والمرسلين؟",
+                options: ["سيدنا موسى عليه السلام", "سيدنا عيسى عليه السلام", "سيدنا محمد صلى الله عليه وسلم"],
+                answer: "سيدنا محمد صلى الله عليه وسلم"
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        function displayQuestion() {
+            const container = document.getElementById('quiz-question-container');
+            const feedback = document.getElementById('quiz-feedback');
+            const nextBtn = document.getElementById('next-question-btn');
+            const restartBtn = document.getElementById('restart-quiz-btn');
+
+            feedback.innerText = ''; // Clear previous feedback
+            nextBtn.innerText = 'تحقق من الإجابة'; // Change button text
+
+            if (currentQuestionIndex < quizQuestions.length) {
+                const q = quizQuestions[currentQuestionIndex];
+                let html = `<p class="text-xl font-bold mb-4">${currentQuestionIndex + 1}. ${q.question}</p>`;
+                html += `<div class="quiz-options text-right">`;
+                q.options.forEach((option, index) => {
+                    html += `
+                        <div>
+                            <input type="radio" id="option${index}" name="quiz-option" value="${option}" class="hidden">
+                            <label for="option${index}">${option}</label>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+                container.innerHTML = html;
+                nextBtn.classList.remove('hidden');
+                restartBtn.classList.add('hidden');
+            } else {
+                // Quiz finished
+                container.innerHTML = `<p class="text-2xl font-bold text-green-700">لقد أكملت الاختبار!</p><p class="text-xl mt-2">نقاطك: ${score} من ${quizQuestions.length}</p>`;
+                if (score === quizQuestions.length) {
+                    feedback.innerHTML = `<p class="correct text-2xl mt-4">أحسنت! أنت بطل الإيمان بالرسل!</p>`;
+                } else {
+                    feedback.innerHTML = `<p class="incorrect text-2xl mt-4">حاول مرة أخرى لتصبح بطلًا!</p>`;
+                }
+                nextBtn.classList.add('hidden');
+                restartBtn.classList.remove('hidden');
+            }
+        }
+
+        function nextQuestion() {
+            const selectedOption = document.querySelector('input[name="quiz-option"]:checked');
+            const feedback = document.getElementById('quiz-feedback');
+            const nextBtn = document.getElementById('next-question-btn');
+
+            if (!selectedOption && currentQuestionIndex < quizQuestions.length) {
+                showPopup("تنبيه", "الرجاء اختيار إجابة قبل المتابعة.");
+                return;
+            }
+
+            if (nextBtn.innerText === 'تحقق من الإجابة') {
+                // Check answer phase
+                const correctAnswer = quizQuestions[currentQuestionIndex].answer;
+                if (selectedOption.value === correctAnswer) {
+                    feedback.innerHTML = `<p class="correct"><i class="fas fa-check-circle"></i> إجابة صحيحة! أحسنت.</p>`;
+                    score++;
+                } else {
+                    feedback.innerHTML = `<p class="incorrect"><i class="fas fa-times-circle"></i> إجابة خاطئة. الإجابة الصحيحة هي: ${correctAnswer}.</p>`;
+                }
+                nextBtn.innerText = 'السؤال التالي'; // Change button text for next question
+            } else {
+                // Move to next question phase
+                currentQuestionIndex++;
+                displayQuestion();
+            }
+        }
+
+        function resetQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            displayQuestion();
+            document.getElementById('restart-quiz-btn').classList.add('hidden');
+            document.getElementById('next-question-btn').classList.remove('hidden');
+            document.getElementById('next-question-btn').innerText = 'تحقق من الإجابة';
+        }
+
+        // --- Game Logic: "من هو النبي؟" (Who is the Prophet?) ---
+        const gameProphets = [
+            { description: "النبي الذي أُرسل إلى قوم عاد.", correctName: "هود عليه السلام", options: ["صالح عليه السلام", "هود عليه السلام", "شعيب عليه السلام"] },
+            { description: "النبي الذي أُلقي في النار ولم يحترق.", correctName: "إبراهيم عليه السلام", options: ["موسى عليه السلام", "إبراهيم عليه السلام", "يوسف عليه السلام"] },
+            { description: "النبي الذي كلمه الله تكليمًا.", correctName: "موسى عليه السلام", options: ["عيسى عليه السلام", "نوح عليه السلام", "موسى عليه السلام"] },
+            { description: "النبي الذي أُرسل إلى قوم ثمود.", correctName: "صالح عليه السلام", options: ["صالح عليه السلام", "لوط عليه السلام", "يونس عليه السلام"] },
+            { description: "النبي الذي أُرسل إلى فرعون وقومه.", correctName: "موسى عليه السلام", options: ["يوسف عليه السلام", "موسى عليه السلام", "إبراهيم عليه السلام"] },
+            { description: "النبي الذي أُوتي الزبور.", correctName: "داود عليه السلام", options: ["سليمان عليه السلام", "داود عليه السلام", "أيوب عليه السلام"] },
+            { description: "النبي الذي أُوتي الإنجيل.", correctName: "عيسى عليه السلام", options: ["زكريا عليه السلام", "يحيى عليه السلام", "عيسى عليه السلام"] },
+            { description: "النبي الذي أُرسل إلى الناس كافة وهو خاتم الأنبياء.", correctName: "محمد صلى الله عليه وسلم", options: ["محمد صلى الله عليه وسلم", "آدم عليه السلام", "إدريس عليه السلام"] }
+        ];
+
+        let shuffledGameProphets = [];
+        let currentGameProphetIndex = 0;
+
+        function initializeGame() {
+            shuffledGameProphets = [...gameProphets].sort(() => Math.random() - 0.5);
+            currentGameProphetIndex = 0;
+            displayGameProphet();
+            document.getElementById('game-game-feedback').innerText = '';
+        }
+
+        function displayGameProphet() {
+            const questionDisplay = document.getElementById('game-question-display');
+            const optionsDisplay = document.getElementById('game-options-display');
+
+            optionsDisplay.innerHTML = ''; // Clear previous options
+
+            if (currentGameProphetIndex < shuffledGameProphets.length) {
+                const prophet = shuffledGameProphets[currentGameProphetIndex];
+                questionDisplay.innerHTML = `<p>${prophet.description}</p>`;
+
+                // Shuffle options for each question
+                const shuffledOptions = [...prophet.options].sort(() => Math.random() - 0.5);
+
+                shuffledOptions.forEach(option => {
+                    const optionButton = document.createElement('button');
+                    optionButton.classList.add('bg-green-200', 'hover:bg-green-300', 'text-green-800', 'py-2', 'px-4', 'rounded-full', 'font-semibold', 'shadow-md', 'transition-all', 'transform', 'hover:scale-105', 'active:scale-95');
+                    optionButton.innerText = option;
+                    optionButton.onclick = () => checkGameAnswer(option, prophet.correctName);
+                    optionsDisplay.appendChild(optionButton);
+                });
+            } else {
+                questionDisplay.innerHTML = `<p class="text-xl font-bold text-green-700">لقد أكملت اللعبة!</p><p class="text-lg mt-2">أحسنت يا بطل الإيمان بالرسل!</p>`;
+                optionsDisplay.innerHTML = ''; // Clear options
+                showPopup("تهانينا!", "لقد أكملت لعبة 'من هو النبي؟' بنجاح!");
+            }
+        }
+
+        function checkGameAnswer(userAnswer, correctName) {
+            const feedback = document.getElementById('game-game-feedback');
+            if (userAnswer === correctName) {
+                feedback.innerHTML = `<p class="correct"><i class="fas fa-check-circle"></i> إجابة صحيحة! أحسنت.</p>`;
+                showPopup("أحسنت!", "إجابتك صحيحة!");
+            } else {
+                feedback.innerHTML = `<p class="incorrect"><i class="fas fa-times-circle"></i> إجابة خاطئة. الإجابة الصحيحة هي: ${correctName}.</p>`;
+                showPopup("حاول مرة أخرى", `إجابتك خاطئة. الإجابة الصحيحة هي: ${correctName}.`);
+            }
+        }
+
+        function nextGameItem() {
+            currentGameProphetIndex++;
+            displayGameProphet();
+            document.getElementById('game-game-feedback').innerText = '';
+        }
+
+        function resetGame() {
+            initializeGame();
+        }
+
+        // Initialize the quiz and game when the page loads
+        window.onload = function() {
+            showSection('intro'); // Start with the introduction section
+            displayQuestion(); // Initialize the first quiz question
+            initializeGame(); // Initialize the game
+        };
+    </script>
+</body>
+</html>

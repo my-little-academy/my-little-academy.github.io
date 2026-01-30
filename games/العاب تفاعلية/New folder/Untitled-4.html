@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>الاختبار السحري – 3 أسئلة</title>
+  <style>
+    body {
+      background: linear-gradient(to bottom, #e0f7fa, #fef9e7);
+      font-family: 'Cairo', sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #6c5ce7;
+      margin-bottom: 10px;
+    }
+
+    .quiz-box {
+      background: #fff9e6;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      padding: 30px;
+      max-width: 600px;
+      margin: auto;
+      position: relative;
+    }
+
+    .question {
+      font-size: 1.3em;
+      margin-bottom: 20px;
+    }
+
+    .option {
+      display: block;
+      background: #74b9ff;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 20px;
+      font-size: 1.1em;
+      margin: 10px auto;
+      width: 80%;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .option:hover {
+      background: #0984e3;
+      transform: scale(1.05);
+    }
+
+    .timer {
+      font-size: 1.2em;
+      margin-top: 10px;
+      color: #d63031;
+    }
+
+    .feedback {
+      font-size: 1.2em;
+      margin-top: 15px;
+      font-weight: bold;
+      display: none;
+    }
+
+    .end-screen {
+      display: none;
+      font-size: 1.5em;
+      margin-top: 30px;
+      color: green;
+    }
+
+    .stars {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: gold;
+      border-radius: 50%;
+      animation: sparkle 1s linear;
+      pointer-events: none;
+    }
+
+    @keyframes sparkle {
+      0% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(2) translateY(-40px); }
+    }
+  </style>
+</head>
+<body>
+
+<h1>🧙‍♂️ الاختبار السحري – 3 أسئلة</h1>
+
+<div class="quiz-box" id="quizBox">
+  <div class="question" id="questionText"></div>
+  <div id="options"></div>
+  <div class="timer" id="timer">⏳ الوقت: 15</div>
+  <div class="feedback" id="feedbackText"></div>
+</div>
+
+<div class="end-screen" id="endScreen"></div>
+
+<script>
+  const questions = [
+    {
+      q: "من هو خالق السماوات والأرض؟",
+      options: ["الله", "الرسول", "الملَك", "النجوم"],
+      correct: 0
+    },
+    {
+      q: "كم عدد أركان الإسلام؟",
+      options: ["3", "5", "7", "10"],
+      correct: 1
+    },
+    {
+      q: "من هو خاتم الأنبياء؟",
+      options: ["عيسى عليه السلام", "محمد ﷺ", "نوح عليه السلام", "موسى عليه السلام"],
+      correct: 1
+    }
+  ];
+
+  let current = 0;
+  let score = 0;
+  let time = 15;
+  let timerId;
+
+  function startQuiz() {
+    showQuestion();
+    timerId = setInterval(updateTimer, 1000);
+  }
+
+  function showQuestion() {
+    const q = questions[current];
+    document.getElementById('questionText').textContent = q.q;
+    const optionsBox = document.getElementById('options');
+    optionsBox.innerHTML = "";
+
+    q.options.forEach((opt, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'option';
+      btn.textContent = opt;
+      btn.onclick = () => handleAnswer(idx === q.correct);
+      optionsBox.appendChild(btn);
+    });
+
+    document.getElementById('feedbackText').style.display = 'none';
+    time = 15;
+    document.getElementById('timer').textContent = `⏳ الوقت: ${time}`;
+  }
+
+  function updateTimer() {
+    time--;
+    document.getElementById('timer').textContent = `⏳ الوقت: ${time}`;
+    if (time === 0) {
+      handleAnswer(false, true);
+    }
+  }
+
+  function handleAnswer(correct, timeout = false) {
+    clearInterval(timerId);
+    const feedback = document.getElementById('feedbackText');
+    if (correct) {
+      score++;
+      feedback.textContent = "✨ إجابة صحيحة!";
+      feedback.style.color = "green";
+      createStars();
+    } else {
+      feedback.textContent = timeout ? "⌛ انتهى الوقت!" : "❌ خطأ، حاول مرة أخرى!";
+      feedback.style.color = "crimson";
+    }
+    feedback.style.display = 'block';
+
+    setTimeout(() => {
+      current++;
+      if (current < questions.length) {
+        showQuestion();
+        timerId = setInterval(updateTimer, 1000);
+      } else {
+        endQuiz();
+      }
+    }, 1500);
+  }
+
+  function endQuiz() {
+    document.getElementById('quizBox').style.display = 'none';
+    const result = document.getElementById('endScreen');
+    if (score === 3) {
+      result.textContent = "🎉 رائع! أنت فارس المعرفة!";
+    } else if (score === 2) {
+      result.textContent = "👏 أحسنت! كدت تصل إلى القمة!";
+    } else {
+      result.textContent = "💡 تابع التدريب أيها المتعلّم!";
+    }
+    result.style.display = 'block';
+  }
+
+  function createStars() {
+    const box = document.getElementById('quizBox');
+    for (let i = 0; i < 10; i++) {
+      const star = document.createElement('div');
+      star.className = 'stars';
+      star.style.left = `${Math.random() * 90 + 5}%`;
+      star.style.top = `${Math.random() * 80 + 10}%`;
+      box.appendChild(star);
+      setTimeout(() => star.remove(), 1000);
+    }
+  }
+
+  startQuiz();
+</script>
+
+</body>
+</html>

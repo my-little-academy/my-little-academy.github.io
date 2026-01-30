@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تعلم حرف اللام</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f9ff;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .letter-display {
+            font-size: 100px;
+            text-align: center;
+            color: #4CAF50;
+            margin: 20px 0;
+        }
+        .writing-area {
+            border: 2px dashed #4CAF50;
+            height: 200px;
+            margin: 20px 0;
+            position: relative;
+        }
+        #writing-canvas {
+            width: 100%;
+            height: 100%;
+        }
+        .memory-game {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .memory-card {
+            height: 100px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .tajweed-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .tajweed-table th, .tajweed-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        .tajweed-table th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .sound-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            margin: 2px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="section">
+            <h2>لنتمرن على كتابة حرف اللام</h2>
+            <div class="writing-area">
+                <canvas id="writing-canvas"></canvas>
+            </div>
+            <button onclick="clearCanvas()">مسح</button>
+        </div>
+
+        <div class="section">
+            <h2>لعبة الذاكرة</h2>
+            <div class="memory-game" id="memory-game"></div>
+        </div>
+
+        <div class="section">
+            <h2>حرف اللام مع الحركات والتنوين</h2>
+            <table class="tajweed-table">
+                <tr>
+                    <th>الصوت</th>
+                    <th>الفتحة</th>
+                    <th>الضمة</th>
+                    <th>الكسرة</th>
+                    <th>مد الألف</th>
+                    <th>مد الواو</th>
+                    <th>مد الياء في الاخر</th>
+                    <th>مد الياء في الوسط</th>
+                    <th>تنوين الفتح</th>
+                    <th>تنوين الكسر</th>
+                    <th>تنوين الضم</th>
+                </tr>
+                <tr>
+                    <td>
+                        <button class="sound-btn" onclick="playSound('la')">▶</button>
+                    </td>
+                    <td>لَ</td>
+                    <td>لُ</td>
+                    <td>لِ</td>
+                    <td>لا</td>
+                    <td>لو</td>
+                    <td>لي</td>
+                    <td>ليـ</td>
+                    <td>لًا</td>
+                    <td>لٍ</td>
+                    <td>لٌ</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // قسم الكتابة
+        const canvas = document.getElementById('writing-canvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        
+        function initCanvas() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            ctx.lineWidth = 5;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#4CAF50';
+            
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+            
+            // دعم اللمس
+            canvas.addEventListener('touchstart', handleTouchStart);
+            canvas.addEventListener('touchmove', handleTouchMove);
+            canvas.addEventListener('touchend', stopDrawing);
+        }
+        
+        function startDrawing(e) {
+            isDrawing = true;
+            draw(e);
+        }
+        
+        function draw(e) {
+            if (!isDrawing) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+        
+        function handleTouchStart(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousedown', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(mouseEvent);
+        }
+        
+        function handleTouchMove(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousemove', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(mouseEvent);
+        }
+        
+        function stopDrawing() {
+            isDrawing = false;
+            ctx.beginPath();
+        }
+        
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        
+        // لعبة الذاكرة
+        const memoryCards = ['ل', 'ليمون', 'ل', 'أسد', 'قمر', 'ليمون', 'أسد', 'قمر'];
+        let flippedCards = [];
+        
+        function setupMemoryGame() {
+            const gameContainer = document.getElementById('memory-game');
+            gameContainer.innerHTML = '';
+            
+            memoryCards.sort(() => Math.random() - 0.5).forEach((card, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'memory-card';
+                cardElement.dataset.value = card;
+                cardElement.textContent = '؟';
+                cardElement.addEventListener('click', () => flipCard(cardElement));
+                gameContainer.appendChild(cardElement);
+            });
+        }
+        
+        function flipCard(card) {
+            if (flippedCards.length >= 2 || card.textContent !== '؟') return;
+            
+            card.textContent = card.dataset.value;
+            flippedCards.push(card);
+            
+            if (flippedCards.length === 2) {
+                checkForMatch();
+            }
+        }
+        
+        function checkForMatch() {
+            if (flippedCards[0].dataset.value === flippedCards[1].dataset.value) {
+                flippedCards = [];
+            } else {
+                setTimeout(() => {
+                    flippedCards.forEach(card => card.textContent = '؟');
+                    flippedCards = [];
+                }, 1000);
+            }
+        }
+        
+        // الأصوات
+        function playSound(type) {
+            console.log('تشغيل صوت: ' + type);
+            // هنا يتم تشغيل الصوت الفعلي في التطبيق الحقيقي
+        }
+        
+        // تهيئة الصفحة
+        window.onload = function() {
+            initCanvas();
+            setupMemoryGame();
+        };
+    </script>
+</body>
+</html>

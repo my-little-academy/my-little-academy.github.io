@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المونوبولي اللغوي: رحلة الإتقان</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Reset & Basic Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f0f8ff; /* Light sky blue */
+            color: #333;
+            display: grid;
+            grid-template-columns: 1fr 320px; /* Game board + sidebar */
+            grid-template-rows: auto 1fr auto; /* Header + main content + footer/tools */
+            gap: 25px;
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl; /* Right-to-left for Arabic */
+        }
+
+        /* Header Styles */
+        header {
+            grid-column: 1 / -1; /* Spans all columns */
+            text-align: center;
+            padding: 25px 0;
+            background-color: #007bff; /* Primary blue */
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        /* Game Container (The Board) */
+        .game-container {
+            grid-column: 1; /* First column for the board */
+            display: grid;
+            grid-template-columns: repeat(11, 1fr); /* 11 columns for squares */
+            grid-template-rows: repeat(11, 1fr); /* 11 rows for squares */
+            border: 8px solid #4a148c; /* Deep purple border */
+            background-color: #fdfdfd; /* White background for the board */
+            max-width: 900px; /* Max width for square appearance */
+            width: 100%; /* Make it responsive */
+            margin: 0 auto;
+            aspect-ratio: 1 / 1; /* Ensures it's always square */
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+            overflow: hidden; /* To keep corner elements within bounds */
+            position: relative; /* For player token positioning */
+        }
+
+        /* Individual Rule Square */
+        .rule-square {
+            border: 1px solid #dcdcdc; /* Light grey border between squares */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 5px;
+            background-color: #ffffff;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+            position: relative; /* For player token positioning */
+        }
+
+        .rule-square:hover {
+            background-color: #e6f7ff; /* Light blue on hover */
+            transform: translateY(-2px);
+        }
+
+        .rule-square img {
+            width: 35px;
+            height: 35px;
+            margin-bottom: 5px;
+            filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.2));
+        }
+
+        /* Specific Square Styles (like Monopoly corners) */
+        .corner-square {
+            background-color: #ffeb3b; /* Yellow for corners */
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #5d4037; /* Brownish text */
+        }
+
+        .start-square {
+            grid-area: 11 / 11; /* Bottom-right corner for start */
+            background-color: #28a745; /* Green */
+            color: white;
+            padding: 0; /* Remove padding to allow image to fill */
+        }
+
+        .start-square img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+            filter: none;
+        }
+
+        .jail-square {
+            grid-area: 1 / 11; /* Top-right corner */
+            background-color: #6c757d; /* Grey */
+            color: white;
+        }
+
+        .free-parking-square {
+            grid-area: 1 / 1; /* Top-left corner */
+            background-color: #17a2b8; /* Teal */
+            color: white;
+        }
+
+        .go-to-jail-square {
+            grid-area: 11 / 1; /* Bottom-left corner */
+            background-color: #dc3545; /* Red */
+            color: white;
+        }
+
+        /* Chance & Community Chest inspired squares */
+        .chance-square {
+            background-color: #ffc107; /* Orange/Amber */
+        }
+
+        .community-chest-square {
+            background-color: #6f42c1; /* Purple */
+            color: white;
+        }
+
+        /* Center of the board */
+        .board-center {
+            grid-area: 2 / 2 / 11 / 11; /* Fills the inner 9x9 grid */
+            background-color: #e9ecef; /* Light grey */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8em;
+            color: #555;
+            font-weight: bold;
+            border-radius: 8px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .board-center img {
+            max-width: 80%;
+            height: auto;
+            opacity: 0.8;
+        }
+
+        /* Player Info Sidebar */
+        .player-info {
+            grid-column: 2; /* Second column for player info */
+            background-color: #ffffff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .player-info h2 {
+            font-size: 1.8em;
+            color: #4a148c; /* Deep purple */
+            margin-bottom: 15px;
+            text-align: center;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .player {
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: border 0.3s ease;
+        }
+
+        .player.active {
+            border: 2px solid #007bff; /* Highlight active player */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .player h3 {
+            font-size: 1.4em;
+            color: #007bff;
+            margin-bottom: 8px;
+        }
+
+        .player p {
+            font-size: 1em;
+            margin-bottom: 5px;
+        }
+
+        .player span {
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        /* Tools Area (Dice, Questions) */
+        .tools-area {
+            grid-column: 1 / -1; /* Spans all columns at the bottom */
+            text-align: center;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.3em;
+            background-color: #ff8c00; /* Dark orange */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        button:hover {
+            background-color: #ff7f00; /* Slightly darker orange */
+            transform: translateY(-2px);
+        }
+
+        button:active {
+
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        #questionDisplay {
+            min-height: 80px; /* Ensure space for question */
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #555;
+            text-align: center;
+        }
+
+        #questionDisplay h3 {
+            color: #4a148c;
+            margin-bottom: 10px;
+        }
+
+        .options-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .option-button {
+            background-color: #e9ecef;
+            border: 1px solid #ced4da;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            font-size: 1em;
+            color: #333;
+        }
+
+        .option-button:hover {
+            background-color: #d1e7dd;
+            transform: translateY(-2px);
+        }
+
+        .option-button.correct {
+            background-color: #28a745;
+            color: white;
+            border-color: #218838;
+        }
+
+        .option-button.incorrect {
+            background-color: #dc3545;
+            color: white;
+            border-color: #c82333;
+        }
+
+        /* Player Token Styling (JavaScript will handle positioning) */
+        .player-token {
+            position: absolute;
+            width: 30px; /* Slightly larger tokens */
+            height: 30px;
+            border-radius: 50%;
+            border: 3px solid white; /* Thicker border for visibility */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+            transition: all 0.7s cubic-bezier(0.68, -0.55, 0.27, 1.55); /* More bouncy transition */
+            z-index: 10; /* Ensure tokens are above squares */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: white;
+            font-size: 0.9em;
+        }
+
+        .player-token.player1 { background-color: #e74c3c; /* Red */ }
+        .player-token.player2 { background-color: #3498db; /* Blue */ }
+
+        /* Responsive adjustments */
+        @media (max-width: 1200px) {
+            body {
+                grid-template-columns: 1fr 280px;
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            body {
+                grid-template-columns: 1fr; /* Stack columns on smaller screens */
+                grid-template-rows: auto auto 1fr auto; /* Header, Player Info, Board, Tools */
+                padding: 15px;
+            }
+            .player-info {
+                grid-column: 1;
+                margin: 0 auto;
+                width: 95%;
+                max-width: 700px;
+            }
+            .game-container {
+                grid-column: 1;
+            }
+            .tools-area {
+                grid-column: 1;
+                width: 95%;
+                margin: 0 auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.2em;
+            }
+            header p {
+                font-size: 1em;
+            }
+            .game-container {
+                border-width: 5px;
+            }
+            .rule-square {
+                font-size: 0.75em;
+                padding: 3px;
+            }
+            .rule-square img {
+                width: 25px;
+                height: 25px;
+            }
+            .player-info h2 {
+                font-size: 1.5em;
+            }
+            button {
+                padding: 12px 25px;
+                font-size: 1.1em;
+            }
+            #questionDisplay {
+                font-size: 1em;
+                padding: 10px;
+            }
+            .player-token {
+                width: 20px;
+                height: 20px;
+                border-width: 2px;
+                font-size: 0.7em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+                gap: 15px;
+            }
+            header h1 {
+                font-size: 1.8em;
+            }
+            header p {
+                font-size: 0.9em;
+            }
+            .rule-square {
+                font-size: 0.65em;
+            }
+            .player-info, .tools-area {
+                padding: 15px;
+            }
+            button {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>المونوبولي اللغوي: رحلة إتقان العربية</h1>
+        <p>انطلق في مغامرة شيقة لتعلم النحو والصرف والإعراب</p>
+    </header>
+
+    <div class="game-container" id="gameBoard">
+        <div class="board-center">
+            <img src="https://via.placeholder.com/200x200?text=شعار+المونوبولي+اللغوي" alt="شعار المونوبولي اللغوي">
+            <p>المونوبولي اللغوي</p>
+        </div>
+    </div>
+
+    <div class="player-info">
+        <h2>اللاعبون</h2>
+        <div class="player" id="player1Info">
+            <h3>اللاعب الأول (أحمر)</h3>
+            <p>النقاط: <span id="player1Score">0</span></p>
+            <p>الموقع: <span id="player1Position">البداية</span></p>
+            <p>القواعد المتقنة: <span id="player1RulesMastered">0</span></p>
+        </div>
+        <div class="player" id="player2Info">
+            <h3>اللاعب الثاني (أزرق)</h3>
+            <p>النقاط: <span id="player2Score">0</span></p>
+            <p>الموقع: <span id="player2Position">البداية</span></p>
+            <p>القواعد المتقنة: <span id="player2RulesMastered">0</span></p>
+        </div>
+    </div>
+
+    <div class="tools-area">
+        <button id="rollDiceButton">رمي النرد اللغوي!</button>
+        <div id="questionDisplay">
+            هنا سيظهر السؤال أو التحدي اللغوي بعد رمي النرد.
+        </div>
+        <div id="optionsContainer" class="options-container">
+            </div>
+        <button id="nextTurnButton" style="display: none;">الدور التالي</button>
+    </div>
+
+    <script>
+        const gameBoard = document.getElementById('gameBoard');
+        const rollDiceButton = document.getElementById('rollDiceButton');
+        const questionDisplay = document.getElementById('questionDisplay');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const nextTurnButton = document.getElementById('nextTurnButton');
+
+        const player1Info = document.getElementById('player1Info');
+        const player1Score = document.getElementById('player1Score');
+        const player1Position = document.getElementById('player1Position');
+        const player1RulesMastered = document.getElementById('player1RulesMastered');
+
+        const player2Info = document.getElementById('player2Info');
+        const player2Score = document.getElementById('player2Score');
+        const player2Position = document.getElementById('player2Position');
+        const player2RulesMastered = document.getElementById('player2RulesMastered');
+
+        // Game state
+        let currentPlayer = 1;
+        let playerPositions = {
+            1: 0, // Player 1 starts at index 0 (Start square)
+            2: 0
+        };
+        let playerScores = {
+            1: 0,
+            2: 0
+        };
+        let playerRulesMastered = {
+            1: 0,
+            2: 0
+        };
+        // Object to store asked questions for each player per square
+        // Format: { playerNum: { squareIndex: [questionIndex1, questionIndex2], ... }, ... }
+        let askedQuestions = {
+            1: {},
+            2: {}
+        };
+
+        const boardSize = 11; // 11x11 grid
+        const totalSquares = (boardSize * 4) - 4; // Total perimeter squares (40 for 11x11)
+
+        // --- Define your game squares with categories and MULTIPLE questions ---
+        // Each question should have a 'question' string, 'options' array, and 'correctAnswer' string.
+        const allSquaresData = [
+            { name: "البداية", type: "start", img: "https://via.placeholder.com/50x50/28a745/FFFFFF?text=GO" },
+            { name: "المبتدأ والخبر", type: "rule", category: "نحو", img: "https://via.placeholder.com/50x50/007bff/FFFFFF?text=نحو", questions: [
+                { question: "ما هي علامة رفع المبتدأ والخبر في حالة المثنى؟", options: ["الواو", "الألف", "الضمة", "الياء"], correctAnswer: "الألف", score: 100, penalty: 50 },
+                { question: "ما هي الصورة الإعرابية للمبتدأ والخبر؟", options: ["نصب", "جر", "رفع", "جزم"], correctAnswer: "رفع", score: 100, penalty: 50 },
+                { question: "إذا كان المبتدأ اسماً من الأسماء الخمسة، فبماذا يُرفع؟", options: ["بالألف", "بالواو", "بالضمة", "بالياء"], correctAnswer: "بالواو", score: 100, penalty: 50 },
+            ]},
+            { name: "الفعل المضارع", type: "rule", category: "صرف", img: "https://via.placeholder.com/50x50/6c5ce7/FFFFFF?text=صرف", questions: [
+                { question: "اذكر علامات رفع الفعل المضارع.", options: ["الفتحة، الكسرة", "السكون، حذف النون", "الضمة الظاهرة، الضمة المقدرة، ثبوت النون", "الألف، الواو"], correctAnswer: "الضمة الظاهرة، الضمة المقدرة، ثبوت النون", score: 100, penalty: 50 },
+                { question: "متى يُنصب الفعل المضارع؟", options: ["إذا سبقته أداة جزم", "إذا لم يسبقه ناصب أو جازم", "إذا سبقته أداة نصب", "إذا كان فعلاً ماضياً"], correctAnswer: "إذا سبقته أداة نصب", score: 100, penalty: 50 },
+                { question: "ما هي علامة جزم الأفعال الخمسة؟", options: ["السكون", "حذف حرف العلة", "حذف النون", "الضم"], correctAnswer: "حذف النون", score: 100, penalty: 50 },
+            ]},
+            { name: "فرصة نحوية", type: "chance", img: "https://via.placeholder.com/50x50/ffc107/FFFFFF?text=؟", questions: [
+                { question: "ما هو إعراب كلمة 'قمر' في جملة 'رأيت قمراً يضيء السماء'؟", options: ["فاعل", "مبتدأ", "مفعول به", "خبر"], correctAnswer: "مفعول به", score: 150, penalty: 75 },
+                { question: "أي من هذه الجمل تحتوي على فعل أمر مبني على حذف حرف العلة؟", options: ["اكتب الدرس", "ادعُ إلى الخير", "لن تذهبوا", "يشرب الطفل"], correctAnswer: "ادعُ إلى الخير", score: 150, penalty: 75 },
+                { question: "ما هي علامة نصب الأسماء الخمسة؟", options: ["الواو", "الياء", "الألف", "الكسرة"], correctAnswer: "الألف", score: 150, penalty: 75 },
+            ]},
+            { name: "جمع المؤنث السالم", type: "rule", category: "نحو", img: "https://via.placeholder.com/50x50/007bff/FFFFFF?text=نحو", questions: [
+                { question: "كيف يُنصب جمع المؤنث السالم؟", options: ["بالفتحة", "بالياء", "بالكسرة نيابة عن الفتحة", "بالألف"], correctAnswer: "بالكسرة نيابة عن الفتحة", score: 100, penalty: 50 },
+                { question: "علامة رفع جمع المؤنث السالم هي:", options: ["الواو", "الضمة", "الألف", "الكسرة"], correctAnswer: "الضمة", score: 100, penalty: 50 },
+            ]},
+            { name: "الأفعال الخمسة", type: "rule", category: "صرف", img: "https://via.placeholder.com/50x50/6c5ce7/FFFFFF?text=صرف", questions: [
+                { question: "ما هي علامة نصب الأفعال الخمسة؟", options: ["الفتحة", "السكون", "حذف النون", "ثبوت النون"], correctAnswer: "حذف النون", score: 100, penalty: 50 },
+                { question: "ما هي علامة رفع الأفعال الخمسة؟", options: ["حذف النون", "الضم", "ثبوت النون", "الواو"], correctAnswer: "ثبوت النون", score: 100, penalty: 50 },
+            ]},
+            { name: "السجن", type: "jail", img: "https://via.placeholder.com/50x50/6c757d/FFFFFF?text=سجن" }, // index 6
+            { name: "الحروف الناسخة", type: "rule", category: "نحو", img: "https://via.placeholder.com/50x50/007bff/FFFFFF?text=نحو", questions: [
+                { question: "ماذا تفعل إنّ وأخواتها بالاسم والخبر؟", options: ["ترفع الاسم وتنصب الخبر", "تنصب الاسم وترفع الخبر", "ترفع الاثنين", "تنصب الاثنين"], correctAnswer: "تنصب الاسم وترفع الخبر", score: 100, penalty: 50 },
+                { question: "ما هي الحروف الناسخة؟", options: ["كان وأخواتها", "إنّ وأخواتها", "أفعال الشروع", "أفعال الرجاء"], correctAnswer: "إنّ وأخواتها", score: 100, penalty: 50 },
+            ]},
+            { name: "صندوق لغوي", type: "community_chest", img: "https://via.placeholder.com/50x50/6f42c1/FFFFFF?text=!" },
+            { name: "المفعول المطلق", type: "rule", category: "نحو", img: "https://via.placeholder.com/50x50/007bff/FFFFFF?text=نحو", questions: [
+                { question: "ما فائدة المفعول المطلق؟", options: ["بيان الفاعل", "توكيد الفعل، بيان نوعه، بيان عدده", "بيان الزمان", "بيان المكان"], correctAnswer: "توكيد الفعل، بيان نوعه، بيان عدده", score: 100, penalty: 50 },
+                { question: "ما هو نوع المفعول المطلق في جملة 'فهمت الدرس فهماً'؟", options: ["مؤكد للفعل", "مبين للنوع", "مبين للعدد", "لا يوجد مفعول مطلق"], correctAnswer: "مؤكد للفعل", score: 100, penalty: 50 },
+            ]},
+            { name: "المضاف والمضاف إليه", type: "rule", category: "نحو", img: "https://via.placeholder.com/50x50/007bff/FFFFFF?text=نحو", questions: [
+                { question: "ما هو إعراب المضاف إليه دائماً؟", options: ["مرفوع", "منصوب", "مجرور", "مجزوم"], correctAnswer: "مجرور", score: 100, penalty: 50 },
+                { question: "في جملة 'كتابُ الطالبِ جديدٌ'، ما هو المضاف إليه؟", options: ["كتاب", "الطالب", "جديد", "لا يوجد مضاف إليه"], correctAnswer: "الطالب", score: 100, penalty: 50 },
+            ]},
+            { name: "موقف مجاني", type: "free_parking", img: "https://via.placeholder.com/50x50/17a2b8/FFFFFF?text=حر" }, // index 11
+            { name: "المفعول لأجله", type: "rule", category: "نحو", img: "https://via.placeholder.com/50x50/007bff/FFFFFF?text=نحو", questions: [
+                { question: "ما هو السؤال الذي نجيب عليه بالمفعول لأجله؟", options: ["متى؟", "أين؟", "كيف؟", "لماذا؟"], correctAnswer: "لماذا؟", score: 100, penalty: 50 },
+                { question: "ما هو إعراب كلمة 'احتراماً' في جملة 'وقفت احتراماً للعلم'؟", options: ["مفعول به", "مفعول مطلق", "مفعول لأجله", "حال"], correctAnswer: "مفعول لأجله", score: 100, penalty: 50 },
+            ]},
+            { name: "صندوق لغوي", type: "community_chest", img: "https://via.placeholder.com/50x50/6f42c1/FFFFFF?text=!" },
+            { name: "الأسماء الموصولة", type: "rule", category: "نحو", img: "https://via.placeholder.com/50x50/007bff/FFFFFF?text=نحو", questions: [
+                { question: "اذكر اسمين موصولين للعاقل وغير العاقل.", options: ["هذا، هذه", "الذي، التي", "من، ما", "أنت، هو"], correctAnswer: "من، ما", score: 100, penalty: 50 },
+                { question: "في جملة 'جاء الطالب الذي نجح'، ما هو الاسم الموصول؟", options: ["جاء", "الطالب", "الذي", "نجح"], correctAnswer: "الذي", score: 100, penalty: 50 },
+            ]},
+            { name: "فرصة نحوية", type: "chance", img: "https://via.placeholder.com/50x50/ffc107/FFFFFF?text=؟", questions: [
+                { question: "ما هو نوع الفعل في جملة 'المعلم يشرح الدرس'؟", options: ["ماضٍ", "أمر", "مضارع", "ناسخ"], correctAnswer: "مضارع", score: 150, penalty: 75 },
+                { question: "علامة رفع جمع التكسير هي:", options: ["الواو", "الألف", "الضمة", "الياء"], correctAnswer: "الضمة", score: 150, penalty: 75 },
+                { question: "ما هو الاسم الذي يرفع المبتدأ وينصب الخبر؟", options: ["الحرف الناسخ", "الفعل الناسخ", "المفعول به", "التمييز"], correctAnswer: "الفعل الناسخ", score: 150, penalty: 75 },
+            ]},
+            { name: "اسم الإشارة", type: "rule", category: "نحو", img: "https://via.placeholder.com/50x50/007bff/FFFFFF?text=نحو", questions: [
+                { question: "ما هو اسم الإشارة للمثنى المذكر القريب؟", options: ["هذه", "هؤلاء", "هذان", "تلك"], correctAnswer: "هذان", score: 100, penalty: 50 },
+                { question: "في جملة 'هؤلاء طلاب مجتهدون'، ما نوع اسم الإشارة؟", options: ["مفرد مذكر", "مثنى مؤنث", "جمع", "مفرد مؤنث"], correctAnswer: "جمع", score: 100, penalty: 50 },
+            ]},
+            { name: "اذهب إلى السجن", type: "go_to_jail", img: "https://via.placeholder.com/50x50/dc3545/FFFFFF?text=!" }, // index 17
+            { name: "التمييز", type: "rule", category: "نحو", img: "https://via.placeholder.com/50x50/007bff/FFFFFF?text=نحو", questions: [
+                { question: "ما هو إعراب التمييز؟", options: ["مرفوع", "مجرور", "منصوب", "مجزوم"], correctAnswer: "منصوب", score: 100, penalty: 50 },
+                { question: "في جملة 'اشتريت عشرين كتابًا'، ما هي الكلمة التي تمثل التمييز؟", options: ["اشتريت", "عشرين", "كتابًا", "لا يوجد تمييز"], correctAnswer: "كتابًا", score: 100, penalty: 50 },
+            ]},
+            { name: "المنادى", type: "rule", category: "نحو", img: "https://via.placeholder.com/50x50/007bff/FFFFFF?text=نحو", questions: [
+                { question: "اذكر أداة نداء للقريب والبعيد.", options: ["أ", "أي", "يا", "أيا"], correctAnswer: "يا", score: 100, penalty: 50 },
+                { question: "ما نوع المنادى في جملة 'يا طالب العلم'؟", options: ["علم مفرد", "نكرة مقصودة", "مضاف", "شبيه بالمضاف"], correctAnswer: "مضاف", score: 100, penalty: 50 },
+            ]},
+            { name: "الممنوع من الصرف", type: "rule", category: "صرف", img: "https://via.placeholder.com/50x50/6c5ce7/FFFFFF?text=صرف", questions: [
+                { question: "ما هي علامة جر الممنوع من الصرف إذا لم يكن معرفاً بأل أو الإضافة؟", options: ["الكسرة", "الفتحة نيابة عن الكسرة", "الياء", "الواو"], correctAnswer: "الفتحة نيابة عن الكسرة", score: 100, penalty: 50 },
+                { question: "اذكر سبباً واحداً للمنع من الصرف.", options: ["الترخيم", "العلمية والتأنيث", "الإعراب", "البناء"], correctAnswer: "العلمية والتأنيث", score: 100, penalty: 50 },
+            ]},
+            { name: "صندوق لغوي", type: "community_chest", img: "https://via.placeholder.com/50x50/6f42c1/FFFFFF?text=!" },
+            { name: "البدل", type: "rule", category: "نحو", img: "https://via.placeholder.com/50x50/007bff/FFFFFF?text=نحو", questions: [
+                { question: "اذكر نوعين من أنواع البدل.", options: ["بدل فاعل، بدل مفعول", "بدل كل من كل، بدل بعض من كل", "بدل حرف، بدل اسم", "بدل فعل، بدل حرف"], correctAnswer: "بدل كل من كل، بدل بعض من كل", score: 100, penalty: 50 },
+                { question: "في جملة 'جاء الخليفة عمر'، ما نوع البدل؟", options: ["اشتمال", "مطابق (كل من كل)", "بعض من كل", "غلط"], correctAnswer: "مطابق (كل من كل)", score: 100, penalty: 50 },
+            ]},
+            { name: "فرصة نحوية", type: "chance", img: "https://via.placeholder.com/50x50/ffc107/FFFFFF?text=؟", questions: [
+                { question: "ما هو نوع الجملة 'الشمس مشرقة'؟", options: ["فعلية", "اسمية", "شبه جملة", "ظرفية"], correctAnswer: "اسمية", score: 150, penalty: 75 },
+                { question: "متى يُعرب الاسم المجرور بالياء؟", options: ["إذا كان مفردًا", "إذا كان جمع مذكر سالم أو من الأسماء الخمسة", "إذا كان جمع تكسير", "إذا كان فعلاً"], correctAnswer: "إذا كان جمع مذكر سالم أو من الأسماء الخمسة", score: 150, penalty: 75 },
+                { question: "ما هي الأداة التي تستخدم للنفي في الماضي؟", options: ["لم", "لن", "لا", "ما"], correctAnswer: "لم", score: 150, penalty: 75 },
+            ]},
+            { name: "الحال", type: "rule", category: "نحو", img: "https://via.placeholder.com/50x50/007bff/FFFFFF?text=نحو", questions: [
+                { question: "كيف نسأل عن الحال؟", options: ["من؟", "ماذا؟", "كيف؟", "أين؟"], correctAnswer: "كيف؟", score: 100, penalty: 50 },
+                { question: "ما هو إعراب كلمة 'مسروراً' في جملة 'عاد الولد مسروراً'؟", options: ["فاعل", "مفعول به", "حال", "نعت"], correctAnswer: "حال", score: 100, penalty: 50 },
+            ]},
+            { name: "النعت", type: "rule", category: "نحو", img: "https://via.placeholder.com/50x50/007bff/FFFFFF?text=نحو", questions: [
+                { question: "هل النعت يتبع المنعوت في الإعراب؟", options: ["لا يتبعه", "يتبعه في الرفع فقط", "يتبعه في الجر فقط", "نعم يتبعه في الإعراب"], correctAnswer: "نعم يتبعه في الإعراب", score: 100, penalty: 50 },
+                { question: "ما هو النعت في جملة 'شاهدتُ طائراً جميلاً'؟", options: ["شاهدت", "طائراً", "جميلاً", "لا يوجد نعت"], correctAnswer: "جميلاً", score: 100, penalty: 50 },
+            ]},
+            { name: "الفاعل ونائب الفاعل", type: "rule", category: "نحو", img: "https://via.placeholder.com/50x50/007bff/FFFFFF?text=نحو", questions: [
+                { question: "ما هو إعراب الفاعل ونائب الفاعل؟", options: ["منصوب", "مجرور", "مرفوع", "مجزوم"], correctAnswer: "مرفوع", score: 100, penalty: 50 },
+                { question: "في جملة 'أُكرمَ الضيفُ'، ما هو نائب الفاعل؟", options: ["أُكرمَ", "الضيف", "لا يوجد", "ضمير مستتر"], correctAnswer: "الضيف", score: 100, penalty: 50 },
+            ]},
+            { name: "الأفعال الناقصة", type: "rule", category: "صرف", img: "https://via.placeholder.com/50x50/6c5ce7/FFFFFF?text=صرف", questions: [
+                { question: "ما هي الأفعال الناقصة؟", options: ["الأفعال التي لا تأخذ مفعول به", "الأفعال التي لا تدل على حدث", "كان وأخواتها", "أفعال الأمر"], correctAnswer: "كان وأخواتها", score: 100, penalty: 50 },
+                { question: "أحد هذه الأفعال من أخوات كان:", options: ["إنّ", "لكن", "أصبح", "ليت"], correctAnswer: "أصبح", score: 100, penalty: 50 },
+            ]},
+            { name: "المفعول به", type: "rule", category: "نحو", img: "https://via.placeholder.com/50x50/007bff/FFFFFF?text=نحو", questions: [
+                { question: "ما هو إعراب المفعول به؟", options: ["مرفوع", "مجرور", "منصوب", "مجزوم"], correctAnswer: "منصوب", score: 100, penalty: 50 },
+                { question: "في جملة 'قرأ الطالب الكتابَ'، ما هو المفعول به؟", options: ["قرأ", "الطالب", "الكتاب", "لا يوجد"], correctAnswer: "الكتاب", score: 100, penalty: 50 },
+            ]},
+            { name: "الأسماء الخمسة", type: "rule", category: "نحو", img: "https://via.placeholder.com/50x50/007bff/FFFFFF?text=نحو", questions: [
+                { question: "ما هي علامة رفع الأسماء الخمسة؟", options: ["الضمة", "الألف", "الواو", "الياء"], correctAnswer: "الواو", score: 100, penalty: 50 },
+                { question: "أحد هذه الكلمات ليست من الأسماء الخمسة:", options: ["أب", "أخ", "فم", "يد"], correctAnswer: "يد", score: 100, penalty: 50 },
+            ]},
+            { name: "حروف الجر", type: "rule", category: "نحو", img: "https://via.placeholder.com/50x50/007bff/FFFFFF?text=نحو", questions: [
+                { question: "اذكر ثلاثة من حروف الجر.", options: ["ثم، أو، الواو", "لم، لن، كي", "من، إلى، عن", "قد، سوف، السين"], correctAnswer: "من، إلى، عن", score: 100, penalty: 50 },
+                { question: "الاسم بعد حرف الجر يكون:", options: ["مرفوعاً", "منصوباً", "مجروراً", "مجزومًا"], correctAnswer: "مجروراً", score: 100, penalty: 50 },
+            ]},
+            { name: "المفعول فيه", type: "rule", category: "نحو", img: "https://via.placeholder.com/50x50/007bff/FFFFFF?text=نحو", questions: [
+                { question: "ما هو الاسم الآخر للمفعول فيه؟", options: ["المفعول المطلق", "المفعول لأجله", "ظرف الزمان والمكان", "الحال"], correctAnswer: "ظرف الزمان والمكان", score: 100, penalty: 50 },
+                { question: "كلمة 'فوق' في جملة 'القطة فوق الشجرة' هي:", options: ["حرف جر", "ظرف مكان", "ظرف زمان", "اسم إشارة"], correctAnswer: "ظرف مكان", score: 100, penalty: 50 },
+            ]},
+            { name: "الفعل الأمر", type: "rule", category: "صرف", img: "https://via.placeholder.com/50x50/6c5ce7/FFFFFF?text=صرف", questions: [
+                { question: "علامة بناء الفعل الأمر الصحيح الآخر.", options: ["الضم", "الفتح", "السكون", "الكسر"], correctAnswer: "السكون", score: 100, penalty: 50 },
+                { question: "ما هي علامة بناء الفعل الأمر المعتل الآخر؟", options: ["الضم", "حذف حرف العلة", "السكون", "الفتح"], correctAnswer: "حذف حرف العلة", score: 100, penalty: 50 },
+            ]},
+            { name: "صندوق لغوي", type: "community_chest", img: "https://via.placeholder.com/50x50/6f42c1/FFFFFF?text=!" },
+            { name: "المصادر", type: "rule", category: "صرف", img: "https://via.placeholder.com/50x50/6c5ce7/FFFFFF?text=صرف", questions: [
+                { question: "ما هو المصدر؟", options: ["اسم يدل على فاعل", "اسم يدل على مفعول", "اسم يدل على حدث مجرد من الزمان", "اسم يدل على صفة"], correctAnswer: "اسم يدل على حدث مجرد من الزمان", score: 100, penalty: 50 },
+                { question: "المصدر من الفعل 'كَتَبَ' هو:", options: ["كاتب", "مكتوب", "كتابة", "أكتب"], correctAnswer: "كتابة", score: 100, penalty: 50 },
+            ]},
+            { name: "المفعول معه", type: "rule", category: "نحو", img: "https://via.placeholder.com/50x50/007bff/FFFFFF?text=نحو", questions: [
+                { question: "ماذا يأتي بعد واو المعية؟", options: ["اسم مرفوع", "فعل مرفوع", "اسم منصوب", "فعل منصوب"], correctAnswer: "اسم منصوب", score: 100, penalty: 50 },
+                { question: "في جملة 'سرتُ والنيلَ'، ما هو المفعول معه؟", options: ["سرت", "والنيل", "النيل", "الواو"], correctAnswer: "النيل", score: 100, penalty: 50 },
+            ]},
+            { name: "فرصة نحوية", type: "chance", img: "https://via.placeholder.com/50x50/ffc107/FFFFFF?text=؟", questions: [
+                { question: "ما هي علامة جزم الفعل المضارع الصحيح الآخر؟", options: ["الضمة", "السكون", "الفتحة", "حذف النون"], correctAnswer: "السكون", score: 150, penalty: 75 },
+                { question: "نوع الاسم في جملة 'هذا قلم' هو:", options: ["معرفة", "نكرة", "موصول", "إشارة"], correctAnswer: "إشارة", score: 150, penalty: 75 },
+                { question: "ما هو الاسم الذي يدل على صفة مشبهة؟", options: ["كريم", "كتاب", "فهم", "لعب"], correctAnswer: "كريم", score: 150, penalty: 75 },
+            ]},
+            { name: "العدد والمعدود", type: "rule", category: "نحو", img: "https://via.placeholder.com/50x50/007bff/FFFFFF?text=نحو", questions: [
+                { question: "كيف يوافق العدد 1 و 2 المعدود في التذكير والتأنيث؟", options: ["يخالفانه", "يوافقانه", "يوافقانه في التذكير ويخالفانه في التأنيث", "يخالفانه في التذكير ويوافقانه في التأنيث"], correctAnswer: "يوافقانه", score: 100, penalty: 50 },
+                { question: "العدد 'ثلاثة' يخالف المعدود في:", options: ["الرفع", "النصب", "التذكير والتأنيث", "الجر"], correctAnswer: "التذكير والتأنيث", score: 100, penalty: 50 },
+            ]},
+            { name: "الاستثناء", type: "rule", category: "نحو", img: "https://via.placeholder.com/50x50/007bff/FFFFFF?text=نحو", questions: [
+                { question: "ما هي أدوات الاستثناء؟", options: ["كان، إنّ، ليس", "إلا، غير، سوى، عدا، خلا، حاشا", "ثم، أو، الواو", "قد، سوف، السين"], correctAnswer: "إلا، غير، سوى، عدا، خلا، حاشا", score: 100, penalty: 50 },
+                { question: "في جملة 'حضر الطلاب إلا واحداً'، ما هو المستثنى؟", options: ["حضر", "الطلاب", "إلا", "واحداً"], correctAnswer: "واحداً", score: 100, penalty: 50 },
+            ]},
+            { name: "التوابع", type: "rule", category: "نحو", img: "https://via.placeholder.com/50x50/007bff/FFFFFF?text=نحو", questions: [
+                { question: "اذكر أنواع التوابع الأربعة.", options: ["الفاعل، المفعول به، الحال، التمييز", "المبتدأ، الخبر، الفعل، الحرف", "النعت، التوكيد، البدل، العطف", "المضاف، المضاف إليه، المنادى، الممنوع من الصرف"], correctAnswer: "النعت، التوكيد، البدل، العطف", score: 100, penalty: 50 },
+                { question: "في جملة 'جاء محمدٌ نفسه'، ما نوع التابع؟", options: ["نعت", "عطف", "توكيد", "بدل"], correctAnswer: "توكيد", score: 100, penalty: 50 },
+            ]},
+        ];
+
+
+        // Function to create board squares
+        function createBoard() {
+            for (let i = 0; i < totalSquares; i++) {
+                const square = document.createElement('div');
+                square.classList.add('rule-square');
+                square.dataset.index = i; // Store index for later use
+
+                const data = allSquaresData[i % allSquaresData.length]; // Cycle through available data
+                square.innerHTML = `<img src="${data.img}" alt="${data.name}"><p>${data.name}</p>`;
+
+                if (data.type === 'start') { square.classList.add('start-square', 'corner-square'); }
+                else if (data.type === 'jail') { square.classList.add('jail-square', 'corner-square'); }
+                else if (data.type === 'free_parking') { square.classList.add('free-parking-square', 'corner-square'); }
+                else if (data.type === 'go_to_jail') { square.classList.add('go-to-jail-square', 'corner-square'); }
+                else if (data.type === 'chance') { square.classList.add('chance-square'); }
+                else if (data.type === 'community_chest') { square.classList.add('community-chest-square'); }
+
+                let row, col;
+                if (i < boardSize) {
+                    row = 1;
+                    col = boardSize - i;
+                } else if (i < boardSize + boardSize - 2) {
+                    row = 1 + (i - boardSize + 1);
+                    col = 1;
+                } else if (i < boardSize + boardSize - 2 + boardSize - 1) {
+                    row = boardSize;
+                    col = 1 + (i - (boardSize * 2 - 2));
+                } else {
+                    row = boardSize - (i - (boardSize * 3 - 3));
+                    col = boardSize;
+                }
+                square.style.gridArea = `${row} / ${col}`;
+                gameBoard.appendChild(square);
+            }
+        }
+
+        // Function to create player tokens
+        function createPlayerTokens() {
+            const player1Token = document.createElement('div');
+            player1Token.classList.add('player-token', 'player1');
+            player1Token.id = 'player1Token';
+            player1Token.textContent = "أ1"; // Player 1 initial
+            gameBoard.appendChild(player1Token);
+
+            const player2Token = document.createElement('div');
+            player2Token.classList.add('player-token', 'player2');
+            player2Token.id = 'player2Token';
+            player2Token.textContent = "أ2"; // Player 2 initial
+            gameBoard.appendChild(player2Token);
+
+            updatePlayerTokenPosition(1);
+            updatePlayerTokenPosition(2);
+        }
+
+        // Function to update player token position on the board
+        function updatePlayerTokenPosition(playerNum) {
+            const currentPositionIndex = playerPositions[playerNum];
+            const targetSquare = document.querySelector(`.rule-square[data-index="${currentPositionIndex}"]`);
+            const token = document.getElementById(`player${playerNum}Token`);
+
+            if (targetSquare && token) {
+                const squareRect = targetSquare.getBoundingClientRect();
+                const boardRect = gameBoard.getBoundingClientRect();
+
+                const offsetX = squareRect.left - boardRect.left + gameBoard.scrollLeft;
+                const offsetY = squareRect.top - boardRect.top + gameBoard.scrollTop;
+
+                let tokenX, tokenY;
+                if (playerNum === 1) {
+                    tokenX = offsetX + (squareRect.width * 0.2); // Position player 1 to the left/top side of square
+                    tokenY = offsetY + (squareRect.height * 0.2);
+                } else {
+                    tokenX = offsetX + (squareRect.width * 0.8) - token.offsetWidth; // Position player 2 to the right/bottom side
+                    tokenY = offsetY + (squareRect.height * 0.8) - token.offsetHeight;
+                }
+
+                token.style.left = `${tokenX}px`;
+                token.style.top = `${tokenY}px`;
+
+                const squareData = allSquaresData[currentPositionIndex % allSquaresData.length];
+                document.getElementById(`player${playerNum}Position`).textContent = squareData.name;
+            }
+        }
+
+        // Function to handle rolling the dice
+        rollDiceButton.addEventListener('click', () => {
+            rollDiceButton.disabled = true; // Disable button during turn
+            questionDisplay.textContent = ``;
+            optionsContainer.innerHTML = '';
+            nextTurnButton.style.display = 'none';
+
+            const diceRoll = Math.floor(Math.random() * 6) + 1; // Roll a 6-sided die
+            questionDisplay.innerHTML = `<h3>لقد رميت النرد!</h3><p> وتحركت <span style="font-size:1.5em; font-weight:bold; color:#007bff;">${diceRoll}</span> خطوات.</p>`;
+
+            let currentPath = playerPositions[currentPlayer];
+            let stepsMoved = 0;
+
+            const moveInterval = setInterval(() => {
+                if (stepsMoved < diceRoll) {
+                    currentPath = (currentPath + 1) % totalSquares;
+                    playerPositions[currentPlayer] = currentPath;
+                    updatePlayerTokenPosition(currentPlayer);
+                    stepsMoved++;
+                } else {
+                    clearInterval(moveInterval);
+                    handleSquareAction(playerPositions[currentPlayer]);
+                }
+            }, 300); // Adjust speed of movement here
+        });
+
+        // Function to handle actions based on the landed square
+        function handleSquareAction(positionIndex) {
+            const currentSquareData = allSquaresData[positionIndex % allSquaresData.length];
+
+            if (currentSquareData.type === 'rule' || currentSquareData.type === 'chance') {
+                displayRandomUniqueQuestion(positionIndex, currentSquareData);
+            } else if (currentSquareData.type === 'community_chest') {
+                questionDisplay.innerHTML = `<h3>صندوق لغوي!</h3><p>تهانينا! حصلت على 50 نقطة مكافأة.</p>`;
+                playerScores[currentPlayer] += 50;
+                updatePlayerScores();
+                nextTurnButton.style.display = 'block';
+            } else if (currentSquareData.type === 'jail') {
+                questionDisplay.innerHTML = `<h3>عفوًا، دخلت السجن!</h3><p>تخطى دورًا واحداً.</p>`;
+                nextTurnButton.style.display = 'block';
+            } else if (currentSquareData.type === 'go_to_jail') {
+                 questionDisplay.innerHTML = `<h3>اذهب إلى السجن مباشرة!</h3><p>ستنتقل إلى مربع السجن وتتخطى دورًا.</p>`;
+                 const jailIndex = allSquaresData.findIndex(sq => sq.type === 'jail');
+                 playerPositions[currentPlayer] = jailIndex !== -1 ? jailIndex : 6; // Default to index 6 if jail not found
+                 updatePlayerTokenPosition(currentPlayer);
+                 nextTurnButton.style.display = 'block';
+            } else { // Start or Free Parking
+                questionDisplay.innerHTML = `<h3>${currentSquareData.name}</h3><p>مكان استراحة أو بداية.</p>`;
+                nextTurnButton.style.display = 'block';
+            }
+        }
+
+        // Function to display a random, unique question
+        function displayRandomUniqueQuestion(squareIndex, squareData) {
+            const availableQuestions = squareData.questions;
+            if (!availableQuestions || availableQuestions.length === 0) {
+                questionDisplay.innerHTML = `<h3>لا توجد أسئلة لهذه الخانة!</h3><p>انتقل إلى الدور التالي.</p>`;
+                nextTurnButton.style.display = 'block';
+                return;
+            }
+
+            // Initialize askedQuestions for current player and square if not exists
+            if (!askedQuestions[currentPlayer][squareIndex]) {
+                askedQuestions[currentPlayer][squareIndex] = [];
+            }
+
+            // Get questions not yet asked to the current player on this square
+            const questionsNotYetAskedIndices = availableQuestions
+                .map((_, idx) => idx)
+                .filter(idx => !askedQuestions[currentPlayer][squareIndex].includes(idx));
+
+            if (questionsNotYetAskedIndices.length === 0) {
+                questionDisplay.innerHTML = `<h3>لقد أجبت على جميع الأسئلة في هذه الخانة!</h3><p>انتقل إلى الدور التالي.</p>`;
+                nextTurnButton.style.display = 'block';
+                // Optionally reset asked questions for this square to allow replay
+                // askedQuestions[currentPlayer][squareIndex] = [];
+                return;
+            }
+
+            // Choose a random index from the not-yet-asked questions
+            const randomQuestionIdxInAvailable = Math.floor(Math.random() * questionsNotYetAskedIndices.length);
+            const questionIndex = questionsNotYetAskedIndices[randomQuestionIdxInAvailable];
+            const chosenQuestion = availableQuestions[questionIndex];
+
+            // Mark this question as asked for the current player on this square
+            askedQuestions[currentPlayer][squareIndex].push(questionIndex);
+
+            questionDisplay.innerHTML = `<h3>${squareData.name}</h3><p>${chosenQuestion.question}</p>`;
+            optionsContainer.innerHTML = ''; // Clear previous options
+
+            // Shuffle options
+            const shuffledOptions = [...chosenQuestion.options].sort(() => Math.random() - 0.5);
+
+            shuffledOptions.forEach(option => {
+                const button = document.createElement('button');
+                button.classList.add('option-button');
+                button.textContent = option;
+                button.addEventListener('click', () => checkAnswer(option, chosenQuestion));
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        // Function to check the answer
+        function checkAnswer(selectedOption, questionData) {
+            // Disable all option buttons after selection
+            Array.from(optionsContainer.children).forEach(button => {
+                button.disabled = true;
+                if (button.textContent === questionData.correctAnswer) {
+                    button.classList.add('correct');
+                } else if (button.textContent === selectedOption) {
+                    button.classList.add('incorrect');
+                }
+            });
+
+            if (selectedOption === questionData.correctAnswer) {
+                questionDisplay.innerHTML += `<p style="color:#28a745; font-weight:bold;">إجابة صحيحة! أحسنت! +${questionData.score} نقطة وإتقان قاعدة.</p>`;
+                playerScores[currentPlayer] += questionData.score;
+                playerRulesMastered[currentPlayer]++;
+            } else {
+                questionDisplay.innerHTML += `<p style="color:#dc3545; font-weight:bold;">إجابة خاطئة. الإجابة الصحيحة هي: "${questionData.correctAnswer}". -${questionData.penalty} نقطة.</p>`;
+                playerScores[currentPlayer] = Math.max(0, playerScores[currentPlayer] - questionData.penalty); // Don't go below 0
+            }
+            updatePlayerScores();
+            nextTurnButton.style.display = 'block'; // Show next turn button
+        }
+
+        // Function to update player scores and mastered rules in UI
+        function updatePlayerScores() {
+            player1Score.textContent = playerScores[1];
+            player1RulesMastered.textContent = playerRulesMastered[1];
+            player2Score.textContent = playerScores[2];
+            player2RulesMastered.textContent = playerRulesMastered[2];
+        }
+
+        // Function to switch player
+        nextTurnButton.addEventListener('click', () => {
+            optionsContainer.innerHTML = ''; // Clear options
+            questionDisplay.textContent = 'هنا سيظهر السؤال أو التحدي اللغوي بعد رمي النرد.';
+            nextTurnButton.style.display = 'none';
+
+            currentPlayer = currentPlayer === 1 ? 2 : 1;
+            questionDisplay.innerHTML = `<h3>دور اللاعب <span style="color:${currentPlayer === 1 ? '#e74c3c' : '#3498db'};">${currentPlayer}</span>.</h3><p>الرجاء رمي النرد.</p>`;
+            
+            // Highlight current player in sidebar
+            player1Info.classList.toggle('active', currentPlayer === 1);
+            player2Info.classList.toggle('active', currentPlayer === 2);
+            
+            rollDiceButton.disabled = false; // Enable dice for next player
+        });
+
+        // Initial setup
+        document.addEventListener('DOMContentLoaded', () => {
+            createBoard();
+            createPlayerTokens();
+            updatePlayerScores();
+            // Initial message and highlight first player
+            questionDisplay.innerHTML = `<h3>مرحباً بكم في المونوبولي اللغوي!</h3><p>ابدأ اللعب برمي النرد.</p>`;
+            player1Info.classList.add('active'); // Player 1 starts active
+        });
+    </script>
+</body>
+</html>

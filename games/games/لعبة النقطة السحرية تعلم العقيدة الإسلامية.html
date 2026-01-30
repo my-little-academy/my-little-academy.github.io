@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة النقطة السحرية: تعلم العقيدة</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            text-align: center;
+            cursor: none;
+        }
+        
+        #game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .question-box {
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            border: 3px solid #3498db;
+            transition: all 0.3s ease;
+        }
+        
+        .question {
+            font-size: 1.5em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .option {
+            background-color: #e0f7fa;
+            border: 2px solid #b2ebf2;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .option:hover {
+            background-color: #b2ebf2;
+            transform: scale(1.02);
+        }
+        
+        .score {
+            font-size: 1.3em;
+            color: #2c3e50;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        
+        .dot {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #e74c3c;
+            border-radius: 50%;
+            pointer-events: none;
+            transition: transform 0.2s ease, background-color 0.3s ease;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .speech-bubble {
+            position: absolute;
+            background-color: white;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            width: 200px;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1em;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .speech-bubble:after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -10px;
+            border-width: 10px;
+            border-style: solid;
+            border-color: white transparent transparent transparent;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>لعبة النقطة السحرية: تعلم العقيدة الإسلامية</h1>
+        
+        <div class="question-box">
+            <div class="question" id="question">السؤال سيظهر هنا</div>
+            <div class="options" id="options">
+                <!-- الخيارات ستظهر هنا -->
+            </div>
+        </div>
+        
+        <div class="score" id="score">النقاط: 0</div>
+    </div>
+    
+    <div class="dot" id="magic-dot"></div>
+    <div class="speech-bubble" id="speech-bubble">أنا النقطة فوق النون! تعال نتعلم الحروف.</div>
+    <div class="celebration" id="celebration"></div>
+    
+    <script>
+        // الأسئلة والأجوبة
+        const questions = [
+            {
+                question: "من ربك؟",
+                answer: "ربي الله",
+                options: ["ربي الله", "ربي محمد", "ربي الملائكة", "ربي الشمس"]
+            },
+            {
+                question: "أين الله؟",
+                answer: "في السماء علي العرش استوى",
+                options: ["في السماء علي العرش استوى", "في كل مكان", "في الأرض", "في البحر"]
+            },
+            {
+                question: "ما معني استوي؟",
+                answer: "علا وارتفع",
+                options: ["علا وارتفع", "جلس", "نام", "سار"]
+            },
+            {
+                question: "من نبيك؟",
+                answer: "محمد بن عبد الله بن عبد المطلب",
+                options: [
+                    "محمد بن عبد الله بن عبد المطلب",
+                    "عيسى بن مريم",
+                    "موسى بن عمران",
+                    "إبراهيم بن آزر"
+                ]
+            },
+            {
+                question: "ما دينك؟",
+                answer: "ديني الاسلام",
+                options: ["ديني الاسلام", "ديني المسيحية", "ديني اليهودية", "ديني البوذية"]
+            },
+            {
+                question: "ما هو الاسلام؟",
+                answer: "هو الاستسلام لله بالتوحيد ،والانقياد له بالطاعة،والبراءه من الشرك وأهله",
+                options: [
+                    "هو الاستسلام لله بالتوحيد ،والانقياد له بالطاعة،والبراءه من الشرك وأهله",
+                    "هو الصلاة فقط",
+                    "هو الصوم فقط",
+                    "هو الذهاب إلى المسجد"
+                ]
+            },
+            {
+                question: "ما هي اركان الاسلام؟",
+                answer: "بني الاسلام على خمس: شهادة أن لا إله إلا الله وأن محمداً رسول اللَّه، إقام الصلاة، إيتاء الزكاة، وحج البيت، صوم رمضان",
+                options: [
+                    "بني الاسلام على خمس: شهادة أن لا إله إلا الله وأن محمداً رسول اللَّه، إقام الصلاة، إيتاء الزكاة، وحج البيت، صوم رمضان",
+                    "الصلاة والصوم فقط",
+                    "الصدقة والزكاة",
+                    "قراءة القرآن وحفظه"
+                ]
+            },
+            {
+                question: "لماذا خلق الله الجن و الانس؟",
+                answer: "لعبادته وحده لا شريك له",
+                options: [
+                    "لعبادته وحده لا شريك له",
+                    "للعمل والكسب",
+                    "للتمتع بالحياة",
+                    "للتعلم والمعرفة"
+                ]
+            },
+            {
+                question: "ما معني يعبدون؟",
+                answer: "يوحدون",
+                options: ["يوحدون", "يصلون", "يصومون", "يتصدقون"]
+            },
+            {
+                question: "ما هو التوحيد؟",
+                answer: "افراد الله بالعبادة",
+                options: [
+                    "افراد الله بالعبادة",
+                    "قراءة القرآن",
+                    "الصلاة في المسجد",
+                    "مساعدة الآخرين"
+                ]
+            },
+            {
+                question: "ما اكبر طاعة؟",
+                answer: "التوحيد",
+                options: ["التوحيد", "الصلاة", "الصدقة", "الحج"]
+            },
+            {
+                question: "ما اكبر معصية؟",
+                answer: "الشرك",
+                options: ["الشرك", "الكذب", "السرقة", "الغيبة"]
+            },
+            {
+                question: "ما هو الشرك؟",
+                answer: "عبادة غير الله مع الله",
+                options: [
+                    "عبادة غير الله مع الله",
+                    "عدم الصلاة",
+                    "عدم الصوم",
+                    "عدم الذهاب إلى الحج"
+                ]
+            },
+            {
+                question: "ما هي اقسام التوحيد؟",
+                answer: "ثلاثة: توحيد الوهية، توحيد ربوبية، توحيد اسماء وصفات",
+                options: [
+                    "ثلاثة: توحيد الوهية، توحيد ربوبية، توحيد اسماء وصفات",
+                    "واحد فقط",
+                    "أربعة",
+                    "خمسة"
+                ]
+            },
+            {
+                question: "ما هو توحيد الالوهية؟",
+                answer: "افراد الله تعالي بالعبادات كالصلاه والصدقه والدعاء والنذر",
+                options: [
+                    "افراد الله تعالي بالعبادات كالصلاه والصدقه والدعاء والنذر",
+                    "الإيمان بخلق الله للكون",
+                    "الإيمان بأسماء الله وصفاته",
+                    "قراءة القرآن"
+                ]
+            },
+            {
+                question: "ما هو توحيد الربوبية؟",
+                answer: "هو أفراد الله بافعالة كالخلق والرزق والاحياء",
+                options: [
+                    "هو أفراد الله بافعالة كالخلق والرزق والاحياء",
+                    "الصلاة لله",
+                    "الدعاء لله",
+                    "الصوم لله"
+                ]
+            },
+            {
+                question: "ما هو توحيد الأسماء والصفات؟",
+                answer: "هو إثبات ما أثبته الله ورسوله من الأسماء الحسنى والصفات العلا لله تعلي من غير تحريف أو تعطيل أو تكييف أو تمثيل",
+                options: [
+                    "هو إثبات ما أثبته الله ورسوله من الأسماء الحسنى والصفات العلا لله تعلي من غير تحريف أو تعطيل أو تكييف أو تمثيل",
+                    "ذكر أسماء الله فقط",
+                    "ذكر صفات الله فقط",
+                    "عدم الحديث عن أسماء الله وصفاته"
+                ]
+            },
+            {
+                question: "من اين ناخذ اسماء الله وصفاته؟",
+                answer: "القرآن والسنة",
+                options: ["القرآن والسنة", "الكتب القديمة", "الفلسفة", "العلماء فقط"]
+            },
+            {
+                question: "القرآن كلام من؟",
+                answer: "كلام الله تعالي",
+                options: [
+                    "كلام الله تعالي",
+                    "كلام النبي محمد",
+                    "كلام الصحابة",
+                    "كلام الملائكة"
+                ]
+            },
+            {
+                question: "ما معني لا اله الا الله؟",
+                answer: "أي لا معبود بحق الا الله",
+                options: [
+                    "أي لا معبود بحق الا الله",
+                    "لا يوجد إله",
+                    "هناك آلهة متعددة",
+                    "الله واحد من بين آلهة"
+                ]
+            },
+            {
+                question: "اين الجنه؟",
+                answer: "فوق السماء السابعة ومنفصلة عنها وسقفها عرش الرحمن",
+                options: [
+                    "فوق السماء السابعة ومنفصلة عنها وسقفها عرش الرحمن",
+                    "في الأرض",
+                    "في السماء الأولى",
+                    "في البحر"
+                ]
+            },
+            {
+                question: "اين النار؟",
+                answer: "تحت الارض السابعه",
+                options: [
+                    "تحت الارض السابعه",
+                    "في السماء",
+                    "في القمر",
+                    "في الشمس"
+                ]
+            },
+            {
+                question: "من اين نأخذ عقيدتنا؟",
+                answer: "من القرآن والسنة",
+                options: [
+                    "من القرآن والسنة",
+                    "من الآباء والأجداد",
+                    "من الكتب الفلسفية",
+                    "من العلماء فقط"
+                ]
+            }
+        ];
+
+        // متغيرات اللعبة
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let dot = document.getElementById('magic-dot');
+        let speechBubble = document.getElementById('speech-bubble');
+        let celebration = document.getElementById('celebration');
+        
+        // عرض السؤال الأول
+        displayQuestion();
+        
+        // جعل النقطة تتبع المؤشر
+        document.addEventListener('mousemove', (e) => {
+            dot.style.left = e.pageX + 'px';
+            dot.style.top = e.pageY + 'px';
+            
+            // عرض فقاعة الكلام عند تحريك المؤشر لأول مرة
+            if (speechBubble.style.opacity == 0) {
+                speechBubble.style.opacity = 1;
+                setTimeout(() => {
+                    speechBubble.style.opacity = 0;
+                }, 3000);
+            }
+        });
+        
+        // عرض السؤال الحالي
+        function displayQuestion() {
+            if (currentQuestionIndex >= questions.length) {
+                // انتهت الأسئلة
+                document.getElementById('question').textContent = "انتهت اللعبة!";
+                document.getElementById('options').innerHTML = `<div style="font-size: 1.5em; color: #2c3e50;">نقاطك النهائية: ${score}/${questions.length}</div>`;
+                return;
+            }
+            
+            const currentQuestion = questions[currentQuestionIndex];
+            document.getElementById('question').textContent = currentQuestion.question;
+            
+            // خلط الخيارات عشوائياً
+            const shuffledOptions = [...currentQuestion.options].sort(() => Math.random() - 0.5);
+            
+            let optionsHtml = '';
+            shuffledOptions.forEach(option => {
+                optionsHtml += `<div class="option" onclick="checkAnswer('${option}')">${option}</div>`;
+            });
+            
+            document.getElementById('options').innerHTML = optionsHtml;
+        }
+        
+        // التحقق من الإجابة
+        window.checkAnswer = function(selectedAnswer) {
+            const currentQuestion = questions[currentQuestionIndex];
+            const dot = document.getElementById('magic-dot');
+            
+            if (selectedAnswer === currentQuestion.answer) {
+                // إجابة صحيحة
+                dot.style.backgroundColor = '#2ecc71'; // أخضر
+                score++;
+                document.getElementById('score').textContent = `النقاط: ${score}`;
+                createConfetti();
+            } else {
+                // إجابة خاطئة
+                dot.style.backgroundColor = '#e74c3c'; // أحمر
+            }
+            
+            // حركة النقطة
+            dot.style.transform = 'scale(1.5)';
+            setTimeout(() => {
+                dot.style.transform = 'scale(1)';
+            }, 300);
+            
+            // الانتقال للسؤال التالي
+            currentQuestionIndex++;
+            setTimeout(displayQuestion, 1000);
+        };
+        
+        // إنشاء تأثيرات احتفالية
+        function createConfetti() {
+            celebration.style.display = 'block';
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * window.innerWidth + 'px';
+                confetti.style.top = -10 + 'px';
+                confetti.style.backgroundColor = getRandomColor();
+                celebration.appendChild(confetti);
+                
+                animateConfetti(confetti);
+            }
+            
+            setTimeout(() => {
+                celebration.innerHTML = '';
+                celebration.style.display = 'none';
+            }, 3000);
+        }
+        
+        function animateConfetti(confetti) {
+            let posY = -10;
+            let posX = parseFloat(confetti.style.left);
+            let angle = 0;
+            let speed = 2 + Math.random() * 3;
+            let spinSpeed = Math.random() * 10 - 5;
+            
+            const fall = () => {
+                posY += speed;
+                angle += spinSpeed;
+                posX += Math.sin(angle * Math.PI / 180) * 2;
+                
+                confetti.style.top = posY + 'px';
+                confetti.style.left = posX + 'px';
+                confetti.style.transform = `rotate(${angle}deg)`;
+                
+                if (posY < window.innerHeight) {
+                    requestAnimationFrame(fall);
+                }
+            };
+            
+            fall();
+        }
+        
+        function getRandomColor() {
+            const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4CAF50', '#8BC34A', '#CDDC39', '#FFEB3B', '#FFC107', '#FF9800', '#FF5722'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+    </script>
+</body>
+</html>

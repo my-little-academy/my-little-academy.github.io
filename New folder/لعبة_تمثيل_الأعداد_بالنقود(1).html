@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="ar">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>لعبة تمثيل الأعداد بالنقود</title>
+  <style>
+    :root{--accent:#3b82f6;--bg:#f7fafc}
+    *{box-sizing:border-box;font-family:Tahoma, Arial, sans-serif}
+    body{direction:rtl;background:var(--bg);padding:18px}
+    .container{max-width:900px;margin:0 auto;background:#fff;padding:18px;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,.06)}
+    h1{margin:0 0 8px;font-size:20px}
+    .top{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .target{background:#eef2ff;padding:12px;border-radius:8px;min-width:220px}
+    .target .amount{font-size:28px;font-weight:700;color:var(--accent)}
+    .controls{margin-left:auto;display:flex;gap:8px}
+    button{cursor:pointer;padding:8px 12px;border-radius:8px;border:1px solid #ddd;background:#fff}
+    button.primary{background:var(--accent);color:#fff;border:none}
+    .coins{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap}
+    .coin{width:110px;padding:10px;border-radius:10px;border:1px dashed #cbd5e1;text-align:center;cursor:pointer;background:#fff}
+    .coin .value{font-weight:700;font-size:18px}
+    .tray{margin-top:16px;padding:12px;border-radius:10px;border:1px solid #e6edf8;background:#fcfeff;min-height:120px}
+    .tray .tray-coins{display:flex;gap:8px;flex-wrap:wrap}
+    .tray .tray-item{padding:6px 10px;border-radius:8px;background:#eef6ff;border:1px solid #d6eaff;cursor:pointer}
+    .status{margin-top:12px;display:flex;gap:12px;align-items:center}
+    .status .sum{font-size:18px;font-weight:700}
+    .hint{color:#475569}
+    .footer{margin-top:14px;font-size:13px;color:#475569}
+    .level{display:inline-block;padding:6px 10px;border-radius:999px;border:1px solid #e6e6e6;margin-right:6px}
+    @media (max-width:600px){.coin{width:48%}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>لعبة: تمثيل الأعداد بالوحدات والعشرات والمئات</h1>
+    <div class="top">
+      <div class="target">
+        <div>الهدف: <span id="targetLabel" class="amount">0</span></div>
+        <div style="font-size:12px;color:#64748b;margin-top:6px">كوّن العدد المستهدف باستخدام الوحدات والعشرات والمئات</div>
+      </div>
+
+      <div class="controls">
+        <div style="display:flex;gap:8px;align-items:center">
+          <span class="level">المستوى: <span id="levelDisplay">1</span></span>
+        </div>
+        <button id="newBtn">عدد جديد</button>
+        <button id="resetBtn">إعادة ضبط</button>
+      </div>
+    </div>
+
+    <section style="margin-top:14px">
+      <div style="font-weight:700;margin-bottom:8px">القيم المتاحة — اضغطي لإضافتها إلى الصينية</div>
+      <div class="coins" id="coinsArea">
+        <!-- قيم تُضاف ديناميكياً -->
+      </div>
+    </section>
+
+    <section class="tray" id="tray">
+      <div style="font-weight:700;margin-bottom:6px">الصينية (اضغطي على القطعة لإزالتها)</div>
+      <div class="tray-coins" id="trayCoins"></div>
+      <div class="status">
+        <div class="sum">المجموع الحالي: <span id="currentSum">0</span></div>
+        <div class="hint" id="hintArea">&nbsp;</div>
+      </div>
+      <div style="margin-top:10px">
+        <button id="checkBtn" class="primary">تحقق</button>
+      </div>
+    </section>
+
+    <div class="footer">تعليمات: اضغطي على القيمة لإضافتها، ثم اضغطي على القطعة في الصينية لإزالتها.</div>
+  </div>
+
+<script>
+  // القيم المتاحة: وحدات (1)، عشرات (10)، مئات (100)
+  const coins = [1, 10, 100];
+
+  // عناصر الصفحة
+  const coinsArea = document.getElementById('coinsArea');
+  const trayCoins = document.getElementById('trayCoins');
+  const currentSumEl = document.getElementById('currentSum');
+  const targetLabel = document.getElementById('targetLabel');
+  const hintArea = document.getElementById('hintArea');
+  const checkBtn = document.getElementById('checkBtn');
+  const newBtn = document.getElementById('newBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const levelDisplay = document.getElementById('levelDisplay');
+
+  let tray = [];
+  let target = 0;
+  let level = 1;
+
+  function renderCoins(){
+    coinsArea.innerHTML = '';
+    coins.forEach(v => {
+      const div = document.createElement('div');
+      div.className = 'coin';
+      let label = v === 1 ? 'وحدة' : (v === 10 ? 'عشرة' : 'مئة');
+      div.innerHTML = `<div style="font-size:13px;color:#475569">${label}</div><div class="value">${v}</div>`;
+      div.addEventListener('click', () => addToTray(v));
+      coinsArea.appendChild(div);
+    })
+  }
+
+  function addToTray(value){
+    tray.push(value);
+    renderTray();
+  }
+
+  function renderTray(){
+    trayCoins.innerHTML = '';
+    tray.forEach((v,i) => {
+      const it = document.createElement('div');
+      it.className = 'tray-item';
+      let label = v === 1 ? 'وحدة' : (v === 10 ? 'عشرة' : 'مئة');
+      it.innerText = label;
+      it.title = 'انقر لإزالة هذه القطعة';
+      it.addEventListener('click', () => {
+        tray.splice(i,1);
+        renderTray();
+      });
+      trayCoins.appendChild(it);
+    });
+    updateSum();
+  }
+
+  function updateSum(){
+    const sum = tray.reduce((a,b)=>a+b,0);
+    currentSumEl.innerText = sum;
+    hintArea.innerText = '';
+  }
+
+  function generateTarget(){
+    // الهدف يتدرج حسب المستوى (أعداد حتى 999)
+    const max = 100 * level + 100;
+    target = Math.floor(Math.random() * (max - 1)) + 1;
+    targetLabel.innerText = target;
+  }
+
+  function checkAnswer(){
+    const sum = tray.reduce((a,b)=>a+b,0);
+    if(sum === target){
+      hintArea.innerText = 'ممتاز! الجواب صحيح ✓';
+      levelUp();
+    } else if(sum < target){
+      hintArea.innerText = `المجموع ناقص بمقدار ${target - sum}`;
+    } else {
+      hintArea.innerText = `المجموع زائد بمقدار ${sum - target}`;
+    }
+  }
+
+  function levelUp(){
+    level = Math.min(10, level + 1);
+    levelDisplay.innerText = level;
+  }
+
+  // أزرار
+  checkBtn.addEventListener('click', checkAnswer);
+  newBtn.addEventListener('click', () => { tray = []; renderTray(); generateTarget(); });
+  resetBtn.addEventListener('click', () => { tray = []; renderTray(); hintArea.innerText = ''; });
+
+  // تهيئة أولية
+  renderCoins();
+  generateTarget();
+  renderTray();
+</script>
+</body>
+</html>

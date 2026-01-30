@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المزرعة السعيدة 🌻</title>
+    <style>
+        /* التصميم العام - ألوان زاهية */
+        body {
+            font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: #5a3e36;
+            overflow-x: hidden;
+        }
+        
+        .main-container {
+            max-width: 100%;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .scroll-container {
+            width: 100%;
+            max-width: 800px;
+            overflow-y: auto;
+            max-height: 90vh;
+            padding: 10px;
+        }
+        
+        .game-container {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            padding: 25px;
+            text-align: center;
+            border: 5px solid #f8a5c2;
+            margin-bottom: 20px;
+        }
+        
+        /* تصميم المزرعة */
+        .farm {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 25px 0;
+            padding: 10px;
+            background: rgba(248, 165, 194, 0.1);
+            border-radius: 20px;
+            min-height: 300px;
+        }
+        
+        .farm-plot {
+            background: #e0f7c2;
+            border-radius: 15px;
+            height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px dashed #a5d6a7;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        /* شريط التمرير */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 10px;
+            border: 3px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        /* بقية الأنماط كما هي من الكود السابق ... */
+        
+        /* التأكد من ظهور جميع العناصر */
+        .force-show {
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="scroll-container">
+            <!-- شاشة البداية -->
+            <div class="game-container start-screen force-show" id="start-screen">
+                <h1 class="game-title">المزرعة السعيدة 🌻</h1>
+                <p class="game-subtitle">انطلق في مغامرة زراعية ممتعة! ازرع وحصد واربح النقاط لبناء مزرعتك الخاصة</p>
+                <button class="start-btn" onclick="startGame()">ابدأ اللعب</button>
+            </div>
+            
+            <!-- شاشة اللعبة الرئيسية -->
+            <div class="game-container" id="game-container" style="display: none;">
+                <button class="help-btn" onclick="showHelp()">؟</button>
+                
+                <h2 style="color: #f5576c; margin-bottom: 5px;">مزرعتي الجميلة</h2>
+                <div style="color: #888; margin-bottom: 15px;">المستوى <span id="level">1</span></div>
+                
+                <div class="game-info">
+                    <div class="info-item">
+                        <div class="info-label">النقاط</div>
+                        <div class="info-value" id="points">0</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">المال</div>
+                        <div class="info-value" id="money">50</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">الوقت</div>
+                        <div class="info-value" id="time">03:00</div>
+                    </div>
+                </div>
+                
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                
+                <div class="farm" id="farm">
+                    <!-- ستتم إضافة قطع الأرض هنا -->
+                </div>
+                
+                <div class="toolbar">
+                    <button class="tool" onclick="plant('carrot')">🥕 جزر (5💰)</button>
+                    <button class="tool" onclick="plant('tomato')">🍅 طماطم (8💰)</button>
+                    <button class="tool" onclick="plant('wheat')">🌾 قمح (3💰)</button>
+                    <button class="tool" onclick="addAnimal('cow')">🐄 بقرة (20💰)</button>
+                    <button class="tool" onclick="addAnimal('chicken')">🐓 دجاجة (15💰)</button>
+                </div>
+            </div>
+            
+            <!-- شاشة النتائج -->
+            <div class="game-container result-screen" id="result-screen" style="display: none;">
+                <h2 class="result-title" id="result-title">🎉 أحسنت! 🎉</h2>
+                
+                <div class="result-stats">
+                    <div class="stat-item">
+                        <span>النقاط الكلية:</span>
+                        <span class="stat-value" id="final-points">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>المال المجموع:</span>
+                        <span class="stat-value" id="final-money">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>الوقت المتبقي:</span>
+                        <span class="stat-value" id="final-time">00:00</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>المستوى:</span>
+                        <span class="stat-value" id="final-level">1</span>
+                    </div>
+                </div>
+                
+                <button class="start-btn" onclick="nextLevel()">المستوى التالي</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- البطاقات المنبثقة -->
+    <div class="popup instruction-popup" id="help-popup">
+        <h2 class="popup-title">🎮 كيف تلعب</h2>
+        <div class="popup-content">
+            <p><strong>الهدف:</strong> بناء مزرعة ناجحة بكسب النقاط والمال</p>
+            <p>1. اختر محصولاً أو حيواناً من شريط الأدوات</p>
+            <p>2. انقر على أرض فارغة للزراعة أو إضافة الحيوان</p>
+            <p>3. انتظر حتى ينمو المحصول</p>
+            <p>4. انقر على المحصول الناضج لبيعه</p>
+            <p>5. استخدم الأرباح لشراء المزيد</p>
+            <p>6. حقق أهداف المستوى للتقدم</p>
+        </div>
+        <button class="popup-btn" onclick="hidePopup('help-popup')">حسناً!</button>
+    </div>
+    
+    <!-- بقية البطاقات المنبثقة ... -->
+
+    <script>
+        // بيانات اللعبة
+        const gameData = {
+            level: 1,
+            points: 0,
+            money: 50,
+            timeLeft: 180,
+            plants: [],
+            animals: [],
+            prices: { carrot: 5, tomato: 8, wheat: 3, cow: 20, chicken: 15 },
+            rewards: { carrot: 10, tomato: 15, wheat: 7, cow: 30, chicken: 20 },
+            growthTime: { carrot: 5, tomato: 7, wheat: 3 },
+            levelGoals: [
+                { points: 100, money: 200 },
+                { points: 250, money: 400 },
+                { points: 500, money: 800 }
+            ],
+            timerInterval: null,
+            growthInterval: null
+        };
+
+        // بدء اللعبة
+        function startGame() {
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('game-container').style.display = 'block';
+            initFarm();
+            updateUI();
+            startTimer();
+            
+            // بدء تحديث النمو
+            gameData.growthInterval = setInterval(updatePlantsGrowth, 1000);
+            
+            // التأكد من ظهور جميع العناصر
+            document.querySelectorAll('.farm-plot, .tool, .info-item').forEach(el => {
+                el.classList.add('force-show');
+            });
+        }
+
+        // تهيئة المزرعة
+        function initFarm() {
+            const farm = document.getElementById('farm');
+            farm.innerHTML = '';
+            
+            for (let i = 0; i < 8; i++) {
+                const plot = document.createElement('div');
+                plot.className = 'farm-plot force-show';
+                plot.dataset.index = i;
+                plot.onclick = function() { harvest(this.dataset.index); };
+                farm.appendChild(plot);
+            }
+        }
+
+        // زرع محصول (معدلة لضمان الظهور الفوري)
+        function plant(type) {
+            if (gameData.money < gameData.prices[type]) {
+                showWarning('ليس لديك ما يكفي من المال!');
+                return;
+            }
+            
+            gameData.money -= gameData.prices[type];
+            const emptyPlots = document.querySelectorAll('.farm-plot:empty');
+            
+            if (emptyPlots.length > 0) {
+                const randomPlot = emptyPlots[Math.floor(Math.random() * emptyPlots.length)];
+                const plantEmoji = type === 'carrot' ? '🥕' : type === 'tomato' ? '🍅' : '🌾';
+                
+                randomPlot.innerHTML = `
+                    <div class="plant force-show" style="animation: plantGrow 0.5s;">
+                        ${plantEmoji}
+                        <div class="growth-animation force-show"></div>
+                    </div>
+                `;
+                
+                gameData.plants.push({
+                    type: type,
+                    plotIndex: randomPlot.dataset.index,
+                    growth: 0,
+                    growthTime: gameData.growthTime[type]
+                });
+                
+                updateUI();
+                showCoins(randomPlot, -gameData.prices[type]);
+                showSuccess(`تم زرع ${type === 'carrot' ? 'جزر' : type === 'tomato' ? 'طماطم' : 'قمح'} بنجاح!`);
+                
+                // إزالة تأثير النمو بعد فترة
+                setTimeout(() => {
+                    const growthEffect = randomPlot.querySelector('.growth-animation');
+                    if (growthEffect) growthEffect.remove();
+                }, 2000);
+            } else {
+                alert('لا توجد أرض فارغة!');
+                gameData.money += gameData.prices[type];
+            }
+        }
+
+        // بقية الدوال كما هي مع تعديلات بسيطة لضمان الظهور
+        function addAnimal(type) {
+            if (gameData.money < gameData.prices[type]) {
+                showWarning('ليس لديك ما يكفي من المال!');
+                return;
+            }
+            
+            gameData.money -= gameData.prices[type];
+            const emptyPlots = document.querySelectorAll('.farm-plot:empty');
+            
+            if (emptyPlots.length > 0) {
+                const randomPlot = emptyPlots[Math.floor(Math.random() * emptyPlots.length)];
+                const animalEmoji = type === 'cow' ? '🐄' : '🐓';
+                
+                randomPlot.innerHTML = `
+                    <div class="animal force-show" style="animation: plantGrow 0.5s;">
+                        ${animalEmoji}
+                        <div class="growth-animation force-show"></div>
+                    </div>
+                `;
+                
+                gameData.animals.push({
+                    type: type,
+                    plotIndex: randomPlot.dataset.index
+                });
+                
+                updateUI();
+                showCoins(randomPlot, -gameData.prices[type]);
+                showSuccess(`تم إضافة ${type === 'cow' ? 'بقرة' : 'دجاجة'} إلى المزرعة!`);
+                
+                setTimeout(() => {
+                    const growthEffect = randomPlot.querySelector('.growth-animation');
+                    if (growthEffect) growthEffect.remove();
+                }, 2000);
+            } else {
+                alert('لا توجد أرض فارغة!');
+                gameData.money += gameData.prices[type];
+            }
+        }
+
+        // التأكد من ظهور جميع العناصر عند التمرير
+        document.querySelector('.scroll-container').addEventListener('scroll', function() {
+            document.querySelectorAll('.farm-plot, .plant, .animal, .tool').forEach(el => {
+                el.classList.add('force-show');
+            });
+        });
+
+        // بقية الدوال (updatePlantsGrowth, harvest, startTimer, endGame, nextLevel, ...)
+        // تبقى كما هي مع التأكد من إضافة 'force-show' للعناصر الجديدة
+        
+        // دالة عرض العملات المعدلة
+        function showCoins(element, amount) {
+            const coins = document.createElement('div');
+            coins.className = 'coins force-show';
+            coins.textContent = amount >= 0 ? `+${amount}💰` : `${amount}💰`;
+            coins.style.color = amount >= 0 ? 'green' : 'red';
+            
+            const rect = element.getBoundingClientRect();
+            coins.style.left = (rect.left + rect.width / 2) + 'px';
+            coins.style.top = (rect.top + rect.height / 2) + 'px';
+            
+            document.body.appendChild(coins);
+            
+            setTimeout(() => {
+                coins.remove();
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

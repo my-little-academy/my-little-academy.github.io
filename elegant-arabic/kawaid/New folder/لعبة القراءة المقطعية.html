@@ -1,0 +1,152 @@
+
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>لعبة القراءة المقطعية</title>
+<style>
+  body {
+    font-family: "Arial", sans-serif;
+    background: #f9f9f9;
+    direction: rtl;
+    padding: 20px;
+    text-align: center;
+  }
+  h1 {
+    color: #2a3d66;
+  }
+  .letters-container {
+    margin: 20px auto;
+    max-width: 600px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+  .letter {
+    width: 60px;
+    height: 60px;
+    background-color: #4caf50;
+    color: white;
+    font-size: 36px;
+    line-height: 60px;
+    border-radius: 10px;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    transition: background-color 0.3s ease;
+  }
+  .letter:hover {
+    background-color: #388e3c;
+  }
+  #selected {
+    margin-top: 30px;
+    font-size: 40px;
+    min-height: 60px;
+    border: 3px dashed #888;
+    width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 15px;
+    color: #333;
+    line-height: 60px;
+  }
+  button {
+    margin-top: 20px;
+    font-size: 20px;
+    background-color: #ff9800;
+    border: none;
+    color: white;
+    padding: 10px 25px;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: #f57c00;
+  }
+  #message {
+    margin-top: 20px;
+    font-size: 24px;
+    min-height: 30px;
+  }
+</style>
+</head>
+<body>
+
+<h1>لعبة القراءة المقطعية</h1>
+<p>اضغطي على الحروف لتكوين مقطع، ثم اضغطي تحقق.</p>
+
+<div class="letters-container" id="letters-container">
+  <!-- الحروف تظهر هنا -->
+</div>
+
+<div id="selected" title="المقطع المختار"></div>
+
+<button id="check-btn">تحقق</button>
+<button id="reset-btn" style="background-color:#f44336;">إعادة ضبط</button>
+
+<div id="message"></div>
+
+<script>
+  // الحروف العربية مع أصوات وهمية (يمكن إضافة ملفات صوتية لاحقاً)
+  const letters = [
+    {char: 'أ', sound: 'sounds/a.mp3'},
+    {char: 'ب', sound: 'sounds/b.mp3'},
+    {char: 'ت', sound: 'sounds/t.mp3'},
+    {char: 'ث', sound: 'sounds/th.mp3'},
+    {char: 'ج', sound: 'sounds/j.mp3'}
+  ];
+
+  // الكلمات/المقاطع المراد تكوينها (مثال بسيط)
+  const targetSyllable = "با"; // يمكن تطويرها لاحقا
+
+  const container = document.getElementById('letters-container');
+  const selectedDiv = document.getElementById('selected');
+  const messageDiv = document.getElementById('message');
+  const checkBtn = document.getElementById('check-btn');
+  const resetBtn = document.getElementById('reset-btn');
+
+  // إنشاء الحروف في الصفحة
+  letters.forEach(letter => {
+    const div = document.createElement('div');
+    div.className = 'letter';
+    div.textContent = letter.char;
+    div.dataset.sound = letter.sound;
+    div.addEventListener('click', () => {
+      // تشغيل الصوت (مؤقت - غير فعلي)
+      //let audio = new Audio(letter.sound);
+      //audio.play();
+
+      // إضافة الحرف إلى المقطع المختار
+      selectedDiv.textContent += letter.char;
+      messageDiv.textContent = '';
+    });
+    container.appendChild(div);
+  });
+
+  // التحقق من المقطع
+  checkBtn.addEventListener('click', () => {
+    if(selectedDiv.textContent === targetSyllable) {
+      messageDiv.style.color = 'green';
+      messageDiv.textContent = 'ممتاز! هذا هو المقطع الصحيح 🎉';
+    } else if(selectedDiv.textContent.length === 0) {
+      messageDiv.style.color = 'red';
+      messageDiv.textContent = 'الرجاء اختيار الحروف أولاً.';
+    } else {
+      messageDiv.style.color = 'red';
+      messageDiv.textContent = 'حاول مرة أخرى، المقطع غير صحيح.';
+    }
+  });
+
+  // إعادة الضبط
+  resetBtn.addEventListener('click', () => {
+    selectedDiv.textContent = '';
+    messageDiv.textContent = '';
+  });
+</script>
+
+</body>
+</html>

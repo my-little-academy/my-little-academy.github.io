@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مملكة الجموع السحرية</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            background-image: url('https://img.freepik.com/free-vector/hand-drawn-arabic-pattern-background_23-2149430436.jpg');
+            background-size: cover;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #8B4513;
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .intro {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+        
+        .level-selection {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .level-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .level-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+        
+        .level-btn.easy {
+            background-color: #4CAF50;
+        }
+        
+        .level-btn.medium {
+            background-color: #FF9800;
+        }
+        
+        .level-btn.hard {
+            background-color: #F44336;
+        }
+        
+        .character-selection {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .character {
+            cursor: pointer;
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            transition: all 0.3s;
+            width: 150px;
+            margin: 10px;
+        }
+        
+        .character:hover {
+            transform: scale(1.1);
+            background-color: #f0e6ff;
+        }
+        
+        .character img {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+        }
+        
+        .character.selected {
+            background-color: #d4b5ff;
+            box-shadow: 0 0 15px #8a2be2;
+        }
+        
+        .game-area {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .island {
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .island h2 {
+            color: #fff;
+            background-color: #4CAF50;
+            padding: 10px;
+            margin: -20px -20px 20px -20px;
+            text-align: center;
+        }
+        
+        .island.salim h2 {
+            background-color: #2196F3;
+        }
+        
+        .island.taksir h2 {
+            background-color: #FF9800;
+        }
+        
+        .island.monath h2 {
+            background-color: #E91E63;
+        }
+        
+        .question {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .option {
+            background-color: #f5f5f5;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid #ddd;
+        }
+        
+        .option:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .option.selected {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+        
+        .feedback {
+            text-align: center;
+            margin-top: 15px;
+            font-weight: bold;
+            min-height: 24px;
+        }
+        
+        .correct {
+            color: #4CAF50;
+        }
+        
+        .incorrect {
+            color: #F44336;
+        }
+        
+        .progress-container {
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background-color: #4CAF50;
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.5s;
+            text-align: center;
+            color: white;
+            line-height: 20px;
+        }
+        
+        .treasure-map {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .treasure-map img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+        
+        .final-battle {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            background-color: #ffebee;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+        
+        .monster {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 20px;
+            background-image: url('https://cdn-icons-png.flaticon.com/512/1864/1864593.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            transition: all 0.5s;
+        }
+        
+        .monster.weak {
+            transform: scale(0.8);
+            opacity: 0.7;
+        }
+        
+        .monster.very-weak {
+            transform: scale(0.6);
+            opacity: 0.5;
+        }
+        
+        .monster.defeated {
+            transform: scale(0.3);
+            opacity: 0.2;
+        }
+        
+        .victory {
+            display: none;
+            text-align: center;
+            padding: 30px;
+            background-color: #e8f5e9;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+        
+        .victory h2 {
+            color: #2E7D32;
+        }
+        
+        .jewel {
+            font-size: 100px;
+            margin: 20px 0;
+            color: #FFD700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+        }
+        
+        button {
+            background-color: #8B4513;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 10px;
+        }
+        
+        button:hover {
+            background-color: #A0522D;
+            transform: scale(1.05);
+        }
+        
+        .badges {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .badge {
+            background-color: #FFD700;
+            color: #8B4513;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .score {
+            font-size: 1.2em;
+            margin: 10px 0;
+            font-weight: bold;
+            color: #8B4513;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                margin: 15px;
+            }
+            
+            .character {
+                width: 120px;
+            }
+            
+            .character img {
+                width: 80px;
+                height: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>مملكة الجموع السحرية</h1>
+        
+        <div class="intro">
+            <p>في مملكة اللغة العربية، سُرقت "جوهرة القواعد" من قلعة النحو بواسطة وحش التشويش!</p>
+            <p>ساعد البطل في استعادة الجوهرة عبر تجميع قطعها المبعثرة في ثلاث جزر سحرية.</p>
+        </div>
+        
+        <div class="level-selection" id="levelSelection">
+            <h2>اختر مستوى الصعوبة:</h2>
+            <button class="level-btn easy" onclick="selectLevel('easy')">سهل</button>
+            <button class="level-btn medium" onclick="selectLevel('medium')">متوسط</button>
+            <button class="level-btn hard" onclick="selectLevel('hard')">صعب</button>
+        </div>
+        
+        <h2 id="characterTitle" style="display: none;">اختر شخصيتك:</h2>
+        <div class="character-selection" id="characterSelection" style="display: none;">
+            <div class="character" onclick="selectCharacter(this, 'knight')">
+                <img src="https://cdn-icons-png.flaticon.com/512/3940/3940403.png" alt="فارس">
+                <p>الفارس الشجاع</p>
+            </div>
+            <div class="character" onclick="selectCharacter(this, 'princess')">
+                <img src="https://cdn-icons-png.flaticon.com/512/3940/3940407.png" alt="أميرة">
+                <p>الأميرة الذكية</p>
+            </div>
+            <div class="character" onclick="selectCharacter(this, 'wizard')">
+                <img src="https://cdn-icons-png.flaticon.com/512/3940/3940416.png" alt="ساحر">
+                <p>العالم الحكيم</p>
+            </div>
+        </div>
+        
+        <div class="game-area" id="gameArea">
+            <div class="score" id="scoreDisplay">النقاط: 0</div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar">0%</div>
+            </div>
+            
+            <div class="treasure-map" id="treasureMap">
+                <img src="https://img.freepik.com/free-vector/hand-drawn-treasure-map_23-2149238426.jpg" alt="خريطة الكنز">
+                <p>لقد وجدت جزءًا من خريطة الكنز! تابع المغامرة لاكتشاف المزيد.</p>
+            </div>
+            
+            <div class="island salim" id="islandSalim">
+                <h2>جزيرة الجمع السالم</h2>
+                <div class="question" id="questionSalim"></div>
+                <div class="options" id="optionsSalim"></div>
+                <div class="feedback" id="feedbackSalim"></div>
+            </div>
+            
+            <div class="island taksir" id="islandTaksir">
+                <h2>جزيرة جمع التكسير</h2>
+                <div class="question" id="questionTaksir"></div>
+                <div class="options" id="optionsTaksir"></div>
+                <div class="feedback" id="feedbackTaksir"></div>
+            </div>
+            
+            <div class="island monath" id="islandMonath">
+                <h2>جزيرة جمع المؤنث السالم</h2>
+                <div class="question" id="questionMonath"></div>
+                <div class="options" id="optionsMonath"></div>
+                <div class="feedback" id="feedbackMonath"></div>
+            </div>
+            
+            <div class="final-battle" id="finalBattle">
+                <h2>المواجهة النهائية مع وحش التشويش!</h2>
+                <div class="monster" id="monster"></div>
+                <div class="question" id="questionBattle"></div>
+                <div class="options" id="optionsBattle"></div>
+                <div class="feedback" id="feedbackBattle"></div>
+            </div>
+            
+            <div class="victory" id="victory">
+                <h2>مبروك! لقد انتصرت!</h2>
+                <div class="jewel">💎</div>
+                <p>لقد استعدت جوهرة القواعد وأنقذت مملكة اللغة العربية!</p>
+                <p id="finalScore"></p>
+                
+                <div class="badges" id="badgesEarned"></div>
+                
+                <button onclick="resetGame()">العب مرة أخرى</button>
+            </div>
+            
+            <button onclick="nextQuestion()" id="nextBtn" style="display: none;">التالي</button>
+        </div>
+    </div>
+
+    <script>
+        // Game data
+        const questions = {
+            easy: {
+                salim: [
+                    {
+                        question: "ما هو جمع كلمة 'مُعَلِّم'؟",
+                        options: ["مُعَلِّمون", "مُعَلِّمين", "مَعالِم", "مُعَلِّمات"],
+                        answer: "مُعَلِّمون"
+                    },
+                    {
+                        question: "ما هو جمع كلمة 'طالِب'؟",
+                        options: ["طالِبون", "طالِبات", "طُلّاب", "طالِبين"],
+                        answer: "طُلّاب"
+                    },
+                    {
+                        question: "ما هو جمع كلمة 'كاتِب'؟",
+                        options: ["كاتِبون", "كُتّاب", "كاتِبات", "كاتِبين"],
+                        answer: "كُتّاب"
+                    }
+                ],
+                taksir: [
+                    {
+                        question: "ما هو جمع كلمة 'كِتاب'؟",
+                        options: ["كِتابون", "كُتُب", "كِتابات", "كِتابين"],
+                        answer: "كُتُب"
+                    },
+                    {
+                        question: "ما هو جمع كلمة 'بَيت'؟",
+                        options: ["بُيوت", "بَيتون", "بَيتات", "بَيتين"],
+                        answer: "بُيوت"
+                    },
+                    {
+                        question: "ما هو جمع كلمة 'قَلَم'؟",
+                        options: ["قَلَمون", "أَقلام", "قَلَمات", "قَلَمين"],
+                        answer: "أَقلام"
+                    }
+                ],
+                monath: [
+                    {
+                        question: "ما هو جمع كلمة 'شَجَرة'؟",
+                        options: ["شَجَرات", "أَشجار", "شَجَرون", "شَجَرين"],
+                        answer: "أَشجار"
+                    },
+                    {
+                        question: "ما هو جمع كلمة 'طالِبة'؟",
+                        options: ["طالِبات", "طالِبون", "طُلّاب", "طالِبين"],
+                        answer: "طالِبات"
+                    },
+                    {
+                        question: "ما هو جمع كلمة 'مِفْتاح'؟",
+                        options: ["مَفاتيح", "مِفْتاحات", "مِفْتاحون", "مِفْتاحين"],
+                        answer: "مَفاتيح"
+                    }
+                ],
+                battle: [
+                    {
+                        question: "ما هو جمع كلمة 'مُهَنْدِس'؟",
+                        options: ["مُهَنْدِسون", "مُهَنْدِسات", "مَهَندِسين", "مَهَندِسون"],
+                        answer: "مُهَنْدِسون"
+                    },
+                    {
+                        question: "ما هو جمع كلمة 'عَصْفور'؟",
+                        options: ["عَصْفورات", "عَصافير", "عَصْفورون", "عَصْفورين"],
+                        answer: "عَصافير"
+                    },
+                    {
+                        question: "ما هو جمع كلمة 'زَهْرة'؟",
+                        options: ["زُهور", "زَهْرات", "زَهْرون", "زَهْرين"],
+                        answer: "زَهْرات" 
+                    }
+                ]
+            },
+            medium: {
+                salim: [
+                    {
+                        question: "ما هو جمع كلمة 'فاعِل'؟",
+                        options: ["فاعِلون", "فاعِلات", "فُعّال", "فاعِلين"],
+                        answer: "فاعِلون"
+                    },
+                    {
+                        question: "ما هو جمع كلمة 'ناجِح'؟",
+                        options: ["ناجِحون", "ناجِحات", "نُجّاح", "ناجِحين"],
+                        answer: "ناجِحون"
+                    },
+                    {
+                        question: "ما هو جمع كلمة 'راقِص'؟",
+                        options: ["راقِصون", "راقِصات", "رُقّاص", "راقِصين"],
+                        answer: "راقِصون"
+                    }
+                ],
+                taksir: [
+                    {
+                        question: "ما هو جمع كلمة 'سُؤال'؟",
+                        options: ["أَسئِلة", "سُؤالون", "سُؤالين", "سُؤالات"],
+                        answer: "أَسئِلة"
+                    },
+                    {
+                        question: "ما هو جمع كلمة 'صَديق'؟",
+                        options: ["أَصدِقاء", "صَديقون", "صَديقات", "صَديقين"],
+                        answer: "أَصدِقاء"
+                    },
+                    {
+                        question: "ما هو جمع كلمة 'رَجُل'؟",
+                        options: ["رِجال", "رَجُلون", "رَجُلات", "رَجُلين"],
+                        answer: "رِجال"
+                    }
+                ],
+                monath: [
+                    {
+                        question: "ما هو جمع كلمة 'سَيِّدة'؟",
+                        options: ["سَيِّدات", "سادَة", "سَيِّدون", "سَيِّدين"],
+                        answer: "سَيِّدات"
+                    },
+                    {
+                        question: "ما هو جمع كلمة 'حاضِنة'؟",
+                        options: ["حاضِنات", "حُضّان", "حاضِنون", "حاضِنين"],
+                        answer: "حاضِنات"
+                    },
+                    {
+                        question: "ما هو جمع كلمة 'جامِعة'؟",
+                        options: ["جامِعات", "جَوامِع", "جامِعون", "جامِعين"],
+                        answer: "جامِعات"
+                    }
+                ],
+                battle: [
+                    {
+                        question: "ما هو جمع كلمة 'مُدير'؟",
+                        options: ["مُديرون", "مُديرات", "مُديرين", "مُداراء"],
+                        answer: "مُديرون"
+                    },
+                    {
+                        question: "ما هو جمع كلمة 'وَلَد'؟",
+                        options: ["أَولاد", "وِلْدان", "وَلَدون", "وَلَدات"],
+                        answer: "أَولاد"
+                    },
+                    {
+                        question: "ما هو جمع كلمة 'مُمَرِّضَة'؟",
+                        options: ["مُمَرِّضات", "مُمَرِّضون", "مَمَارِض", "مُمَرِّضين"],
+                        answer: "مُمَرِّضات"
+                    }
+                ]
+            },
+            hard: {
+                salim: [
+                    {
+                        question: "ما هو جمع كلمة 'مُسْتَشْفى'؟",
+                        options: ["مُسْتَشْفَيات", "مُسْتَشْفَوْن", "مَشافِي", "مُسْتَشْفَيْن"],
+                        answer: "مُسْتَشْفَيات"
+                    },
+                    {
+                        question: "ما هو جمع كلمة 'مُتَفَوِّق'؟",
+                        options: ["مُتَفَوِّقون", "مُتَفَوِّقات", "مُتَفَوِّقين", "تَفاوِق"],
+                        answer: "مُتَفَوِّقون"
+                    },
+                    {
+                        question: "ما هو جمع كلمة 'مُبْتَدِع'؟",
+                        options: ["مُبْتَدِعون", "مُبْتَدِعات", "بَدائِع", "مُبْتَدِعين"],
+                        answer: "مُبْتَدِعون"
+                    }
+                ],
+                taksir: [
+                    {
+                        question: "ما هو جمع كلمة 'إِنْسان'؟",
+                        options: ["ناس", "إِنْسانون", "إِنْسانين", "إِنْسانات"],
+                        answer: "ناس"
+                    },
+                    {
+                        question: "ما هو جمع كلمة 'عَالَم'؟",
+                        options: ["عَوالِم", "عَالَمون", "عَالَمات", "عَالَمين"],
+                        answer: "عَوالِم"
+                    },
+                    {
+                        question: "ما هو جمع كلمة 'أُسْتاذ'؟",
+                        options: ["أَساتِذة", "أُسْتاذون", "أُسْتاذات", "أُسْتاذين"],
+                        answer: "أَساتِذة"
+                    }
+                ],
+                monath: [
+                    {
+                        question: "ما هو جمع كلمة 'مَلِكَة'؟",
+                        options: ["مَلِكات", "مُلوك", "مَلِكون", "مَلِكين"],
+                        answer: "مَلِكات"
+                    },
+                    {
+                        question: "ما هو جمع كلمة 'مُعَلِّمَة'؟",
+                        options: ["مُعَلِّمات", "مُعَلِّمون", "مَعالِم", "مُعَلِّمين"],
+                        answer: "مُعَلِّمات"
+                    },
+                    {
+                        question: "ما هو جمع كلمة 'قاضِيَة'؟",
+                        options: ["قاضِيات", "قُضاة", "قاضِيون", "قاضِيين"],
+                        answer: "قاضِيات"
+                    }
+                ],
+                battle: [
+                    {
+                        question: "ما هو جمع كلمة 'مُخْتَبَر'؟",
+                        options: ["مَخابِر", "مُخْتَبَرات", "مُخْتَبَرون", "مُخْتَبَرين"],
+                        answer: "مَخابِر"
+                    },
+                    {
+                        question: "ما هو جمع كلمة 'مَرْأة'؟",
+                        options: ["نِساء", "مَرْأتات", "مَرْأون", "مَرْأتين"],
+                        answer: "نِساء"
+                    },
+                    {
+                        question: "ما هو جمع كلمة 'حافِظَة'؟",
+                        options: ["حافِظات", "حُفّاظ", "حافِظون", "حافِظين"],
+                        answer: "حافِظات"
+                    }
+                ]
+            }
+        };
+
+        // Game state
+        let currentLevel = '';
+        let selectedCharacter = '';
+        let progress = 0;
+        let score = 0;
+        let monsterHealth = 3;
+        let currentQuestions = {};
+        let currentQuestionIndex = {
+            salim: 0,
+            taksir: 0,
+            monath: 0,
+            battle: 0
+        };
+        let correctAnswers = 0;
+        let badgesEarned = [];
+
+        // DOM elements
+        const levelSelection = document.getElementById('levelSelection');
+        const characterSelection = document.getElementById('characterSelection');
+        const characterTitle = document.getElementById('characterTitle');
+        const gameArea = document.getElementById('gameArea');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+
+        // Initialize game
+        function selectLevel(level) {
+            currentLevel = level;
+            levelSelection.style.display = 'none';
+            characterSelection.style.display = 'flex';
+            characterTitle.style.display = 'block';
+            currentQuestions = questions[level];
+        }
+
+        function selectCharacter(element, character) {
+            // Remove selection from all characters
+            document.querySelectorAll('.character').forEach(char => {
+                char.classList.remove('selected');
+            });
+            
+            // Add selection to clicked character
+            element.classList.add('selected');
+            selectedCharacter = character;
+            
+            // Show game area
+            gameArea.style.display = 'block';
+            
+            // Load first questions
+            loadQuestion('salim');
+            loadQuestion('taksir');
+            loadQuestion('monath');
+            
+            // Scroll to game area
+            gameArea.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function loadQuestion(island) {
+            const questions = currentQuestions[island];
+            const index = currentQuestionIndex[island];
+            
+            if (index < questions.length) {
+                const question = questions[index];
+                document.getElementById(`question${island.charAt(0).toUpperCase() + island.slice(1)}`).textContent = question.question;
+                
+                const optionsContainer = document.getElementById(`options${island.charAt(0).toUpperCase() + island.slice(1)}`);
+                optionsContainer.innerHTML = '';
+                
+                question.options.forEach(option => {
+                    const optionElement = document.createElement('div');
+                    optionElement.className = 'option';
+                    optionElement.textContent = option;
+                    optionElement.onclick = () => checkAnswer(optionElement, option, question.answer, island);
+                    optionsContainer.appendChild(optionElement);
+                });
+            } else {
+                // No more questions for this island
+                document.getElementById(`island${island.charAt(0).toUpperCase() + island.slice(1)}`).style.display = 'none';
+                checkGameProgress();
+            }
+        }
+
+        function checkAnswer(element, selectedAnswer, correctAnswer, island) {
+            // Disable all options
+            const options = element.parentElement.querySelectorAll('.option');
+            options.forEach(opt => {
+                opt.style.pointerEvents = 'none';
+            });
+            
+            // Check if answer is correct
+            if (selectedAnswer === correctAnswer) {
+                element.classList.add('selected');
+                document.getElementById(`feedback${island.charAt(0).toUpperCase() + island.slice(1)}`).innerHTML = 
+                    `<span class="correct">إجابة صحيحة! أحسنت!</span>`;
+                
+                // Increase score based on level difficulty
+                if (currentLevel === 'easy') score += 10;
+                else if (currentLevel === 'medium') score += 15;
+                else score += 20;
+                
+                correctAnswers++;
+            } else {
+                element.style.backgroundColor = '#F44336';
+                element.style.color = 'white';
+                document.getElementById(`feedback${island.charAt(0).toUpperCase() + island.slice(1)}`).innerHTML = 
+                    `<span class="incorrect">إجابة خاطئة! الجواب الصحيح هو: ${correctAnswer}</span>`;
+                
+                // Small penalty for wrong answers
+                score = Math.max(0, score - 5);
+            }
+            
+            // Update score and progress
+            scoreDisplay.textContent = `النقاط: ${score}`;
+            progress = Math.min(100, Math.floor((correctAnswers / 9) * 100));
+            updateProgress();
+            
+            // Show next button
+            document.getElementById('nextBtn').style.display = 'inline-block';
+            
+            // Store that this question was answered
+            currentQuestionIndex[island]++;
+        }
+
+        function battleAnswer(element, selectedAnswer, correctAnswer) {
+            // Disable all options
+            const options = element.parentElement.querySelectorAll('.option');
+            options.forEach(opt => {
+                opt.style.pointerEvents = 'none';
+            });
+            
+            // Check if answer is correct
+            if (selectedAnswer === correctAnswer) {
+                element.classList.add('selected');
+                document.getElementById('feedbackBattle').innerHTML = 
+                    '<span class="correct">إصابة مباشرة! لقد أضعفت الوحش!</span>';
+                monsterHealth--;
+                
+                // Increase score for correct battle answers
+                score += 30;
+                scoreDisplay.textContent = `النقاط: ${score}`;
+                
+                // Update monster appearance
+                const monster = document.getElementById('monster');
+                if (monsterHealth === 2) {
+                    monster.classList.add('weak');
+                } else if (monsterHealth === 1) {
+                    monster.classList.remove('weak');
+                    monster.classList.add('very-weak');
+                } else if (monsterHealth === 0) {
+                    monster.classList.remove('very-weak');
+                    monster.classList.add('defeated');
+                    
+                    // Add final score bonus
+                    score += 100;
+                    scoreDisplay.textContent = `النقاط: ${score}`;
+                    
+                    // Show victory screen
+                    setTimeout(() => {
+                        document.getElementById('finalBattle').style.display = 'none';
+                        showVictory();
+                    }, 1500);
+                }
+            } else {
+                element.style.backgroundColor = '#F44336';
+                element.style.color = 'white';
+                document.getElementById('feedbackBattle').innerHTML = 
+                    '<span class="incorrect">أخطأت! حاول مرة أخرى!</span>';
+                
+                // Small penalty for wrong answers
+                score = Math.max(0, score - 10);
+                scoreDisplay.textContent = `النقاط: ${score}`;
+            }
+        }
+
+        function showVictory() {
+            const victoryScreen = document.getElementById('victory');
+            const finalScore = document.getElementById('finalScore');
+            const badgesContainer = document.getElementById('badgesEarned');
+            
+            // Set final score
+            finalScore.textContent = `درجتك النهائية: ${score} نقطة`;
+            
+            // Determine badges earned
+            badgesEarned = [];
+            
+            if (score >= 200) {
+                badgesEarned.push("وسام البطل العظيم");
+            }
+            if (score >= 150) {
+                badgesEarned.push("نجم الجموع الذهبي");
+            }
+            if (correctAnswers >= 8) {
+                badgesEarned.push("خبير الجموع");
+            }
+            if (currentLevel === 'hard' && score >= 180) {
+                badgesEarned.push("سيد الجموع");
+            }
+            
+            // Add default badge for completion
+            badgesEarned.push("فارس اللغة العربية");
+            
+            // Display badges
+            badgesContainer.innerHTML = '';
+            badgesEarned.forEach(badge => {
+                const badgeElement = document.createElement('div');
+                badgeElement.className = 'badge';
+                badgeElement.textContent = badge;
+                badgesContainer.appendChild(badgeElement);
+            });
+            
+            victoryScreen.style.display = 'block';
+        }
+
+        function updateProgress() {
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = progress + '%';
+            progressBar.textContent = progress + '%';
+            
+            // Show treasure map at 30% progress
+            if (progress >= 30 && progress < 100) {
+                document.getElementById('treasureMap').style.display = 'block';
+            } else {
+                document.getElementById('treasureMap').style.display = 'none';
+            }
+            
+            // Check if all islands are completed
+            checkGameProgress();
+        }
+
+        function checkGameProgress() {
+            // Check if all islands are completed
+            const islandsCompleted = 
+                currentQuestionIndex.salim >= currentQuestions.salim.length &&
+                currentQuestionIndex.taksir >= currentQuestions.taksir.length &&
+                currentQuestionIndex.monath >= currentQuestions.monath.length;
+            
+            if (islandsCompleted && progress < 100) {
+                progress = 100;
+                updateProgress();
+            }
+            
+            // Show final battle at 100% progress
+            if (progress >= 100) {
+                document.querySelectorAll('.island').forEach(island => {
+                    island.style.display = 'none';
+                });
+                document.getElementById('nextBtn').style.display = 'none';
+                
+                // Load first battle question
+                loadBattleQuestion();
+                document.getElementById('finalBattle').style.display = 'block';
+            }
+        }
+
+        function loadBattleQuestion() {
+            const questions = currentQuestions.battle;
+            const index = currentQuestionIndex.battle;
+            
+            if (index < questions.length) {
+                const question = questions[index];
+                document.getElementById('questionBattle').textContent = question.question;
+                
+                const optionsContainer = document.getElementById('optionsBattle');
+                optionsContainer.innerHTML = '';
+                
+                question.options.forEach(option => {
+                    const optionElement = document.createElement('div');
+                    optionElement.className = 'option';
+                    optionElement.textContent = option;
+                    optionElement.onclick = () => battleAnswer(optionElement, option, question.answer);
+                    optionsContainer.appendChild(optionElement);
+                });
+                
+                currentQuestionIndex.battle++;
+            }
+        }
+
+        function nextQuestion() {
+            // Hide next button
+            document.getElementById('nextBtn').style.display = 'none';
+            
+            // Check which islands still have questions
+            if (currentQuestionIndex.salim < currentQuestions.salim.length) {
+                loadQuestion('salim');
+            }
+            if (currentQuestionIndex.taksir < currentQuestions.taksir.length) {
+                loadQuestion('taksir');
+            }
+            if (currentQuestionIndex.monath < currentQuestions.monath.length) {
+                loadQuestion('monath');
+            }
+            
+            // Clear feedback
+            document.querySelectorAll('.feedback').forEach(fb => {
+                fb.innerHTML = '';
+            });
+        }
+
+        function resetGame() {
+            // Reset all game state
+            currentLevel = '';
+            selectedCharacter = '';
+            progress = 0;
+            score = 0;
+            monsterHealth = 3;
+            currentQuestionIndex = {
+                salim: 0,
+                taksir: 0,
+                monath: 0,
+                battle: 0
+            };
+            correctAnswers = 0;
+            badgesEarned = [];
+            
+            // Reset UI
+            levelSelection.style.display = 'block';
+            characterSelection.style.display = 'none';
+            characterTitle.style.display = 'none';
+            gameArea.style.display = 'none';
+            document.getElementById('victory').style.display = 'none';
+            document.getElementById('finalBattle').style.display = 'none';
+            document.getElementById('monster').className = 'monster';
+            
+            // Show all islands again
+            document.querySelectorAll('.island').forEach(island => {
+                island.style.display = 'block';
+            });
+            
+            // Reset progress and score
+            updateProgress();
+            scoreDisplay.textContent = 'النقاط: 0';
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>لعبة تحليل العدد</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      direction: rtl;
+      background-color: #f0f9ff;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #0077b6;
+    }
+
+    input[type="number"] {
+      padding: 5px;
+      font-size: 18px;
+      width: 80px;
+      margin: 5px;
+    }
+
+    .result {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    .correct {
+      background-color: #d4edda;
+      color: green;
+    }
+
+    .wrong {
+      background-color: #f8d7da;
+      color: red;
+    }
+
+    .section {
+      margin: 20px 0;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: #00b4d8;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0077b6;
+    }
+  </style>
+</head>
+<body>
+  <h1>لعبة تحليل العدد</h1>
+
+  <div class="section">
+    <label>أدخل عددًا من 4 أرقام:</label><br>
+    <input type="number" id="inputNumber" maxlength="4" min="1000" max="9999">
+  </div>
+
+  <div class="section">
+    <h3>أدخل الأرقام:</h3>
+    <label>رقم الوحدات:</label>
+    <input type="number" id="digitUnits"><br>
+    <label>رقم العشرات:</label>
+    <input type="number" id="digitTens"><br>
+    <label>رقم المئات:</label>
+    <input type="number" id="digitHundreds"><br>
+    <label>رقم الآلاف:</label>
+    <input type="number" id="digitThousands">
+  </div>
+
+  <div class="section">
+    <h3>أدخل الأعداد:</h3>
+    <label>عدد الوحدات:</label>
+    <input type="number" id="numUnits"><br>
+    <label>عدد العشرات:</label>
+    <input type="number" id="numTens"><br>
+    <label>عدد المئات:</label>
+    <input type="number" id="numHundreds"><br>
+    <label>عدد الآلاف:</label>
+    <input type="number" id="numThousands">
+  </div>
+
+  <button onclick="checkAnswers()">تحقق</button>
+
+  <div class="result" id="feedback"></div>
+
+  <script>
+    function checkAnswers() {
+      const number = document.getElementById('inputNumber').value;
+      if (number.length !== 4) {
+        alert('يرجى إدخال عدد مكون من 4 أرقام');
+        return;
+      }
+
+      const digits = number.split('').map(Number);
+      const [thousands, hundreds, tens, units] = digits;
+
+      const inputDigitUnits = +document.getElementById('digitUnits').value;
+      const inputDigitTens = +document.getElementById('digitTens').value;
+      const inputDigitHundreds = +document.getElementById('digitHundreds').value;
+      const inputDigitThousands = +document.getElementById('digitThousands').value;
+
+      const inputNumUnits = +document.getElementById('numUnits').value;
+      const inputNumTens = +document.getElementById('numTens').value;
+      const inputNumHundreds = +document.getElementById('numHundreds').value;
+      const inputNumThousands = +document.getElementById('numThousands').value;
+
+      // Expected values
+      const expectedNumUnits = +number;
+      const expectedNumTens = +number.slice(1);
+      const expectedNumHundreds = +number.slice(2);
+      const expectedNumThousands = +number.slice(3);
+
+      let result = "";
+
+      result += check("رقم الوحدات", inputDigitUnits, units);
+      result += check("رقم العشرات", inputDigitTens, tens);
+      result += check("رقم المئات", inputDigitHundreds, hundreds);
+      result += check("رقم الآلاف", inputDigitThousands, thousands);
+
+      result += check("عدد الوحدات", inputNumUnits, expectedNumUnits);
+      result += check("عدد العشرات", inputNumTens, expectedNumTens);
+      result += check("عدد المئات", inputNumHundreds, expectedNumHundreds);
+      result += check("عدد الآلاف", inputNumThousands, expectedNumThousands);
+
+      document.getElementById('feedback').innerHTML = result;
+    }
+
+    function check(label, inputValue, expectedValue) {
+      const isCorrect = inputValue === expectedValue;
+      const className = isCorrect ? "correct" : "wrong";
+      return `<div class="${className}">${label}: إجابتك ${inputValue} ${isCorrect ? '✅ صحيحة' : `❌ خاطئة (الصحيح: ${expectedValue})`}</div>`;
+    }
+  </script>
+</body>
+</html>

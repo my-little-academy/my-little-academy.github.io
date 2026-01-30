@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>لعبة فرقع البالونات - مملكة البراعم</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: linear-gradient(to bottom, #b2ebf2, #e0f7fa);
+      font-family: 'Cairo', sans-serif;
+    }
+    canvas {
+      display: block;
+    }
+    #score, #target, #message {
+      position: absolute;
+      top: 10px;
+      background: #fff8e1;
+      padding: 10px 20px;
+      border-radius: 15px;
+      font-weight: bold;
+      color: #ff6f00;
+      box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+      z-index: 10;
+    }
+    #score {
+      right: 20px;
+    }
+    #target {
+      left: 20px;
+    }
+    #message {
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ffe082;
+      color: #d84315;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="score">النقاط: 0</div>
+  <div id="target">فرقع البالونة التي تحتوي الحرف: أ</div>
+  <div id="message">🎉 رائع!</div>
+
+  <canvas id="gameCanvas"></canvas>
+  <audio id="popSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_5156d804f1.mp3?filename=pop-94319.mp3"></audio>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const scoreDiv = document.getElementById("score");
+    const targetDiv = document.getElementById("target");
+    const messageDiv = document.getElementById("message");
+    const popSound = document.getElementById("popSound");
+
+    const letters = ['أ','ب','ت','ث','ج','ح','خ','د','ذ','ر','ز','س','ش'];
+    let targetLetter = letters[Math.floor(Math.random() * letters.length)];
+    targetDiv.textContent = "فرقع البالونة التي تحتوي الحرف: " + targetLetter;
+
+    let score = 0;
+    const balloons = [];
+    const maxBalloons = 30;
+
+    const messages = [
+      { points: 3, text: "👏 أحسنت! استمر!" },
+      { points: 5, text: "🌟 نجم البراعم!" },
+      { points: 10, text: "🏆 بطل الحروف!" }
+    ];
+
+    function showMessage(text) {
+      messageDiv.textContent = text;
+      messageDiv.style.display = "block";
+      setTimeout(() => {
+        messageDiv.style.display = "none";
+      }, 2000);
+    }
+
+    class Balloon {
+      constructor() {
+        this.letter = letters[Math.floor(Math.random() * letters.length)];
+        this.radius = 40;
+        this.x = Math.random() * (canvas.width - 2 * this.radius) + this.radius;
+        this.y = canvas.height + this.radius + Math.random() * 100;
+        this.speed = 2 + Math.random() * 2;
+        this.color = '#' + Math.floor(Math.random()*16777215).toString(16);
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.fillStyle = this.color;
+        ctx.ellipse(this.x, this.y, this.radius * 0.8, this.radius, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.strokeStyle = '#888';
+        ctx.moveTo(this.x, this.y + this.radius);
+        ctx.lineTo(this.x, this.y + this.radius + 20);
+        ctx.stroke();
+
+        ctx.fillStyle = '#fff';
+        ctx.font = "bold 26px Cairo";
+        ctx.textAlign = "center";
+        ctx.fillText(this.letter, this.x, this.y + 8);
+      }
+      update() {
+        this.y -= this.speed;
+        this.draw();
+      }
+    }
+
+    setInterval(() => {
+      if (balloons.length < maxBalloons) {
+        balloons.push(new Balloon());
+      }
+    }, 700);
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = balloons.length - 1; i >= 0; i--) {
+        balloons[i].update();
+        if (balloons[i].y + balloons[i].radius < 0) {
+          balloons.splice(i, 1);
+        }
+      }
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    canvas.addEventListener('click', (e) => {
+      for (let i = balloons.length - 1; i >= 0; i--) {
+        const b = balloons[i];
+        const dx = e.clientX - b.x;
+        const dy = e.clientY - b.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < b.radius) {
+          if (b.letter === targetLetter) {
+            score++;
+            scoreDiv.textContent = "النقاط: " + score;
+            popSound.currentTime = 0;
+            popSound.play();
+
+            const foundMessage = messages.find(m => m.points === score);
+            if (foundMessage) {
+              showMessage(foundMessage.text);
+            }
+
+            targetLetter = letters[Math.floor(Math.random() * letters.length)];
+            targetDiv.textContent = "فرقع البالونة التي تحتوي الحرف: " + targetLetter;
+          }
+          balloons.splice(i, 1);
+          break;
+        }
+      }
+    });
+  </script>
+
+</body>
+</html>

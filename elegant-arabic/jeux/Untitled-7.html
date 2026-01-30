@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة بناء الكلمات</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #8BC34A;
+            --bg-color: #E8F5E9;
+            --card-color: #FFFFFF;
+            --text-color: #333;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Scheherazade New', serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            direction: rtl;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            background-color: var(--card-color);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 1.2rem;
+            color: #777;
+        }
+
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background-color: #f0f8f0;
+            border-radius: 15px;
+        }
+
+        .hud-item {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .word-slots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 30px 0;
+            min-height: 60px;
+        }
+
+        .slot {
+            width: 50px;
+            height: 50px;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ccc;
+            transition: border-color 0.3s;
+        }
+        
+        .slot.filled {
+            border-color: var(--primary-color);
+            background-color: #e6f2e6;
+        }
+
+        .letter-tray {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9fff9;
+            border-radius: 15px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .letter-card {
+            width: 50px;
+            height: 50px;
+            background-color: var(--secondary-color);
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 6px var(--shadow-color);
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .letter-card:hover {
+            transform: translateY(-3px) scale(1.05);
+            background-color: var(--primary-color);
+        }
+
+        .controls {
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 4px 6px var(--shadow-color);
+        }
+
+        .btn-confirm {
+            background-color: var(--primary-color);
+            color: white;
+            margin-right: 10px;
+        }
+        
+        .btn-confirm:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .message-box {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>لعبة بناء الكلمات</h1>
+        <p>قم بسحب الحروف إلى المربعات لبناء الكلمة الصحيحة.</p>
+
+        <div class="hud">
+            <div class="hud-item">النقاط: <span id="score">0</span></div>
+            <div class="hud-item">المستوى: <span id="level">1</span></div>
+        </div>
+
+        <div id="word-slots" class="word-slots"></div>
+
+        <div id="letter-tray" class="letter-tray"></div>
+
+        <div class="controls">
+            <button id="confirm-btn" class="btn btn-confirm">تأكيد</button>
+        </div>
+    </div>
+
+    <div id="message-box" class="message-box">
+        <p id="message-text"></p>
+        <button onclick="hideMessage()">موافق</button>
+    </div>
+
+<script>
+    // Game state variables
+    let score = 0;
+    let level = 1;
+    let currentWord = '';
+    let availableLetters = [];
+    let builtWord = [];
+
+    // Game words database
+    const words = [
+        "كتاب", "قلم", "شمس", "قمر", "وردة", "بحر", "بيت", "شجرة", "مدرسة", "نهر"
+    ];
+
+    // DOM elements
+    const scoreEl = document.getElementById('score');
+    const levelEl = document.getElementById('level');
+    const wordSlotsContainer = document.getElementById('word-slots');
+    const letterTray = document.getElementById('letter-tray');
+    const confirmBtn = document.getElementById('confirm-btn');
+    const messageBox = document.getElementById('message-box');
+    const messageText = document.getElementById('message-text');
+
+    // Initialize the game on page load
+    document.addEventListener('DOMContentLoaded', startGame);
+
+    // Main game loop function
+    function startGame() {
+        if (words.length === 0) {
+            endGame();
+            return;
+        }
+        const randomIndex = Math.floor(Math.random() * words.length);
+        currentWord = words[randomIndex];
+        words.splice(randomIndex, 1); // Remove word to prevent repetition
+        
+        resetBoard();
+        setupWordSlots(currentWord.length);
+        setupLetterTray(currentWord);
+    }
+
+    // Reset the game board for a new word
+    function resetBoard() {
+        wordSlotsContainer.innerHTML = '';
+        letterTray.innerHTML = '';
+        builtWord = [];
+    }
+
+    // Create empty slots for the word
+    function setupWordSlots(length) {
+        for (let i = 0; i < length; i++) {
+            const slot = document.createElement('div');
+            slot.className = 'slot';
+            slot.dataset.index = i;
+            slot.addEventListener('click', handleSlotClick);
+            wordSlotsContainer.appendChild(slot);
+            builtWord.push(''); // Initialize the built word array
+        }
+    }
+
+    // Shuffle letters and create letter cards
+    function setupLetterTray(word) {
+        const letters = word.split('').sort(() => Math.random() - 0.5);
+        availableLetters = letters;
+        letters.forEach(letter => {
+            const card = document.createElement('div');
+            card.className = 'letter-card';
+            card.textContent = letter;
+            card.dataset.letter = letter;
+            card.addEventListener('click', handleLetterClick);
+            letterTray.appendChild(card);
+        });
+    }
+
+    // Handle clicks on letter cards
+    function handleLetterClick(event) {
+        const letterCard = event.target;
+        const letter = letterCard.dataset.letter;
+        
+        // Find the first empty slot
+        const emptySlotIndex = builtWord.findIndex(l => l === '');
+        if (emptySlotIndex !== -1) {
+            const slot = wordSlotsContainer.querySelector(`[data-index="${emptySlotIndex}"]`);
+            slot.textContent = letter;
+            slot.classList.add('filled');
+            builtWord[emptySlotIndex] = letter;
+            letterCard.style.visibility = 'hidden';
+        }
+    }
+
+    // Handle clicks on slots to remove letters
+    function handleSlotClick(event) {
+        const slot = event.target;
+        const index = slot.dataset.index;
+        const letter = builtWord[index];
+        
+        if (letter) {
+            // Find the corresponding hidden letter card and make it visible
+            const letterCard = letterTray.querySelector(`[data-letter="${letter}"][style*="visibility: hidden"]`);
+            if (letterCard) {
+                letterCard.style.visibility = 'visible';
+            }
+            slot.textContent = '';
+            slot.classList.remove('filled');
+            builtWord[index] = '';
+        }
+    }
+
+    // Check if the built word is correct
+    confirmBtn.addEventListener('click', () => {
+        const finalWord = builtWord.join('');
+        if (finalWord === currentWord) {
+            score += 10;
+            scoreEl.textContent = score;
+            showMessage('أحسنت! كلمة صحيحة. 🎉', 'success');
+            setTimeout(() => {
+                level++;
+                levelEl.textContent = level;
+                startGame();
+            }, 1500);
+        } else {
+            showMessage('حاول مرة أخرى. 😔', 'error');
+        }
+    });
+
+    // Show custom message box
+    function showMessage(text) {
+        messageText.textContent = text;
+        messageBox.style.display = 'block';
+    }
+
+    // Hide custom message box
+    function hideMessage() {
+        messageBox.style.display = 'none';
+    }
+
+    // Game over function
+    function endGame() {
+        showMessage(`تهانينا! لقد أكملت كل الكلمات. مجموع نقاطك: ${score}`, 'success');
+        confirmBtn.disabled = true;
+    }
+</script>
+
+</body>
+</html>

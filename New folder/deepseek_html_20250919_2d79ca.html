@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>من يقرأ الرقم؟</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #54a0ff);
+        }
+
+        h1 {
+            color: #4834d4;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            color: #686de0;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            font-weight: 400;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            padding: 15px;
+            border-radius: 15px;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-number {
+            font-size: 2em;
+            font-weight: 700;
+            color: #e17055;
+        }
+
+        .score-label {
+            color: #636e72;
+            font-size: 0.9em;
+        }
+
+        .number-display {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            font-size: 4em;
+            font-weight: 700;
+            padding: 30px;
+            border-radius: 20px;
+            margin: 30px 0;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .question {
+            font-size: 1.3em;
+            color: #2d3436;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .input-group {
+            margin: 30px 0;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 1.2em;
+            border: 3px solid #ddd;
+            border-radius: 15px;
+            text-align: center;
+            font-family: 'Cairo', sans-serif;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #74b9ff;
+            background: white;
+            transform: scale(1.02);
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: linear-gradient(135deg, #55a3ff, #003d82);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 15px;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .new-game-btn {
+            background: linear-gradient(135deg, #fd79a8, #e84393);
+        }
+
+        .switch-mode-btn {
+            background: linear-gradient(135deg, #fdcb6e, #e17055);
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 1.1em;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+
+        .feedback.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .feedback.correct {
+            background: linear-gradient(135deg, #00b894, #00a085);
+            color: white;
+        }
+
+        .feedback.incorrect {
+            background: linear-gradient(135deg, #ff7675, #d63031);
+            color: white;
+        }
+
+        .mode-indicator {
+            background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                opacity: 1;
+                transform: translateY(-100vh) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+
+        .floating-emoji {
+            position: absolute;
+            font-size: 2em;
+            opacity: 0.3;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+
+        .hint {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #00b894, #00a085);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .help-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: #54a0ff;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .help-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .help-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            cursor: pointer;
+            font-size: 1.5em;
+        }
+
+        .example-table {
+            width: 100%;
+            margin: 15px 0;
+            border-collapse: collapse;
+        }
+
+        .example-table th, .example-table td {
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .example-table th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- عناصر زخرفية متحركة -->
+        <div class="floating-emoji" style="top: 10%; left: 10%; animation-delay: 0s;">🌟</div>
+        <div class="floating-emoji" style="top: 20%; right: 15%; animation-delay: 1s;">🎯</div>
+        <div class="floating-emoji" style="top: 15%; left: 80%; animation-delay: 2s;">🚀</div>
+        <div class="floating-emoji" style="bottom: 20%; left: 20%; animation-delay: 3s;">🎈</div>
+        <div class="floating-emoji" style="bottom: 15%; right: 25%; animation-delay: 4s;">⭐</div>
+
+        <div class="help-btn" id="help-btn">؟</div>
+
+        <h1>🔢 من يقرأ الرقم؟ 🔢</h1>
+        <div class="subtitle">لعبة تعليم قراءة الأعداد من 0 إلى 99</div>
+        
+        <div class="score-board">
+            <div class="score-item">
+                <div class="score-number" id="correct-count">0</div>
+                <div class="score-label">إجابات صحيحة ✅</div>
+            </div>
+            <div class="score-item">
+                <div class="score-number" id="total-count">0</div>
+                <div class="score-label">المجموع الكلي 📊</div>
+            </div>
+            <div class="score-item">
+                <div class="score-number" id="percentage">0%</div>
+                <div class="score-label">نسبة النجاح 🏆</div>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+
+        <div class="mode-indicator" id="mode-indicator">
+            الوضع الحالي: من رقم إلى حروف 🔄
+        </div>
+
+        <div class="number-display" id="number-display">47</div>
+        
+        <div class="question" id="question">اكتب هذا العدد بالحروف:</div>
+        
+        <div class="input-group">
+            <input type="text" id="answer-input" placeholder="اكتب إجابتك هنا..." autocomplete="off">
+        </div>
+        
+        <div class="buttons">
+            <button id="check-btn">تحقق من الإجابة ✓</button>
+            <button class="new-game-btn" id="new-number-btn">رقم جديد 🎲</button>
+            <button class="switch-mode-btn" id="switch-mode-btn">تغيير الوضع 🔄</button>
+        </div>
+        
+        <div class="feedback" id="feedback"></div>
+        
+        <div class="hint" id="hint" style="display: none;">
+            💡 نصيحة: تأكد من كتابة العدد بشكل صحيح باللغة العربية. مثال: 47 تكتب "سبعة وأربعون"
+        </div>
+    </div>
+
+    <div class="help-modal" id="help-modal">
+        <div class="help-content">
+            <span class="close-btn" id="close-help">&times;</span>
+            <h2>كيفية اللعب</h2>
+            <p>هذه اللعبة تساعدك على تعلم قراءة الأعداد العربية من 0 إلى 99.</p>
+            
+            <h3>الوضع الأول: من رقم إلى حروف</h3>
+            <p>سيظهر لك رقم، وعليك كتابته بالكلمات العربية.</p>
+            
+            <h3>الوضع الثاني: من حروف إلى رقم</h3>
+            <p>سيظهر لك العدد مكتوباً بالكلمات، وعليك كتابته بالأرقام.</p>
+            
+            <h3>أمثلة:</h3>
+            <table class="example-table">
+                <tr>
+                    <th>الرقم</th>
+                    <th>الكتابة بالحروف</th>
+                </tr>
+                <tr>
+                    <td>15</td>
+                    <td>خمسة عشر</td>
+                </tr>
+                <tr>
+                    <td>23</td>
+                    <td>ثلاثة وعشرون</td>
+                </tr>
+                <tr>
+                    <td>47</td>
+                    <td>سبعة وأربعون</td>
+                </tr>
+            </table>
+            
+            <button style="margin-top: 20px;" onclick="document.getElementById('help-modal').style.display='none'">حسناً، فهمت!</button>
+        </div>
+    </div>
+
+    <script>
+        // قاموس تحويل الأرقام إلى كلمات
+        const numbersToWords = {
+            0: 'صفر', 1: 'واحد', 2: 'اثنان', 3: 'ثلاثة', 4: 'أربعة', 5: 'خمسة', 
+            6: 'ستة', 7: 'سبعة', 8: 'ثمانية', 9: 'تسعة', 10: 'عشرة',
+            11: 'أحد عشر', 12: 'اثنا عشر', 13: 'ثلاثة عشر', 14: 'أربعة عشر', 15: 'خمسة عشر',
+            16: 'ستة عشر', 17: 'سبعة عشر', 18: 'ثمانية عشر', 19: 'تسعة عشر', 20: 'عشرون',
+            21: 'واحد وعشرون', 22: 'اثنان وعشرون', 23: 'ثلاثة وعشرون', 24: 'أربعة وعشرون', 25: 'خمسة وعشرون',
+            26: 'ستة وعشرون', 27: 'سبعة وعشرون', 28: 'ثمانية وعشرون', 29: 'تسعة وعشرون', 30: 'ثلاثون',
+            31: 'واحد وثلاثون', 32: 'اثنان وثلاثون', 33: 'ثلاثة وثلاثون', 34: 'أربعة وثلاثون', 35: 'خمسة وثلاثون',
+            36: 'ستة وثلاثون', 37: 'سبعة وثلاثون', 38: 'ثمانية وثلاثون', 39: 'تسعة وثلاثون', 40: 'أربعون',
+            41: 'واحد وأربعون', 42: 'اثنان وأربعون', 43: 'ثلاثة وأربعون', 44: 'أربعة وأربعون', 45: 'خمسة وأربعون',
+            46: 'ستة وأربعون', 47: 'سبعة وأربعون', 48: 'ثمانية وأربعون', 49: 'تسعة وأربعون', 50: 'خمسون',
+            51: 'واحد وخمسون', 52: 'اثنان وخمسون', 53: 'ثلاثة وخمسون', 54: 'أربعة وخمسون', 55: 'خمسة وخمسون',
+            56: 'ستة وخمسون', 57: 'سبعة وخمسون', 58: 'ثمانية وخمسون', 59: 'تسعة وخمسون', 60: 'ستون',
+            61: 'واحد وستون', 62: 'اثنان وستون', 63: 'ثلاثة وستون', 64: 'أربعة وستون', 65: 'خمسة وستون',
+            66: 'ستة وستون', 67: 'سبعة وستون', 68: 'ثمانية وستون', 69: 'تسعة وستون', 70: 'سبعون',
+            71: 'واحد وسبعون', 72: 'اثنان وسبعون', 73: 'ثلاثة وسبعون', 74: 'أربعة وسبعون', 75: 'خمسة وسبعون',
+            76: 'ستة وسبعون', 77: 'سبعة وسبعون', 78: 'ثمانية وسبعون', 79: 'تسعة وسبعون', 80: 'ثمانون',
+            81: 'واحد وثمانون', 82: 'اثنان وثمانون', 83: 'ثلاثة وثمانون', 84: 'أربعة وثمانون', 85: 'خمسة وثمانون',
+            86: 'ستة وثمانون', 87: 'سبعة وثمانون', 88: 'ثمانية وثمانون', 89: 'تسعة وثمانون', 90: 'تسعون',
+            91: 'واحد وتسعون', 92: 'اثنان وتسعون', 93: 'ثلاثة وتسعون', 94: 'أربعة وتسعون', 95: 'خمسة وتسعون',
+            96: 'ستة وتسعون', 97: 'سبعة وتسعون', 98: 'ثمانية وتسعون', 99: 'تسعة وتسعون'
+        };
+
+        // إنشاء قاموس عكسي (من الكلمات إلى الأرقام)
+        const wordsToNumbers = {};
+        Object.keys(numbersToWords).forEach(key => {
+            wordsToNumbers[numbersToWords[key]] = parseInt(key);
+        });
+
+        // متغيرات اللعبة
+        let currentNumber = 47;
+        let correctAnswers = 0;
+        let totalQuestions = 0;
+        let isNumberToWord = true; // true = رقم إلى كلمات, false = كلمات إلى رقم
+
+        // عناصر DOM
+        const numberDisplay = document.getElementById('number-display');
+        const question = document.getElementById('question');
+        const answerInput = document.getElementById('answer-input');
+        const checkBtn = document.getElementById('check-btn');
+        const newNumberBtn = document.getElementById('new-number-btn');
+        const switchModeBtn = document.getElementById('switch-mode-btn');
+        const feedback = document.getElementById('feedback');
+        const correctCount = document.getElementById('correct-count');
+        const totalCount = document.getElementById('total-count');
+        const percentage = document.getElementById('percentage');
+        const modeIndicator = document.getElementById('mode-indicator');
+        const hint = document.getElementById('hint');
+        const progress = document.getElementById('progress');
+        const helpBtn = document.getElementById('help-btn');
+        const helpModal = document.getElementById('help-modal');
+        const closeHelp = document.getElementById('close-help');
+
+        // تحديث العرض
+        function updateDisplay() {
+            if (isNumberToWord) {
+                numberDisplay.textContent = currentNumber;
+                question.textContent = 'اكتب هذا العدد بالحروف:';
+                modeIndicator.textContent = 'الوضع الحالي: من رقم إلى حروف 🔢➡️📝';
+                answerInput.placeholder = 'مثال: سبعة وأربعون';
+            } else {
+                numberDisplay.textContent = numbersToWords[currentNumber];
+                question.textContent = 'اكتب هذا العدد بالأرقام:';
+                modeIndicator.textContent = 'الوضع الحالي: من حروف إلى رقم 📝➡️🔢';
+                answerInput.placeholder = 'مثال: 47';
+            }
+        }
+
+        // توليد رقم عشوائي جديد
+        function generateNewNumber() {
+            currentNumber = Math.floor(Math.random() * 100); // 0-99
+            updateDisplay();
+            answerInput.value = '';
+            feedback.classList.remove('show');
+            hint.style.display = 'none';
+            answerInput.focus();
+        }
+
+        // تحديث النتائج
+        function updateScores() {
+            correctCount.textContent = correctAnswers;
+            totalCount.textContent = totalQuestions;
+            const percent = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
+            percentage.textContent = percent + '%';
+            
+            // تحديث شريط التقدم
+            progress.style.width = percent + '%';
+        }
+
+        // إنشاء تأثير الكونفيتي
+        function createConfetti() {
+            const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff', '#5f27cd'];
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animation = `confetti-fall ${2 + Math.random() * 3}s linear forwards`;
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 5000);
+                }, i * 50);
+            }
+        }
+
+        // تنظيف النص للمقارنة
+        function normalizeText(text) {
+            return text.trim()
+                .replace(/ـ/g, '') // إزالة التشكيل
+                .replace(/أ|إ|آ/g, 'ا')
+                .replace(/ة/g, 'ه')
+                .replace(/ي/g, 'ى')
+                .replace(/\s+/g, ' ') // توحيد المسافات
+                .replace(/^|\s+و\s+/g, ' ') // معالجة حرف العطف "و"
+                .trim();
+        }
+
+        // فحص الإجابة
+        function checkAnswer() {
+            const userAnswer = answerInput.value.trim();
+            
+            if (!userAnswer) {
+                showFeedback('يرجى كتابة إجابة أولاً! 📝', 'incorrect');
+                return;
+            }
+
+            totalQuestions++;
+            let isCorrect = false;
+            let correctAnswer = '';
+
+            if (isNumberToWord) {
+                // فحص تحويل من رقم إلى كلمات
+                correctAnswer = numbersToWords[currentNumber];
+                const normalizedUserAnswer = normalizeText(userAnswer);
+                const normalizedCorrectAnswer = normalizeText(correctAnswer);
+                isCorrect = normalizedUserAnswer === normalizedCorrectAnswer;
+            } else {
+                // فحص تحويل من كلمات إلى رقم
+                correctAnswer = currentNumber.toString();
+                // التحقق من الإدخال الرقمي
+                if (/^\d+$/.test(userAnswer)) {
+                    isCorrect = parseInt(userAnswer) === currentNumber;
+                } else {
+                    // إذا كان الإدخال نصيًا، حاول تحويله إلى رقم
+                    const normalizedInput = normalizeText(userAnswer);
+                    for (const [word, num] of Object.entries(wordsToNumbers)) {
+                        if (normalizeText(word) === normalizedInput) {
+                            isCorrect = num === currentNumber;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (isCorrect) {
+                correctAnswers++;
+                showFeedback('🎉 ممتاز! إجابة صحيحة! 🎉', 'correct');
+                createConfetti();
+                setTimeout(generateNewNumber, 2000);
+            } else {
+                showFeedback(`❌ إجابة خاطئة. الإجابة الصحيحة هي: ${correctAnswer}`, 'incorrect');
+                hint.style.display = 'block';
+            }
+
+            updateScores();
+        }
+
+        // عرض رسالة التغذية الراجعة
+        function showFeedback(message, type) {
+            feedback.textContent = message;
+            feedback.className = `feedback ${type}`;
+            feedback.classList.add('show');
+        }
+
+        // تغيير وضع اللعبة
+        function switchMode() {
+            isNumberToWord = !isNumberToWord;
+            generateNewNumber();
+            
+            // رسالة توضيحية
+            const modeMessage = isNumberToWord ? 
+                '🔢 تم التبديل: الآن حول الأرقام إلى حروف!' : 
+                '📝 تم التبديل: الآن حول الحروف إلى أرقام!';
+            showFeedback(modeMessage, 'correct');
+        }
+
+        // الأحداث
+        checkBtn.addEventListener('click', checkAnswer);
+        newNumberBtn.addEventListener('click', generateNewNumber);
+        switchModeBtn.addEventListener('click', switchMode);
+        
+        // السماح بالتحقق من الإجابة بالضغط على Enter
+        answerInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+        
+        // مساعدة
+        helpBtn.addEventListener('click', function() {
+            helpModal.style.display = 'flex';
+        });
+        
+        closeHelp.addEventListener('click', function() {
+            helpModal.style.display = 'none';
+        });
+        
+        // إغلاق نافذة المساعدة بالنقر خارجها
+        window.addEventListener('click', function(e) {
+            if (e.target === helpModal) {
+                helpModal.style.display = 'none';
+            }
+        });
+
+        // بدء اللعبة
+        generateNewNumber();
+        updateScores();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1761 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رحلة الإيمان في السيرة النبوية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* إعادة تعيين أساسي */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* تنسيق الجسم العام */
+        body {
+            font-family: 'Amiri', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        /* حاوية اللعبة الرئيسية */
+        .game-container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* رأس اللعبة (العنوان) */
+        .game-header {
+            background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+            padding: 20px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* تأثير البريق في الرأس */
+        .game-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="white" opacity="0.3"/><circle cx="20" cy="20" r="1.5" fill="white" opacity="0.2"/><circle cx="80" cy="30" r="1" fill="white" opacity="0.4"/><circle cx="30" cy="80" r="1.2" fill="white" opacity="0.3"/><circle cx="70" cy="70" r="0.8" fill="white" opacity="0.5"/></svg>') repeat;
+            animation: sparkle 3s linear infinite;
+        }
+
+        @keyframes sparkle {
+            0% { transform: translateX(0) translateY(0); }
+            100% { transform: translateX(-100px) translateY(-100px); }
+        }
+
+        .game-title {
+            font-size: 2.5em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+            margin-bottom: 10px;
+        }
+
+        .game-subtitle {
+            font-size: 1.2em;
+            position: relative;
+            z-index: 1;
+            opacity: 0.9;
+        }
+
+        /* لوحة اللعب */
+        .game-board {
+            position: relative;
+            width: 800px;
+            height: 800px;
+            margin: 20px auto;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            border: 8px solid #495057;
+            border-radius: 15px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            grid-template-rows: repeat(9, 1fr);
+            padding: 0;
+        }
+
+        /* المنطقة المركزية */
+        .center-area {
+            grid-column: 3 / span 5;
+            grid-row: 3 / span 5;
+            background: radial-gradient(circle, #fff3cd, #ffeaa7);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 5px solid #fdcb6e;
+            box-shadow: 0 0 30px rgba(253, 203, 110, 0.5);
+            position: relative;
+            z-index: 5;
+        }
+
+        .center-title {
+            font-size: 2em;
+            color: #e17055;
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .center-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, #00b894, #00cec9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            color: white;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* المحطات */
+        .station {
+            width: 80px;
+            height: 80px;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid #ddd;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            z-index: 1;
+            font-size: 0.8em;
+            position: relative;
+        }
+
+        .station:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+
+        /* أنماط المحطات المختلفة */
+        .station.start {
+            background: linear-gradient(45deg, #6c5ce7, #a29bfe);
+            color: white;
+            border-color: #6c5ce7;
+            width: 100px;
+            height: 100px;
+        }
+
+        .station.special {
+            background: linear-gradient(45deg, #fd79a8, #fdcb6e);
+            color: white;
+            border-color: #fd79a8;
+        }
+
+        .station.normal {
+            background: linear-gradient(45deg, #00b894, #55efc4);
+            color: white;
+            border-color: #00b894;
+        }
+
+        .station.end {
+            background: linear-gradient(45deg, #e17055, #d63031);
+            color: white;
+            border-color: #e17055;
+            width: 100px;
+            height: 100px;
+        }
+
+        .station-text {
+            font-size: 0.9em;
+            line-height: 1.2;
+            padding: 0 5px;
+        }
+
+        .station-number {
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        /* تحديد مواضع المحطات */
+        .game-board .station:nth-child(1) { grid-column: 9; grid-row: 9; }
+        .game-board .station:nth-child(2) { grid-column: 8; grid-row: 9; }
+        .game-board .station:nth-child(3) { grid-column: 7; grid-row: 9; }
+        .game-board .station:nth-child(4) { grid-column: 6; grid-row: 9; }
+        .game-board .station:nth-child(5) { grid-column: 5; grid-row: 9; }
+        .game-board .station:nth-child(6) { grid-column: 4; grid-row: 9; }
+        .game-board .station:nth-child(7) { grid-column: 3; grid-row: 9; }
+        .game-board .station:nth-child(8) { grid-column: 2; grid-row: 9; }
+        .game-board .station:nth-child(9) { grid-column: 1; grid-row: 9; }
+        .game-board .station:nth-child(10) { grid-column: 1; grid-row: 8; }
+        .game-board .station:nth-child(11) { grid-column: 1; grid-row: 7; }
+        .game-board .station:nth-child(12) { grid-column: 1; grid-row: 6; }
+        .game-board .station:nth-child(13) { grid-column: 1; grid-row: 5; }
+        .game-board .station:nth-child(14) { grid-column: 1; grid-row: 4; }
+        .game-board .station:nth-child(15) { grid-column: 1; grid-row: 3; }
+        .game-board .station:nth-child(16) { grid-column: 1; grid-row: 2; }
+        .game-board .station:nth-child(17) { grid-column: 2; grid-row: 1; }
+        .game-board .station:nth-child(18) { grid-column: 3; grid-row: 1; }
+        .game-board .station:nth-child(19) { grid-column: 4; grid-row: 1; }
+        .game-board .station:nth-child(20) { grid-column: 5; grid-row: 1; }
+        .game-board .station:nth-child(21) { grid-column: 6; grid-row: 1; }
+        .game-board .station:nth-child(22) { grid-column: 7; grid-row: 1; }
+        .game-board .station:nth-child(23) { grid-column: 8; grid-row: 1; }
+        .game-board .station:nth-child(24) { grid-column: 9; grid-row: 2; }
+        .game-board .station:nth-child(25) { grid-column: 9; grid-row: 3; }
+        .game-board .station:nth-child(26) { grid-column: 9; grid-row: 4; }
+        .game-board .station:nth-child(27) { grid-column: 9; grid-row: 5; }
+        .game-board .station:nth-child(28) { grid-column: 9; grid-row: 6; }
+        .game-board .station:nth-child(29) { grid-column: 9; grid-row: 7; }
+
+        /* أزرار التحكم باللعبة */
+        .game-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Amiri', serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #0984e3, #74b9ff);
+            color: white;
+            box-shadow: 0 4px 15px rgba(9, 132, 227, 0.3);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(9, 132, 227, 0.4);
+        }
+
+        /* معلومات اللاعبين */
+        .player-info {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background: linear-gradient(45deg, #a8e6cf, #dcedc1);
+            color: #2d3436;
+        }
+
+        .player-card {
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            min-width: 150px;
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+            border-left: 5px solid #3498db;
+        }
+
+        .player-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%);
+            pointer-events: none;
+        }
+
+        .player-card.active-player {
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+            transform: translateY(-5px);
+            transition: all 0.3s ease;
+        }
+
+        .player-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2d3436;
+        }
+
+        .player-money {
+            color: #00b894;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        /* نافذة المعلومات (المودال) */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            animation: modalSlide 0.3s ease-out;
+            position: relative;
+        }
+
+        @keyframes modalSlide {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-title {
+            color: #2d3436;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .modal-description {
+            color: #636e72;
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .close {
+            color: #aaa;
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #ff6b6b;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        /* النرد */
+        .dice {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border: 3px solid #2d3436;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            font-weight: bold;
+            margin: 0 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            animation: roll 0.5s ease-in-out;
+        }
+
+        @keyframes roll {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* قطعة اللاعب */
+        .player-piece {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 3px solid white;
+            transition: all 0.5s ease;
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            transform: translate(-50%, -50%);
+        }
+
+        .player-1 { background: #ff6b6b; }
+        .player-2 { background: #0984e3; }
+        .player-3 { background: #00b894; }
+        .player-4 { background: #fdcb6e; }
+
+        /* أنماط الأسئلة والإجابات */
+        .question-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-btn {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Amiri', serif;
+            font-size: 1em;
+            text-align: right;
+        }
+
+        .option-btn:hover {
+            background-color: #e9ecef;
+            transform: translateX(-5px);
+        }
+
+        .correct-answer {
+            background-color: #d4edda !important;
+            border-color: #c3e6cb !important;
+            animation: pulse 0.5s ease-in-out;
+            box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
+        }
+
+        .wrong-answer {
+            background-color: #f8d7da !important;
+            border-color: #f5c6cb !important;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .feedback-message {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        .correct-feedback {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .wrong-feedback {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        /* استجابة التصميم للشاشات الصغيرة */
+        @media (max-width: 900px) {
+            .game-board {
+                width: 600px;
+                height: 600px;
+            }
+            .station {
+                width: 60px;
+                height: 60px;
+            }
+            .station.start, .station.end {
+                width: 80px;
+                height: 80px;
+            }
+            .station-text {
+                font-size: 0.7em;
+            }
+            .station-number {
+                width: 20px;
+                height: 20px;
+                font-size: 0.7em;
+            }
+            .center-area {
+                width: 300px;
+                height: 300px;
+            }
+            .game-title {
+                font-size: 2em;
+            }
+            .game-subtitle {
+                font-size: 1em;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .game-board {
+                width: 450px;
+                height: 450px;
+            }
+            .station {
+                width: 45px;
+                height: 45px;
+                border-radius: 10px;
+            }
+            .station.start, .station.end {
+                width: 60px;
+                height: 60px;
+            }
+            .station-text {
+                font-size: 0.6em;
+            }
+            .station-number {
+                width: 18px;
+                height: 18px;
+                font-size: 0.6em;
+            }
+            .center-area {
+                width: 220px;
+                height: 220px;
+                border-width: 3px;
+            }
+            .center-title {
+                font-size: 1.5em;
+            }
+            .center-logo {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5em;
+            }
+            .player-piece {
+                width: 25px;
+                height: 25px;
+                border-width: 2px;
+            }
+            .game-controls .btn {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+            .modal-content {
+                padding: 20px;
+                margin: 5% auto;
+            }
+            .modal-title {
+                font-size: 1.5em;
+            }
+            .modal-description {
+                font-size: 0.9em;
+            }
+        }
+
+        @media (max-width: 500px) {
+            body {
+                padding: 10px;
+            }
+            .game-board {
+                width: 300px;
+                height: 300px;
+                border-width: 5px;
+            }
+            .station {
+                width: 30px;
+                height: 30px;
+                border-radius: 8px;
+                border-width: 2px;
+            }
+            .station.start, .station.end {
+                width: 40px;
+                height: 40px;
+            }
+            .station-text {
+                font-size: 0.45em;
+                line-height: 1;
+                padding: 0 2px;
+            }
+            .station-number {
+                width: 15px;
+                height: 15px;
+                font-size: 0.5em;
+                margin-bottom: 1px;
+            }
+            .center-area {
+                width: 150px;
+                height: 150px;
+            }
+            .center-title {
+                font-size: 1.2em;
+            }
+            .center-logo {
+                width: 40px;
+                height: 40px;
+                font-size: 1em;
+            }
+            .player-piece {
+                width: 20px;
+                height: 20px;
+            }
+            .game-controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .game-controls .btn {
+                width: 90%;
+                margin: 0 auto;
+            }
+            .player-card {
+                min-width: unset;
+                padding: 10px;
+            }
+            .player-name {
+                font-size: 1em;
+            }
+            .player-money {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <h1 class="game-title">🌟 رحلة الإيمان في السيرة النبوية 🌟</h1>
+            <p class="game-subtitle">اكتشف قصة النبي محمد ﷺ من خلال اللعب والتعلم</p>
+        </div>
+
+        <div class="game-board" id="gameBoard">
+            <div class="center-area">
+                <div class="center-logo">🕌</div>
+                <h3 class="center-title">السيرة النبوية</h3>
+                <p>رحلة مباركة</p>
+            </div>
+        </div>
+
+        <div class="player-info">
+            <div class="player-card">
+                <div class="player-name" id="player1Name">اللاعب الأول</div>
+                <div class="player-money" id="player1Money">💰 1500</div>
+            </div>
+            <div class="player-card">
+                <div class="player-name" id="player2Name">اللاعب الثاني</div>
+                <div class="player-money" id="player2Money">💰 1500</div>
+            </div>
+        </div>
+
+        <div class="game-controls">
+            <button class="btn btn-primary" id="rollDice">🎲 ارم الحجر</button>
+            <div class="dice" id="diceResult"></div>
+            <button class="btn btn-secondary" id="showRules">📚 قواعد اللعبة</button>
+            <button class="btn btn-secondary" id="newGame">🔄 لعبة جديدة</button>
+        </div>
+    </div>
+
+    <div id="stationModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <h2 class="modal-title" id="modalTitle"></h2>
+            <p class="modal-description" id="modalDescription"></p>
+            <p id="modalDateInfo"><strong>التاريخ الهجري:</strong> <span id="modalDate"></span></p>
+            <div id="questionArea" style="display: none;"></div>
+            <div class="modal-actions" id="modalDefaultActions">
+                <button class="btn btn-primary" id="modalCloseButton">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    class SeerahGame {
+        constructor() {
+            this.currentPlayer = 1;
+            this.players = {
+                1: { position: 0, money: 1500, name: 'اللاعب الأول', piece: null },
+                2: { position: 0, money: 1500, name: 'اللاعب الثاني', piece: null }
+            };
+
+            this.stationsData = [
+                { name: 'البداية', description: 'نقطة بداية رحلة الإيمان المباركة.', date: 'بداية الرحلة', type: 'start' },
+                { name: 'عام الفيل', description: 'هو العام الذي ولد فيه النبي محمد صلى الله عليه وسلم، وسمي بذلك نسبة إلى الحادثة التي وقعت فيه، حيث حاول أبرهة الحبشي هدم الكعبة بجيش يضم فيلًا كبيرًا، ولكن الله حفظ بيته.', date: 'قبل الهجرة بـ 53 سنة', type: 'normal' },
+                { name: 'مولد النبي ﷺ', description: 'ولادة النبي محمد صلى الله عليه وسلم في مكة المكرمة، إيذانًا ببدء نور الإسلام الذي سينير دروب البشرية.', date: '12 ربيع الأول 53 ق.هـ', type: 'normal' },
+                { name: 'وفاة عبد الله والد النبي', description: 'وفاة عبد الله بن عبد المطلب والد النبي صلى الله عليه وسلم قبل ولادته.', date: 'قبل ولادة النبي', type: 'normal' },
+                { name: 'رضاعة النبي', description: 'إرسال النبي صلى الله عليه وسلم إلى البادية ليرضع من حليمة السعدية، حسب عادة أشراف قريش.', date: 'بعد الولادة مباشرة', type: 'normal' },
+                { name: 'وفاة آمنة أم النبي', description: 'وفاة آمنة بنت وهب أم النبي صلى الله عليه وسلم وهو في السادسة من عمره.', date: '6 سنوات بعد المولد', type: 'normal' },
+                { name: 'كفالة جده عبد المطلب', description: 'تكفل جده عبد المطلب برعاية النبي صلى الله عليه وسلم بعد وفاة أمه.', date: '6-8 سنوات بعد المولد', type: 'normal' },
+                { name: 'وفاة عبد المطلب', description: 'وفاة عبد المطلب بن هاشم جد النبي صلى الله عليه وسلم وهو في الثامنة من عمره.', date: '8 سنوات بعد المولد', type: 'normal' },
+                { name: 'كفالة أبي طالب', description: 'تكفل عمه أبو طالب برعاية النبي صلى الله عليه وسلم بعد وفاة جده.', date: '8 سنوات بعد المولد', type: 'normal' },
+                { name: 'رحلة الشام الأولى', description: 'سفر النبي صلى الله عليه وسلم مع عمه أبي طالب إلى الشام وعمره 12 سنة، ولقائه بالراهب بحيرى.', date: '12 سنة بعد المولد', type: 'normal' },
+                { name: 'حرب الفجار', description: 'حرب الفجار التي شارك فيها النبي صلى الله عليه وسلم وهو شاب، وكان ينبل على أعمامه.', date: '15-20 سنة بعد المولد', type: 'normal' },
+                { name: 'حلف الفضول', description: 'حلف الفضول الذي شارك فيه النبي صلى الله عليه وسلم لنصرة المظلومين.', date: '20 سنة بعد المولد', type: 'normal' },
+                { name: 'عمل النبي في التجارة', description: 'عمل النبي صلى الله عليه وسلم في التجارة بمال خديجة رضي الله عنها.', date: '25 سنة بعد المولد', type: 'normal' },
+                { name: 'زواج النبي من خديجة', description: 'زواج النبي صلى الله عليه وسلم من خديجة بنت خويلد رضي الله عنها وعمره 25 سنة.', date: '25 سنة بعد المولد', type: 'normal' },
+                { name: 'بناء الكعبة', description: 'مشاركة النبي صلى الله عليه وسلم في إعادة بناء الكعبة وحكمته في حل النزاع حول وضع الحجر الأسود.', date: '35 سنة بعد المولد', type: 'normal' },
+                { name: 'نزول الوحي', description: 'نزول الوحي على النبي صلى الله عليه وسلم في غار حراء وهو في الأربعين من عمره.', date: '40 سنة بعد المولد', type: 'normal' },
+                { name: 'الدعوة السرية', description: 'بداية الدعوة الإسلامية سراً لمدة ثلاث سنوات.', date: '40-43 سنة بعد المولد', type: 'normal' },
+                { name: 'الدعوة الجهرية', description: 'بداية الدعوة الإسلامية جهراً، وأمر الله تعالى النبي بالجهر بالدعوة.', date: '43 سنة بعد المولد', type: 'normal' },
+                { name: 'إسلام حمزة وعمر', description: 'إسلام حمزة بن عبد المطلب وعمر بن الخطاب رضي الله عنهما، مما قوى شوكة المسلمين.', date: '44 سنة بعد المولد', type: 'normal' },
+                { name: 'حصار الشعب', description: 'حصار قريش لبني هاشم وبني المطلب في شعب أبي طالب لمدة ثلاث سنوات.', date: '45-48 سنة بعد المولد', type: 'normal' },
+                { name: 'عام الحزن', description: 'وفاة أبي طالب عم النبي ثم وفاة خديجة رضي الله عنها في نفس العام.', date: '49 سنة بعد المولد', type: 'normal' },
+                { name: 'رحلة الطائف', description: 'ذهاب النبي صلى الله عليه وسلم إلى الطائف لعرض الإسلام على ثقيف ولكنهم آذوه.', date: '50 سنة بعد المولد', type: 'normal' },
+                { name: 'الإسراء والمعراج', description: 'رحلة الإسراء والمعراج المعجزة التي أسرى الله فيها بنبيه من مكة إلى القدس ثم عرج به إلى السماوات.', date: '51 سنة بعد المولد', type: 'normal' },
+                { name: 'بيعة العقبة الأولى', description: 'بيعة العقبة الأولى مع وفد من أهل يثرب (12 شخصاً).', date: '52 سنة بعد المولد', type: 'normal' },
+                { name: 'بيعة العقبة الثانية', description: 'بيعة العقبة الثانية مع وفد أكبر من أهل يثرب (73 رجلاً وامرأتان).', date: '53 سنة بعد المولد', type: 'normal' },
+                { name: 'الهجرة إلى المدينة', description: 'هجرة النبي صلى الله عليه وسلم وأصحابه من مكة إلى المدينة المنورة.', date: '53 سنة بعد المولد', type: 'normal' },
+                { name: 'بناء المسجد النبوي', description: 'بناء المسجد النبوي في المدينة بعد الهجرة مباشرة.', date: '53 سنة بعد المولد', type: 'normal' },
+                { name: 'غزوة بدر', description: 'غزوة بدر الكبرى أول معركة كبرى بين المسلمين والمشركين.', date: '54 سنة بعد المولد', type: 'normal' },
+                { name: 'غزوة أحد', description: 'غزوة أحد التي تعرض فيها المسلمون لانتكاسة بسبب مخالفة الرماة لأوامر النبي.', date: '55 سنة بعد المولد', type: 'normal' },
+                { name: 'غزوة الخندق', description: 'غزوة الخندق (الأحزاب) حيث حفر المسلمون خندقاً لحماية المدينة.', date: '57 سنة بعد المولد', type: 'normal' },
+                { name: 'صلح الحديبية', description: 'صلح الحديبية بين المسلمين وقريش لمدة 10 سنوات.', date: '58 سنة بعد المولد', type: 'normal' },
+                { name: 'فتح خيبر', description: 'فتح خيبر وانتقال اليهود منها.', date: '59 سنة بعد المولد', type: 'normal' },
+                { name: 'عمرة القضاء', description: 'عمرة القضاء التي قام بها المسلمون بعد منعهم في صلح الحديبية.', date: '59 سنة بعد المولد', type: 'normal' },
+                { name: 'فتح مكة', description: 'فتح مكة المكرمة ودخول الناس في الإسلام أفواجاً.', date: '60 سنة بعد المولد', type: 'normal' },
+                { name: 'غزوة حنين', description: 'غزوة حنين ضد هوازن وثقيف.', date: '60 سنة بعد المولد', type: 'normal' },
+                { name: 'غزوة تبوك', description: 'غزوة تبوك آخر الغزوات التي شارك فيها النبي صلى الله عليه وسلم.', date: '61 سنة بعد المولد', type: 'normal' },
+                { name: 'حجة الوداع', description: 'حجة الوداع التي أداها النبي صلى الله عليه وسلم وألقى فيها خطبته المشهورة.', date: '62 سنة بعد المولد', type: 'normal' },
+                { name: 'وفاة النبي ﷺ', description: 'وفاة النبي محمد صلى الله عليه وسلم في المدينة المنورة.', date: '63 سنة بعد المولد', type: 'normal' },
+                { name: 'نهاية الرحلة', description: 'نهاية الرحلة، لقد أكملت مسيرة السيرة النبوية العطرة.', date: 'نهاية الرحلة', type: 'end' }
+            ];
+
+            // أسئلة لكل محطة مرتبطة بأحداث السيرة النبوية
+            this.questionsPerStation = {
+                1: [ // عام الفيل
+                    {
+                        question: "ما هو العام الذي ولد فيه النبي صلى الله عليه وسلم؟",
+                        options: ["عام الفيل", "عام الجوع", "عام الحزن", "عام الفتح"],
+                        correctAnswer: 0,
+                        reward: 100,
+                        penalty: 50
+                    },
+                    {
+                        question: "من هو القائد الذي حاول هدم الكعبة في عام الفيل؟",
+                        options: ["أبرهة الحبشي", "كسرى", "قيصر", "النعمان بن المنذر"],
+                        correctAnswer: 0,
+                        reward: 120,
+                        penalty: 40
+                    }
+                ],
+                2: [ // مولد النبي
+                    {
+                        question: "في أي يوم ولد النبي صلى الله عليه وسلم؟",
+                        options: ["12 ربيع الأول", "1 محرم", "27 رجب", "15 شعبان"],
+                        correctAnswer: 0,
+                        reward: 80,
+                        penalty: 30
+                    },
+                    {
+                        question: "من هي والدة النبي صلى الله عليه وسلم؟",
+                        options: ["آمنة بنت وهب", "خديجة بنت خويلد", "حليمة السعدية", "فاطمة بنت أسد"],
+                        correctAnswer: 0,
+                        reward: 100,
+                        penalty: 40
+                    }
+                ],
+                3: [ // وفاة عبد الله والد النبي
+                    {
+                        question: "متى توفي عبد الله والد النبي صلى الله عليه وسلم؟",
+                        options: ["قبل ولادة النبي", "عند ولادة النبي", "بعد ولادة النبي بسنة", "عندما كان النبي عمره 5 سنوات"],
+                        correctAnswer: 0,
+                        reward: 90,
+                        penalty: 30
+                    }
+                ],
+                4: [ // رضاعة النبي
+                    {
+                        question: "من هي مرضعة النبي صلى الله عليه وسلم؟",
+                        options: ["حليمة السعدية", "ثويبة الأسلمية", "أم أيمن", "فاطمة بنت أسد"],
+                        correctAnswer: 0,
+                        reward: 100,
+                        penalty: 40
+                    },
+                    {
+                        question: "كم بقي النبي صلى الله عليه وسلم عند مرضعته في البادية؟",
+                        options: ["4 سنوات", "5 سنوات", "6 سنوات", "7 سنوات"],
+                        correctAnswer: 1,
+                        reward: 110,
+                        penalty: 45
+                    }
+                ],
+                5: [ // وفاة آمنة أم النبي
+                    {
+                        question: "كم كان عمر النبي صلى الله عليه وسلم عندما توفيت أمه آمنة؟",
+                        options: ["4 سنوات", "6 سنوات", "8 سنوات", "10 سنوات"],
+                        correctAnswer: 1,
+                        reward: 90,
+                        penalty: 35
+                    },
+                    {
+                        question: "أين توفيت آمنة أم النبي صلى الله عليه وسلم؟",
+                        options: ["مكة", "المدينة", "الأبواء بين مكة والمدينة", "الطائف"],
+                        correctAnswer: 2,
+                        reward: 120,
+                        penalty: 50
+                    }
+                ],
+                6: [ // كفالة جده عبد المطلب
+                    {
+                        question: "كم كان عمر النبي صلى الله عليه وسلم عندما تكفل به جده عبد المطلب؟",
+                        options: ["6 سنوات", "8 سنوات", "10 سنوات", "12 سنوات"],
+                        correctAnswer: 0,
+                        reward: 100,
+                        penalty: 40
+                    }
+                ],
+                7: [ // وفاة عبد المطلب
+                    {
+                        question: "كم كان عمر النبي صلى الله عليه وسلم عندما توفي جده عبد المطلب؟",
+                        options: ["6 سنوات", "8 سنوات", "10 سنوات", "12 سنوات"],
+                        correctAnswer: 1,
+                        reward: 90,
+                        penalty: 35
+                    }
+                ],
+                8: [ // كفالة أبي طالب
+                    {
+                        question: "من هو عم النبي الذي تكفل به بعد وفاة جده؟",
+                        options: ["أبو طالب", "أبو لهب", "العباس", "حمزة"],
+                        correctAnswer: 0,
+                        reward: 100,
+                        penalty: 40
+                    }
+                ],
+                9: [ // رحلة الشام الأولى
+                    {
+                        question: "كم كان عمر النبي صلى الله عليه وسلم عندما سافر إلى الشام مع عمه أبي طالب؟",
+                        options: ["10 سنوات", "12 سنوات", "15 سنوات", "18 سنوات"],
+                        correctAnswer: 1,
+                        reward: 90,
+                        penalty: 35
+                    },
+                    {
+                        question: "من هو الراهب الذي رأى علامات النبوة على النبي صلى الله عليه وسلم في رحلة الشام؟",
+                        options: ["بحيرى", "نسطور", "جرجس", "يوحنا"],
+                        correctAnswer: 0,
+                        reward: 110,
+                        penalty: 45
+                    }
+                ],
+                10: [ // حرب الفجار
+                    {
+                        question: "في أي سن شارك النبي صلى الله عليه وسلم في حرب الفجار؟",
+                        options: ["15 سنة", "20 سنة", "25 سنة", "30 سنة"],
+                        correctAnswer: 0,
+                        reward: 100,
+                        penalty: 40
+                    }
+                ],
+                11: [ // حلف الفضول
+                    {
+                        question: "ما هو حلف الفضول الذي شارك فيه النبي صلى الله عليه وسلم؟",
+                        options: ["حلف لنصرة المظلومين", "حلف للدفاع عن مكة", "حلف للتجارة", "حلف ضد قريش"],
+                        correctAnswer: 0,
+                        reward: 110,
+                        penalty: 45
+                    }
+                ],
+                12: [ // عمل النبي في التجارة
+                    {
+                        question: "من هي التي أرسلت النبي صلى الله عليه وسلم في تجارتها إلى الشام؟",
+                        options: ["خديجة بنت خويلد", "فاطمة بنت أسد", "حليمة السعدية", "أم أيمن"],
+                        correctAnswer: 0,
+                        reward: 100,
+                        penalty: 40
+                    }
+                ],
+                13: [ // زواج النبي من خديجة
+                    {
+                        question: "كم كان عمر النبي صلى الله عليه وسلم عندما تزوج خديجة؟",
+                        options: ["25 سنة", "30 سنة", "35 سنة", "40 سنة"],
+                        correctAnswer: 0,
+                        reward: 90,
+                        penalty: 35
+                    },
+                    {
+                        question: "كم كان عمر خديجة عندما تزوجها النبي صلى الله عليه وسلم؟",
+                        options: ["25 سنة", "30 سنة", "35 سنة", "40 سنة"],
+                        correctAnswer: 3,
+                        reward: 120,
+                        penalty: 50
+                    }
+                ],
+                14: [ // بناء الكعبة
+                    {
+                        question: "كم كان عمر النبي صلى الله عليه وسلم عندما شارك في بناء الكعبة؟",
+                        options: ["25 سنة", "30 سنة", "35 سنة", "40 سنة"],
+                        correctAnswer: 2,
+                        reward: 100,
+                        penalty: 40
+                    },
+                    {
+                        question: "ما هو الحل الذي اقترحه النبي صلى الله عليه وسلم لوضع الحجر الأسود؟",
+                        options: ["أن يضعه أول داخل", "أن يحمله أكبر سناً", "أن يضعه هو", "أن يضعه رئيس كل قبيلة جزءاً منه"],
+                        correctAnswer: 0,
+                        reward: 120,
+                        penalty: 50
+                    }
+                ],
+                15: [ // نزول الوحي
+                    {
+                        question: "كم كان عمر النبي صلى الله عليه وسلم عندما نزل عليه الوحي؟",
+                        options: ["35 سنة", "40 سنة", "45 سنة", "50 سنة"],
+                        correctAnswer: 1,
+                        reward: 100,
+                        penalty: 40
+                    },
+                    {
+                        question: "ما هي أول آية نزلت على النبي صلى الله عليه وسلم؟",
+                        options: ["اقرأ باسم ربك الذي خلق", "يا أيها المدثر", "الم", "الحمد لله رب العالمين"],
+                        correctAnswer: 0,
+                        reward: 120,
+                        penalty: 50
+                    }
+                ],
+                16: [ // الدعوة السرية
+                    {
+                        question: "كم استمرت الدعوة السرية؟",
+                        options: ["3 سنوات", "5 سنوات", "7 سنوات", "10 سنوات"],
+                        correctAnswer: 0,
+                        reward: 90,
+                        penalty: 35
+                    },
+                    {
+                        question: "من كان أول من آمن بالنبي صلى الله عليه وسلم من النساء؟",
+                        options: ["خديجة بنت خويلد", "فاطمة بنت أسد", "أم أيمن", "أم سلمة"],
+                        correctAnswer: 0,
+                        reward: 100,
+                        penalty: 40
+                    }
+                ],
+                17: [ // الدعوة الجهرية
+                    {
+                        question: "ما هي الآية التي أمرت النبي صلى الله عليه وسلم بالجهر بالدعوة؟",
+                        options: ["فاصدع بما تؤمر", "يا أيها المدثر", "اقرأ باسم ربك", "والضحى"],
+                        correctAnswer: 0,
+                        reward: 110,
+                        penalty: 45
+                    }
+                ],
+                18: [ // إسلام حمزة وعمر
+                    {
+                        question: "من الذي دعا النبي صلى الله عليه وسلم قائلاً: اللهم أعز الإسلام بأحب الرجلين إليك؟",
+                        options: ["حمزة بن عبد المطلب", "عمر بن الخطاب", "أبو بكر الصديق", "علي بن أبي طالب"],
+                        correctAnswer: 1,
+                        reward: 120,
+                        penalty: 50
+                    }
+                ],
+                19: [ // حصار الشعب
+                    {
+                        question: "كم استمر حصار قريش للمسلمين في شعب أبي طالب؟",
+                        options: ["سنة واحدة", "3 سنوات", "5 سنوات", "7 سنوات"],
+                        correctAnswer: 1,
+                        reward: 100,
+                        penalty: 40
+                    }
+                ],
+                20: [ // عام الحزن
+                    {
+                        question: "لماذا سمي العام العاشر من البعثة بعام الحزن؟",
+                        options: ["لوفاة أبي طالب وخديجة", "لشدة الأذى على المسلمين", "لحصار الشعب", "لهجرة المسلمين للحبشة"],
+                        correctAnswer: 0,
+                        reward: 110,
+                        penalty: 45
+                    }
+                ],
+                21: [ // رحلة الطائف
+                    {
+                        question: "ما الذي حدث للنبي صلى الله عليه وسلم في رحلة الطائف؟",
+                        options: ["آذوه وطردوه", "استجابوا لدعوته", "طلبوا منه البقاء", "أسلم بعضهم"],
+                        correctAnswer: 0,
+                        reward: 100,
+                        penalty: 40
+                    }
+                ],
+                22: [ // الإسراء والمعراج
+                    {
+                        question: "ما هي المعجزة التي حدثت للنبي صلى الله عليه وسلم في رحلة الإسراء والمعراج؟",
+                        options: ["فرض الصلوات الخمس", "شق القمر", "تكثير الطعام", "نبع الماء من بين أصابعه"],
+                        correctAnswer: 0,
+                        reward: 120,
+                        penalty: 50
+                    }
+                ],
+                23: [ // بيعة العقبة الأولى
+                    {
+                        question: "كم عدد الذين بايعوا النبي صلى الله عليه وسلم في بيعة العقبة الأولى؟",
+                        options: ["10 رجال", "12 رجلاً", "15 رجلاً", "20 رجلاً"],
+                        correctAnswer: 1,
+                        reward: 100,
+                        penalty: 40
+                    }
+                ],
+                24: [ // بيعة العقبة الثانية
+                    {
+                        question: "كم عدد الذين بايعوا النبي صلى الله عليه وسلم في بيعة العقبة الثانية؟",
+                        options: ["70 رجلاً وامرأتان", "73 رجلاً وامرأتان", "75 رجلاً و3 نساء", "80 رجلاً و5 نساء"],
+                        correctAnswer: 1,
+                        reward: 110,
+                        penalty: 45
+                    }
+                ],
+                25: [ // الهجرة إلى المدينة
+                    {
+                        question: "من هو الصحابي الذي رافق النبي صلى الله عليه وسلم في الهجرة؟",
+                        options: ["أبو بكر الصديق", "عمر بن الخطاب", "عثمان بن عفان", "علي بن أبي طالب"],
+                        correctAnswer: 0,
+                        reward: 100,
+                        penalty: 40
+                    }
+                ],
+                26: [ // بناء المسجد النبوي
+                    {
+                        question: "ما هو أول شيء بناه النبي صلى الله عليه وسلم في المدينة؟",
+                        options: ["المسجد النبوي", "سوق المدينة", "منازل الصحابة", "سور المدينة"],
+                        correctAnswer: 0,
+                        reward: 90,
+                        penalty: 35
+                    }
+                ],
+                27: [ // غزوة بدر
+                    {
+                        question: "كم كان عدد المسلمين في غزوة بدر؟",
+                        options: ["313", "1000", "500", "700"],
+                        correctAnswer: 0,
+                        reward: 100,
+                        penalty: 40
+                    }
+                ],
+                28: [ // غزوة أحد
+                    {
+                        question: "ما هو سبب هزيمة المسلمين في غزوة أحد؟",
+                        options: ["مخالفة الرماة لأوامر النبي", "قلة العدد", "خيانة بعض المنافقين", "كل ما سبق"],
+                        correctAnswer: 0,
+                        reward: 110,
+                        penalty: 45
+                    }
+                ],
+                29: [ // غزوة الخندق
+                    {
+                        question: "ما هو الاسم الآخر لغزوة الخندق؟",
+                        options: ["غزوة الأحزاب", "غزوة بني قريظة", "غزوة حمراء الأسد", "غزوة ذات الرقاع"],
+                        correctAnswer: 0,
+                        reward: 90,
+                        penalty: 35
+                    }
+                ],
+                30: [ // صلح الحديبية
+                    {
+                        question: "كم كانت مدة صلح الحديبية؟",
+                        options: ["5 سنوات", "10 سنوات", "15 سنوات", "20 سنوات"],
+                        correctAnswer: 1,
+                        reward: 100,
+                        penalty: 40
+                    }
+                ],
+                31: [ // فتح خيبر
+                    {
+                        question: "من هو البطل الذي فتح حصن خيبر؟",
+                        options: ["علي بن أبي طالب", "حمزة بن عبد المطلب", "خالد بن الوليد", "سعد بن أبي وقاص"],
+                        correctAnswer: 0,
+                        reward: 110,
+                        penalty: 45
+                    }
+                ],
+                32: [ // عمرة القضاء
+                    {
+                        question: "لماذا سميت عمرة القضاء بهذا الاسم؟",
+                        options: ["لأنها قضت عن عمرة الحديبية", "لأنها كانت بقضاء من الله", "لأنها قضت على شرك قريش", "لأنها كانت في شهر القضاء"],
+                        correctAnswer: 0,
+                        reward: 120,
+                        penalty: 50
+                    }
+                ],
+                33: [ // فتح مكة
+                    {
+                        question: "في أي عام كان فتح مكة؟",
+                        options: ["6 هـ", "8 هـ", "10 هـ", "12 هـ"],
+                        correctAnswer: 1,
+                        reward: 100,
+                        penalty: 40
+                    }
+                ],
+                34: [ // غزوة حنين
+                    {
+                        question: "ضد من كانت غزوة حنين؟",
+                        options: ["هوازن وثقيف", "قريش", "بني قينقاع", "بني النضير"],
+                        correctAnswer: 0,
+                        reward: 90,
+                        penalty: 35
+                    }
+                ],
+                35: [ // غزوة تبوك
+                    {
+                        question: "ما هي آخر غزوة شارك فيها النبي صلى الله عليه وسلم؟",
+                        options: ["غزوة تبوك", "غزوة حنين", "فتح مكة", "غزوة الأحزاب"],
+                        correctAnswer: 0,
+                        reward: 100,
+                        penalty: 40
+                    }
+                ],
+                36: [ // حجة الوداع
+                    {
+                        question: "في أي عام كانت حجة الوداع؟",
+                        options: ["8 هـ", "9 هـ", "10 هـ", "11 هـ"],
+                        correctAnswer: 2,
+                        reward: 110,
+                        penalty: 45
+                    }
+                ],
+                37: [ // وفاة النبي
+                    {
+                        question: "كم كان عمر النبي صلى الله عليه وسلم عند وفاته؟",
+                        options: ["60 سنة", "63 سنة", "65 سنة", "67 سنة"],
+                        correctAnswer: 1,
+                        reward: 100,
+                        penalty: 40
+                    }
+                ]
+            };
+
+            this.rewardSystem = {
+                correctAnswer: {
+                    base: 50,
+                    bonus: {
+                        consecutive: 20,
+                        speed: 10
+                    }
+                },
+                wrongAnswer: {
+                    base: 30,
+                    penalty: {
+                        consecutive: 15,
+                        time: 5
+                    }
+                },
+                specialStations: {
+                    startPass: 200,
+                    correctSpecial: 150,
+                    wrongSpecial: 60
+                }
+            };
+
+            this.levels = [
+                { name: "مبتدئ", points: 0, color: "#3498db" },
+                { name: "متعلم", points: 500, color: "#2ecc71" },
+                { name: "عارف", points: 1000, color: "#f1c40f" },
+                { name: "عالم", points: 1500, color: "#e67e22" },
+                { name: "حكيم", points: 2000, color: "#e74c3c" }
+            ];
+
+            this.playerStats = {
+                1: { consecutiveCorrect: 0, consecutiveWrong: 0 },
+                2: { consecutiveCorrect: 0, consecutiveWrong: 0 }
+            };
+
+            this.currentQuestion = null;
+
+            this.boardElement = document.getElementById('gameBoard');
+            this.rollDiceBtn = document.getElementById('rollDice');
+            this.diceResultElement = document.getElementById('diceResult');
+            this.showRulesBtn = document.getElementById('showRules');
+            this.newGameBtn = document.getElementById('newGame');
+            this.modal = document.getElementById('stationModal');
+            this.closeModalBtn = document.getElementById('closeModal');
+            this.modalCloseButton = document.getElementById('modalCloseButton');
+            this.modalTitle = document.getElementById('modalTitle');
+            this.modalDescription = document.getElementById('modalDescription');
+            this.modalDate = document.getElementById('modalDate');
+            this.modalDateInfo = document.getElementById('modalDateInfo');
+            this.questionArea = document.getElementById('questionArea');
+            this.modalDefaultActions = document.getElementById('modalDefaultActions');
+
+            this.initGame();
+            this.addEventListeners();
+        }
+
+        initGame() {
+            this.renderStations();
+            this.createPlayerPieces();
+            this.resetGame();
+        }
+
+        renderStations() {
+            const existingStations = this.boardElement.querySelectorAll('.station');
+            existingStations.forEach(station => station.remove());
+
+            this.stationsData.forEach((station, index) => {
+                const stationDiv = document.createElement('div');
+                stationDiv.classList.add('station', station.type);
+                stationDiv.setAttribute('data-id', index);
+
+                if (station.type !== 'start' && station.type !== 'end') {
+                    const stationNumber = document.createElement('div');
+                    stationNumber.classList.add('station-number');
+                    stationNumber.textContent = index;
+                    stationDiv.appendChild(stationNumber);
+                }
+
+                const stationText = document.createElement('div');
+                stationText.classList.add('station-text');
+                stationText.textContent = station.name;
+                stationDiv.appendChild(stationText);
+
+                this.boardElement.appendChild(stationDiv);
+            });
+
+            this.stationElements = Array.from(document.querySelectorAll('.station'));
+        }
+
+        createPlayerPieces() {
+            for (let playerNum in this.players) {
+                const player = this.players[playerNum];
+                const playerPiece = document.createElement('div');
+                playerPiece.classList.add('player-piece', `player-${playerNum}`);
+                playerPiece.setAttribute('id', `player-${playerNum}-piece`);
+                this.boardElement.appendChild(playerPiece);
+                player.piece = playerPiece;
+            }
+        }
+
+        resetGame() {
+            this.currentPlayer = 1;
+            this.players[1].position = 0;
+            this.players[1].money = 1500;
+            this.players[2].position = 0;
+            this.players[2].money = 1500;
+
+            this.playerStats[1].consecutiveCorrect = 0;
+            this.playerStats[1].consecutiveWrong = 0;
+            this.playerStats[2].consecutiveCorrect = 0;
+            this.playerStats[2].consecutiveWrong = 0;
+
+            this.updatePlayerInfo();
+            this.updatePlayerPiecePosition(1);
+            this.updatePlayerPiecePosition(2);
+
+            this.rollDiceBtn.disabled = false;
+            this.diceResultElement.textContent = '';
+            this.displayMessage('ابدأ اللعبة! اللاعب الأول دوره.');
+            this.hideModal();
+        }
+
+        addEventListeners() {
+            this.rollDiceBtn.addEventListener('click', () => this.rollDice());
+            this.showRulesBtn.addEventListener('click', () => this.showRules());
+            this.newGameBtn.addEventListener('click', () => this.resetGame());
+            this.closeModalBtn.addEventListener('click', () => this.hideModal());
+            this.modalCloseButton.addEventListener('click', () => this.hideModal());
+            window.addEventListener('click', (event) => {
+                if (event.target === this.modal) {
+                    this.hideModal();
+                }
+            });
+        }
+
+        rollDice() {
+            this.rollDiceBtn.disabled = true;
+            const diceValue = Math.floor(Math.random() * 6) + 1;
+            this.diceResultElement.textContent = diceValue;
+
+            this.displayMessage(`اللاعب ${this.currentPlayer} رمى ${diceValue}.`);
+
+            setTimeout(() => {
+                this.movePlayer(diceValue);
+            }, 1000);
+        }
+
+        movePlayer(steps) {
+            const player = this.players[this.currentPlayer];
+            let newPosition = player.position + steps;
+
+            if (newPosition >= this.stationsData.length) {
+                player.money += 200;
+                this.displayMessage(`اللاعب ${player.name} مر بالبداية وحصل على 200 نقطة!`);
+                newPosition = newPosition % this.stationsData.length;
+            }
+
+            player.position = newPosition;
+            this.updatePlayerPiecePosition(this.currentPlayer);
+            this.updatePlayerInfo();
+
+            setTimeout(() => {
+                this.handleStationAction(player.position);
+            }, 600);
+        }
+
+        updatePlayerPiecePosition(playerNum) {
+            const player = this.players[playerNum];
+            const targetStation = this.stationElements[player.position];
+            if (targetStation) {
+                const rect = targetStation.getBoundingClientRect();
+                const boardRect = this.boardElement.getBoundingClientRect();
+
+                const x = (rect.left + rect.width / 2) - boardRect.left;
+                const y = (rect.top + rect.height / 2) - boardRect.top;
+
+                player.piece.style.left = `${x}px`;
+                player.piece.style.top = `${y}px`;
+
+                this.adjustPiecePositions(player.position);
+            }
+        }
+
+        adjustPiecePositions(stationIndex) {
+            const playersAtStation = [];
+            for (let playerNum in this.players) {
+                if (this.players[playerNum].position === stationIndex) {
+                    playersAtStation.push(this.players[playerNum]);
+                }
+            }
+
+            if (playersAtStation.length > 1) {
+                const offset = 10;
+                for (let i = 0; i < playersAtStation.length; i++) {
+                    const playerPiece = playersAtStation[i].piece;
+                    playerPiece.style.transform = `translate(-50%, -50%) translate(${((i - (playersAtStation.length - 1) / 2) * offset)}px, 0)`;
+                }
+            } else if (playersAtStation.length === 1) {
+                playersAtStation[0].piece.style.transform = `translate(-50%, -50%)`;
+            }
+        }
+
+        updatePlayerInfo() {
+            for (let i = 1; i <= 2; i++) {
+                const player = this.players[i];
+                const level = this.getCurrentLevel(player.money);
+                
+                const playerCard = document.getElementById(`player${i}Name`).parentElement;
+                playerCard.style.borderLeft = `5px solid ${level.color}`;
+                
+                document.getElementById(`player${i}Money`).innerHTML = `
+                    💰 ${player.money} 
+                    <span style="color: ${level.color}; font-size: 0.8em">(${level.name})</span>
+                `;
+            }
+            
+            document.getElementById('player1Name').parentElement.classList.remove('active-player');
+            document.getElementById('player2Name').parentElement.classList.remove('active-player');
+            document.getElementById(`player${this.currentPlayer}Name`).parentElement.classList.add('active-player');
+        }
+
+        getCurrentLevel(points) {
+            for (let i = this.levels.length - 1; i >= 0; i--) {
+                if (points >= this.levels[i].points) {
+                    return this.levels[i];
+                }
+            }
+            return this.levels[0];
+        }
+
+        handleStationAction(stationIndex) {
+            const station = this.stationsData[stationIndex];
+            const currentPlayer = this.players[this.currentPlayer];
+
+            this.modalTitle.textContent = station.name;
+            this.modalDescription.textContent = station.description;
+            this.modalDate.textContent = station.date;
+
+            this.questionArea.style.display = 'none';
+            this.modalDefaultActions.style.display = 'flex';
+            this.modalDateInfo.style.display = 'block';
+
+            switch (station.type) {
+                case 'start':
+                case 'end':
+                    this.showModal();
+                    this.modalCloseButton.onclick = () => {
+                        this.hideModal();
+                        this.nextTurn();
+                    };
+                    break;
+                    
+                case 'normal':
+                    if (this.questionsPerStation[stationIndex] && this.questionsPerStation[stationIndex].length > 0) {
+                        this.showQuestionForStation(stationIndex);
+                    } else {
+                        this.showModal();
+                        this.modalCloseButton.onclick = () => {
+                            this.hideModal();
+                            this.nextTurn();
+                        };
+                    }
+                    break;
+                    
+                case 'special':
+                    if (station.name.includes('حظ')) {
+                        currentPlayer.money += 200;
+                        this.displayMessage(`اللاعب ${currentPlayer.name} كسب 200 نقطة!`);
+                        this.updatePlayerInfo();
+                        let newPosition = currentPlayer.position + 2;
+                        if (newPosition >= this.stationsData.length) {
+                             newPosition = newPosition % this.stationsData.length;
+                             currentPlayer.money += 200;
+                             this.displayMessage(`اللاعب ${currentPlayer.name} مر بالبداية مرة أخرى وحصل على 200 نقطة!`);
+                        }
+                        currentPlayer.position = newPosition;
+                        this.updatePlayerPiecePosition(this.currentPlayer);
+                        this.modalTitle.textContent = station.name;
+                        this.modalDescription.textContent = station.description + ` لقد كسبت 200 نقطة إيمان وتقدمت خطوتين! رصيدك الجديد: ${currentPlayer.money}`;
+                        this.modalDateInfo.style.display = 'none';
+                        this.showModal();
+                        this.modalCloseButton.onclick = () => {
+                            this.hideModal();
+                            this.nextTurn();
+                        };
+                    } else if (station.name.includes('واحة التأمل')) {
+                        this.showQuestionForStation(stationIndex, true);
+                    } else if (station.name.includes('اختبار الصبر')) {
+                        this.modalTitle.textContent = station.name;
+                        this.modalDescription.textContent = 'أنت في موقف صعب، اختر إما أن تخسر 100 نقطة وتتقدم خطوة، أو تبقى مكانك وتفوز بـ 50 نقطة.';
+                        this.modalDateInfo.style.display = 'none';
+                        this.modalDefaultActions.style.display = 'none';
+                        this.questionArea.style.display = 'none';
+
+                        const option1Btn = document.createElement('button');
+                        option1Btn.classList.add('btn', 'btn-primary');
+                        option1Btn.textContent = 'اخسر 100 وتقدم خطوة';
+                        option1Btn.onclick = () => {
+                            currentPlayer.money -= 100;
+                            currentPlayer.position = (currentPlayer.position + 1) % this.stationsData.length;
+                            this.updatePlayerPiecePosition(this.currentPlayer);
+                            this.updatePlayerInfo();
+                            this.displayMessage(`اللاعب ${currentPlayer.name} خسر 100 نقطة وتقدم خطوة.`);
+                            this.hideModal();
+                            this.nextTurn();
+                        };
+
+                        const option2Btn = document.createElement('button');
+                        option2Btn.classList.add('btn', 'btn-secondary');
+                        option2Btn.textContent = 'ابقَ مكانك واكسب 50';
+                        option2Btn.onclick = () => {
+                            currentPlayer.money += 50;
+                            this.updatePlayerInfo();
+                            this.displayMessage(`اللاعب ${currentPlayer.name} كسب 50 نقطة وبقي مكانه.`);
+                            this.hideModal();
+                            this.nextTurn();
+                        };
+
+                        const modalActionsDiv = document.createElement('div');
+                        modalActionsDiv.classList.add('modal-actions');
+                        modalActionsDiv.appendChild(option1Btn);
+                        modalActionsDiv.appendChild(option2Btn);
+
+                        this.modal.querySelector('.modal-actions').innerHTML = '';
+                        this.modal.querySelector('.modal-actions').appendChild(option1Btn);
+                        this.modal.querySelector('.modal-actions').appendChild(option2Btn);
+
+                        this.showModal();
+                    }
+                    break;
+            }
+        }
+
+        showQuestionForStation(stationIndex, isSpecial = false) {
+            const questions = this.questionsPerStation[stationIndex];
+            this.currentQuestion = questions[Math.floor(Math.random() * questions.length)];
+            
+            this.modalTitle.textContent = this.stationsData[stationIndex].name;
+            this.modalDescription.textContent = this.currentQuestion.question;
+            this.modalDateInfo.style.display = 'none';
+            
+            const optionsContainer = document.createElement('div');
+            optionsContainer.className = 'question-options';
+            optionsContainer.style.margin = '15px 0';
+            
+            this.currentQuestion.options.forEach((option, index) => {
+                const optionBtn = document.createElement('button');
+                optionBtn.className = 'option-btn';
+                optionBtn.textContent = option;
+                optionBtn.style.display = 'block';
+                optionBtn.style.width = '100%';
+                optionBtn.style.margin = '10px 0';
+                optionBtn.style.padding = '10px';
+                optionBtn.style.borderRadius = '8px';
+                optionBtn.style.border = '1px solid #ddd';
+                optionBtn.style.backgroundColor = '#f8f9fa';
+                optionBtn.style.cursor = 'pointer';
+                optionBtn.style.transition = 'all 0.3s';
+                
+                optionBtn.onmouseover = () => {
+                    optionBtn.style.backgroundColor = '#e9ecef';
+                };
+                
+                optionBtn.onmouseout = () => {
+                    optionBtn.style.backgroundColor = '#f8f9fa';
+                };
+                
+                optionBtn.onclick = () => this.checkAnswer(index, isSpecial);
+                
+                optionsContainer.appendChild(optionBtn);
+            });
+            
+            this.questionArea.innerHTML = '';
+            this.questionArea.appendChild(optionsContainer);
+            this.questionArea.style.display = 'block';
+            this.modalDefaultActions.style.display = 'none';
+            
+            this.showModal();
+        }
+
+        checkAnswer(selectedIndex, isSpecial = false) {
+            const player = this.players[this.currentPlayer];
+            const playerStat = this.playerStats[this.currentPlayer];
+            const isCorrect = selectedIndex === this.currentQuestion.correctAnswer;
+            
+            let pointsEarned = 0;
+            let pointsLost = 0;
+            
+            if (isCorrect) {
+                playerStat.consecutiveCorrect++;
+                playerStat.consecutiveWrong = 0;
+                
+                if (isSpecial) {
+                    pointsEarned = this.rewardSystem.specialStations.correctSpecial;
+                } else {
+                    pointsEarned = this.rewardSystem.correctAnswer.base;
+                    
+                    if (playerStat.consecutiveCorrect > 1) {
+                        pointsEarned += this.rewardSystem.correctAnswer.bonus.consecutive * 
+                                      (playerStat.consecutiveCorrect - 1);
+                    }
+                }
+                
+                player.money += pointsEarned;
+            } else {
+                playerStat.consecutiveWrong++;
+                playerStat.consecutiveCorrect = 0;
+                
+                if (isSpecial) {
+                    pointsLost = this.rewardSystem.specialStations.wrongSpecial;
+                } else {
+                    pointsLost = this.rewardSystem.wrongAnswer.base;
+                    
+                    if (playerStat.consecutiveWrong > 1) {
+                        pointsLost += this.rewardSystem.wrongAnswer.penalty.consecutive * 
+                                    (playerStat.consecutiveWrong - 1);
+                    }
+                }
+                
+                player.money = Math.max(0, player.money - pointsLost);
+            }
+            
+            this.updateAnswerUI(selectedIndex, isCorrect, pointsEarned, pointsLost);
+            this.updatePlayerInfo();
+            this.addContinueButton();
+        }
+
+        updateAnswerUI(selectedIndex, isCorrect, pointsEarned, pointsLost) {
+            const optionButtons = document.querySelectorAll('.option-btn');
+            optionButtons.forEach((btn, idx) => {
+                btn.disabled = true;
+                if (idx === this.currentQuestion.correctAnswer) {
+                    btn.classList.add('correct-answer');
+                } else if (idx === selectedIndex && !isCorrect) {
+                    btn.classList.add('wrong-answer');
+                }
+            });
+            
+            const feedbackDiv = document.createElement('div');
+            feedbackDiv.classList.add('feedback-message', 
+                                   isCorrect ? 'correct-feedback' : 'wrong-feedback');
+            
+            if (isCorrect) {
+                feedbackDiv.innerHTML = `
+                    <p>إجابة صحيحة!</p>
+                    <p>لقد كسبت ${pointsEarned} نقطة.</p>
+                    ${this.playerStats[this.currentPlayer].consecutiveCorrect > 1 ? 
+                     `<p>مكافأة ${this.rewardSystem.correctAnswer.bonus.consecutive} نقطة لكل إجابة صحيحة متتالية.</p>` : ''}
+                `;
+            } else {
+                feedbackDiv.innerHTML = `
+                    <p>إجابة خاطئة!</p>
+                    <p>لقد خسرت ${pointsLost} نقطة.</p>
+                    <p>الإجابة الصحيحة هي: <strong>${this.currentQuestion.options[this.currentQuestion.correctAnswer]}</strong></p>
+                    ${this.playerStats[this.currentPlayer].consecutiveWrong > 1 ? 
+                     `<p>عقوبة ${this.rewardSystem.wrongAnswer.penalty.consecutive} نقطة لكل إجابة خاطئة متتالية.</p>` : ''}
+                `;
+            }
+            
+            this.questionArea.appendChild(feedbackDiv);
+        }
+
+        addContinueButton() {
+            const continueBtn = document.createElement('button');
+            continueBtn.className = 'btn btn-primary';
+            continueBtn.textContent = 'متابعة';
+            continueBtn.style.marginTop = '15px';
+            continueBtn.onclick = () => {
+                this.hideModal();
+                this.nextTurn();
+            };
+            
+            this.questionArea.appendChild(continueBtn);
+        }
+
+        showModal() {
+            this.modal.style.display = 'flex';
+        }
+
+        hideModal() {
+            this.modal.style.display = 'none';
+            this.modalDefaultActions.style.display = 'flex';
+            this.questionArea.style.display = 'none';
+        }
+
+        displayMessage(message) {
+            console.log(message);
+        }
+
+        showRules() {
+            this.modalTitle.textContent = 'قواعد اللعبة';
+            this.modalDescription.innerHTML = `
+                <p><strong>الهدف:</strong> التقدم في مسار السيرة النبوية وجمع أكبر عدد من نقاط الإيمان.</p>
+                <p><strong>كيفية اللعب:</strong></p>
+                <ul>
+                    <li>ابدأ اللعبة بالضغط على "لعبة جديدة".</li>
+                    <li>اضغط على "ارم الحجر" لتحريك قطعتك.</li>
+                    <li>كل محطة تمثل حدثًا مهمًا في السيرة النبوية.</li>
+                    <li>عند الوقوف على محطة، سيتم سؤالك سؤالاً متعلقاً بالحدث التاريخي لتلك المحطة.</li>
+                    <li>الإجابة الصحيحة تكسبك نقاطاً، والإجابة الخاطئة تخسرك نقاطاً.</li>
+                    <li>المحطات الخاصة قد تمنحك مكافآت أو تتطلب منك اتخاذ قرارات.</li>
+                    <li>اللاعب الذي ينهي الرحلة بأكبر عدد من النقاط هو الفائز!</li>
+                </ul>
+            `;
+            this.modalDateInfo.style.display = 'none';
+            this.questionArea.style.display = 'none';
+            this.modalDefaultActions.style.display = 'flex';
+            this.modalCloseButton.onclick = () => this.hideModal();
+            this.showModal();
+        }
+
+        nextTurn() {
+            if (this.players[this.currentPlayer].position === this.stationsData.length -1) {
+                this.displayMessage(`اللاعب ${this.players[this.currentPlayer].name} أكمل الرحلة!`);
+                this.rollDiceBtn.disabled = true;
+                
+                if (this.currentPlayer === 1 && this.players[2].position < this.stationsData.length - 1) {
+                    this.currentPlayer = 2;
+                    this.displayMessage(`دور اللاعب ${this.currentPlayer} لإكمال رحلته.`);
+                    this.rollDiceBtn.disabled = false;
+                    return;
+                }
+                
+                setTimeout(() => this.showFinalResults(), 1000);
+                return;
+            }
+            
+            this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
+            this.displayMessage(`دور اللاعب ${this.currentPlayer}.`);
+            this.rollDiceBtn.disabled = false;
+            this.diceResultElement.textContent = '';
+            this.updatePlayerInfo();
+        }
+
+        showFinalResults() {
+            const player1 = this.players[1];
+            const player2 = this.players[2];
+            
+            let winnerMessage = '';
+            if (player1.money > player2.money) {
+                winnerMessage = `🎉 فاز ${player1.name} باللعبة! 🎉`;
+            } else if (player2.money > player1.money) {
+                winnerMessage = `🎉 فاز ${player2.name} باللعبة! 🎉`;
+            } else {
+                winnerMessage = "تعادل اللاعبان!";
+            }
+            
+            this.modalTitle.textContent = "نتيجة اللعبة النهائية";
+            this.modalDescription.innerHTML = `
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h3 style="color: #e67e22;">${winnerMessage}</h3>
+                </div>
+                <div style="display: flex; justify-content: space-around; margin-bottom: 20px;">
+                    <div style="text-align: center;">
+                        <h4>${player1.name}</h4>
+                        <p style="font-size: 1.5em; color: #ff6b6b;">${player1.money} نقطة</p>
+                        <p style="color: ${this.getCurrentLevel(player1.money).color}">
+                            ${this.getCurrentLevel(player1.money).name}
+                        </p>
+                    </div>
+                    <div style="text-align: center;">
+                        <h4>${player2.name}</h4>
+                        <p style="font-size: 1.5em; color: #0984e3;">${player2.money} نقطة</p>
+                        <p style="color: ${this.getCurrentLevel(player2.money).color}">
+                            ${this.getCurrentLevel(player2.money).name}
+                        </p>
+                    </div>
+                </div>
+                <div style="text-align: center;">
+                    <button id="playAgainBtn" class="btn btn-primary" 
+                            style="padding: 10px 20px; font-size: 1.2em;">
+                        لعب مرة أخرى
+                    </button>
+                </div>
+            `;
+            
+            this.modalDateInfo.style.display = 'none';
+            this.questionArea.style.display = 'none';
+            this.modalDefaultActions.style.display = 'none';
+            
+            this.showModal();
+            
+            document.getElementById('playAgainBtn').onclick = () => {
+                this.hideModal();
+                this.resetGame();
+            };
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        new SeerahGame();
+    });
+</script>
+</body>
+</html>

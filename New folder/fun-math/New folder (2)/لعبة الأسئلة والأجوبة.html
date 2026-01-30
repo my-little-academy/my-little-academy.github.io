@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الأسئلة والأجوبة</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+        
+        :root {
+            --primary-color: #6C63FF;
+            --secondary-color: #4D44DB;
+            --accent-color: #FF6584;
+            --light-color: #F8F9FA;
+            --dark-color: #343A40;
+            --success-color: #28A745;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .header {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            z-index: 1;
+            animation: rotate 15s linear infinite;
+        }
+        
+        .game-area {
+            padding: 30px;
+        }
+        
+        .question-container {
+            background: var(--light-color);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .question-container::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+        
+        .question-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .question-container:hover::after {
+            width: 8px;
+            background: var(--accent-color);
+        }
+        
+        .answer {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--dark-color);
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            text-align: right;
+        }
+        
+        .input-group input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
+        }
+        
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(77, 68, 219, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .feedback {
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .success {
+            background-color: rgba(40, 167, 69, 0.2);
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+        }
+        
+        .error {
+            background-color: rgba(220, 53, 69, 0.2);
+            color: #DC3545;
+            border: 1px solid #DC3545;
+        }
+        
+        .score-container {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.2rem;
+            color: var(--dark-color);
+        }
+        
+        .score {
+            font-weight: bold;
+            color: var(--secondary-color);
+            font-size: 1.4rem;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background: #eee;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 5px;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: var(--accent-color);
+            opacity: 0;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .answer {
+                font-size: 1.1rem;
+            }
+            
+            .game-area {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>لعبة الأسئلة والأجوبة</h1>
+            <p>اختر السؤال المناسب لكل إجابة</p>
+        </div>
+        
+        <div class="game-area">
+            <div class="question-container">
+                <div class="answer" id="current-answer">ثلاثةُ رجالٍ</div>
+                <div class="input-group">
+                    <label for="user-answer">ما هو السؤال المناسب لهذه الإجابة؟</label>
+                    <input type="text" id="user-answer" placeholder="اكتب السؤال هنا...">
+                </div>
+                <button class="btn" id="submit-btn">تحقق من الإجابة</button>
+                
+                <div class="feedback" id="feedback"></div>
+                
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                
+                <div class="score-container">
+                    النتيجة: <span class="score" id="score">0</span> / <span id="total-questions">14</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const answers = [
+            "ثلاثةُ رجالٍ",
+            "يوم الثلاثاء",
+            "لا يعلم الميعاد أحدٌ",
+            "أبو خالد",
+            "محمّد بن سفيان",
+            "كلَّ خيرٍ وسرور",
+            "في المكتبة العامّة",
+            "بخير والحمد لله",
+            "لا، لم أطّلع عليه",
+            "بلى، نشهد على ذلك",
+            "الصف العاشر",
+            "بسبب أزمات الطريق"
+        ];
+        
+        const questions = [
+            "كم عدد الرجال الذين يعملون في المشروع؟",
+            "متى موعد الوليمة؟",
+            "أيّان تقوم القيامة؟",
+            "من هو مؤذّن المسجد؟",
+            "ما اسم جاركم الجديد؟",
+            "ماذا وجدتّم في سفركم؟",
+            "أين يوزّع الكتاب الجديد؟",
+            "كيف حالك اليوم؟",
+            "هل اطّلعت على كتاب (أأعجمي وعربيٌّ)؟",
+            "{وَإِذ أَخَذَ رَبُّكَ مِن بَني آدَمَ مِن ظُهورِهِم ذُرِّيَّتَهُم وَأَشهَدَهُم عَلى أَنفُسِهِم أَلَستُ بِرَبِّكُم}[٩]",
+            "أيّ الصفين أيسر: التاسع أم العاشر؟",
+            "لماذا تأخرت في الوصول؟"
+        ];
+        
+        const usedIndices = [];
+        let currentIndex;
+        let score = 0;
+        const totalQuestions = answers.length;
+        
+        document.getElementById('total-questions').textContent = totalQuestions;
+        
+        function getRandomQuestion() {
+            if (usedIndices.length === answers.length) {
+                return null; // All questions have been used
+            }
+            
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * answers.length);
+            } while (usedIndices.includes(randomIndex));
+            
+            usedIndices.push(randomIndex);
+            return randomIndex;
+        }
+        
+        function displayQuestion() {
+            currentIndex = getRandomQuestion();
+            
+            if (currentIndex === null) {
+                // Game over
+                document.getElementById('current-answer').textContent = "!لقد أكملت جميع الأسئلة";
+                document.getElementById('user-answer').disabled = true;
+                document.getElementById('submit-btn').disabled = true;
+                document.getElementById('progress-bar').style.width = "100%";
+                
+                // Show final score with celebration
+                if (score === totalQuestions) {
+                    createConfetti();
+                    document.getElementById('feedback').textContent = "!ممتاز! لقد أجبت على جميع الأسئلة بشكل صحيح";
+                    document.getElementById('feedback').className = "feedback success";
+                    document.getElementById('feedback').style.display = "block";
+                }
+                return;
+            }
+            
+            document.getElementById('current-answer').textContent = answers[currentIndex];
+            document.getElementById('user-answer').value = "";
+            document.getElementById('feedback').style.display = "none";
+            document.getElementById('user-answer').focus();
+            
+            // Update progress
+            const progress = (usedIndices.length / totalQuestions) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+        
+        function checkAnswer() {
+            const userAnswer = document.getElementById('user-answer').value.trim();
+            const correctAnswer = questions[currentIndex];
+            const feedbackElement = document.getElementById('feedback');
+            
+            if (userAnswer === correctAnswer) {
+                score++;
+                document.getElementById('score').textContent = score;
+                feedbackElement.textContent = "!إجابة صحيحة";
+                feedbackElement.className = "feedback success";
+                
+                // Highlight the correct answer briefly before next question
+                document.getElementById('current-answer').style.color = "var(--success-color)";
+                setTimeout(() => {
+                    document.getElementById('current-answer').style.color = "var(--secondary-color)";
+                    displayQuestion();
+                }, 1000);
+            } else {
+                feedbackElement.textContent = `إجابة خاطئة. السؤال الصحيح هو: ${correctAnswer}`;
+                feedbackElement.className = "feedback error";
+                
+                // Highlight the answer in red briefly
+                document.getElementById('current-answer').style.color = "#DC3545";
+                setTimeout(() => {
+                    document.getElementById('current-answer').style.color = "var(--secondary-color)";
+                }, 1000);
+            }
+            
+            feedbackElement.style.display = "block";
+        }
+        
+        function createConfetti() {
+            const container = document.querySelector('.container');
+            const colors = ['#6C63FF', '#4D44DB', '#FF6584', '#28A745', '#FFC107'];
+            
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.top = -10 + 'px';
+                container.appendChild(confetti);
+                
+                const animationDuration = Math.random() * 3 + 2;
+                
+                confetti.style.animation = `
+                    drop ${animationDuration}s ease-in forwards,
+                    fade ${animationDuration}s ease-in forwards
+                `;
+                
+                // Random horizontal movement
+                const keyframes = `
+                    @keyframes drop {
+                        0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; }
+                        100% { transform: translateY(600px) translateX(${Math.random() * 200 - 100}px) rotate(${Math.random() * 360}deg); opacity: 0; }
+                    }
+                    @keyframes fade {
+                        0% { opacity: 1; }
+                        80% { opacity: 1; }
+                        100% { opacity: 0; }
+                    }
+                `;
+                
+                const style = document.createElement('style');
+                style.innerHTML = keyframes;
+                document.head.appendChild(style);
+                
+                // Remove confetti after animation
+                setTimeout(() => {
+                    confetti.remove();
+                    style.remove();
+                }, animationDuration * 1000);
+            }
+        }
+        
+        document.getElementById('submit-btn').addEventListener('click', checkAnswer);
+        
+        document.getElementById('user-answer').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+        
+        // Start the game
+        displayQuestion();
+    </script>
+</body>
+</html>

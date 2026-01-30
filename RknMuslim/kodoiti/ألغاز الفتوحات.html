@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ألغاز الفتوحات - خالد بن الوليد</title>
+    <style>
+        :root {
+            --primary: #1A3A8F;
+            --secondary: #FF6B00;
+            --accent: #FFD700;
+            --light: #F8F4E3;
+            --dark: #0A1F4D;
+        }
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--light);
+            margin: 0;
+            padding: 0;
+            background-image: url('https://i.imgur.com/YbJqW3a.png');
+            background-size: 40%;
+            background-blend-mode: overlay;
+        }
+        
+        .puzzle-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .game-header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .game-title {
+            font-size: 2.5em;
+            color: var(--primary);
+            margin: 0;
+            position: relative;
+            display: inline-block;
+            background: linear-gradient(90deg, var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 3px 3px 0 rgba(0,0,0,0.1);
+        }
+        
+        .game-subtitle {
+            color: var(--dark);
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+        
+        .progress-container {
+            width: 100%;
+            background-color: rgba(26, 58, 143, 0.2);
+            border-radius: 10px;
+            margin: 20px 0;
+            height: 20px;
+            position: relative;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, var(--secondary), var(--accent));
+            width: 0%;
+            transition: width 0.5s;
+            position: relative;
+        }
+        
+        .progress-text {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+        }
+        
+        .puzzle-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 3px solid var(--accent);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .puzzle-card:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+        
+        .puzzle-question {
+            font-size: 1.3em;
+            color: var(--dark);
+            margin-bottom: 20px;
+            line-height: 1.6;
+            position: relative;
+            padding-right: 40px;
+        }
+        
+        .puzzle-question:before {
+            content: "❓";
+            position: absolute;
+            right: 0;
+            top: 0;
+            font-size: 1.5em;
+        }
+        
+        .options-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .option-btn {
+            background-color: white;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 12px;
+            border-radius: 10px;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option-btn:hover {
+            background-color: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+        
+        .option-btn.correct {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+            animation: pulse 0.5s;
+        }
+        
+        .option-btn.wrong {
+            background-color: #F44336;
+            color: white;
+            border-color: #F44336;
+            animation: shake 0.5s;
+        }
+        
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+            font-weight: bold;
+        }
+        
+        .correct-feedback {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #2E7D32;
+            border: 2px dashed #4CAF50;
+        }
+        
+        .wrong-feedback {
+            background-color: rgba(244, 67, 54, 0.2);
+            color: #C62828;
+            border: 2px dashed #F44336;
+        }
+        
+        .next-btn {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+            display: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .next-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+        
+        .khalid-tip {
+            background-color: rgba(255, 214, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-right: 5px solid var(--accent);
+            display: none;
+        }
+        
+        .khalid-tip:before {
+            content: "💡 نصيحة من خالد:";
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: var(--primary);
+        }
+        
+        .hint-btn {
+            background-color: var(--accent);
+            color: var(--dark);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 50px;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        
+        .hint-btn:hover {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        .result-container {
+            text-align: center;
+            display: none;
+        }
+        
+        .result-title {
+            font-size: 2em;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+        
+        .result-message {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        
+        .trophy {
+            font-size: 5em;
+            margin: 20px 0;
+            color: var(--accent);
+            text-shadow: 3px 3px 0 rgba(0,0,0,0.1);
+        }
+        
+        .restart-btn {
+            background: linear-gradient(45deg, var(--secondary), var(--primary));
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .restart-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+        
+        @media (max-width: 600px) {
+            .options-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .game-title {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="puzzle-container">
+        <div class="game-header">
+            <h1 class="game-title">ألغاز الفتوحات</h1>
+            <p class="game-subtitle">اختبر معلوماتك عن فتوحات خالد بن الوليد</p>
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar">
+                <div class="progress-text" id="progress-text">0/5</div>
+            </div>
+        </div>
+        
+        <div id="puzzle-area">
+            <!-- يتم تعبئة الألغاز هنا بالجافاسكريبت -->
+        </div>
+        
+        <div class="result-container" id="result-container">
+            <div class="trophy">🏆</div>
+            <h2 class="result-title" id="result-title">مبروك!</h2>
+            <p class="result-message" id="result-message">لقد أكملت جميع الألغاز بنجاح!</p>
+            <button class="restart-btn" onclick="restartGame()">العب مرة أخرى</button>
+        </div>
+    </div>
+
+    <script>
+        // أسئلة اللعبة
+        const puzzles = [
+            {
+                question: "في أي معركة استخدم خالد بن الوليد تكتيك 'جيش الظل' لأول مرة؟",
+                options: [
+                    "معركة اليرموك",
+                    "معركة أجنادين",
+                    "معركة الفراض",
+                    "معركة مؤتة"
+                ],
+                correctAnswer: 2,
+                hint: "هذه المعركة كانت ضد الفرس والروم معاً"
+            },
+            {
+                question: "كم عدد المعارك التي خاضها خالد بن الوليد ولم يهزم في أي منها؟",
+                options: [
+                    "أكثر من 50 معركة",
+                    "أكثر من 100 معركة",
+                    "أكثر من 30 معركة",
+                    "أكثر من 80 معركة"
+                ],
+                correctAnswer: 1,
+                hint: "قال خالد: 'ما في جسدي موضع شبر إلا وفيه ضربة بسيف أو رمية بسهم'"
+            },
+            {
+                question: "ما هو اللقب الذي أطلقه الرسول ﷺ على خالد بن الوليد؟",
+                options: [
+                    "أسد الله",
+                    "سيف الله المسلول",
+                    "فارس الإسلام",
+                    "حامي الرسالة"
+                ],
+                correctAnswer: 1,
+                hint: "هذا اللقب يشبه سلاحاً قوياً"
+            },
+            {
+                question: "في أي عام كانت معركة اليرموك التي قادها خالد بن الوليد؟",
+                options: [
+                    "12 هـ",
+                    "15 هـ",
+                    "18 هـ",
+                    "20 هـ"
+                ],
+                correctAnswer: 1,
+                hint: "كانت بعد وفاة الرسول ﷺ بسنوات قليلة"
+            },
+            {
+                question: "ما هو سبب وفاة خالد بن الوليد؟",
+                options: [
+                    "قتل في معركة",
+                    "مرض في دمشق",
+                    "سم من أعدائه",
+                    "شيخوخة"
+                ],
+                correctAnswer: 1,
+                hint: "قال على فراش الموت: 'ما في جسدي موضع شبر إلا وفيه ضربة'"
+            }
+        ];
+        
+        // حالة اللعبة
+        let currentPuzzle = 0;
+        let score = 0;
+        let answered = false;
+        
+        // تحميل اللغز الحالي
+        function loadPuzzle(index) {
+            if (index >= puzzles.length) {
+                showResults();
+                return;
+            }
+            
+            answered = false;
+            const puzzle = puzzles[index];
+            let optionsHtml = '';
+            
+            puzzle.options.forEach((option, i) => {
+                optionsHtml += `
+                    <button class="option-btn" onclick="checkAnswer(${i})">
+                        ${option}
+                    </button>
+                `;
+            });
+            
+            document.getElementById('puzzle-area').innerHTML = `
+                <div class="puzzle-card">
+                    <div class="puzzle-question">${puzzle.question}</div>
+                    <div class="options-container">
+                        ${optionsHtml}
+                    </div>
+                    <button class="hint-btn" onclick="showHint()">اطلب مساعدة من خالد</button>
+                    <div class="khalid-tip" id="khalid-tip">${puzzle.hint}</div>
+                    <div class="feedback correct-feedback" id="correct-feedback">
+                        أحسنت! إجابة صحيحة 🎉
+                    </div>
+                    <div class="feedback wrong-feedback" id="wrong-feedback">
+                        إجابة خاطئة، حاول مرة أخرى!
+                    </div>
+                    <button class="next-btn" id="next-btn" onclick="nextPuzzle()">التالي</button>
+                </div>
+            `;
+            
+            updateProgress();
+        }
+        
+        // التحقق من الإجابة
+        function checkAnswer(selectedIndex) {
+            if (answered) return;
+            
+            answered = true;
+            const puzzle = puzzles[currentPuzzle];
+            const options = document.querySelectorAll('.option-btn');
+            const correctFeedback = document.getElementById('correct-feedback');
+            const wrongFeedback = document.getElementById('wrong-feedback');
+            const nextBtn = document.getElementById('next-btn');
+            
+            options.forEach((option, index) => {
+                if (index === puzzle.correctAnswer) {
+                    option.classList.add('correct');
+                } else if (index === selectedIndex && index !== puzzle.correctAnswer) {
+                    option.classList.add('wrong');
+                }
+            });
+            
+            if (selectedIndex === puzzle.correctAnswer) {
+                correctFeedback.style.display = 'block';
+                wrongFeedback.style.display = 'none';
+                score++;
+            } else {
+                correctFeedback.style.display = 'none';
+                wrongFeedback.style.display = 'block';
+            }
+            
+            nextBtn.style.display = 'inline-block';
+        }
+        
+        // التقدم إلى اللغز التالي
+        function nextPuzzle() {
+            currentPuzzle++;
+            loadPuzzle(currentPuzzle);
+        }
+        
+        // عرض النتائج النهائية
+        function showResults() {
+            document.getElementById('puzzle-area').style.display = 'none';
+            const resultContainer = document.getElementById('result-container');
+            const resultTitle = document.getElementById('result-title');
+            const resultMessage = document.getElementById('result-message');
+            
+            resultContainer.style.display = 'block';
+            
+            if (score === puzzles.length) {
+                resultTitle.textContent = 'إنجاز رائع!';
+                resultMessage.textContent = `لقد أجبت على جميع الأسئلة ${puzzles.length}/${puzzles.length} بشكل صحيح! أنت خبير في فتوحات خالد بن الوليد!`;
+            } else if (score >= puzzles.length / 2) {
+                resultTitle.textContent = 'عمل جيد!';
+                resultMessage.textContent = `أجبت على ${score} من ${puzzles.length} أسئلة بشكل صحيح. استمر في التعلم!`;
+            } else {
+                resultTitle.textContent = 'حاول مرة أخرى!';
+                resultMessage.textContent = `أجبت على ${score} من ${puzzles.length} أسئلة بشكل صحيح. لا تيأس، تعلم من أخطائك!`;
+            }
+        }
+        
+        // إعادة تشغيل اللعبة
+        function restartGame() {
+            currentPuzzle = 0;
+            score = 0;
+            document.getElementById('puzzle-area').style.display = 'block';
+            document.getElementById('result-container').style.display = 'none';
+            loadPuzzle(0);
+        }
+        
+        // عرض تلميح
+        function showHint() {
+            document.getElementById('khalid-tip').style.display = 'block';
+        }
+        
+        // تحديث شريط التقدم
+        function updateProgress() {
+            const progress = (currentPuzzle / puzzles.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+            document.getElementById('progress-text').textContent = `${currentPuzzle}/${puzzles.length}`;
+        }
+        
+        // بدء اللعبة
+        loadPuzzle(0);
+    </script>
+</body>
+</html>

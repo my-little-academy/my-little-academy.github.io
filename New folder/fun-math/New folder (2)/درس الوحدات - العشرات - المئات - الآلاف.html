@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>لعبة تمثيل الأعداد بالسحب والإفلات - بحجم مصغر</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    direction: rtl;
+    background: #e8f5e9;
+    padding: 15px;
+    user-select: none;
+  }
+  h2 {
+    text-align: center;
+    color: #2e7d32;
+    font-size: 1.6em;
+  }
+  #number-display {
+    font-size: 1.5em;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 15px;
+    color: #1b5e20;
+  }
+  .container {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+  /* منطقة المجسمات للاختيار */
+  #pieces {
+    flex: 1 1 180px;
+    border: 2px solid #388e3c;
+    border-radius: 10px;
+    background: #a5d6a7;
+    padding: 12px;
+    min-height: 260px;
+  }
+  #pieces h3 {
+    text-align: center;
+    margin-bottom: 10px;
+    color: #2e7d32;
+    font-size: 1.2em;
+  }
+  .draggable {
+    cursor: grab;
+    margin: 8px auto;
+  }
+  /* وحدة */
+  .unit {
+    width: 12px;
+    height: 12px;
+    background: #81c784;
+    border: 1.5px solid #388e3c;
+    border-radius: 2px;
+  }
+  /* قضيب (عشرات) */
+  .rod {
+    width: 12px;
+    height: 120px;
+    background: linear-gradient(#aed581 0 10%, #7cb342 10% 20%, #aed581 20% 30%, #7cb342 30% 40%, #aed581 40% 50%, #7cb342 50% 60%, #aed581 60% 70%, #7cb342 70% 80%, #aed581 80% 90%, #7cb342 90% 100%);
+    border: 1.5px solid #33691e;
+    border-radius: 6px;
+    margin: 10px auto;
+  }
+  /* صفيحة (مئات) */
+  .plate {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(45deg, #ffe082 25%, #ffb300 25%, #ffb300 50%, #ffe082 50%, #ffe082 75%, #ffb300 75%, #ffb300 100%);
+    border: 2px solid #f9a825;
+    border-radius: 8px;
+    margin: 10px auto;
+  }
+
+  /* منطقة التمثيل */
+  #drop-zone {
+    flex: 2 1 360px;
+    border: 3px dashed #4caf50;
+    border-radius: 15px;
+    background: #c8e6c9;
+    min-height: 260px;
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-content: flex-start;
+    justify-content: center;
+  }
+
+  /* زر التحقق */
+  #check-btn {
+    margin-top: 18px;
+    display: block;
+    padding: 10px 18px;
+    font-size: 1.1em;
+    background-color: #388e3c;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    user-select: none;
+  }
+  #check-btn:hover {
+    background-color: #1b5e20;
+  }
+
+  /* رسالة النتيجة */
+  #result-msg {
+    margin-top: 15px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.2em;
+    color: #2e7d32;
+  }
+</style>
+</head>
+<body>
+
+<h2>لعبة تمثيل الأعداد بالسحب والإفلات</h2>
+<div id="number-display">العدد: <span id="number-to-represent">---</span></div>
+
+<div class="container">
+
+  <div id="pieces" aria-label="مجسمات الوحدات والعشرات والمئات">
+    <h3>المجسمات</h3>
+    <div draggable="true" data-type="unit" class="draggable unit" title="وحدة"></div>
+    <div draggable="true" data-type="rod" class="draggable rod" title="عشرة"></div>
+    <div draggable="true" data-type="plate" class="draggable plate" title="مائة"></div>
+  </div>
+
+  <div id="drop-zone" aria-label="منطقة التمثيل" tabindex="0">
+    <!-- هنا يسقط الطفل المجسمات -->
+  </div>
+
+</div>
+
+<button id="check-btn">تحقق من التمثيل</button>
+<div id="result-msg" aria-live="polite"></div>
+
+<script>
+  const numberDisplay = document.getElementById('number-to-represent');
+  const dropZone = document.getElementById('drop-zone');
+  const pieces = document.getElementById('pieces');
+  const checkBtn = document.getElementById('check-btn');
+  const resultMsg = document.getElementById('result-msg');
+
+  function getRandomNumber() {
+    return Math.floor(Math.random() * 900) + 100;
+  }
+
+  let currentNumber = getRandomNumber();
+  numberDisplay.textContent = currentNumber;
+
+  pieces.addEventListener('dragstart', (ev) => {
+    if (ev.target.classList.contains('draggable')) {
+      ev.dataTransfer.setData('text/plain', ev.target.getAttribute('data-type'));
+    }
+  });
+
+  dropZone.addEventListener('dragover', (ev) => {
+    ev.preventDefault();
+  });
+
+  dropZone.addEventListener('drop', (ev) => {
+    ev.preventDefault();
+    const type = ev.dataTransfer.getData('text/plain');
+    if (type) {
+      let newElem = document.createElement('div');
+      newElem.classList.add('draggable');
+      newElem.setAttribute('data-type', type);
+      newElem.setAttribute('tabindex', '0');
+
+      if (type === 'unit') {
+        newElem.classList.add('unit');
+        newElem.title = 'وحدة';
+        newElem.style.width = '12px';
+        newElem.style.height = '12px';
+      } else if (type === 'rod') {
+        newElem.classList.add('rod');
+        newElem.title = 'عشرة';
+        newElem.style.width = '12px';
+        newElem.style.height = '120px';
+      } else if (type === 'plate') {
+        newElem.classList.add('plate');
+        newElem.title = 'مائة';
+        newElem.style.width = '100px';
+        newElem.style.height = '100px';
+      }
+
+      newElem.addEventListener('click', () => {
+        dropZone.removeChild(newElem);
+      });
+
+      dropZone.appendChild(newElem);
+    }
+  });
+
+  checkBtn.addEventListener('click', () => {
+    let unitsCount = 0;
+    let rodsCount = 0;
+    let platesCount = 0;
+
+    for (const child of dropZone.children) {
+      const t = child.getAttribute('data-type');
+      if (t === 'unit') unitsCount++;
+      else if (t === 'rod') rodsCount++;
+      else if (t === 'plate') platesCount++;
+    }
+
+    const num = currentNumber;
+    const expectedUnits = num % 10;
+    const expectedTens = Math.floor(num / 10) % 10;
+    const expectedHundreds = Math.floor(num / 100);
+
+    if (unitsCount === expectedUnits && rodsCount === expectedTens && platesCount === expectedHundreds) {
+      resultMsg.style.color = '#2e7d32';
+      resultMsg.textContent = 'ممتاز! التمثيل صحيح 🎉 يمكنك تجربة عدد جديد.';
+      generateNewNumber();
+    } else {
+      resultMsg.style.color = '#c62828';
+      let msg = 'خطأ في التمثيل. ';
+      if (unitsCount !== expectedUnits) msg += `الوحدات: متوقع ${expectedUnits}، لديك ${unitsCount}. `;
+      if (rodsCount !== expectedTens) msg += `العشرات: متوقع ${expectedTens}، لديك ${rodsCount}. `;
+      if (platesCount !== expectedHundreds) msg += `المئات: متوقع ${expectedHundreds}، لديك ${platesCount}. `;
+      resultMsg.textContent = msg;
+    }
+  });
+
+  function generateNewNumber() {
+    dropZone.innerHTML = '';
+    currentNumber = getRandomNumber();
+    numberDisplay.textContent = currentNumber;
+    resultMsg.textContent = '';
+  }
+</script>
+
+</body>
+</html>

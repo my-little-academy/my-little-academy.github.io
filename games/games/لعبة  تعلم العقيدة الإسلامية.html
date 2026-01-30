@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة النقطة السحرية: تعلم العقيدة</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
+        
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --correct-color: #4cc9f0;
+            --wrong-color: #f72585;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            cursor: none;
+        }
+        
+        #game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            position: relative;
+            animation: fadeInDown 0.8s ease;
+        }
+        
+        h1 {
+            color: var(--secondary-color);
+            font-size: 2.8rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            font-weight: 900;
+            background: linear-gradient(to right, #3a0ca3, #4361ee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            color: var(--dark-color);
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+        
+        .question-box {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            border: none;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.8s ease;
+        }
+        
+        .question-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+        }
+        
+        .question {
+            font-size: 1.8rem;
+            color: var(--dark-color);
+            margin-bottom: 2rem;
+            font-weight: 700;
+            line-height: 1.4;
+            text-align: center;
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.2rem;
+        }
+        
+        .option {
+            background-color: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 1.2rem 1.5rem;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+            border-color: var(--primary-color);
+        }
+        
+        .option::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(67, 97, 238, 0.1), rgba(58, 12, 163, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .option:hover::after {
+            opacity: 1;
+        }
+        
+        .score-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 2rem;
+            animation: fadeIn 1s ease;
+        }
+        
+        .score-box {
+            background: white;
+            border-radius: 50px;
+            padding: 0.8rem 1.8rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .dot {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle at center, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 0 15px rgba(67, 97, 238, 0.5);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                        background 0.3s ease, 
+                        box-shadow 0.3s ease,
+                        opacity 0.3s ease;
+        }
+        
+        .dot.correct {
+            background: radial-gradient(circle at center, var(--correct-color) 0%, #4895ef 100%);
+            box-shadow: 0 0 20px rgba(76, 201, 240, 0.7);
+            animation: pulse 0.5s ease;
+        }
+        
+        .dot.wrong {
+            background: radial-gradient(circle at center, var(--wrong-color) 0%, #b5179e 100%);
+            box-shadow: 0 0 20px rgba(247, 37, 133, 0.5);
+            opacity: 0.7;
+            animation: shake 0.5s ease;
+        }
+        
+        .speech-bubble {
+            position: absolute;
+            background-color: white;
+            border-radius: 15px;
+            padding: 12px 18px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            width: 250px;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1rem;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            z-index: 101;
+            text-align: center;
+            border: 2px solid var(--primary-color);
+        }
+        
+        .speech-bubble:after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -10px;
+            border-width: 10px;
+            border-style: solid;
+            border-color: white transparent transparent transparent;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10;
+            opacity: 0;
+        }
+        
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+            display: none;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes fadeInUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInDown {
+            from { 
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .question {
+                font-size: 1.4rem;
+            }
+            
+            .option {
+                font-size: 1rem;
+                padding: 1rem;
+            }
+            
+            .question-box {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <header>
+            <h1>لعبة النقطة السحرية</h1>
+            <p class="subtitle">تعلم العقيدة الإسلامية بطريقة ممتعة</p>
+        </header>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        
+        <div class="question-box">
+            <div class="question" id="question">السؤال سيظهر هنا</div>
+            <div class="options" id="options">
+                <!-- الخيارات ستظهر هنا -->
+            </div>
+        </div>
+        
+        <div class="score-container">
+            <div class="score-box">
+                <span>النقاط:</span>
+                <span id="score">0</span>
+            </div>
+            <div class="score-box">
+                <span>السؤال:</span>
+                <span id="question-count">0</span>/<span id="total-questions">0</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="dot" id="magic-dot">ن</div>
+    <div class="speech-bubble" id="speech-bubble">أنا النقطة فوق النون! تعال نتعلم العقيدة.</div>
+    <div class="celebration" id="celebration"></div>
+    
+    <script>
+        // الأسئلة والأجوبة
+        const questions = [
+            {
+                question: "من ربك؟",
+                answer: "ربي الله",
+                options: ["ربي الله", "ربي محمد", "ربي الملائكة", "ربي الشمس"]
+            },
+            {
+                question: "أين الله؟",
+                answer: "في السماء علي العرش استوى",
+                options: ["في السماء علي العرش استوى", "في كل مكان", "في الأرض", "في البحر"]
+            },
+            {
+                question: "ما معني استوي؟",
+                answer: "علا وارتفع",
+                options: ["علا وارتفع", "جلس", "نام", "سار"]
+            },
+            {
+                question: "من نبيك؟",
+                answer: "محمد بن عبد الله بن عبد المطلب",
+                options: [
+                    "محمد بن عبد الله بن عبد المطلب",
+                    "عيسى بن مريم",
+                    "موسى بن عمران",
+                    "إبراهيم بن آزر"
+                ]
+            },
+            {
+                question: "ما دينك؟",
+                answer: "ديني الاسلام",
+                options: ["ديني الاسلام", "ديني المسيحية", "ديني اليهودية", "ديني البوذية"]
+            },
+            {
+                question: "ما هو الاسلام؟",
+                answer: "هو الاستسلام لله بالتوحيد ،والانقياد له بالطاعة،والبراءه من الشرك وأهله",
+                options: [
+                    "هو الاستسلام لله بالتوحيد ،والانقياد له بالطاعة،والبراءه من الشرك وأهله",
+                    "هو الصلاة فقط",
+                    "هو الصوم فقط",
+                    "هو الذهاب إلى المسجد"
+                ]
+            },
+            {
+                question: "ما هي اركان الاسلام؟",
+                answer: "بني الاسلام على خمس: شهادة أن لا إله إلا الله وأن محمداً رسول اللَّه، إقام الصلاة، إيتاء الزكاة، وحج البيت، صوم رمضان",
+                options: [
+                    "بني الاسلام على خمس: شهادة أن لا إله إلا الله وأن محمداً رسول اللَّه، إقام الصلاة، إيتاء الزكاة، وحج البيت، صوم رمضان",
+                    "الصلاة والصوم فقط",
+                    "الصدقة والزكاة",
+                    "قراءة القرآن وحفظه"
+                ]
+            },
+            {
+                question: "لماذا خلق الله الجن و الانس؟",
+                answer: "لعبادته وحده لا شريك له",
+                options: [
+                    "لعبادته وحده لا شريك له",
+                    "للعمل والكسب",
+                    "للتمتع بالحياة",
+                    "للتعلم والمعرفة"
+                ]
+            },
+            {
+                question: "ما معني يعبدون؟",
+                answer: "يوحدون",
+                options: ["يوحدون", "يصلون", "يصومون", "يتصدقون"]
+            },
+            {
+                question: "ما هو التوحيد؟",
+                answer: "افراد الله بالعبادة",
+                options: [
+                    "افراد الله بالعبادة",
+                    "قراءة القرآن",
+                    "الصلاة في المسجد",
+                    "مساعدة الآخرين"
+                ]
+            },
+            {
+                question: "ما اكبر طاعة؟",
+                answer: "التوحيد",
+                options: ["التوحيد", "الصلاة", "الصدقة", "الحج"]
+            },
+            {
+                question: "ما اكبر معصية؟",
+                answer: "الشرك",
+                options: ["الشرك", "الكذب", "السرقة", "الغيبة"]
+            },
+            {
+                question: "ما هو الشرك؟",
+                answer: "عبادة غير الله مع الله",
+                options: [
+                    "عبادة غير الله مع الله",
+                    "عدم الصلاة",
+                    "عدم الصوم",
+                    "عدم الذهاب إلى الحج"
+                ]
+            },
+            {
+                question: "ما هي اقسام التوحيد؟",
+                answer: "ثلاثة: توحيد الوهية، توحيد ربوبية، توحيد اسماء وصفات",
+                options: [
+                    "ثلاثة: توحيد الوهية، توحيد ربوبية، توحيد اسماء وصفات",
+                    "واحد فقط",
+                    "أربعة",
+                    "خمسة"
+                ]
+            },
+            {
+                question: "ما هو توحيد الالوهية؟",
+                answer: "افراد الله تعالي بالعبادات كالصلاه والصدقه والدعاء والنذر",
+                options: [
+                    "افراد الله تعالي بالعبادات كالصلاه والصدقه والدعاء والنذر",
+                    "الإيمان بخلق الله للكون",
+                    "الإيمان بأسماء الله وصفاته",
+                    "قراءة القرآن"
+                ]
+            },
+            {
+                question: "ما هو توحيد الربوبية؟",
+                answer: "هو أفراد الله بافعالة كالخلق والرزق والاحياء",
+                options: [
+                    "هو أفراد الله بافعالة كالخلق والرزق والاحياء",
+                    "الصلاة لله",
+                    "الدعاء لله",
+                    "الصوم لله"
+                ]
+            },
+            {
+                question: "ما هو توحيد الأسماء والصفات؟",
+                answer: "هو إثبات ما أثبته الله ورسوله من الأسماء الحسنى والصفات العلا لله تعلي من غير تحريف أو تعطيل أو تكييف أو تمثيل",
+                options: [
+                    "هو إثبات ما أثبته الله ورسوله من الأسماء الحسنى والصفات العلا لله تعلي من غير تحريف أو تعطيل أو تكييف أو تمثيل",
+                    "ذكر أسماء الله فقط",
+                    "ذكر صفات الله فقط",
+                    "عدم الحديث عن أسماء الله وصفاته"
+                ]
+            },
+            {
+                question: "من اين ناخذ اسماء الله وصفاته؟",
+                answer: "القرآن والسنة",
+                options: ["القرآن والسنة", "الكتب القديمة", "الفلسفة", "العلماء فقط"]
+            },
+            {
+                question: "القرآن كلام من؟",
+                answer: "كلام الله تعالي",
+                options: [
+                    "كلام الله تعالي",
+                    "كلام النبي محمد",
+                    "كلام الصحابة",
+                    "كلام الملائكة"
+                ]
+            },
+            {
+                question: "ما معني لا اله الا الله؟",
+                answer: "أي لا معبود بحق الا الله",
+                options: [
+                    "أي لا معبود بحق الا الله",
+                    "لا يوجد إله",
+                    "هناك آلهة متعددة",
+                    "الله واحد من بين آلهة"
+                ]
+            },
+            {
+                question: "اين الجنه؟",
+                answer: "فوق السماء السابعة ومنفصلة عنها وسقفها عرش الرحمن",
+                options: [
+                    "فوق السماء السابعة ومنفصلة عنها وسقفها عرش الرحمن",
+                    "في الأرض",
+                    "في السماء الأولى",
+                    "في البحر"
+                ]
+            },
+            {
+                question: "اين النار؟",
+                answer: "تحت الارض السابعه",
+                options: [
+                    "تحت الارض السابعه",
+                    "في السماء",
+                    "في القمر",
+                    "في الشمس"
+                ]
+            },
+            {
+                question: "من اين نأخذ عقيدتنا؟",
+                answer: "من القرآن والسنة",
+                options: [
+                    "من القرآن والسنة",
+                    "من الآباء والأجداد",
+                    "من الكتب الفلسفية",
+                    "من العلماء فقط"
+                ]
+            }
+        ];
+
+        // متغيرات اللعبة
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let dot = document.getElementById('magic-dot');
+        let speechBubble = document.getElementById('speech-bubble');
+        let celebration = document.getElementById('celebration');
+        
+        // تهيئة اللعبة
+        function initGame() {
+            document.getElementById('total-questions').textContent = questions.length;
+            displayQuestion();
+            
+            // عرض فقاعة الكلام عند بداية اللعبة
+            setTimeout(() => {
+                speechBubble.style.opacity = 1;
+                speechBubble.style.transform = 'translateX(-50%) translateY(0)';
+                setTimeout(() => {
+                    speechBubble.style.opacity = 0;
+                    speechBubble.style.transform = 'translateX(-50%) translateY(20px)';
+                }, 3000);
+            }, 1000);
+        }
+        
+        // جعل النقطة تتبع المؤشر
+        document.addEventListener('mousemove', (e) => {
+            dot.style.left = e.pageX - 15 + 'px';
+            dot.style.top = e.pageY - 15 + 'px';
+        });
+        
+        // عرض السؤال الحالي
+        function displayQuestion() {
+            if (currentQuestionIndex >= questions.length) {
+                // انتهت الأسئلة
+                endGame();
+                return;
+            }
+            
+            // تحديث شريط التقدم
+            updateProgressBar();
+            
+            // تحديث عداد السؤال
+            document.getElementById('question-count').textContent = currentQuestionIndex + 1;
+            
+            const currentQuestion = questions[currentQuestionIndex];
+            document.getElementById('question').textContent = currentQuestion.question;
+            
+            // خلط الخيارات عشوائياً
+            const shuffledOptions = shuffleArray([...currentQuestion.options]);
+            
+            let optionsHtml = '';
+            shuffledOptions.forEach((option, index) => {
+                optionsHtml += `<div class="option" onclick="checkAnswer('${escapeHtml(option)}', this)">${option}</div>`;
+            });
+            
+            document.getElementById('options').innerHTML = optionsHtml;
+            
+            // تأثير ظهور السؤال
+            animateQuestionBox();
+        }
+        
+        // التحقق من الإجابة
+        window.checkAnswer = function(selectedAnswer, element) {
+            const currentQuestion = questions[currentQuestionIndex];
+            
+            // تعطيل جميع الخيارات بعد النقر
+            const allOptions = document.querySelectorAll('.option');
+            allOptions.forEach(opt => {
+                opt.style.pointerEvents = 'none';
+            });
+            
+            if (selectedAnswer === currentQuestion.answer) {
+                // إجابة صحيحة
+                handleCorrectAnswer(element);
+            } else {
+                // إجابة خاطئة
+                handleWrongAnswer(element);
+            }
+            
+            // الانتقال للسؤال التالي بعد تأخير
+            setTimeout(() => {
+                currentQuestionIndex++;
+                displayQuestion();
+            }, 1500);
+        };
+        
+        // معالجة الإجابة الصحيحة
+        function handleCorrectAnswer(element) {
+            score++;
+            document.getElementById('score').textContent = score;
+            
+            // تأثيرات النقطة
+            dot.classList.add('correct');
+            setTimeout(() => {
+                dot.classList.remove('correct');
+            }, 1000);
+            
+            // تأثير على الخيار المختار
+            element.style.borderColor = 'var(--correct-color)';
+            element.style.backgroundColor = 'rgba(76, 201, 240, 0.1)';
+            element.style.transform = 'scale(1.05)';
+            
+            // إظهار الخيار الصحيح إذا كانت الإجابة خاطئة
+            markCorrectAnswer();
+            
+            // تأثيرات احتفالية
+            createConfetti();
+        }
+        
+        // معالجة الإجابة الخاطئة
+        function handleWrongAnswer(element) {
+            // تأثيرات النقطة
+            dot.classList.add('wrong');
+            setTimeout(() => {
+                dot.classList.remove('wrong');
+            }, 1000);
+            
+            // تأثير على الخيار المختار
+            element.style.borderColor = 'var(--wrong-color)';
+            element.style.backgroundColor = 'rgba(247, 37, 133, 0.1)';
+            element.style.transform = 'scale(0.95)';
+            
+            // إظهار الخيار الصحيح
+            markCorrectAnswer();
+        }
+        
+        // تحديد الإجابة الصحيحة
+        function markCorrectAnswer() {
+            const currentQuestion = questions[currentQuestionIndex];
+            const allOptions = document.querySelectorAll('.option');
+            
+            allOptions.forEach(opt => {
+                if (opt.textContent === currentQuestion.answer) {
+                    opt.style.borderColor = 'var(--correct-color)';
+                    opt.style.backgroundColor = 'rgba(76, 201, 240, 0.2)';
+                    opt.style.transform = 'scale(1.05)';
+                    opt.style.boxShadow = '0 0 15px rgba(76, 201, 240, 0.3)';
+                }
+            });
+        }
+        
+        // إنشاء تأثيرات احتفالية
+        function createConfetti() {
+            celebration.style.display = 'block';
+            
+            for (let i = 0; i < 80; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * window.innerWidth + 'px';
+                confetti.style.top = -20 + 'px';
+                confetti.style.backgroundColor = getRandomColor();
+                confetti.style.opacity = '1';
+                celebration.appendChild(confetti);
+                
+                animateConfetti(confetti);
+            }
+            
+            setTimeout(() => {
+                celebration.innerHTML = '';
+                celebration.style.display = 'none';
+            }, 3000);
+        }
+        
+        // تحريك قطع الاحتفال
+        function animateConfetti(confetti) {
+            let posY = -20;
+            let posX = parseFloat(confetti.style.left);
+            let angle = 0;
+            let speed = 2 + Math.random() * 3;
+            let spinSpeed = Math.random() * 10 - 5;
+            const size = 5 + Math.random() * 10;
+            
+            confetti.style.width = size + 'px';
+            confetti.style.height = size + 'px';
+            
+            const fall = () => {
+                posY += speed;
+                angle += spinSpeed;
+                posX += Math.sin(angle * Math.PI / 180) * 2;
+                
+                confetti.style.top = posY + 'px';
+                confetti.style.left = posX + 'px';
+                confetti.style.transform = `rotate(${angle}deg)`;
+                
+                if (posY < window.innerHeight) {
+                    requestAnimationFrame(fall);
+                } else {
+                    confetti.style.opacity = '0';
+                }
+            };
+            
+            fall();
+        }
+        
+        // توليد ألوان عشوائية
+        function getRandomColor() {
+            const colors = ['#4361ee', '#3a0ca3', '#4cc9f0', '#4895ef', '#560bad', '#f72585', '#b5179e', '#7209b7'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+        
+        // خلط المصفوفة عشوائياً
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // تحويل النصوص الخاصة إلى HTML entities
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // تحديث شريط التقدم
+        function updateProgressBar() {
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = progress + '%';
+        }
+        
+        // تأثيرات ظهور صندوق السؤال
+        function animateQuestionBox() {
+            const questionBox = document.querySelector('.question-box');
+            questionBox.style.transform = 'translateY(20px)';
+            questionBox.style.opacity = '0';
+            
+            setTimeout(() => {
+                questionBox.style.transform = 'translateY(0)';
+                questionBox.style.opacity = '1';
+            }, 50);
+        }
+        
+        // نهاية اللعبة
+        function endGame() {
+            const questionBox = document.querySelector('.question-box');
+            questionBox.innerHTML = `
+                <div style="text-align: center; padding: 2rem;">
+                    <h2 style="color: var(--secondary-color); margin-bottom: 1.5rem;">تهانينا! لقد أكملت اللعبة</h2>
+                    <div style="font-size: 1.5rem; margin-bottom: 2rem;">نقاطك النهائية: <strong>${score}/${questions.length}</strong></div>
+                    <button onclick="location.reload()" style="
+                        background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+                        color: white;
+                        border: none;
+                        padding: 0.8rem 2rem;
+                        font-size: 1.2rem;
+                        border-radius: 50px;
+                        cursor: pointer;
+                        transition: transform 0.3s ease;
+                        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+                    ">العب مرة أخرى</button>
+                </div>
+            `;
+            
+            // تأثيرات النجاح
+            createConfetti();
+            dot.classList.add('correct');
+            setTimeout(() => {
+                dot.classList.remove('correct');
+            }, 2000);
+        }
+        
+        // بدء اللعبة
+        initGame();
+    </script>
+</body>
+</html>

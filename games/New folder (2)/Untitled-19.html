@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>مثال صفحة HTML مع تأثير كونفيتي</title>
+  <style>
+    body, html {
+      margin: 0; padding: 0; height: 100%;
+      overflow-x: hidden;
+      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      user-select: none;
+    }
+    .container {
+      text-align: center;
+    }
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 1rem;
+    }
+    button {
+      background-color: #4a90e2;
+      border: none;
+      color: white;
+      padding: 0.8rem 1.5rem;
+      font-size: 1.2rem;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(74,144,226,0.6);
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #357abd;
+    }
+
+    /* حاوية الكونفيتي */
+    #confetti-container {
+      pointer-events: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: visible;
+      z-index: 9999;
+    }
+
+    /* قطع الكونفيتي */
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background-color: red;
+      opacity: 0.9;
+      will-change: transform, opacity;
+      border-radius: 3px;
+      animation-name: fall, sway;
+      animation-timing-function: linear, ease-in-out;
+      animation-iteration-count: 1, infinite;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+    @keyframes sway {
+      0%, 100% {
+        transform: translateX(0);
+      }
+      50% {
+        transform: translateX(15px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>تأثير الكونفيتي الاحتفالي</h1>
+    <button id="start-confetti">احتفل الآن 🎉</button>
+  </div>
+
+  <div id="confetti-container"></div>
+
+  <script>
+    const confettiContainer = document.getElementById('confetti-container');
+    const colors = ['#f44336', '#2196f3', '#ffeb3b', '#4caf50', '#ff9800', '#9c27b0'];
+
+    function createConfettiPiece() {
+      const confetti = document.createElement('div');
+      confetti.classList.add('confetti');
+      confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      confetti.style.left = Math.random() * window.innerWidth + 'px';
+      confetti.style.top = '-10px';
+      confetti.style.width = confetti.style.height = (5 + Math.random() * 10) + 'px';
+      confetti.style.animationDuration = (2 + Math.random() * 3) + 's, ' + (2 + Math.random() * 3) + 's';
+      confetti.style.animationDelay = '0s, ' + (Math.random() * 2) + 's';
+      confettiContainer.appendChild(confetti);
+
+      // إزالة الكونفيتي بعد انتهاء الحركة
+      confetti.addEventListener('animationend', () => {
+        confetti.remove();
+      });
+    }
+
+    function launchConfetti(amount = 100) {
+      for(let i = 0; i < amount; i++) {
+        setTimeout(createConfettiPiece, i * 15);
+      }
+    }
+
+    document.getElementById('start-confetti').addEventListener('click', () => {
+      launchConfetti();
+    });
+  </script>
+</body>
+</html>

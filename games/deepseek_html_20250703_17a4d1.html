@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الاختيار الممتعة!</title>
+    <style>
+        /* تصميم عام للصفحة - طفولي */
+        body {
+            font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+        
+        /* تصميم بطاقة اللعبة - أشبه بلوحة ألعاب */
+        .game-container {
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 600px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 8px dashed #ff9a9e;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* تأثير بالونات في الخلفية */
+        .game-container::before {
+            content: "";
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 100px;
+            height: 100px;
+            background-color: rgba(255, 154, 158, 0.2);
+            border-radius: 50%;
+        }
+        
+        .game-container::after {
+            content: "";
+            position: absolute;
+            bottom: -30px;
+            left: -30px;
+            width: 80px;
+            height: 80px;
+            background-color: rgba(250, 208, 196, 0.3);
+            border-radius: 50%;
+        }
+        
+        /* تصميم عنوان اللعبة - طفولي */
+        h1 {
+            color: #ff6b88;
+            margin-bottom: 20px;
+            font-size: 32px;
+            text-shadow: 2px 2px 0px rgba(255, 255, 255, 0.8);
+            position: relative;
+            display: inline-block;
+        }
+        
+        h1::after {
+            content: "✨";
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            font-size: 24px;
+        }
+        
+        /* تصميم التعليمات */
+        .instructions {
+            background-color: #fff9c4;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 25px;
+            border: 3px dotted #ffb74d;
+            font-size: 16px;
+            color: #5d4037;
+        }
+        
+        /* تصميم السؤال */
+        .question {
+            font-size: 22px;
+            margin-bottom: 25px;
+            font-weight: bold;
+            line-height: 1.4;
+            color: #5d4037;
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 15px;
+            border: 3px solid #bbdefb;
+        }
+        
+        /* تصميم خيارات الإجابة - أزرار ملونة */
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .option-btn {
+            background-color: #ffcc80;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: right;
+            position: relative;
+            overflow: hidden;
+            color: #5d4037;
+            font-weight: bold;
+            box-shadow: 0 4px 0 #ffa726;
+        }
+        
+        .option-btn:hover {
+            background-color: #ffb74d;
+            transform: translateY(-3px);
+            box-shadow: 0 7px 0 #ffa726;
+        }
+        
+        .option-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #ffa726;
+        }
+        
+        /* تأثيرات للإجابات */
+        .option-btn.correct {
+            background-color: #81c784;
+            color: white;
+            box-shadow: 0 4px 0 #4caf50;
+            animation: bounce 0.5s;
+        }
+        
+        .option-btn.wrong {
+            background-color: #ff8a65;
+            color: white;
+            box-shadow: 0 4px 0 #ff5722;
+            animation: shake 0.5s;
+        }
+        
+        /* تصميم زر التالي - بشكل مميز */
+        .next-btn {
+            background-color: #64b5f6;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+            margin: 0 auto;
+            font-weight: bold;
+            box-shadow: 0 4px 0 #1976d2;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .next-btn:hover {
+            background-color: #42a5f5;
+            transform: translateY(-3px);
+            box-shadow: 0 7px 0 #1976d2;
+        }
+        
+        .next-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #1976d2;
+        }
+        
+        /* تصميم شريط التقدم - بشكل طفولي */
+        .progress-container {
+            width: 100%;
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            border: 3px solid #bdbdbd;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4, #a18cd1);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 7px;
+        }
+        
+        /* تصميم شاشة النتيجة النهائية - احتفالية */
+        .result-container {
+            display: none;
+            text-align: center;
+            animation: fadeIn 1s;
+        }
+        
+        .result-container h2 {
+            color: #ff6b88;
+            margin-bottom: 20px;
+            font-size: 28px;
+            text-shadow: 2px 2px 0px rgba(255, 255, 255, 0.8);
+        }
+        
+        .score {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #5d4037;
+            background-color: #fff9c4;
+            padding: 15px;
+            border-radius: 15px;
+            display: inline-block;
+            border: 3px dotted #ffb74d;
+        }
+        
+        .restart-btn {
+            background-color: #ff6b88;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 35px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 4px 0 #d81b60;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .restart-btn:hover {
+            background-color: #ff4081;
+            transform: translateY(-3px);
+            box-shadow: 0 7px 0 #d81b60;
+        }
+        
+        .restart-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #d81b60;
+        }
+        
+        /* تأثيرات الحركة */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* مؤشر المرحلة - بشكل ممتع */
+        .stage-indicator {
+            font-size: 16px;
+            color: #5d4037;
+            margin-bottom: 15px;
+            background-color: #b3e5fc;
+            padding: 8px 15px;
+            border-radius: 50px;
+            display: inline-block;
+            border: 2px dashed #4fc3f7;
+        }
+        
+        /* تأثير الكونفيتي */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            border-radius: 50%;
+            animation: confetti-fall 5s linear forwards;
+        }
+        
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- شريط التقدم -->
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        
+        <!-- عنوان اللعبة -->
+        <h1>🎮 لعبة الأسئلة الممتعة! 🎮</h1>
+        
+        <!-- تعليمات اللعبة -->
+        <div class="instructions">
+            <strong>كيف تلعب:</strong><br>
+            1. اختر الإجابة الصحيحة من بين الخيارات<br>
+            2. اضغط على الزر الذي تعتقد أنه صحيح<br>
+            3. انتقل للسؤال التالي بعد اختيار الإجابة<br>
+            4. استمتع وتعلم!
+        </div>
+        
+        <!-- مؤشر المرحلة -->
+        <div class="stage-indicator" id="stage-indicator">المرحلة 1 من 5</div>
+        
+        <!-- منطقة السؤال -->
+        <div class="question" id="question"></div>
+        
+        <!-- منطقة الخيارات -->
+        <div class="options" id="options"></div>
+        
+        <!-- زر التالي -->
+        <button class="next-btn" id="next-btn">التالي 🚀</button>
+        
+        <!-- شاشة النتائج -->
+        <div class="result-container" id="result-container">
+            <h2>🎉 أحسنت! لقد أكملت اللعبة 🎉</h2>
+            <div class="score" id="score">نقاطك: 0/5</div>
+            <button class="restart-btn" id="restart-btn">العب مرة أخرى 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        // بيانات الأسئلة (يمكن استبدالها بأسئلتك الخاصة)
+        const questions = [
+            {
+                question: "ما هو لون التفاحة الناضجة عادةً؟",
+                options: ["أزرق", "أحمر", "أخضر", "بنفسجي"],
+                answer: 1
+            },
+            {
+                question: "كم عدد أرجل العنكبوت؟",
+                options: ["4", "6", "8", "10"],
+                answer: 2
+            },
+            {
+                question: "أين يعيش الدب القطبي؟",
+                options: ["في الغابة", "في الصحراء", "في القطب الشمالي", "في المدينة"],
+                answer: 2
+            },
+            {
+                question: "ما هو صوت القطة؟",
+                options: ["نباح", "مواء", "صهيل", "زئير"],
+                answer: 1
+            },
+            {
+                question: "ما هو شكل الكرة؟",
+                options: ["مربع", "مستطيل", "دائري", "مثلث"],
+                answer: 2
+            }
+        ];
+
+        // متغيرات اللعبة
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedOption = null;
+        let quizCompleted = false;
+
+        // عناصر DOM
+        const questionElement = document.getElementById('question');
+        const optionsElement = document.getElementById('options');
+        const nextButton = document.getElementById('next-btn');
+        const resultContainer = document.getElementById('result-container');
+        const scoreElement = document.getElementById('score');
+        const restartButton = document.getElementById('restart-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const stageIndicator = document.getElementById('stage-indicator');
+        const gameContainer = document.querySelector('.game-container');
+
+        // تهيئة اللعبة
+        function initGame() {
+            currentQuestionIndex = 0;
+            score = 0;
+            quizCompleted = false;
+            showQuestion();
+        }
+
+        // عرض السؤال الحالي
+        function showQuestion() {
+            // إعادة تعيين حالة اللعبة
+            resetState();
+            
+            // تحديث مؤشر المرحلة
+            stageIndicator.textContent = `المرحلة ${currentQuestionIndex + 1} من ${questions.length}`;
+            
+            // تحديث شريط التقدم
+            progressBar.style.width = `${((currentQuestionIndex) / questions.length) * 100}%`;
+            
+            // عرض السؤال الحالي
+            const currentQuestion = questions[currentQuestionIndex];
+            questionElement.textContent = currentQuestion.question;
+            
+            // إنشاء أزرار الخيارات
+            currentQuestion.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.classList.add('option-btn');
+                button.addEventListener('click', () => selectOption(index));
+                optionsElement.appendChild(button);
+            });
+        }
+
+        // إعادة تعيين حالة اللعبة
+        function resetState() {
+            // إخفاء زر التالي
+            nextButton.style.display = 'none';
+            
+            // مسح الخيارات السابقة
+            while (optionsElement.firstChild) {
+                optionsElement.removeChild(optionsElement.firstChild);
+            }
+            
+            // إعادة تعيين الخيار المحدد
+            selectedOption = null;
+        }
+
+        // اختيار إجابة
+        function selectOption(index) {
+            // منع اختيار أكثر من إجابة
+            if (selectedOption !== null) return;
+            
+            selectedOption = index;
+            const currentQuestion = questions[currentQuestionIndex];
+            const options = document.querySelectorAll('.option-btn');
+            
+            // تحديد إذا كانت الإجابة صحيحة أم خاطئة
+            if (index === currentQuestion.answer) {
+                options[index].classList.add('correct');
+                score++;
+            } else {
+                options[index].classList.add('wrong');
+                options[currentQuestion.answer].classList.add('correct');
+            }
+            
+            // إظهار زر التالي
+            nextButton.style.display = 'block';
+        }
+
+        // الانتقال إلى السؤال التالي أو عرض النتائج
+        function nextQuestion() {
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < questions.length) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        // عرض النتائج النهائية
+        function showResults() {
+            quizCompleted = true;
+            
+            // إخفاء عناصر السؤال
+            questionElement.style.display = 'none';
+            optionsElement.style.display = 'none';
+            nextButton.style.display = 'none';
+            stageIndicator.style.display = 'none';
+            document.querySelector('.instructions').style.display = 'none';
+            
+            // تحديث شريط التقدم إلى 100%
+            progressBar.style.width = '100%';
+            
+            // عرض النتائج
+            resultContainer.style.display = 'block';
+            scoreElement.textContent = `نقاطك: ${score}/${questions.length}`;
+            
+            // إطلاق الكونفيتي عند الفوز
+            createConfetti();
+        }
+
+        // إنشاء تأثير الكونفيتي
+        function createConfetti() {
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+            
+            for (let i = 0; i < 150; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                
+                // تحديد موقع عشوائي
+                const x = Math.random() * window.innerWidth;
+                
+                // تحديد لون عشوائي
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.backgroundColor = color;
+                
+                // تحديد حجم عشوائي
+                const size = Math.random() * 10 + 5;
+                confetti.style.width = `${size}px`;
+                confetti.style.height = `${size}px`;
+                
+                // تحديد مدة وتأخير عشوائي
+                const duration = Math.random() * 3 + 2;
+                const delay = Math.random() * 3;
+                confetti.style.animationDuration = `${duration}s`;
+                confetti.style.animationDelay = `${delay}s`;
+                
+                // تحديد شكل عشوائي (دائري أو مربع)
+                if (Math.random() > 0.5) {
+                    confetti.style.borderRadius = '0';
+                }
+                
+                confetti.style.left = `${x}px`;
+                document.body.appendChild(confetti);
+                
+                // إزالة الكونفيتي بعد انتهاء التأثير
+                setTimeout(() => {
+                    confetti.remove();
+                }, duration * 1000);
+            }
+        }
+
+        // إعادة تشغيل اللعبة
+        function restartGame() {
+            // إعادة عرض عناصر السؤال
+            questionElement.style.display = 'block';
+            optionsElement.style.display = 'flex';
+            stageIndicator.style.display = 'block';
+            document.querySelector('.instructions').style.display = 'block';
+            
+            // إخفاء نتائج
+            resultContainer.style.display = 'none';
+            
+            // إعادة التشغيل
+            initGame();
+        }
+
+        // إضافة مستمعي الأحداث
+        nextButton.addEventListener('click', nextQuestion);
+        restartButton.addEventListener('click', restartGame);
+
+        // بدء اللعبة
+        initGame();
+    </script>
+</body>
+</html>

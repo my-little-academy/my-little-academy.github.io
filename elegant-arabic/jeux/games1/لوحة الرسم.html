@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة الرسم للأطفال</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        h1 {
+            color: #ff6b6b;
+        }
+        
+        .drawing-board {
+            border: 3px solid #333;
+            border-radius: 10px;
+            margin: 20px auto;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+        
+        .controls {
+            margin: 20px auto;
+            padding: 15px;
+            background-color: #e6f7ff;
+            border-radius: 10px;
+            max-width: 600px;
+        }
+        
+        .color-options {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #333;
+            transition: transform 0.2s;
+        }
+        
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+        
+        .color-option.selected {
+            border: 3px solid #000;
+            transform: scale(1.1);
+        }
+        
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        .brush-size {
+            margin: 15px 0;
+        }
+        
+        .instructions {
+            background-color: #fffacd;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 20px auto;
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body>
+    <h1>لوحة الرسم للأطفال</h1>
+    
+    <div class="instructions">
+        <p>استخدم الفأرة للرسم على اللوحة. اختر لونًا من الأسفل وغير حجم الفرشاة إذا أردت.</p>
+    </div>
+    
+    <canvas id="drawingCanvas" class="drawing-board" width="800" height="500"></canvas>
+    
+    <div class="controls">
+        <h3>اختر لون الرسم:</h3>
+        <div class="color-options">
+            <div class="color-option selected" style="background-color: #000000;" data-color="#000000"></div>
+            <div class="color-option" style="background-color: #ff0000;" data-color="#ff0000"></div>
+            <div class="color-option" style="background-color: #0000ff;" data-color="#0000ff"></div>
+            <div class="color-option" style="background-color: #00ff00;" data-color="#00ff00"></div>
+            <div class="color-option" style="background-color: #ffff00;" data-color="#ffff00"></div>
+            <div class="color-option" style="background-color: #ff00ff;" data-color="#ff00ff"></div>
+            <div class="color-option" style="background-color: #00ffff;" data-color="#00ffff"></div>
+            <div class="color-option" style="background-color: #ff9900;" data-color="#ff9900"></div>
+            <div class="color-option" style="background-color: #9900ff;" data-color="#9900ff"></div>
+            <div class="color-option" style="background-color: #ffffff; border: 1px solid #ccc;" data-color="#ffffff"></div>
+        </div>
+        
+        <div class="brush-size">
+            <h3>حجم الفرشاة:</h3>
+            <input type="range" id="brushSize" min="1" max="50" value="5">
+            <span id="brushSizeValue">5</span>
+        </div>
+        
+        <button id="clearBtn">مسح اللوحة</button>
+        <button id="saveBtn">حفظ الرسمة</button>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        const colorOptions = document.querySelectorAll('.color-option');
+        const brushSizeInput = document.getElementById('brushSize');
+        const brushSizeValue = document.getElementById('brushSizeValue');
+        const clearBtn = document.getElementById('clearBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        
+        let isDrawing = false;
+        let currentColor = '#000000';
+        let currentBrushSize = 5;
+        
+        // تهيئة اللوحة
+        function initCanvas() {
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = currentColor;
+            ctx.lineWidth = currentBrushSize;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+        }
+        
+        // بدء الرسم
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('touchstart', startDrawing);
+        
+        function startDrawing(e) {
+            isDrawing = true;
+            draw(e);
+            e.preventDefault();
+        }
+        
+        // الرسم
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('touchmove', draw);
+        
+        function draw(e) {
+            if (!isDrawing) return;
+            
+            // الحصول على إحداثيات المؤشر
+            let clientX, clientY;
+            if (e.type.includes('touch')) {
+                const touch = e.touches[0] || e.changedTouches[0];
+                clientX = touch.clientX;
+                clientY = touch.clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = clientX - rect.left;
+            const y = clientY - rect.top;
+            
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            
+            e.preventDefault();
+        }
+        
+        // إنهاء الرسم
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+        canvas.addEventListener('touchend', stopDrawing);
+        
+        function stopDrawing() {
+            isDrawing = false;
+            ctx.beginPath();
+        }
+        
+        // تغيير اللون
+        colorOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                currentColor = option.getAttribute('data-color');
+                ctx.strokeStyle = currentColor;
+                
+                // تحديث التحديد
+                colorOptions.forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+            });
+        });
+        
+        // تغيير حجم الفرشاة
+        brushSizeInput.addEventListener('input', () => {
+            currentBrushSize = brushSizeInput.value;
+            brushSizeValue.textContent = currentBrushSize;
+            ctx.lineWidth = currentBrushSize;
+        });
+        
+        // مسح اللوحة
+        clearBtn.addEventListener('click', initCanvas);
+        
+        // حفظ الرسمة
+        saveBtn.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = 'رسمتي.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+        
+        // بدء التطبيق
+        initCanvas();
+    </script>
+</body>
+</html>

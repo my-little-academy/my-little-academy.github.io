@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة ألغاز الصور للأطفال</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        h1 {
+            color: #ff6b6b;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .game-container {
+            max-width: 650px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        
+        .puzzle-container {
+            width: 400px;
+            height: 400px;
+            margin: 20px auto;
+            border: 3px dashed #4dabf7;
+            border-radius: 8px;
+            position: relative;
+            background-color: #f8f9fa;
+        }
+        
+        .puzzle-piece {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background-size: 400px 400px;
+            border: 2px solid #fff;
+            box-sizing: border-box;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border-radius: 5px;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .puzzle-piece:hover {
+            transform: scale(1.05);
+            z-index: 10;
+            box-shadow: 0 0 15px rgba(253, 216, 53, 0.8);
+        }
+        
+        .controls {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        button {
+            background-color: #51cf66;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 30px;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.1);
+        }
+        
+        button:hover {
+            background-color: #40c057;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 8px rgba(0,0,0,0.15);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .message {
+            font-size: 20px;
+            color: #f76707;
+            height: 30px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        
+        .image-selector {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #e3fafc;
+            border-radius: 10px;
+        }
+        
+        .image-options {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .image-option {
+            width: 80px;
+            height: 80px;
+            border: 3px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            object-fit: cover;
+        }
+        
+        .image-option:hover {
+            transform: scale(1.1);
+            border-color: #339af0;
+        }
+        
+        .image-option.selected {
+            border-color: #f76707;
+            box-shadow: 0 0 10px rgba(247, 103, 7, 0.5);
+        }
+        
+        .difficulty {
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #fff4e6;
+            border-radius: 10px;
+        }
+        
+        .difficulty-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .difficulty-btn {
+            background-color: #ffd43b;
+            color: #495057;
+        }
+        
+        .difficulty-btn.active {
+            background-color: #f76707;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🧩 لعبة ألغاز الصور للأطفال 🧩</h1>
+        
+        <div class="difficulty">
+            <h3>اختر مستوى الصعوبة:</h3>
+            <div class="difficulty-buttons">
+                <button class="difficulty-btn active" data-rows="3" data-cols="3">سهل (3×3)</button>
+                <button class="difficulty-btn" data-rows="4" data-cols="4">متوسط (4×4)</button>
+                <button class="difficulty-btn" data-rows="5" data-cols="5">صعب (5×5)</button>
+            </div>
+        </div>
+        
+        <div class="image-selector">
+            <h3>اختر صورة:</h3>
+            <div class="image-options">
+                <img src="https://source.unsplash.com/random/300x300/?cartoon,animal" class="image-option selected" alt="صورة 1">
+                <img src="https://source.unsplash.com/random/300x300/?toy,children" class="image-option" alt="صورة 2">
+                <img src="https://source.unsplash.com/random/300x300/?disney,character" class="image-option" alt="صورة 3">
+                <img src="https://source.unsplash.com/random/300x300/?fruit,cute" class="image-option" alt="صورة 4">
+                <img src="https://source.unsplash.com/random/300x300/?baby,animal" class="image-option" alt="صورة 5">
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="shuffle-btn">🔀 خلط القطع</button>
+            <button id="reset-btn">🔄 إعادة الضبط</button>
+        </div>
+        
+        <div class="message" id="message"></div>
+        <div class="puzzle-container" id="puzzle-container"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const puzzleContainer = document.getElementById('puzzle-container');
+            const shuffleBtn = document.getElementById('shuffle-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const messageEl = document.getElementById('message');
+            const imageOptions = document.querySelectorAll('.image-option');
+            const difficultyBtns = document.querySelectorAll('.difficulty-btn');
+            
+            let rows = 3;
+            let cols = 3;
+            let pieceWidth, pieceHeight;
+            let pieces = [];
+            let emptyPos = { row: rows - 1, col: cols - 1 };
+            let isGameComplete = false;
+            let currentImage = imageOptions[0].src;
+            
+            // إنشاء قطع الألغاز
+            function createPuzzle() {
+                puzzleContainer.innerHTML = '';
+                pieces = [];
+                isGameComplete = false;
+                messageEl.textContent = '';
+                
+                // حساب حجم القطع بناءً على عدد الأعمدة والصفوف
+                pieceWidth = puzzleContainer.offsetWidth / cols;
+                pieceHeight = puzzleContainer.offsetHeight / rows;
+                
+                puzzleContainer.style.width = `${cols * pieceWidth}px`;
+                puzzleContainer.style.height = `${rows * pieceHeight}px`;
+                
+                // إنشاء القطع
+                for (let row = 0; row < rows; row++) {
+                    for (let col = 0; col < cols; col++) {
+                        // تخطي القطعة الفارغة الأخيرة
+                        if (row === rows - 1 && col === cols - 1) {
+                            emptyPos = { row, col };
+                            continue;
+                        }
+                        
+                        const piece = document.createElement('div');
+                        piece.className = 'puzzle-piece';
+                        piece.dataset.row = row;
+                        piece.dataset.col = col;
+                        
+                        // تعيين خلفية القطعة
+                        piece.style.backgroundImage = `url("${currentImage}")`;
+                        piece.style.backgroundSize = `${cols * pieceWidth}px ${rows * pieceHeight}px`;
+                        piece.style.backgroundPosition = `-${col * pieceWidth}px -${row * pieceHeight}px`;
+                        
+                        // تعيين موضع القطعة
+                        piece.style.width = `${pieceWidth}px`;
+                        piece.style.height = `${pieceHeight}px`;
+                        piece.style.left = `${col * pieceWidth}px`;
+                        piece.style.top = `${row * pieceHeight}px`;
+                        
+                        // إضافة أحداث النقر
+                        piece.addEventListener('click', pieceClick);
+                        
+                        puzzleContainer.appendChild(piece);
+                        pieces.push({
+                            element: piece,
+                            row,
+                            col
+                        });
+                    }
+                }
+            }
+            
+            // خلط القطع
+            function shufflePieces() {
+                if (isGameComplete) {
+                    isGameComplete = false;
+                    messageEl.textContent = '';
+                }
+                
+                // حركات عشوائية لخلط القطع
+                const shuffleMoves = 50 + Math.floor(Math.random() * 100);
+                
+                for (let i = 0; i < shuffleMoves; i++) {
+                    const movablePieces = getMovablePieces();
+                    const randomPiece = movablePieces[Math.floor(Math.random() * movablePieces.length)];
+                    movePiece(randomPiece);
+                }
+            }
+            
+            // الحصول على القطع التي يمكن تحريكها
+            function getMovablePieces() {
+                const movablePieces = [];
+                const { row, col } = emptyPos;
+                
+                // تحقق من القطع المجاورة للفراغ
+                if (row > 0) movablePieces.push(getPieceAt(row - 1, col)); // أعلى
+                if (row < rows - 1) movablePieces.push(getPieceAt(row + 1, col)); // أسفل
+                if (col > 0) movablePieces.push(getPieceAt(row, col - 1)); // يسار
+                if (col < cols - 1) movablePieces.push(getPieceAt(row, col + 1)); // يمين
+                
+                return movablePieces.filter(p => p !== null);
+            }
+            
+            // الحصول على قطعة في موضع معين
+            function getPieceAt(row, col) {
+                for (const piece of pieces) {
+                    if (piece.row === row && piece.col === col) {
+                        return piece;
+                    }
+                }
+                return null;
+            }
+            
+            // النقر على القطعة
+            function pieceClick(e) {
+                const row = parseInt(e.target.dataset.row);
+                const col = parseInt(e.target.dataset.col);
+                
+                // تحقق إذا كانت القطعة مجاورة للفراغ
+                if ((Math.abs(row - emptyPos.row) === 1 && col === emptyPos.col) || 
+                    (Math.abs(col - emptyPos.col) === 1 && row === emptyPos.row)) {
+                    movePiece(getPieceAt(row, col));
+                }
+            }
+            
+            // تحريك القطعة
+            function movePiece(piece) {
+                if (!piece) return;
+                
+                const { row, col } = piece;
+                
+                // تحديث موضع القطعة
+                piece.element.style.left = `${emptyPos.col * pieceWidth}px`;
+                piece.element.style.top = `${emptyPos.row * pieceHeight}px`;
+                piece.element.dataset.row = emptyPos.row;
+                piece.element.dataset.col = emptyPos.col;
+                
+                // تحديث بيانات القطعة
+                piece.row = emptyPos.row;
+                piece.col = emptyPos.col;
+                
+                // تحديث موضع الفراغ
+                emptyPos = { row, col };
+                
+                // التحقق من اكتمال اللعبة
+                checkCompletion();
+            }
+            
+            // التحقق من اكتمال اللعبة
+            function checkCompletion() {
+                let complete = true;
+                
+                for (const piece of pieces) {
+                    if (parseInt(piece.element.dataset.row) !== piece.row || 
+                        parseInt(piece.element.dataset.col) !== piece.col) {
+                        complete = false;
+                        break;
+                    }
+                }
+                
+                if (complete) {
+                    isGameComplete = true;
+                    messageEl.textContent = '🎉 تهانينا! لقد أكملت اللغز بنجاح! 🎉';
+                    messageEl.style.color = '#51cf66';
+                    
+                    // إظهار القطعة المفقودة
+                    const missingPiece = document.createElement('div');
+                    missingPiece.className = 'puzzle-piece';
+                    missingPiece.style.backgroundImage = `url("${currentImage}")`;
+                    missingPiece.style.backgroundSize = `${cols * pieceWidth}px ${rows * pieceHeight}px`;
+                    missingPiece.style.backgroundPosition = `-${(cols - 1) * pieceWidth}px -${(rows - 1) * pieceHeight}px`;
+                    missingPiece.style.width = `${pieceWidth}px`;
+                    missingPiece.style.height = `${pieceHeight}px`;
+                    missingPiece.style.left = `${(cols - 1) * pieceWidth}px`;
+                    missingPiece.style.top = `${(rows - 1) * pieceHeight}px`;
+                    puzzleContainer.appendChild(missingPiece);
+                    
+                    // إطلاق تأثيرات النجاح
+                    confettiEffect();
+                }
+            }
+            
+            // تأثير كونفيتي عند الفوز
+            function confettiEffect() {
+                const colors = ['#ff6b6b', '#51cf66', '#339af0', '#fcc419', '#845ef7'];
+                
+                for (let i = 0; i < 100; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.style.position = 'absolute';
+                    confetti.style.width = '10px';
+                    confetti.style.height = '10px';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.borderRadius = '50%';
+                    confetti.style.left = `${Math.random() * 100}%`;
+                    confetti.style.top = '-10px';
+                    confetti.style.zIndex = '100';
+                    confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                    
+                    document.body.appendChild(confetti);
+                    
+                    const animationDuration = Math.random() * 3 + 2;
+                    
+                    confetti.animate([
+                        { top: '-10px', opacity: 1 },
+                        { top: `${Math.random() * 100 + 100}%`, opacity: 0 }
+                    ], {
+                        duration: animationDuration * 1000,
+                        easing: 'cubic-bezier(0.1, 0.8, 0.9, 1)'
+                    });
+                    
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, animationDuration * 1000);
+                }
+            }
+            
+            // أحداث الأزرار
+            shuffleBtn.addEventListener('click', shufflePieces);
+            resetBtn.addEventListener('click', createPuzzle);
+            
+            // تغيير الصورة
+            imageOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    imageOptions.forEach(img => img.classList.remove('selected'));
+                    this.classList.add('selected');
+                    currentImage = this.src;
+                    createPuzzle();
+                });
+            });
+            
+            // تغيير مستوى الصعوبة
+            difficultyBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    difficultyBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    rows = parseInt(this.dataset.rows);
+                    cols = parseInt(this.dataset.cols);
+                    createPuzzle();
+                });
+            });
+            
+            // تهيئة اللعبة
+            createPuzzle();
+        });
+    </script>
+</body>
+</html>

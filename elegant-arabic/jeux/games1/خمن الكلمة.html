@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الكلمات المتقاطعة للأطفال</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #ff6b6b;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #4d96ff;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+        .game-container {
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .clue-section {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+        }
+        .clue {
+            font-size: 1.1em;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .clue-emoji {
+            font-size: 1.5em;
+            margin-left: 10px;
+        }
+        input {
+            padding: 8px;
+            font-size: 1em;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            margin: 0 10px;
+            text-align: center;
+        }
+        button {
+            background-color: #4d96ff;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 5px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #3a7bd5;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            min-height: 30px;
+        }
+        .correct {
+            color: #2ecc71;
+        }
+        .incorrect {
+            color: #e74c3c;
+        }
+        .congrats {
+            font-size: 1.5em;
+            color: #ff6b6b;
+            margin-top: 20px;
+            animation: bounce 0.5s infinite alternate;
+        }
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-5px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>لعبة الكلمات المتقاطعة الممتعة للأطفال! 🌟</h1>
+        <p class="subtitle">مرحباً يا أصدقائي! 😊 هل أنتم مستعدون للتحدي؟</p>
+        
+        <div class="clue-section">
+            <h2>🔤 الكلمات الأفقية:</h2>
+            
+            <div class="clue">
+                <span>1. حيوان أليف يحب النباح ويلعب بالعظم!</span>
+                <span class="clue-emoji">🐶</span>
+            </div>
+            <input type="text" maxlength="4" id="word1" placeholder="أدخل الإجابة (4 أحرف)">
+            <button onclick="checkWord('word1', 'كلب')">تحقق</button>
+            <button onclick="hint('word1', 'ك__')">تلميح</button>
+            
+            <div class="clue">
+                <span>2. شيء أخضر ينمو في الحديقة وله أوراق!</span>
+                <span class="clue-emoji">🌳</span>
+            </div>
+            <input type="text" maxlength="5" id="word2" placeholder="أدخل الإجابة (5 أحرف)">
+            <button onclick="checkWord('word2', 'شجرة')">تحقق</button>
+            <button onclick="hint('word2', 'ش__ا')">تلميح</button>
+        </div>
+        
+        <div class="clue-section">
+            <h2>🔤 الكلمات الرأسية:</h2>
+            
+            <div class="clue">
+                <span>1. فاكهة حمراء لذيذة وصحية!</span>
+                <span class="clue-emoji">🍎</span>
+            </div>
+            <input type="text" maxlength="5" id="word3" placeholder="أدخل الإجابة (5 أحرف)">
+            <button onclick="checkWord('word3', 'تفاح')">تحقق</button>
+            <button onclick="hint('word3', 'ت___ح')">تلميح</button>
+            
+            <div class="clue">
+                <span>2. كرة نلعب بها في الملعب!</span>
+                <span class="clue-emoji">🏀</span>
+            </div>
+            <input type="text" maxlength="4" id="word4" placeholder="أدخل الإجابة (4 أحرف)">
+            <button onclick="checkWord('word4', 'سلة')">تحقق</button>
+            <button onclick="hint('word4', 'س__')">تلميح</button>
+        </div>
+        
+        <div id="result"></div>
+        
+        <button onclick="checkAll()">تحقق من جميع الإجابات</button>
+        
+        <div id="congrats" style="display: none;" class="congrats">
+            🎉🎈 أحسنت! لقد أكملت اللعبة بنجاح! أنت عبقري! 🎈🎉
+        </div>
+    </div>
+
+    <script>
+        function checkWord(inputId, correctAnswer) {
+            const userAnswer = document.getElementById(inputId).value.trim();
+            const resultDiv = document.getElementById('result');
+            
+            if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
+                resultDiv.innerHTML = `🎉 أحسنت! الإجابة "<span class="correct">${userAnswer}</span>" صحيحة!`;
+                document.getElementById(inputId).style.borderColor = "#2ecc71";
+            } else {
+                resultDiv.innerHTML = `🤔 الإجابة "<span class="incorrect">${userAnswer}</span>" غير صحيحة، حاول مرة أخرى!`;
+                document.getElementById(inputId).style.borderColor = "#e74c3c";
+            }
+        }
+        
+        function hint(inputId, hintText) {
+            document.getElementById(inputId).placeholder = hintText;
+            document.getElementById('result').innerHTML = `ها هو تلميح لك: ${hintText}`;
+        }
+        
+        function checkAll() {
+            const words = [
+                {id: 'word1', answer: 'كلب'},
+                {id: 'word2', answer: 'شجرة'},
+                {id: 'word3', answer: 'تفاح'},
+                {id: 'word4', answer: 'سلة'}
+            ];
+            
+            let allCorrect = true;
+            
+            words.forEach(word => {
+                const userAnswer = document.getElementById(word.id).value.trim();
+                if (userAnswer.toLowerCase() !== word.answer.toLowerCase()) {
+                    allCorrect = false;
+                    document.getElementById(word.id).style.borderColor = "#e74c3c";
+                } else {
+                    document.getElementById(word.id).style.borderColor = "#2ecc71";
+                }
+            });
+            
+            if (allCorrect) {
+                document.getElementById('result').innerHTML = '';
+                document.getElementById('congrats').style.display = 'block';
+            } else {
+                document.getElementById('result').innerHTML = '⚠️ ليس جميع إجاباتك صحيحة بعد، استمر في المحاولة!';
+            }
+        }
+    </script>
+</body>
+</html>

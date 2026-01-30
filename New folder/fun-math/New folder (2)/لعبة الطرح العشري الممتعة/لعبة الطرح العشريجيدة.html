@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>لعبة الطرح العشري مع الاستلاف</title>
+    <style>
+        body {
+            font-family: 'Arial Arabic', Arial, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 20px;
+            text-align: right;
+        }
+        
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .card-rows-container {
+            margin-bottom: 20px;
+        }
+        
+        .card-row {
+            display: flex;
+            margin: 10px 0;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        
+        .card {
+            width: 60px;
+            height: 80px;
+            background: #3498db;
+            color: white;
+            margin: 0 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            border-radius: 8px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+        
+        .minuend-row .card {
+            background: #2ecc71;
+        }
+        
+        .subtrahend-row .card {
+            background: #e74c3c;
+        }
+        
+        .result-row .card {
+            background: #f39c12;
+        }
+        
+        .decimal-card {
+            background: #9b59b6 !important;
+            font-size: 30px;
+        }
+        
+        .empty-card {
+            background: #ecf0f1 !important;
+            color: #2c3e50;
+            border: 2px dashed #bdc3c7;
+        }
+        
+        .row-label {
+            width: 100px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .number-pad {
+            display: flex;
+            flex-wrap: nowrap;
+            justify-content: center;
+            gap: 5px;
+            margin: 20px 0;
+            overflow-x: auto;
+            padding: 10px;
+        }
+        
+        .number-btn {
+            width: 40px;
+            height: 40px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .control-btn {
+            padding: 10px 20px;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        #message {
+            text-align: center;
+            font-size: 18px;
+            margin: 15px 0;
+        }
+        
+        .borrow-circle {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: #ff4757;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            top: -15px;
+            right: 15px;
+            cursor: pointer;
+        }
+        
+        .example-container {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            border-right: 4px solid #3498db;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>لعبة الطرح العشري مع الاستلاف</h1>
+        
+        <div class="example-container">
+            <div style="font-weight:bold; color:#3498db">مثال على الاستلاف:</div>
+            <div>عندما نطرح ٥ من ٢ في خانة الآحاد (2 - 5)</div>
+            <div>1. نستلف ١ من خانة العشرات (تصبح 1 بدل 2)</div>
+            <div>2. نضيف ١٠ إلى خانة الآحاد (تصبح 12 بدل 2)</div>
+            <div>3. الآن نستطيع الطرح: 12 - 5 = 7</div>
+        </div>
+        
+        <div class="card-rows-container">
+            <!-- صف المنازل -->
+            <div class="card-row place-row">
+                <div class="row-label">المنازل</div>
+                <div class="card">عشرات</div>
+                <div class="card">آحاد</div>
+                <div class="card">فاصلة</div>
+                <div class="card">أعشار</div>
+                <div class="card">أجزاء المئة</div>
+                <div class="card">أجزاء الألف</div>
+            </div>
+            
+            <!-- صف المطروح منه -->
+            <div class="card-row minuend-row">
+                <div class="row-label">المطروح منه</div>
+                <!-- سيتم ملؤها بالجافاسكريبت -->
+            </div>
+            
+            <!-- صف المطروح -->
+            <div class="card-row subtrahend-row">
+                <div class="row-label">المطروح</div>
+                <!-- سيتم ملؤها بالجافاسكريبت -->
+            </div>
+            
+            <!-- خط فاصل -->
+            <hr style="margin: 15px 0; border: none; border-top: 1px dashed #7f8c8d;">
+            
+            <!-- صف النتيجة -->
+            <div class="card-row result-row">
+                <div class="row-label">النتيجة</div>
+                <!-- سيتم ملؤها بالجافاسكريبت -->
+            </div>
+        </div>
+        
+        <!-- لوحة الأرقام -->
+        <div class="number-pad">
+            <button class="number-btn" data-number="0">0</button>
+            <button class="number-btn" data-number="1">1</button>
+            <button class="number-btn" data-number="2">2</button>
+            <button class="number-btn" data-number="3">3</button>
+            <button class="number-btn" data-number="4">4</button>
+            <button class="number-btn" data-number="5">5</button>
+            <button class="number-btn" data-number="6">6</button>
+            <button class="number-btn" data-number="7">7</button>
+            <button class="number-btn" data-number="8">8</button>
+            <button class="number-btn" data-number="9">9</button>
+        </div>
+        
+        <!-- أزرار التحكم -->
+        <div class="control-buttons">
+            <button class="control-btn" id="check-btn">تحقق</button>
+            <button class="control-btn" id="change-btn">تغيير الأرقام</button>
+        </div>
+        
+        <div id="message">اختر أرقام النتيجة من لوحة الأرقام</div>
+    </div>
+
+    <script>
+        // تعريف المتغيرات
+        const places = ["عشرات", "آحاد", "فاصلة", "أعشار", "أجزاء المئة", "أجزاء الألف"];
+        let minuends = [0, 0, '.', 0, 0, 0];
+        let subtrahends = [0, 0, '.', 0, 0, 0];
+        let results = ['', '', '.', '', '', ''];
+        let selectedCard = null;
+        const decimalPosition = 2;
+        
+        // إنشاء البطاقات
+        function createCards() {
+            createRow('place-row', places, false);
+            createRow('minuend-row', minuends, true);
+            createRow('subtrahend-row', subtrahends, false);
+            createRow('result-row', results, true, true);
+        }
+        
+        function createRow(rowClass, values, isClickable, isResult = false) {
+            const row = document.querySelector(`.${rowClass}`);
+            // مسح البطاقات القديمة (مع الحفاظ على التسمية)
+            while (row.children.length > 1) {
+                row.removeChild(row.lastChild);
+            }
+            
+            values.forEach((value, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                
+                if (index === decimalPosition) {
+                    card.classList.add('decimal-card');
+                } else if (isResult && value === '') {
+                    card.classList.add('empty-card');
+                }
+                
+                card.textContent = value;
+                card.dataset.index = index;
+                
+                if (isClickable && index !== decimalPosition && isResult) {
+                    card.addEventListener('click', () => selectCard(card));
+                }
+                
+                if (rowClass === 'minuend-row' && index !== decimalPosition && index > 0) {
+                    addBorrowCircle(card, index);
+                }
+                
+                row.appendChild(card);
+            });
+        }
+        
+        function addBorrowCircle(card, index) {
+            const circle = document.createElement('div');
+            circle.className = 'borrow-circle';
+            circle.textContent = '↓';
+            circle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                handleBorrow(index);
+            });
+            card.appendChild(circle);
+        }
+        
+        function selectCard(card) {
+            if (selectedCard) {
+                selectedCard.classList.remove('selected');
+            }
+            selectedCard = card;
+            card.classList.add('selected');
+        }
+        
+        function handleBorrow(index) {
+            const borrowFrom = index - (index === decimalPosition + 1 ? 2 : 1);
+            
+            if (parseInt(minuends[index]) >= parseInt(subtrahends[index])) {
+                alert('لا حاجة للاستلاف هنا');
+                return;
+            }
+            
+            if (borrowFrom < 0 || parseInt(minuends[borrowFrom]) < 1) {
+                alert('لا يمكن الاستلاف من الخانة السابقة');
+                return;
+            }
+            
+            minuends[borrowFrom] = parseInt(minuends[borrowFrom]) - 1;
+            minuends[index] = parseInt(minuends[index]) + 10;
+            updateMinuendDisplay();
+        }
+        
+        function updateMinuendDisplay() {
+            createRow('minuend-row', minuends, true);
+        }
+        
+        function generateRandomNumbers() {
+            // توليد المطروح منه
+            minuends = minuends.map((val, index) => 
+                index === decimalPosition ? '.' : Math.floor(Math.random() * 10)
+            );
+            
+            // نختار خانة عشوائية لإجبار الاستلاف
+            let borrowIndex;
+            do {
+                borrowIndex = Math.floor(Math.random() * (minuends.length - 2)) + 1;
+            } while (borrowIndex === decimalPosition);
+            
+            // توليد المطروح مع إجبار الاستلاف في الخانة المختارة
+            subtrahends = subtrahends.map((val, index) => {
+                if (index === decimalPosition) return '.';
+                
+                if (index === borrowIndex) {
+                    return Math.min(9, parseInt(minuends[index]) + 1 + Math.floor(Math.random() * 2));
+                } else {
+                    return Math.floor(Math.random() * (parseInt(minuends[index]) + 1));
+                }
+            });
+            
+            // نتائج فارغة
+            results = results.map((val, index) => 
+                index === decimalPosition ? '.' : ''
+            );
+            
+            // نضمن أن الخانة السابقة للاستلاف تحتوي على رقم لا يقل عن 1
+            const borrowFrom = borrowIndex - (borrowIndex === decimalPosition + 1 ? 2 : 1);
+            if (borrowFrom >= 0 && borrowFrom !== decimalPosition) {
+                minuends[borrowFrom] = Math.max(1, parseInt(minuends[borrowFrom]));
+            }
+        }
+        
+        function checkAnswer() {
+            const minuendValue = parseFloat(`${minuends[0]}${minuends[1]}.${minuends[3]}${minuends[4]}${minuends[5]}`);
+            const subtrahendValue = parseFloat(`${subtrahends[0]}${subtrahends[1]}.${subtrahends[3]}${subtrahends[4]}${subtrahends[5]}`);
+            const playerResult = parseFloat(`${results[0]||0}${results[1]||0}.${results[3]||0}${results[4]||0}${results[5]||0}`);
+            
+            if (Math.abs(playerResult - (minuendValue - subtrahendValue)) < 0.001) {
+                document.getElementById('message').textContent = 'إجابة صحيحة! أحسنت!';
+            } else {
+                document.getElementById('message').textContent = `إجابة خاطئة! الجواب الصحيح: ${(minuendValue - subtrahendValue).toFixed(3)}`;
+            }
+        }
+        
+        function resetGame() {
+            generateRandomNumbers();
+            createCards();
+            document.getElementById('message').textContent = 'اختر أرقام النتيجة من لوحة الأرقام';
+            selectedCard = null;
+        }
+        
+        function initEvents() {
+            document.querySelectorAll('.number-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (selectedCard) {
+                        const num = this.dataset.number;
+                        const index = parseInt(selectedCard.dataset.index);
+                        
+                        selectedCard.textContent = num;
+                        results[index] = num;
+                        selectedCard.classList.remove('selected', 'empty-card');
+                        
+                        // البحث عن الخانة التالية الفارغة
+                        let nextIndex = -1;
+                        for (let i = index + 1; i < results.length; i++) {
+                            if (i !== decimalPosition && results[i] === '') {
+                                nextIndex = i;
+                                break;
+                            }
+                        }
+                        
+                        if (nextIndex !== -1) {
+                            const nextCard = document.querySelector(`.result-row .card[data-index="${nextIndex}"]`);
+                            selectCard(nextCard);
+                        } else {
+                            selectedCard = null;
+                        }
+                    }
+                });
+            });
+            
+            document.getElementById('check-btn').addEventListener('click', checkAnswer);
+            document.getElementById('change-btn').addEventListener('click', resetGame);
+        }
+        
+        // بدء اللعبة
+        window.onload = function() {
+            generateRandomNumbers();
+            createCards();
+            initEvents();
+        };
+    </script>
+</body>
+</html>

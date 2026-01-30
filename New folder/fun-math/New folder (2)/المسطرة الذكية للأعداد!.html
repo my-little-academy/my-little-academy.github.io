@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المسطرة الذكية للأعداد!</title>
+    <style>
+        /* استيراد خط القاهرة من Google Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #e0f7fa; /* لون ناعم مبهج */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            direction: rtl; /* لدعم اللغة العربية */
+            text-align: right;
+            overflow: hidden; /* لمنع ظهور scrollbar غير مرغوب فيه */
+            position: relative; /* للسماح بتحديد المواقع المطلقة بسهولة */
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15); /* ظل أكبر */
+            text-align: center;
+            width: 90%;
+            max-width: 950px; /* عرض أكبر قليلاً */
+            box-sizing: border-box;
+            position: relative;
+            z-index: 1; /* للتأكد من أنها فوق أي خلفيات */
+        }
+
+        h1 {
+            color: #00796b;
+            margin-bottom: 25px;
+            font-size: 2.5em; /* حجم أكبر للعنوان */
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .game-area {
+            margin-top: 25px;
+        }
+
+        .number-line-wrapper {
+            position: relative;
+            width: 100%;
+            height: 120px; /* ارتفاع أكبر للحاوية */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end; /* لتثبيت المسطرة في الأسفل */
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 10px; /* مسافة للشريط الملون */
+        }
+
+        /* تصميم المسطرة الحقيقي */
+        .number-line-body {
+            background-color: #f5f5f5; /* لون جسم المسطرة */
+            border-radius: 8px; /* حواف مستديرة */
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1), 0 5px 10px rgba(0, 0, 0, 0.1); /* تأثير ثلاثي الأبعاد */
+            width: 95%; /* عرض المسطرة الفعلية */
+            height: 50px; /* ارتفاع المسطرة */
+            position: relative;
+            display: flex;
+            align-items: flex-end; /* لضمان أن التدريجات تبدأ من الأسفل */
+            margin-top: 20px; /* لجعل السهم يظهر فوقها */
+            overflow: hidden; /* لإخفاء أي شيء يتجاوز حدود المسطرة */
+        }
+
+        .number-line {
+            width: 100%; /* المستقيم داخل جسم المسطرة */
+            border-bottom: 3px solid #333; /* خط المستقيم */
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 40px; /* ارتفاع الجزء المدرج */
+        }
+
+        /* تدريجات المسطرة */
+        .major-tick {
+            position: absolute;
+            height: 28px; /* أطول قليلاً */
+            width: 2.5px;
+            background-color: #004d40; /* لون التدريجات الكبيرة */
+            bottom: 0;
+            transform: translateX(-50%);
+            z-index: 2; /* فوق خط المستقيم */
+        }
+
+        .major-tick span {
+            position: absolute;
+            top: 32px; /* أسفل التدريجة */
+            left: 50%;
+            transform: translateX(-50%);
+            color: #004d40;
+            font-weight: bold;
+            font-size: 1.15em;
+            white-space: nowrap;
+        }
+
+        .minor-tick {
+            position: absolute;
+            height: 18px; /* أقصر قليلاً */
+            width: 1.5px;
+            background-color: #4db6ac; /* لون التدريجات الصغيرة */
+            bottom: 0;
+            transform: translateX(-50%);
+            z-index: 2;
+        }
+
+        /* السهم ثلاثي الأبعاد وتأثيراته */
+        .arrow {
+            position: absolute;
+            top: -30px; /* أعلى المسطرة بقليل */
+            width: 50px; /* حجم أكبر للسهم */
+            height: 50px;
+            fill: #FF5733; /* لون السهم */
+            transform: translateX(-50%); /* لتوسيط رأسه */
+            opacity: 0; /* يبدأ مخفيًا */
+            transition: left 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.5s ease-in; /* حركة ارتدادية عند الانتقال */
+            z-index: 3; /* فوق كل شيء */
+            filter: drop-shadow(3px 3px 4px rgba(0,0,0,0.4)); /* ظل لتحسين المظهر ثلاثي الأبعاد */
+        }
+
+        /* حركات السهم */
+        @keyframes shake {
+            0%, 100% { transform: translateX(-50%) rotate(0deg); }
+            25% { transform: translateX(-58%) rotate(-7deg); }
+            50% { transform: translateX(-42%) rotate(7deg); }
+            75% { transform: translateX(-58%) rotate(-7deg); }
+        }
+
+        @keyframes enlarge {
+            0% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.3); } /* تضخيم أكبر */
+            100% { transform: translateX(-50%) scale(1); }
+        }
+
+        .arrow.shake {
+            animation: shake 0.4s ease-in-out 3; /* يهتز 3 مرات */
+        }
+        .arrow.enlarge {
+            animation: enlarge 0.6s ease-out; /* تضخيم أطول */
+        }
+
+        /* شريط الدليل الملون */
+        .colored-bar {
+            position: absolute;
+            bottom: -5px; /* أسفل المسطرة قليلاً */
+            left: 0;
+            height: 12px; /* ارتفاع الشريط */
+            width: 0%; /* يبدأ من الصفر */
+            border-radius: 6px;
+            transition: width 0.8s ease-out, background-color 0.5s ease; /* انتقال سلس للعرض واللون */
+            z-index: 0; /* خلف المسطرة */
+            background: linear-gradient(to right, #a2e4b8, #60d394); /* تدرج ألوان افتراضي */
+        }
+
+        .question-text {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 25px;
+            min-height: 2em; /* للحفاظ على الارتفاع عند تغيير النص */
+        }
+
+        .input-card {
+            background-color: #f0f4c3;
+            padding: 25px; /* مساحة داخلية أكبر */
+            border-radius: 12px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-wrap: wrap; /* للسماح بالعناصر بالانتقال لأسطر جديدة في الشاشات الصغيرة */
+            justify-content: center;
+            align-items: center;
+            gap: 20px; /* مسافة أكبر بين العناصر */
+            margin-bottom: 25px;
+        }
+
+        #user-input {
+            padding: 15px 20px; /* حجم أكبر */
+            border: 2px solid #a7d9c6;
+            border-radius: 10px;
+            font-size: 1.4em; /* حجم خط أكبر */
+            text-align: center;
+            outline: none;
+            width: 180px; /* عرض أكبر */
+            transition: border-color 0.3s ease;
+        }
+
+        #user-input:focus {
+            border-color: #00796b;
+            box-shadow: 0 0 8px rgba(0, 121, 107, 0.3);
+        }
+
+        #check-button {
+            background-color: #28a745;
+            color: white;
+            padding: 15px 30px; /* حجم أكبر */
+            border: none;
+            border-radius: 10px;
+            font-size: 1.3em; /* حجم خط أكبر */
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        #check-button:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        #check-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .message {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-top: 20px;
+            min-height: 1.5em; /* لضمان عدم اهتزاز التخطيط */
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+
+        .message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .message.correct {
+            color: #28a745;
+        }
+
+        .message.incorrect {
+            color: #dc3545;
+        }
+
+        /* المؤقت */
+        .timer-container {
+            font-size: 1.8em;
+            color: #555;
+            font-weight: bold;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .timer-container svg {
+            width: 30px;
+            height: 30px;
+            fill: #555;
+            transition: fill 0.5s ease;
+        }
+
+        .timer-container.pulsing .timer-value {
+            animation: pulse-text 1s infinite;
+            color: #ff5733;
+        }
+        .timer-container.pulsing svg {
+            fill: #ff5733;
+        }
+
+        @keyframes pulse-text {
+            0% { transform: scale(1); color: #ff5733; }
+            50% { transform: scale(1.1); color: #e60000; }
+            100% { transform: scale(1); color: #ff5733; }
+        }
+
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                width: 98%;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .number-line-wrapper {
+                height: 100px;
+                margin-bottom: 30px;
+            }
+            .number-line-body {
+                height: 45px;
+            }
+            .number-line {
+                height: 35px;
+            }
+
+            .major-tick {
+                height: 22px;
+            }
+            .major-tick span {
+                font-size: 0.9em;
+                top: 25px;
+            }
+            .minor-tick {
+                height: 13px;
+            }
+            .arrow {
+                width: 40px;
+                height: 40px;
+                top: -25px;
+            }
+
+            .question-text {
+                font-size: 1.2em;
+                margin-bottom: 20px;
+            }
+
+            .input-card {
+                flex-direction: column;
+                padding: 15px;
+                gap: 10px;
+            }
+
+            #user-input {
+                width: 100%;
+                font-size: 1.2em;
+            }
+
+            #check-button {
+                width: 100%;
+                font-size: 1.1em;
+            }
+            .message {
+                font-size: 1.1em;
+            }
+            .timer-container {
+                font-size: 1.5em;
+            }
+            .timer-container svg {
+                width: 25px;
+                height: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>المسطرة الذكية للأعداد!</h1>
+        <div class="game-area">
+            <div class="number-line-wrapper">
+                <div class="number-line-body">
+                    <div id="number-line" class="number-line">
+                        <svg id="arrow" class="arrow" viewBox="0 0 100 100">
+                            <path d="M50 0 L100 100 L50 75 L0 100 Z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div id="colored-bar" class="colored-bar"></div>
+            </div>
+
+            <p class="question-text">ما العدد الذي يشير إليه السهم؟</p>
+            <div class="input-card">
+                <input type="number" id="user-input" placeholder="اكتب العدد هنا" min="0">
+                <button id="check-button">تحقق</button>
+            </div>
+            <div id="message" class="message"></div>
+            <div id="timer-container" class="timer-container">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-.5-13h-2v6l5.25 3.15.75-1.23-4.5-2.7z"/>
+                </svg>
+                <span id="timer-value" class="timer-value">60</span> ثانية
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // احصل على جميع العناصر مرة واحدة عند تحميل DOM
+        const numberLineElement = document.getElementById('number-line');
+        const arrowElement = document.getElementById('arrow');
+        const userInput = document.getElementById('user-input');
+        const checkButton = document.getElementById('check-button');
+        const messageElement = document.getElementById('message');
+        const coloredBarElement = document.getElementById('colored-bar');
+        const timerContainer = document.getElementById('timer-container');
+        const timerValueElement = document.getElementById('timer-value');
+
+
+        let currentStartRange = 0;
+        let currentEndRange = 0;
+        let correctValue = 0;
+        const tickIntervalMajor = 100; // تدريجة كبيرة كل 100
+        const tickIntervalMinor = 10;  // تدريجة صغيرة كل 10
+
+        let timeLeft = 30; // وقت البدء (يمكن تعديله)
+        let timerInterval;
+
+        function getRandomRange() {
+            const ranges = [
+                { start: 0, end: 1000 },
+                { start: 1000, end: 2000 },
+                { start: 2000, end: 3000 },
+                { start: 3000, end: 4000 },
+                { start: 4000, end: 5000 },
+                { start: 5000, end: 6000 },
+                { start: 6000, end: 7000 },
+                { start: 6700, end: 7400 }
+            ];
+            return ranges[Math.floor(Math.random() * ranges.length)];
+        }
+
+        function startTimer() {
+            timeLeft = 30; // إعادة تعيين الوقت لكل جولة
+            timerValueElement.textContent = timeLeft;
+            timerContainer.classList.remove('pulsing'); // إزالة تأثير النبض
+            if (timerInterval) clearInterval(timerInterval);
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerValueElement.textContent = timeLeft;
+
+                if (timeLeft <= 10 && timeLeft > 0) { // يبدأ النبض عند 10 ثوانٍ
+                    timerContainer.classList.add('pulsing');
+                } else if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timerValueElement.textContent = "انتهى الوقت!";
+                    timerContainer.classList.remove('pulsing');
+                    handleAnswer(false, true); // استدعاء معالجة الإجابة كـ "خطأ" بسبب انتهاء الوقت
+                }
+            }, 1000);
+        }
+
+        // تهيئة المستقيم العددي ورسم التدريجات
+        function initializeNumberLine() {
+            const range = getRandomRange();
+            currentStartRange = range.start;
+            currentEndRange = range.end;
+
+            numberLineElement.innerHTML = '<svg id="arrow" class="arrow" viewBox="0 0 100 100"><path d="M50 0 L100 100 L50 75 L0 100 Z"/></svg>'; // إعادة إضافة السهم
+
+            // التأكد من أن السهم عنصر صحيح بعد إعادة إضافته
+            const currentArrowElement = document.getElementById('arrow');
+            if (!currentArrowElement) {
+                console.error("Arrow element not found after re-initialization!");
+                return;
+            }
+
+
+            // استخدام IntersectionObserver لضمان أن العنصر مرئي وله حجم
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && entry.target.clientWidth > 0) {
+                        observer.unobserve(entry.target); // توقف عن المراقبة
+                        drawNumberLineContent(entry.target.clientWidth);
+                        startTimer(); // بدء المؤقت عند تهيئة المستقيم بنجاح
+                    } else if (entry.target.clientWidth === 0) {
+                        console.warn("Number line element width is still 0. Retrying initialization after a short delay.");
+                        setTimeout(() => initializeNumberLine(), 200);
+                    }
+                });
+            });
+            observer.observe(numberLineElement);
+        }
+
+        function drawNumberLineContent(totalWidth) {
+            const valueRange = currentEndRange - currentStartRange;
+            if (valueRange <= 0) {
+                console.error("Invalid number range: start >= end. Getting new range.");
+                initializeNumberLine();
+                return;
+            }
+            const pixelPerUnit = totalWidth / valueRange;
+
+            // إنشاء التدريجات
+            for (let i = currentStartRange; i <= currentEndRange; i += tickIntervalMinor) {
+                const tick = document.createElement('div');
+                const pixelPosition = (i - currentStartRange) * pixelPerUnit;
+
+                if (i % tickIntervalMajor === 0) {
+                    tick.classList.add('major-tick');
+                    const span = document.createElement('span');
+                    span.textContent = i;
+                    tick.appendChild(span);
+                } else {
+                    tick.classList.add('minor-tick');
+                }
+
+                tick.style.left = `${pixelPosition}px`;
+                numberLineElement.appendChild(tick);
+            }
+
+            placeArrowRandomly();
+        }
+
+        function placeArrowRandomly() {
+            const possibleValues = [];
+            for (let i = currentStartRange; i <= currentEndRange; i += tickIntervalMinor) {
+                possibleValues.push(i);
+            }
+
+            if (possibleValues.length === 0) {
+                console.error("No possible values to place arrow. Check number range and tick intervals. Re-initializing.");
+                initializeNumberLine();
+                return;
+            }
+
+            correctValue = possibleValues[Math.floor(Math.random() * possibleValues.length)];
+
+            const totalWidth = numberLineElement.clientWidth;
+            const valueRange = currentEndRange - currentStartRange;
+            const pixelPerUnit = totalWidth / valueRange;
+
+            const arrowLeftPosition = (correctValue - currentStartRange) * pixelPerUnit;
+
+            // تحديث الشريط الملون
+            const barWidthPercentage = ((correctValue - currentStartRange) / valueRange) * 100;
+            coloredBarElement.style.width = `${barWidthPercentage}%`;
+            // تغيير لون الشريط بناءً على الموقع (مثال بسيط)
+            const hue = (barWidthPercentage / 100) * 120; // من الأخضر (120) إلى الأصفر (60) إلى الأحمر (0)
+            coloredBarElement.style.background = `linear-gradient(to right, hsl(${hue + 30}, 70%, 70%), hsl(${hue}, 80%, 50%))`;
+
+
+            // تحديد موضع السهم وظهوره بحركة ارتدادية
+            arrowElement.style.transition = 'none'; // تعطيل الانتقال مؤقتًا
+            arrowElement.style.opacity = '0'; // إخفاء لضمان الظهور السلس
+            // تحديد موضع مبدئي خارج الشاشة أو بعيدًا قليلاً للارتداد منه
+            arrowElement.style.left = `${arrowLeftPosition + 50}px`; // مثال: يبدأ 50px إلى اليمين
+            // إعادة تحديد ArrowElement بعد إعادة إضافة الـ SVG
+            const currentArrow = document.getElementById('arrow');
+            if (currentArrow) {
+                setTimeout(() => {
+                    currentArrow.style.transition = 'left 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.5s ease-in';
+                    currentArrow.style.left = `${arrowLeftPosition}px`; // الحركة للموضع الصحيح
+                    currentArrow.style.opacity = '1';
+                }, 50); // تأخير بسيط قبل الحركة
+            }
+            userInput.focus();
+        }
+
+        function handleAnswer(isCorrect, isTimeout = false) {
+            clearInterval(timerInterval); // إيقاف المؤقت
+            checkButton.disabled = true;
+            userInput.disabled = true;
+            messageElement.classList.remove('show'); // إخفاء الرسالة القديمة
+
+            if (isCorrect) {
+                messageElement.textContent = 'إجابة صحيحة! أحسنت.';
+                messageElement.className = 'message correct';
+                userInput.style.borderColor = '#28a745';
+                arrowElement.classList.add('enlarge'); // تأثير تضخيم
+            } else {
+                messageElement.textContent = isTimeout ? `انتهى الوقت! الإجابة الصحيحة هي: ${correctValue}` : `حاول مرة أخرى. الإجابة الصحيحة هي: ${correctValue}`;
+                messageElement.className = 'message incorrect';
+                userInput.style.borderColor = '#dc3545';
+                arrowElement.classList.add('shake'); // تأثير اهتزاز
+            }
+
+            messageElement.classList.add('show'); // إظهار الرسالة الجديدة
+
+            // إزالة تأثيرات السهم بعد الانتهاء
+            arrowElement.addEventListener('animationend', () => {
+                arrowElement.classList.remove('shake', 'enlarge');
+            }, { once: true });
+
+
+            setTimeout(() => {
+                messageElement.classList.remove('show'); // إخفاء الرسالة
+                userInput.value = '';
+                userInput.style.borderColor = '#a7d9c6';
+                checkButton.disabled = false;
+                userInput.disabled = false;
+                initializeNumberLine(); // الانتقال إلى سؤال جديد
+            }, 2500); // إعطاء وقت أطول لمشاهدة التأثيرات
+        }
+
+
+        function checkAnswer() {
+            const userAnswer = parseInt(userInput.value);
+
+            if (isNaN(userAnswer)) {
+                messageElement.textContent = 'الرجاء إدخال عدد.';
+                messageElement.classList.remove('correct', 'incorrect');
+                messageElement.classList.add('show');
+                setTimeout(() => messageElement.classList.remove('show'), 1500);
+                return;
+            }
+            handleAnswer(userAnswer === correctValue);
+        }
+
+        // الاستماع لأحداث النقر والكتابة
+        checkButton.addEventListener('click', checkAnswer);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+
+        // هذا هو الأسلوب الأكثر موثوقية لضمان أن DOM جاهز تمامًا قبل البدء
+        document.addEventListener('DOMContentLoaded', initializeNumberLine); // ابدأ التهيئة عندما يكون DOM جاهزًا
+
+        // إعادة تهيئة المستقيم عند تغيير حجم النافذة لضمان الدقة
+        window.addEventListener('resize', initializeNumberLine);
+    </script>
+</body>
+</html>

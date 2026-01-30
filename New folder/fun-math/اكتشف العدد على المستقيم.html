@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اكتشف العدد على المستقيم!</title>
+    <style>
+        /* استيراد خط القاهرة من Google Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #e0f7fa; /* لون ناعم مبهج */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            direction: rtl; /* لدعم اللغة العربية */
+            text-align: right;
+            overflow: hidden; /* لمنع ظهور scrollbar غير مرغوب فيه */
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 900px;
+            box-sizing: border-box; /* لضمان أن Padding لا يوسع العنصر */
+        }
+
+        h1 {
+            color: #00796b;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+        }
+
+        .game-area {
+            margin-top: 20px;
+        }
+
+        .number-line-container {
+            position: relative;
+            width: 100%;
+            height: 100px; /* ارتفاع للحاوية التي تحوي المستقيم والسهم */
+            display: flex;
+            align-items: flex-end; /* لجعل المستقيم في الأسفل */
+            justify-content: center; /* لتوسيط المستقيم داخل الحاوية */
+            margin-bottom: 50px;
+            overflow: hidden; /* لإخفاء أجزاء السهم إذا خرجت */
+        }
+
+        .number-line {
+            border-bottom: 4px solid #333;
+            width: 95%; /* عرض المستقيم الفعلي لكي لا يلتصق بالأطراف */
+            position: relative;
+            height: 40px; /* ارتفاع الخط الأفقي للمستقيم */
+            /* هذا العنصر هو الحاوية للتدريجات والسهم */
+        }
+
+        .major-tick {
+            position: absolute;
+            height: 25px;
+            width: 2px;
+            background-color: #004d40; /* لون التدريجات الكبيرة */
+            bottom: 0; /* في أسفل المستقيم */
+            transform: translateX(-50%); /* لتوسيط التدريجة */
+            z-index: 1; /* للتأكد من أنها فوق خط المستقيم */
+        }
+
+        .major-tick span {
+            position: absolute;
+            top: 30px; /* أسفل الخط بقليل */
+            left: 50%;
+            transform: translateX(-50%);
+            color: #004d40;
+            font-weight: bold;
+            font-size: 1.1em;
+            white-space: nowrap; /* لمنع الأرقام الكبيرة من الالتفاف */
+        }
+
+        .minor-tick {
+            position: absolute;
+            height: 15px;
+            width: 1px;
+            background-color: #4db6ac; /* لون التدريجات الصغيرة */
+            bottom: 0; /* في أسفل المستقيم */
+            transform: translateX(-50%);
+            z-index: 1; /* للتأكد من أنها فوق خط المستقيم */
+        }
+
+        /* هنا التعديلات المهمة للسهم */
+        .arrow {
+            position: absolute;
+            top: -50px; /* موضع السهم فوق المستقيم */
+            width: 40px;
+            height: 40px;
+            fill: #FF5733; /* لون السهم البارز */
+            transform: translateX(-50%); /* لتوسيط رأس السهم على النقطة */
+            opacity: 0; /* يبدأ مخفيًا */
+            transition: left 0.8s ease-out, opacity 0.5s ease-in; /* انتقال سلس للسهم وظهوره */
+            z-index: 2; /* للتأكد من أن السهم فوق التدريجات */
+        }
+
+        .question-text {
+            font-size: 1.4em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .input-card {
+            background-color: #f0f4c3; /* بطاقة جميلة لإدخال الأعداد */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        #user-input {
+            padding: 12px 15px;
+            border: 2px solid #a7d9c6;
+            border-radius: 8px;
+            font-size: 1.3em;
+            text-align: center;
+            outline: none;
+            width: 150px;
+        }
+
+        #user-input:focus {
+            border-color: #00796b;
+        }
+
+        #check-button {
+            background-color: #28a745; /* زر مميز */
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #check-button:hover {
+            background-color: #218838;
+        }
+
+        .message {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 15px;
+            min-height: 30px; /* لضمان عدم اهتزاز التخطيط */
+        }
+
+        .message.correct {
+            color: #28a745; /* لون الرسالة الصحيحة */
+        }
+
+        .message.incorrect {
+            color: #dc3545; /* لون الرسالة الخاطئة */
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                width: 95%;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .major-tick span {
+                font-size: 0.9em;
+            }
+
+            .input-card {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>اكتشف العدد على المستقيم!</h1>
+        <div class="game-area">
+            <div class="number-line-container">
+                <div id="number-line" class="number-line">
+                    <svg id="arrow" class="arrow" viewBox="0 0 100 100">
+                        <path d="M50 0 L100 100 L50 75 L0 100 Z"/>
+                    </svg>
+                </div>
+            </div>
+            <p class="question-text">ما العدد الذي يشير إليه السهم؟</p>
+            <div class="input-card">
+                <input type="number" id="user-input" placeholder="اكتب العدد هنا" min="0">
+                <button id="check-button">تحقق</button>
+            </div>
+            <div id="message" class="message"></div>
+        </div>
+    </div>
+
+    <script>
+        const numberLineElement = document.getElementById('number-line');
+        const arrowElement = document.getElementById('arrow');
+        const userInput = document.getElementById('user-input');
+        const checkButton = document.getElementById('check-button');
+        const messageElement = document.getElementById('message');
+
+        let currentStartRange = 0;
+        let currentEndRange = 0;
+        let correctValue = 0;
+        const tickIntervalMajor = 100; // تدريجة كبيرة كل 100
+        const tickIntervalMinor = 10;  // تدريجة صغيرة كل 10
+
+        function getRandomRange() {
+            const ranges = [
+                { start: 0, end: 1000 },
+                { start: 1000, end: 2000 },
+                { start: 2000, end: 3000 },
+                { start: 3000, end: 4000 },
+                { start: 4000, end: 5000 },
+                { start: 5000, end: 6000 },
+                { start: 6000, end: 7000 },
+                { start: 6700, end: 7400 }
+            ];
+            return ranges[Math.floor(Math.random() * ranges.length)];
+        }
+
+        function initializeNumberLine() {
+            const range = getRandomRange();
+            currentStartRange = range.start;
+            currentEndRange = range.end;
+
+            numberLineElement.innerHTML = ''; // مسح التدريجات القديمة
+
+            // نستخدم requestAnimationFrame لضمان أن DOM قد تم تحديثه وجاهز لحساب الأبعاد
+            requestAnimationFrame(() => {
+                const totalWidth = numberLineElement.clientWidth; // عرض المستقيم الفعلي
+                if (totalWidth === 0) {
+                    console.warn("Number line element has 0 width after animation frame. Retrying initialization.");
+                    setTimeout(initializeNumberLine, 100); // حاول مرة أخرى بعد فترة قصيرة
+                    return;
+                }
+                const valueRange = currentEndRange - currentStartRange;
+                if (valueRange <= 0) {
+                    console.error("Invalid number range: start >= end. Getting new range.");
+                    setTimeout(initializeNumberLine, 100); // حاول مع نطاق جديد
+                    return;
+                }
+                const pixelPerUnit = totalWidth / valueRange;
+
+                // إنشاء التدريجات
+                for (let i = currentStartRange; i <= currentEndRange; i += tickIntervalMinor) {
+                    const tick = document.createElement('div');
+                    const pixelPosition = (i - currentStartRange) * pixelPerUnit;
+
+                    if (i % tickIntervalMajor === 0) {
+                        tick.classList.add('major-tick');
+                        const span = document.createElement('span');
+                        span.textContent = i;
+                        tick.appendChild(span);
+                    } else {
+                        tick.classList.add('minor-tick');
+                    }
+
+                    tick.style.left = `${pixelPosition}px`;
+                    numberLineElement.appendChild(tick);
+                }
+
+                placeArrowRandomly(); // وضع السهم بعد رسم التدريجات
+            });
+        }
+
+        function placeArrowRandomly() {
+            const possibleValues = [];
+            for (let i = currentStartRange; i <= currentEndRange; i += tickIntervalMinor) {
+                possibleValues.push(i);
+            }
+
+            if (possibleValues.length === 0) {
+                console.error("No possible values to place arrow. Check number range and tick intervals. Re-initializing.");
+                initializeNumberLine(); // إذا لم توجد قيم، أعد تهيئة المستقيم بنطاق جديد
+                return;
+            }
+
+            correctValue = possibleValues[Math.floor(Math.random() * possibleValues.length)];
+
+            const totalWidth = numberLineElement.clientWidth;
+            const valueRange = currentEndRange - currentStartRange;
+            const pixelPerUnit = totalWidth / valueRange;
+
+            const arrowLeftPosition = (correctValue - currentStartRange) * pixelPerUnit;
+
+            // تحديد موضع السهم وظهوره
+            arrowElement.style.left = `${arrowLeftPosition}px`;
+            arrowElement.style.opacity = '0'; // إخفاء السهم قبل التحريك
+            setTimeout(() => {
+                arrowElement.style.opacity = '1'; // إظهار السهم بعد جزء من الثانية
+                // التأكد من أن الانتقال فعال بعد وضعه
+                arrowElement.style.transition = 'left 0.8s ease-out, opacity 0.5s ease-in';
+            }, 100);
+            userInput.focus();
+        }
+
+        function checkAnswer() {
+            const userAnswer = parseInt(userInput.value);
+
+            if (isNaN(userAnswer)) {
+                messageElement.textContent = 'الرجاء إدخال عدد.';
+                messageElement.classList.remove('correct', 'incorrect');
+                return;
+            }
+
+            if (userAnswer === correctValue) {
+                messageElement.textContent = 'إجابة صحيحة! أحسنت.';
+                messageElement.className = 'message correct';
+                userInput.style.borderColor = '#28a745';
+            } else {
+                messageElement.textContent = `حاول مرة أخرى. الإجابة الصحيحة هي: ${correctValue}`;
+                messageElement.className = 'message incorrect';
+                userInput.style.borderColor = '#dc3545';
+            }
+
+            checkButton.disabled = true;
+            userInput.disabled = true;
+
+            setTimeout(() => {
+                messageElement.textContent = '';
+                userInput.value = '';
+                userInput.style.borderColor = '#a7d9c6';
+                checkButton.disabled = false;
+                userInput.disabled = false;
+                initializeNumberLine();
+            }, 2000);
+        }
+
+        checkButton.addEventListener('click', checkAnswer);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+
+        // هذا هو الأسلوب الأكثر موثوقية لضمان أن DOM جاهز تمامًا قبل البدء
+        window.onload = initializeNumberLine;
+
+        window.addEventListener('resize', initializeNumberLine);
+    </script>
+</body>
+</html>

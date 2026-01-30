@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<title>لعبة كان وأخواتها 🎲</title>
+<style>
+  body {
+    font-family: 'Comic Neue', cursive, sans-serif;
+    background: #fff0f5;
+    padding: 40px;
+    direction: rtl;
+    text-align: center;
+  }
+  .container {
+    max-width: 650px;
+    margin: auto;
+    background: #ffe6f0;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 6px 12px rgba(255, 105, 180, 0.3);
+  }
+  h1 {
+    color: #d81b60;
+    margin-bottom: 30px;
+  }
+  .question {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #880e4f;
+    min-height: 70px;
+  }
+  select {
+    font-size: 22px;
+    padding: 8px 15px;
+    border-radius: 15px;
+    border: 3px solid #d81b60;
+    background-color: #fff0f5;
+    color: #880e4f;
+    cursor: pointer;
+    outline-offset: 2px;
+  }
+  button {
+    margin-top: 20px;
+    padding: 12px 30px;
+    font-size: 20px;
+    border: none;
+    border-radius: 20px;
+    background-color: #d81b60;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: #b0154c;
+  }
+  .result {
+    margin-top: 18px;
+    font-size: 20px;
+    font-weight: 700;
+    min-height: 30px;
+  }
+  .correct {
+    color: #388e3c;
+  }
+  .wrong {
+    color: #d32f2f;
+  }
+</style>
+</head>
+<body>
+
+<div class="container" role="main" aria-live="polite">
+  <h1>لعبة كان وأخواتها</h1>
+  <div class="question" id="question-text"></div>
+
+  <select id="answer-select" aria-label="اختر الكلمة المناسبة">
+    <option value="">-- اختر --</option>
+  </select><br/>
+
+  <button id="check-btn">تحقق</button>
+  <button id="next-btn" disabled>التالي</button>
+
+  <div class="result" id="result-text" role="alert" aria-live="assertive"></div>
+</div>
+
+<script>
+  const questions = [
+    {
+      text: "___ الجوُّ جميلٌ اليومَ.",
+      correct: "كان",
+      options: ["كان", "أصبح", "ليس", "مازال"]
+    },
+    {
+      text: "___ الطلابُ مجتهدونَ في الدراسةِ.",
+      correct: "ظلَّ",
+      options: ["ظلَّ", "أصبح", "ليس", "كان"]
+    },
+    {
+      text: "___ المعلمُ متعبٌ بعدَ الدرسِ.",
+      correct: "مازال",
+      options: ["مازال", "أصبح", "كان", "ليس"]
+    },
+    {
+      text: "___ البيتُ نظيفٌ ومرتبٌ.",
+      correct: "ليس",
+      options: ["ليس", "كان", "ظلَّ", "مازال"]
+    },
+    {
+      text: "___ الجوُّ باردٌ في الصباحِ.",
+      correct: "أصبح",
+      options: ["أصبح", "مازال", "كان", "ليس"]
+    }
+  ];
+
+  let currentIndex = 0;
+
+  const questionText = document.getElementById('question-text');
+  const select = document.getElementById('answer-select');
+  const checkBtn = document.getElementById('check-btn');
+  const nextBtn = document.getElementById('next-btn');
+  const resultText = document.getElementById('result-text');
+
+  function shuffle(array) {
+    let arr = array.slice();
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function loadQuestion(i) {
+    resultText.textContent = "";
+    nextBtn.disabled = true;
+    checkBtn.disabled = false;
+    select.disabled = false;
+
+    const q = questions[i];
+    questionText.textContent = q.text;
+
+    // خلط الخيارات
+    const shuffledOptions = shuffle(q.options);
+
+    select.innerHTML = '<option value="">-- اختر --</option>';
+    shuffledOptions.forEach(opt => {
+      const optionEl = document.createElement('option');
+      optionEl.value = opt;
+      optionEl.textContent = opt;
+      select.appendChild(optionEl);
+    });
+  }
+
+  checkBtn.addEventListener('click', () => {
+    const answer = select.value;
+    if (!answer) {
+      resultText.textContent = "الرجاء اختيار إجابة!";
+      resultText.className = "result wrong";
+      return;
+    }
+    checkBtn.disabled = true;
+    select.disabled = true;
+
+    if (answer === questions[currentIndex].correct) {
+      resultText.textContent = "إجابة صحيحة! أحسنت 🎉";
+      resultText.className = "result correct";
+    } else {
+      resultText.textContent = `إجابة خاطئة! الإجابة الصحيحة هي: "${questions[currentIndex].correct}"`;
+      resultText.className = "result wrong";
+    }
+    nextBtn.disabled = false;
+  });
+
+  nextBtn.addEventListener('click', () => {
+    currentIndex = (currentIndex + 1) % questions.length;
+    loadQuestion(currentIndex);
+  });
+
+  loadQuestion(currentIndex);
+</script>
+
+</body>
+</html>

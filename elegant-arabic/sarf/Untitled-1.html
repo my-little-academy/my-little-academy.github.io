@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مغامرة الأفعال الصحيحة والمعتلة</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            background: linear-gradient(45deg, #ff9a9e, #fecfef, #fecfef);
+            color: #2d3436;
+            padding: 40px;
+            border-radius: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255,255,255,0.1) 10px,
+                rgba(255,255,255,0.1) 20px
+            );
+            animation: float 20s linear infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateX(-50px) translateY(-50px) rotate(0deg); }
+            100% { transform: translateX(-50px) translateY(-50px) rotate(360deg); }
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 2;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            position: relative;
+            z-index: 2;
+        }
+
+        .lesson-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .tab:hover, .tab.active {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            background: linear-gradient(135deg, #00b894, #00a085);
+        }
+
+        .tab-content {
+            display: none;
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-size: 2em;
+            color: #2d3436;
+            margin-bottom: 25px;
+            text-align: center;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border-radius: 2px;
+        }
+
+        .verb-types {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .verb-type {
+            background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .verb-type:hover {
+            transform: translateY(-10px) rotate(1deg);
+        }
+
+        .verb-type::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+            transform: rotate(45deg);
+        }
+
+        .verb-type h3 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            color: #2d3436;
+        }
+
+        .verb-examples {
+            display: grid;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .verb-example {
+            background: rgba(255,255,255,0.9);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 5px solid #e74c3c;
+            transition: all 0.3s ease;
+        }
+
+        .verb-example:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .sahih .verb-example {
+            border-left-color: #2ecc71;
+        }
+
+        .mutal .verb-example {
+            border-left-color: #e74c3c;
+        }
+
+        .detective-game {
+            background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+            color: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .game-word {
+            background: white;
+            color: #333;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 15px;
+            font-size: 2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            min-width: 150px;
+        }
+
+        .game-word:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .game-word.correct-sahih {
+            background: linear-gradient(135deg, #00b894, #55efc4);
+        }
+
+        .game-word.correct-mutal {
+            background: linear-gradient(135deg, #e17055, #fab1a0);
+        }
+
+        .game-word.wrong {
+            background: linear-gradient(135deg, #636e72, #b2bec3);
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .game-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .game-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .sahih-btn {
+            background: linear-gradient(135deg, #00b894, #55efc4);
+            color: white;
+        }
+
+        .mutal-btn {
+            background: linear-gradient(135deg, #e17055, #fab1a0);
+            color: white;
+        }
+
+        .game-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .score-board {
+            background: rgba(255,255,255,0.9);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .quiz-section {
+            background: linear-gradient(135deg, #fd79a8, #fdcb6e);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .quiz-question {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-size: 1.3em;
+            color: #2d3436;
+        }
+
+        .quiz-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .quiz-option {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+        }
+
+        .quiz-option:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .memory-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .memory-card {
+            background: linear-gradient(135deg, #ff7675, #fd79a8);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            transform-style: preserve-3d;
+            height: 150px;
+            position: relative;
+        }
+
+        .memory-card:hover {
+            transform: rotateY(10deg) scale(1.05);
+        }
+
+        .memory-card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .activities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .activity-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+
+        .activity-card:hover {
+            transform: translateY(-8px);
+            border-color: #ff6b6b;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+
+        .emoji-large {
+            font-size: 4em;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .verb-types { grid-template-columns: 1fr; }
+            .quiz-options { grid-template-columns: 1fr; }
+            .header h1 { font-size: 2em; }
+            .game-buttons { flex-direction: column; align-items: center; }
+            .lesson-tabs { justify-content: center; }
+        }
+
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-30px); }
+            60% { transform: translateY(-15px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 مغامرة الأفعال الصحيحة والمعتلة 🔍</h1>
+            <p>اكتشف أسرار الأفعال واصبح محققًا في اللغة العربية!</p>
+        </div>
+
+        <div class="lesson-tabs">
+            <button class="tab active" onclick="showTab(event, 'basics')">🏠 الأساسيات</button>
+            <button class="tab" onclick="showTab(event, 'detective')">🕵️ المحقق</button>
+            <button class="tab" onclick="showTab(event, 'quiz')">🧩 الاختبار</button>
+            <button class="tab" onclick="showTab(event, 'activities')">🎨 الأنشطة</button>
+        </div>
+
+                <div id="basics" class="tab-content active">
+            <h2 class="section-title">📚 تعلم الفرق بين الصحيح والمعتل</h2>
+           
+            <div class="verb-types">
+                <div class="verb-type sahih">
+                    <h3>💪 الفعل الصحيح</h3>
+                    <p><strong>التعريف:</strong> فعل خالٍ من أحرف العلة (ا، و، ي)</p>
+                    <div class="verb-examples">
+                        <div class="verb-example">
+                            <strong>كَتَبَ</strong> - جميع حروفه صحيحة ✓
+                        </div>
+                        <div class="verb-example">
+                            <strong>شَرِبَ</strong> - لا توجد أحرف علة ✓
+                        </div>
+                        <div class="verb-example">
+                            <strong>لَعِبَ</strong> - كله أحرف صحيحة ✓
+                        </div>
+                        <div class="verb-example">
+                            <strong>فَهِمَ</strong> - قوي ومتين ✓
+                        </div>
+                    </div>
+                    <div class="emoji-large">💪</div>
+                </div>
+
+                <div class="verb-type mutal">
+                    <h3>🌊 الفعل المعتل</h3>
+                    <p><strong>التعريف:</strong> فعل يحتوي على حرف علة أو أكثر (ا، و، ي)</p>
+                    <div class="verb-examples">
+                        <div class="verb-example">
+                            <strong>قَالَ</strong> - يحتوي على الألف 🅰️
+                        </div>
+                        <div class="verb-example">
+                            <strong>جَرَى</strong> - ينتهي بالألف 🅰️
+                        </div>
+                        <div class="verb-example">
+                            <strong>وَقَفَ</strong> - يبدأ بالواو 🅾️
+                        </div>
+                        <div class="verb-example">
+                            <strong>يَبِسَ</strong> - يحتوي على الياء ℹ️
+                        </div>
+                    </div>
+                    <div class="emoji-large">🌊</div>
+                </div>
+            </div>
+
+            <div style="background: linear-gradient(135deg, #00cec9, #55a3ff); color: white; padding: 25px; border-radius: 15px; text-align: center; margin: 20px 0;">
+                <h3>🎯 نصائح للتذكر</h3>
+                <p><strong>الفعل الصحيح:</strong> مثل البيت المبني بالحجر - قوي ومتين! 🏠</p>
+                <p><strong>الفعل المعتل:</strong> مثل النهر المتدفق - يحتوي على الماء (أحرف العلة)! 🌊</p>
+            </div>
+        </div>
+
+                <div id="detective" class="tab-content">
+            <div class="detective-game">
+                <h2 style="margin-bottom: 20px;">🕵️‍♂️ لعبة محقق الأفعال</h2>
+                <p>اكتشف نوع الفعل واضغط على الزر المناسب!</p>
+               
+                <div id="currentWord" class="game-word bounce">اضغط ابدأ</div>
+               
+                <div class="game-buttons">
+                    <button class="game-btn sahih-btn" onclick="guessVerb('sahih')">
+                        💪 صحيح
+                    </button>
+                    <button class="game-btn mutal-btn" onclick="guessVerb('mutal')">
+                        🌊 معتل
+                    </button>
+                </div>
+
+                <div class="score-board">
+                    <div style="display: flex; justify-content: space-around; flex-wrap: wrap;">
+                        <div>صحيح: <span id="sahihScore">0</span> ✅</div>
+                        <div>معتل: <span id="mutalScore">0</span> ❌</div>
+                        <div>المجموع: <span id="totalScore">0</span> 🎯</div>
+                    </div>
+                </div>
+
+                <button class="game-btn" style="background: linear-gradient(135deg, #6c5ce7, #a29bfe); margin-top: 15px;" onclick="startDetectiveGame()">
+                    🚀 ابدأ المغامرة
+                </button>
+            </div>
+        </div>
+
+                <div id="quiz" class="tab-content">
+            <div class="quiz-section">
+                <h2 style="color: white; margin-bottom: 20px;">🧩 اختبار المعرفة</h2>
+               
+                <div id="quizArea">
+                    <div class="quiz-question">اضغط على "ابدأ الاختبار" لبدء التحدي!</div>
+                    <button class="game-btn" style="background: linear-gradient(135deg, #e84393, #fd79a8);" onclick="startQuiz()">
+                        📝 ابدأ الاختبار
+                    </button>
+                </div>
+
+                <div class="score-board">
+                    <div id="quizScore">النتيجة: 0/0</div>
+                </div>
+            </div>
+        </div>
+
+                <div id="activities" class="tab-content">
+            <h2 class="section-title">🎨 أنشطة ممتعة لتعزيز التعلم</h2>
+           
+            <div class="activities-grid">
+                <div class="activity-card" onclick="startActivity('story')">
+                    <span class="emoji-large">📖</span>
+                    <h3>حكايات الأفعال</h3>
+                    <p>اكتب قصة قصيرة تحتوي على أفعال صحيحة ومعتلة</p>
+                </div>
+               
+                <div class="activity-card" onclick="startActivity('hunt')">
+                    <span class="emoji-large">🔍</span>
+                    <h3>صيد الأفعال</h3>
+                    <p>ابحث عن الأفعال في النص وصنفها</p>
+                </div>
+               
+                <div class="activity-card" onclick="startActivity('create')">
+                    <span class="emoji-large">✨</span>
+                    <h3>مصنع الأفعال</h3>
+                    <p>حول الأفعال الصحيحة إلى معتلة والعكس</p>
+                </div>
+               
+                <div class="activity-card" onclick="startActivity('song')">
+                    <span class="emoji-large">🎵</span>
+                    <h3>أغنية الأفعال</h3>
+                    <p>اخترع أغنية لحفظ أنواع الأفعال</p>
+                </div>
+               
+                <div class="activity-card" onclick="startActivity('draw')">
+                    <span class="emoji-large">🎨</span>
+                    <h3>ارسم الفعل</h3>
+                    <p>ارسم صورًا تعبر عن الأفعال المختلفة</p>
+                </div>
+               
+                <div class="activity-card" onclick="startActivity('compete')">
+                    <span class="emoji-large">🏆</span>
+                    <h3>مسابقة الأفعال</h3>
+                    <p>تحدى أصدقاءك في تصنيف الأفعال</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentVerb = '';
+        let verbType = '';
+        let sahihCorrect = 0;
+        let mutalCorrect = 0;
+        let totalAttempts = 0;
+        let gameActive = false;
+
+        const verbs = [
+            {word: 'كَتَبَ', type: 'sahih', meaning: 'فعل ثلاثي صحيح'},
+            {word: 'قَالَ', type: 'mutal', meaning: 'معتل بالألف'},
+            {word: 'شَرِبَ', type: 'sahih', meaning: 'فعل ثلاثي صحيح'},
+            {word: 'جَرَى', type: 'mutal', meaning: 'معتل بالألف'},
+            {word: 'لَعِبَ', type: 'sahih', meaning: 'فعل ثلاثي صحيح'},
+            {word: 'وَقَفَ', type: 'mutal', meaning: 'معتل بالواو'},
+            {word: 'فَهِمَ', type: 'sahih', meaning: 'فعل ثلاثي صحيح'},
+            {word: 'مَشَى', type: 'mutal', meaning: 'معتل بالألف'},
+            {word: 'أَكَلَ', type: 'sahih', meaning: 'فعل ثلاثي صحيح'},
+            {word: 'رَمَى', type: 'mutal', meaning: 'معتل بالألف'},
+            {word: 'نَامَ', type: 'mutal', meaning: 'معتل بالألف'},
+            {word: 'دَعَا', type: 'mutal', meaning: 'معتل بالألف'},
+            {word: 'بَنَى', type: 'mutal', meaning: 'معتل بالألف'},
+            {word: 'جَلَسَ', type: 'sahih', meaning: 'فعل ثلاثي صحيح'},
+            {word: 'وَجَدَ', type: 'mutal', meaning: 'معتل بالواو'}
+        ];
+
+        const quizQuestions = [
+            {
+                question: 'ما هو تعريف الفعل الصحيح؟',
+                options: [
+                    'فعل يحتوي على أحرف العلة',
+                    'فعل خالٍ من أحرف العلة',
+                    'فعل يبدأ بحرف علة',
+                    'فعل ينتهي بحرف علة'
+                ],
+                correct: 1
+            },
+            {
+                question: 'أي من الأفعال التالية صحيح؟',
+                options: ['قَالَ', 'كَتَبَ', 'جَرَى', 'مَشَى'],
+                correct: 1
+            },
+            {
+                question: 'أحرف العلة هي:',
+                options: ['ا، و، ي', 'ب، ت، ث', 'ج، ح، خ', 'د، ذ، ر'],
+                correct: 0
+            },
+            {
+                question: 'الفعل "وَقَفَ" هو:',
+                options: ['صحيح', 'معتل', 'مضارع', 'أمر'],
+                correct: 1
+            },
+            {
+                question: 'أي من هذه الأفعال معتل؟',
+                options: ['شَرِبَ', 'أَكَلَ', 'رَمَى', 'جَلَسَ'],
+                correct: 2
+            }
+        ];
+
+        let currentQuestion = 0;
+        let quizScore = 0;
+
+        function showTab(event, tabName) {
+            // إخفاء جميع التبويبات
+            const tabs = document.querySelectorAll('.tab-content');
+            const tabButtons = document.querySelectorAll('.tab');
+           
+            tabs.forEach(tab => tab.classList.remove('active'));
+            tabButtons.forEach(button => button.classList.remove('active'));
+           
+            // إظهار التبويب المطلوب
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function startDetectiveGame() {
+            gameActive = true;
+            sahihCorrect = 0;
+            mutalCorrect = 0;
+            totalAttempts = 0;
+            showRandomVerb();
+            updateScore();
+        }
+
+        function showRandomVerb() {
+            const randomIndex = Math.floor(Math.random() * verbs.length);
+            const verb = verbs[randomIndex];
+            currentVerb = verb.word;
+            verbType = verb.type;
+           
+            document.getElementById('currentWord').textContent = currentVerb;
+            document.getElementById('currentWord').className = 'game-word bounce';
+        }
+
+        function guessVerb(guess) {
+            if (!gameActive) return;
+           
+            const wordElement = document.getElementById('currentWord');
+            totalAttempts++;
+           
+            if (guess === verbType) {
+                if (verbType === 'sahih') {
+                    sahihCorrect++;
+                    wordElement.className = 'game-word correct-sahih';
+                } else {
+                    mutalCorrect++;
+                    wordElement.className = 'game-word correct-mutal';
+                }
+               
+                showCelebration();
+                setTimeout(showRandomVerb, 1500);
+            } else {
+                wordElement.className = 'game-word wrong';
+                setTimeout(showRandomVerb, 1000);
+            }
+           
+            updateScore();
+        }
+
+        function showCelebration() {
+            const wordElement = document.getElementById('currentWord');
+            wordElement.innerHTML = `
+                <div style="animation: bounce 1s;">
+                    🎉 أحسنت! 🎉<br>
+                    <small style="font-size: 0.6em;">${verbType === 'sahih' ? 'فعل صحيح' : 'فعل معتل'}</small>
+                </div>
+            `;
+        }
+
+        function updateScore() {
+            document.getElementById('sahihScore').textContent = sahihCorrect;
+            document.getElementById('mutalScore').textContent = mutalCorrect;
+            document.getElementById('totalScore').textContent = totalAttempts;
+        }
+
+        function startQuiz() {
+            currentQuestion = 0;
+            quizScore = 0;
+            showQuizQuestion();
+        }
+
+        function showQuizQuestion() {
+            if (currentQuestion >= quizQuestions.length) {
+                endQuiz();
+                return;
+            }
+
+            const question = quizQuestions[currentQuestion];
+            const quizArea = document.getElementById('quizArea');
+           
+            quizArea.innerHTML = `
+                <div class="quiz-question">
+                    السؤال ${currentQuestion + 1}: ${question.question}
+                </div>
+                <div class="quiz-options">
+                    ${question.options.map((option, index) => `
+                        <div class="quiz-option" onclick="selectQuizAnswer(${index})">
+                            ${option}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+           
+            updateQuizScore();
+        }
+
+        function selectQuizAnswer(selectedIndex) {
+            const question = quizQuestions[currentQuestion];
+            const options = document.querySelectorAll('.quiz-option');
+           
+            if (selectedIndex === question.correct) {
+                quizScore++;
+                options[selectedIndex].style.background = 'linear-gradient(135deg, #00b894, #55efc4)';
+            } else {
+                options[selectedIndex].style.background = 'linear-gradient(135deg, #e17055, #fab1a0)';
+                options[question.correct].style.background = 'linear-gradient(135deg, #00b894, #55efc4)';
+            }
+           
+            options.forEach(option => option.onclick = null);
+           
+            setTimeout(() => {
+                currentQuestion++;
+                showQuizQuestion();
+            }, 1500);
+           
+            updateQuizScore();
+        }
+
+        function endQuiz() {
+            const quizArea = document.getElementById('quizArea');
+            quizArea.innerHTML = `
+                <div class="quiz-question">
+                    <h3>انتهى الاختبار! 🎉</h3>
+                    <p>لقد حصلت على ${quizScore} من ${quizQuestions.length} إجابات صحيحة.</p>
+                    <button class="game-btn" style="background: linear-gradient(135deg, #e84393, #fd79a8); margin-top: 15px;" onclick="startQuiz()">
+                        🔄 أعد الاختبار
+                    </button>
+                </div>
+            `;
+            updateQuizScore();
+        }
+
+        function updateQuizScore() {
+            document.getElementById('quizScore').textContent = `النتيجة: ${quizScore}/${quizQuestions.length}`;
+        }
+
+        function startActivity(activityType) {
+            switch(activityType) {
+                case 'story':
+                    alert('لنبدأ كتابة قصة! افتح دفترك وابدأ بـ "جَرَى الولدُ ولَعِبَ..."');
+                    break;
+                case 'hunt':
+                    alert('مهمة البحث عن الأفعال تبدأ! افتح كتابك المفضل وابدأ الصيد.');
+                    break;
+                case 'create':
+                    alert('حان وقت الإبداع! فكر في فعل مثل "سَارَ" (معتل) وحوله إلى "سَبَحَ" (صحيح).');
+                    break;
+                case 'song':
+                    alert('هيا نغني! على لحن أغنية مشهورة، ابدأ بتأليف أغنية عن الأفعال الصحيحة والمعتلة.');
+                    break;
+                case 'draw':
+                    alert('أحضر ألوانك! ارسم صورة لـ "طَارَ" (معتل) كطائرة، و"قَرَأَ" (صحيح) ككتاب.');
+                    break;
+                case 'compete':
+                    alert('استعد للتحدي! كل شخص يذكر فعلاً ويصنفه، ومن يخطئ يخرج من اللعبة.');
+                    break;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة تمثيل الأعداد</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        
+        .instructions {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-right: 5px solid #3498db;
+            text-align: center;
+            font-weight: bold;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .game-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .grid-item {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            background-color: #f9f9f9;
+            transition: all 0.3s ease;
+        }
+        
+        .grid-item:hover {
+            border-color: #3498db;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .grid-item h3 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        /* الأشكال التعليمية */
+        .unit {
+            width: 8px;
+            height: 8px;
+            background-color: #e74c3c;
+            margin: 5px auto;
+            border-radius: 2px;
+        }
+        
+        .tens {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1px;
+            margin: 5px auto;
+        }
+        
+        .tens .unit {
+            margin: 0;
+        }
+        
+        .hundreds, .thousands {
+            display: grid;
+            gap: 1px;
+            margin: 5px auto;
+        }
+        
+        .hundreds {
+            grid-template-columns: repeat(10, 8px);
+            grid-template-rows: repeat(10, 8px);
+        }
+        
+        .thousands {
+            grid-template-columns: repeat(20, 5px);
+            grid-template-rows: repeat(20, 5px);
+        }
+        
+        .hundreds .unit, .thousands .unit {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* منطقة الإسقاط */
+        .drop-zone {
+            min-height: 300px;
+            border: 3px dashed #3498db;
+            border-radius: 10px;
+            padding: 20px;
+            background-color: #ecf0f1;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            gap: 10px;
+            position: relative;
+        }
+        
+        .drop-zone.highlight {
+            background-color: #d6eaf8;
+            border-color: #2980b9;
+        }
+        
+        /* العناصر المسحوبة */
+        .dragged-item {
+            margin: 10px;
+            position: relative;
+        }
+        
+        .dragged-item .delete-btn {
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            display: none;
+        }
+        
+        .dragged-item:hover .delete-btn {
+            display: block;
+        }
+        
+        /* زر الحذف */
+        .clear-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        .clear-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        /* منطقة الحساب */
+        .calculation-area {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        #number-display {
+            font-size: 2.5em;
+            text-align: center;
+            margin: 10px 0;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+        
+        #number-words {
+            text-align: center;
+            font-size: 1.2em;
+            color: #3498db;
+            margin-bottom: 15px;
+            min-height: 30px;
+        }
+        
+        .breakdown {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .breakdown p {
+            margin: 5px 0;
+            text-align: center;
+        }
+        
+        .breakdown span {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        
+        /* أزرار التحدي */
+        .challenge-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .challenge-btn {
+            padding: 8px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .challenge-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        /* تأثيرات الإجابة الصحيحة */
+        .correct {
+            animation: correctAnswer 0.5s;
+        }
+        
+        @keyframes correctAnswer {
+            0% { background-color: #ecf0f1; }
+            50% { background-color: #2ecc71; }
+            100% { background-color: #ecf0f1; }
+        }
+        
+        .confirmation-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(46, 204, 113, 0.9);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 1.2em;
+            z-index: 10;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        
+        /* التكيف مع الشاشات الصغيرة */
+        @media (max-width: 768px) {
+            .game-area {
+                grid-template-columns: 1fr;
+            }
+            
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .breakdown {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>لعبة تمثيل الأعداد</h1>
+        
+        <div class="instructions" id="instructions">
+            اسحب الأشكال من الجدول إلى منطقة السحب لتمثيل الأعداد. يمكنك سحب عدة نسخ من كل شكل.
+        </div>
+        
+        <div class="challenge-buttons" id="challenge-buttons">
+            <!-- سيتم ملؤها بواسطة JavaScript -->
+        </div>
+        
+        <div class="game-area">
+            <div class="grid-container">
+                <div class="grid-item">
+                    <h3>الوحدات</h3>
+                    <div class="unit-container" draggable="true" ondragstart="dragStart(event)" data-type="unit">
+                        <div class="unit"></div>
+                    </div>
+                    <p>تمثل الرقم 1</p>
+                </div>
+                
+                <div class="grid-item">
+                    <h3>العشرات</h3>
+                    <div class="tens-container" draggable="true" ondragstart="dragStart(event)" data-type="tens">
+                        <div class="tens">
+                            <!-- 10 وحدات في عمود واحد -->
+                            <div class="unit"></div>
+                            <div class="unit"></div>
+                            <div class="unit"></div>
+                            <div class="unit"></div>
+                            <div class="unit"></div>
+                            <div class="unit"></div>
+                            <div class="unit"></div>
+                            <div class="unit"></div>
+                            <div class="unit"></div>
+                            <div class="unit"></div>
+                        </div>
+                    </div>
+                    <p>تمثل الرقم 10</p>
+                </div>
+                
+                <div class="grid-item">
+                    <h3>المئات</h3>
+                    <div class="hundreds-container" draggable="true" ondragstart="dragStart(event)" data-type="hundreds">
+                        <div class="hundreds">
+                            <!-- سيتم توليدها باستخدام JavaScript -->
+                        </div>
+                    </div>
+                    <p>تمثل الرقم 100</p>
+                </div>
+                
+                <div class="grid-item">
+                    <h3>الآلاف</h3>
+                    <div class="thousands-container" draggable="true" ondragstart="dragStart(event)" data-type="thousands">
+                        <div class="thousands">
+                            <!-- سيتم توليدها باستخدام JavaScript -->
+                        </div>
+                    </div>
+                    <p>تمثل الرقم 1000</p>
+                </div>
+            </div>
+            
+            <div>
+                <h2 style="text-align: center; margin-bottom: 10px;">منطقة السحب</h2>
+                <div class="drop-zone" ondragover="allowDrop(event)" ondrop="drop(event)">
+                    <p id="drop-message" style="width: 100%; text-align: center; color: #7f8c8d; margin-top: 100px;">اسحب الأشكال هنا</p>
+                </div>
+                <button class="clear-btn" onclick="clearDropZone()">مسح كل الأشكال</button>
+                
+                <div class="calculation-area">
+                    <h3 style="text-align: center;">حساب العدد</h3>
+                    <div id="number-display">0</div>
+                    <div id="number-words"></div>
+                    
+                    <div class="breakdown">
+                        <p>الآلاف: <span id="thousands-count">0</span></p>
+                        <p>المئات: <span id="hundreds-count">0</span></p>
+                        <p>العشرات: <span id="tens-count">0</span></p>
+                        <p>الوحدات: <span id="units-count">0</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // التحديات التعليمية
+        const challenges = [
+            {desc: "قم بتمثيل العدد 342", value: 342},
+            {desc: "مثل العدد 1050", value: 1050},
+            {desc: "أنشئ العدد 777", value: 777},
+            {desc: "مثل العدد 1205", value: 1205},
+            {desc: "تمثيل العدد 899", value: 899}
+        ];
+        
+        let currentChallenge = null;
+        
+        // إنشاء شبكات المئات والآلاف
+        document.addEventListener('DOMContentLoaded', function() {
+            const hundredsContainer = document.querySelector('.hundreds');
+            const thousandsContainer = document.querySelector('.thousands');
+            
+            // إنشاء 100 وحدة للمئات (10x10)
+            for (let i = 0; i < 100; i++) {
+                const unit = document.createElement('div');
+                unit.className = 'unit';
+                unit.style.backgroundColor = '#3498db';
+                hundredsContainer.appendChild(unit);
+            }
+            
+            // إنشاء 400 وحدة للآلاف (20x20) - تمثيل مبسط لـ 1000
+            for (let i = 0; i < 400; i++) {
+                const unit = document.createElement('div');
+                unit.className = 'unit';
+                unit.style.backgroundColor = '#2ecc71';
+                thousandsContainer.appendChild(unit);
+            }
+            
+            // إنشاء أزرار التحديات
+            const challengeButtons = document.getElementById('challenge-buttons');
+            challenges.forEach((challenge, index) => {
+                const button = document.createElement('button');
+                button.className = 'challenge-btn';
+                button.textContent = `تحدي ${index + 1}`;
+                button.onclick = () => startChallenge(index);
+                challengeButtons.appendChild(button);
+            });
+        });
+        
+        // بدء التحدي
+        function startChallenge(index) {
+            currentChallenge = challenges[index];
+            document.getElementById('instructions').textContent = currentChallenge.desc;
+            clearDropZone();
+        }
+        
+        // وظائف السحب والإفلات
+        function dragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.getAttribute('data-type'));
+        }
+        
+        function allowDrop(e) {
+            e.preventDefault();
+            e.target.classList.add('highlight');
+        }
+        
+        function drop(e) {
+            e.preventDefault();
+            e.target.classList.remove('highlight');
+            
+            const dropZone = document.querySelector('.drop-zone');
+            const dropMessage = document.getElementById('drop-message');
+            
+            if (dropMessage) {
+                dropZone.removeChild(dropMessage);
+            }
+            
+            const type = e.dataTransfer.getData('text/plain');
+            const newElement = createDraggableElement(type);
+            
+            dropZone.appendChild(newElement);
+            makeDraggable(newElement);
+            updateCalculation();
+        }
+        
+        // إنشاء عنصر قابل للسحب
+        function createDraggableElement(type) {
+            const container = document.createElement('div');
+            container.className = 'dragged-item';
+            container.setAttribute('data-type', type);
+            
+            // زر الحذف
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.innerHTML = '×';
+            deleteBtn.onclick = function() {
+                container.remove();
+                checkEmptyDropZone();
+                updateCalculation();
+            };
+            
+            // إنشاء العنصر المناسب حسب النوع
+            let element;
+            switch(type) {
+                case 'unit':
+                    element = document.createElement('div');
+                    element.className = 'unit';
+                    element.style.backgroundColor = '#e74c3c';
+                    element.style.margin = '0';
+                    break;
+                    
+                case 'tens':
+                    element = document.createElement('div');
+                    element.className = 'tens';
+                    for (let i = 0; i < 10; i++) {
+                        const unit = document.createElement('div');
+                        unit.className = 'unit';
+                        unit.style.backgroundColor = '#f39c12';
+                        unit.style.margin = '0';
+                        element.appendChild(unit);
+                    }
+                    break;
+                    
+                case 'hundreds':
+                    element = document.createElement('div');
+                    element.className = 'hundreds';
+                    for (let i = 0; i < 100; i++) {
+                        const unit = document.createElement('div');
+                        unit.className = 'unit';
+                        unit.style.backgroundColor = '#3498db';
+                        element.appendChild(unit);
+                    }
+                    break;
+                    
+                case 'thousands':
+                    element = document.createElement('div');
+                    element.className = 'thousands';
+                    for (let i = 0; i < 400; i++) {
+                        const unit = document.createElement('div');
+                        unit.className = 'unit';
+                        unit.style.backgroundColor = '#2ecc71';
+                        element.appendChild(unit);
+                    }
+                    break;
+            }
+            
+            container.appendChild(deleteBtn);
+            container.appendChild(element);
+            return container;
+        }
+        
+        function makeDraggable(element) {
+            element.setAttribute('draggable', 'true');
+            element.addEventListener('dragstart', dragStart);
+        }
+        
+        // مسح منطقة السحب
+        function clearDropZone() {
+            const dropZone = document.querySelector('.drop-zone');
+            dropZone.innerHTML = '<p id="drop-message" style="width: 100%; text-align: center; color: #7f8c8d; margin-top: 100px;">اسحب الأشكال هنا</p>';
+            updateCalculation();
+        }
+        
+        // التحقق من منطقة السحب الفارغة
+        function checkEmptyDropZone() {
+            const dropZone = document.querySelector('.drop-zone');
+            if (dropZone.children.length === 0) {
+                dropZone.innerHTML = '<p id="drop-message" style="width: 100%; text-align: center; color: #7f8c8d; margin-top: 100px;">اسحب الأشكال هنا</p>';
+            }
+        }
+        
+        // تحويل الأعداد إلى كلمات عربية
+        function numberToArabicWords(num) {
+            const units = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة'];
+            const tens = ['', 'عشرة', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
+            const hundreds = ['', 'مائة', 'مئتان', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثمانمائة', 'تسعمائة'];
+            
+            if (num === 0) return 'صفر';
+            
+            let result = '';
+            
+            // الآلاف
+            if (num >= 1000) {
+                const thousands = Math.floor(num / 1000);
+                result += (thousands === 1 ? 'ألف' : units[thousands] + ' آلاف');
+                num %= 1000;
+                if (num > 0) result += ' و ';
+            }
+            
+            // المئات
+            if (num >= 100) {
+                const hundred = Math.floor(num / 100);
+                result += hundreds[hundred];
+                num %= 100;
+                if (num > 0) result += ' و ';
+            }
+            
+            // العشرات والوحدات
+            if (num > 0) {
+                if (num < 10) {
+                    result += units[num];
+                } else {
+                    const unit = num % 10;
+                    const ten = Math.floor(num / 10);
+                    if (unit === 0) {
+                        result += tens[ten];
+                    } else {
+                        if (ten === 1) {
+                            result += (unit === 1 ? 'أحد عشر' : 
+                                      unit === 2 ? 'اثنا عشر' : 
+                                      units[unit] + ' عشر');
+                        } else {
+                            result += units[unit] + ' و ' + tens[ten];
+                        }
+                    }
+                }
+            }
+            
+            return result;
+        }
+        
+        // تحديث الحسابات
+        function updateCalculation() {
+            const dropZone = document.querySelector('.drop-zone');
+            let units = 0, tens = 0, hundreds = 0, thousands = 0;
+            
+            dropZone.querySelectorAll('.dragged-item').forEach(item => {
+                const type = item.getAttribute('data-type');
+                switch(type) {
+                    case 'unit': units++; break;
+                    case 'tens': tens++; break;
+                    case 'hundreds': hundreds++; break;
+                    case 'thousands': thousands++; break;
+                }
+            });
+            
+            const total = units + (tens * 10) + (hundreds * 100) + (thousands * 1000);
+            
+            document.getElementById('number-display').textContent = total;
+            document.getElementById('number-words').textContent = numberToArabicWords(total);
+            document.getElementById('units-count').textContent = units;
+            document.getElementById('tens-count').textContent = tens;
+            document.getElementById('hundreds-count').textContent = hundreds;
+            document.getElementById('thousands-count').textContent = thousands;
+            
+            checkChallenge();
+        }
+        
+        // التحقق من التحدي
+        function checkChallenge() {
+            if (!currentChallenge) return;
+            
+            const currentNumber = parseInt(document.getElementById('number-display').textContent);
+            if (currentNumber === currentChallenge.value) {
+                const dropZone = document.querySelector('.drop-zone');
+                dropZone.classList.add('correct');
+                setTimeout(() => {
+                    dropZone.classList.remove('correct');
+                }, 1000);
+                
+                // عرض رسالة تأكيد
+                const confirmation = document.createElement('div');
+                confirmation.className = 'confirmation-message';
+                confirmation.textContent = 'إجابة صحيحة!';
+                dropZone.appendChild(confirmation);
+                setTimeout(() => {
+                    confirmation.remove();
+                }, 2000);
+            }
+        }
+        
+        // منع ظهور قائمة السياق عند النقر بزر الماوس الأيمن
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+    </script>
+</body>
+</html>

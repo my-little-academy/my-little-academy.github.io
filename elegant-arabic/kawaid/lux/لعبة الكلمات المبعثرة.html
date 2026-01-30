@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>لعبة الكلمات المبعثرة - تعلم العقيدة</title>
+<style>
+  body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: #fef6e4;
+    color: #333;
+    text-align: center;
+    padding: 20px;
+  }
+  h1 {
+    color: #2c3e50;
+  }
+  #puzzle {
+    font-size: 2em;
+    letter-spacing: 0.2em;
+    margin: 20px 0;
+    user-select: none;
+  }
+  input[type="text"] {
+    font-size: 1.5em;
+    padding: 5px 10px;
+    width: 250px;
+    border: 2px solid #2980b9;
+    border-radius: 5px;
+  }
+  button {
+    font-size: 1.2em;
+    padding: 7px 20px;
+    margin-left: 10px;
+    background: #2980b9;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  button:hover {
+    background: #3498db;
+  }
+  #message {
+    margin-top: 15px;
+    font-weight: bold;
+  }
+  #score {
+    margin-top: 15px;
+    font-size: 1.2em;
+    color: #27ae60;
+  }
+</style>
+</head>
+<body>
+  <h1>لعبة الكلمات المبعثرة - تعلم العقيدة</h1>
+  <p>حل الكلمات المبعثرة واكتب الكلمة الصحيحة</p>
+  <div id="puzzle"></div>
+  <input type="text" id="answer" placeholder="اكتب الكلمة هنا" autocomplete="off" />
+  <button id="checkBtn">تحقق</button>
+  <div id="message"></div>
+  <div id="score">النقاط: 0</div>
+
+<script>
+  const words = [
+    "إيمان",
+    "صلاة",
+    "زكاة",
+    "صوم",
+    "حج",
+    "توحيد",
+    "نبوة",
+    "جنة",
+    "نار",
+    "أخلاق",
+    "قرآن",
+    "دعاء",
+    "صدق",
+    "رحمة",
+    "علم"
+  ];
+
+  let score = 0;
+  let currentWord = "";
+  let scrambledWord = "";
+
+  // دالة لخلط حروف الكلمة
+  function scramble(word) {
+    let arr = word.split("");
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr.join("");
+  }
+
+  // دالة لاختيار كلمة جديدة عشوائية تختلف عن السابقة
+  function newWord() {
+    let word;
+    do {
+      word = words[Math.floor(Math.random() * words.length)];
+    } while (word === currentWord);
+    currentWord = word;
+    scrambledWord = scramble(word);
+    // إذا تطابق المبعثر مع الكلمة، أعد الخلط
+    while (scrambledWord === currentWord) {
+      scrambledWord = scramble(word);
+    }
+    document.getElementById("puzzle").textContent = scrambledWord;
+    document.getElementById("answer").value = "";
+    document.getElementById("message").textContent = "";
+  }
+
+  document.getElementById("checkBtn").addEventListener("click", () => {
+    const answer = document.getElementById("answer").value.trim();
+    if (!answer) {
+      document.getElementById("message").textContent = "يرجى كتابة إجابتك!";
+      return;
+    }
+    if (answer === currentWord) {
+      score++;
+      document.getElementById("score").textContent = "النقاط: " + score;
+      document.getElementById("message").textContent = "أحسنت! الإجابة صحيحة 😊";
+      setTimeout(() => {
+        newWord();
+      }, 1500);
+    } else {
+      document.getElementById("message").textContent = "حاول مرة أخرى ❌";
+    }
+  });
+
+  // تشغيل أول كلمة عند تحميل الصفحة
+  window.onload = () => {
+    newWord();
+  };
+
+  // دعم الضغط على Enter في حقل الإدخال للتحقق
+  document.getElementById("answer").addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      document.getElementById("checkBtn").click();
+    }
+  });
+</script>
+</body>
+</html>

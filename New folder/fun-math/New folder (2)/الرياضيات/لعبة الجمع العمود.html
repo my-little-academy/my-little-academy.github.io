@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>لعبة الجمع العمودي</title>
+<style>
+  body {
+    font-family: 'Tahoma', sans-serif;
+    background: #e0f7fa;
+    margin: 0; padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    color: #006064;
+    user-select: none;
+  }
+  h1 {
+    margin: 20px;
+    font-size: 2.4rem;
+    text-align: center;
+  }
+  #game {
+    background: #fff;
+    padding: 20px 30px;
+    border-radius: 15px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    max-width: 320px;
+    width: 90vw;
+  }
+  .vertical-columns {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end; /* محاذاة من الأسفل */
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .digit-column {
+    display: flex;
+    flex-direction: column-reverse; /* الوحدات في الأسفل */
+    justify-content: flex-start;
+    gap: 8px;
+    min-width: 50px;
+  }
+  .digit-box {
+    width: 45px;
+    height: 50px;
+    font-size: 2.2rem;
+    font-weight: bold;
+    text-align: center;
+    border-radius: 8px;
+    border: 2px solid #00838f;
+    background: #b2ebf2;
+    user-select: none;
+  }
+  input.digit-input {
+    width: 45px;
+    height: 50px;
+    font-size: 2.2rem;
+    font-weight: bold;
+    text-align: center;
+    border-radius: 8px;
+    border: 2px solid #00838f;
+    background: #e0f2f1;
+    outline: none;
+    user-select: text;
+  }
+  input.digit-input:focus {
+    border-color: #006064;
+    background: #d0f0f0;
+  }
+  #operator-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-left: 8px;
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #004d40;
+    user-select: none;
+  }
+  #message {
+    margin: 10px 0 0 0;
+    min-height: 30px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #00796b;
+    text-align: center;
+    min-height: 40px;
+  }
+  #controls {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+    gap: 15px;
+  }
+  button {
+    background: #00838f;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    padding: 10px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    user-select: none;
+  }
+  button:hover:not(:disabled) {
+    background: #006064;
+  }
+  button:disabled {
+    background: #80cbc4;
+    cursor: not-allowed;
+  }
+  .correct {
+    border-color: #4caf50 !important;
+    background-color: #c8e6c9 !important;
+  }
+  .wrong {
+    border-color: #e53935 !important;
+    background-color: #ffcdd2 !important;
+  }
+</style>
+</head>
+<body>
+
+<h1>لعبة الجمع العمودي</h1>
+
+<div id="game" role="main" aria-label="لعبة تعليم الجمع العمودي">
+
+  <div class="vertical-columns" aria-label="حامل الأرقام">
+    <div id="operator-column" aria-label="علامة الجمع">+</div>
+    <div id="number1-column" aria-label="العدد الأول"></div>
+    <div id="number2-column" aria-label="العدد الثاني"></div>
+    <div id="answer-column" aria-label="مكان إدخال إجابة الجمع"></div>
+  </div>
+
+  <div id="message" aria-live="assertive"></div>
+
+  <div id="controls">
+    <button id="check-btn">تحقق</button>
+    <button id="next-btn" disabled>عملية جديدة</button>
+  </div>
+
+</div>
+
+<script>
+(() => {
+  const number1Column = document.getElementById('number1-column');
+  const number2Column = document.getElementById('number2-column');
+  const answerColumn = document.getElementById('answer-column');
+  const message = document.getElementById('message');
+  const checkBtn = document.getElementById('check-btn');
+  const nextBtn = document.getElementById('next-btn');
+
+  let num1Digits = [];
+  let num2Digits = [];
+  let maxSteps = 0;
+
+  function generateExample() {
+    // نولّد عددين بين 10 و 999
+    let n1 = Math.floor(Math.random() * 900) + 100; // 100 إلى 999
+    let n2 = Math.floor(Math.random() * 900) + 100;
+    if (n1 < n2) [n1, n2] = [n2, n1];
+    return [n1, n2];
+  }
+
+  function splitNumber(num) {
+    return String(num).split('').reverse().map(d => parseInt(d));
+  }
+
+  function renderNumbers() {
+    number1Column.innerHTML = '';
+    number2Column.innerHTML = '';
+    answerColumn.innerHTML = '';
+
+    for (let i = 0; i < maxSteps; i++) {
+      const d1 = num1Digits[i] !== undefined ? num1Digits[i] : '';
+      const d2 = num2Digits[i] !== undefined ? num2Digits[i] : '';
+
+      let div1 = document.createElement('div');
+      div1.className = 'digit-box';
+      div1.textContent = d1;
+      number1Column.appendChild(div1);
+
+      let div2 = document.createElement('div');
+      div2.className = 'digit-box';
+      div2.textContent = d2;
+      number2Column.appendChild(div2);
+
+      let input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'digit-input';
+      input.maxLength = 1;
+      input.autocomplete = 'off';
+      input.inputMode = 'numeric';
+      input.pattern = '[0-9]*';
+      input.setAttribute('aria-label', `إدخال رقم خانة ${i + 1}`);
+      answerColumn.appendChild(input);
+    }
+  }
+
+  function checkAnswer() {
+    const inputs = answerColumn.querySelectorAll('input');
+    let correct = true;
+    let carry = 0;
+
+    for (let i = 0; i < maxSteps; i++) {
+      const digit1 = num1Digits[i] || 0;
+      const digit2 = num2Digits[i] || 0;
+      const expected = (digit1 + digit2 + carry) % 10;
+      carry = Math.floor((digit1 + digit2 + carry) / 10);
+
+      const userInput = inputs[i].value.trim();
+
+      if (!/^\d$/.test(userInput)) {
+        correct = false;
+        inputs[i].classList.add('wrong');
+        inputs[i].classList.remove('correct');
+        continue;
+      }
+      const userDigit = parseInt(userInput);
+      if (userDigit === expected) {
+        inputs[i].classList.add('correct');
+        inputs[i].classList.remove('wrong');
+      } else {
+        correct = false;
+        inputs[i].classList.add('wrong');
+        inputs[i].classList.remove('correct');
+      }
+    }
+
+    // بعد آخر خانة، إذا بقي حمل يجب التأكد منه أيضاً
+    if (carry > 0) {
+      // هنا يمكن إظهار رسالة أو تفعيل خانة حمل إضافية لو أردنا (لكن هذه النسخة لا تستخدم خانة حمل مرئية)
+      // لذا نعتبر ذلك خطأ لأن المستخدم لم يدخل الرقم الكامل
+      correct = false;
+      setMessage('هناك حمل إضافي، الرجاء التأكد من الإجابة كاملة.', 'error');
+      return false;
+    }
+
+    if (correct) {
+      setMessage('ممتاز! إجابتك صحيحة.', 'success');
+      checkBtn.disabled = true;
+      nextBtn.disabled = false;
+      return true;
+    } else {
+      setMessage('هناك أخطاء في الإجابة، حاول مرة أخرى.', 'error');
+      return false;
+    }
+  }
+
+  function setMessage(text, type) {
+    message.textContent = text;
+    if (type === 'success') {
+      message.style.color = '#388e3c';
+    } else if (type === 'error') {
+      message.style.color = '#d32f2f';
+    } else {
+      message.style.color = '#00796b';
+    }
+  }
+
+  function startNewGame() {
+    setMessage('');
+    checkBtn.disabled = false;
+    nextBtn.disabled = true;
+
+    const [n1, n2] = generateExample();
+
+    num1Digits = splitNumber(n1);
+    num2Digits = splitNumber(n2);
+    maxSteps = Math.max(num1Digits.length, num2Digits.length);
+
+    renderNumbers();
+  }
+
+  checkBtn.addEventListener('click', () => {
+    checkAnswer();
+  });
+
+  nextBtn.addEventListener('click', () => {
+    startNewGame();
+  });
+
+  startNewGame();
+})();
+</script>
+
+</body>
+</html>

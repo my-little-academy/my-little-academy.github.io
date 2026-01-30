@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة فصل الكلمات العربية</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            text-align: center;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .word-display {
+            font-size: 28px;
+            font-weight: bold;
+            margin: 30px 0;
+            color: #2980b9;
+            letter-spacing: 2px;
+        }
+        .input-area {
+            margin: 20px 0;
+        }
+        #user-input {
+            width: 80%;
+            padding: 15px;
+            font-size: 18px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: right;
+            direction: rtl;
+        }
+        #user-input:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        .buttons {
+            margin-top: 30px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .feedback {
+            margin-top: 20px;
+            font-size: 18px;
+            min-height: 27px;
+        }
+        .correct {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .incorrect {
+            color: #e74c3c;
+        }
+        .celebration {
+            animation: celebrate 0.5s ease;
+        }
+        @keyframes celebrate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .instructions {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>لعبة فصل الكلمات العربية (بدون تشكيل)</h1>
+        
+        <div class="instructions">
+            <p>مرحباً! إليك جملة مكونة من كلمات متلاصقة بدون فراغات. حاول كتابتها مع وضع الفراغات بين الكلمات بشكل صحيح.</p>
+            <p><strong>ملاحظة:</strong> لن تؤثر الحركات (التشكيل) على التصحيح.</p>
+        </div>
+        
+        <div class="word-display" id="word-display"></div>
+        
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="اكتب الجملة مع وضع الفراغات بين الكلمات...">
+        </div>
+        
+        <div class="feedback" id="feedback"></div>
+        
+        <div class="buttons">
+            <button id="check-btn">تحقق من الإجابة</button>
+            <button id="new-btn">جرب جملة جديدة</button>
+        </div>
+    </div>
+
+    <script>
+        // مجموعة من الجمل للعبة
+        const sentences = [
+            "تَشْرَبُٱلْقِطَّةُٱلْحَليبَمِنْطَبَقِها",
+            "يَلْعَبُٱلْوَلَدُفِيٱلْحَدِيقَةِ",
+            "ذَهَبَٱلتِّلْمِيذُإِلَىٱلْمَدْرَسَةِ",
+            "قَرَأْتُٱلْكِتابَٱلْجَدِيدَ",
+            "ٱلشَّمْسُتُشْرِقُفِيٱلْصَّباحِ",
+            "يَجْلِسُٱلْجَدُّعَلَىٱلْكُرْسِيِّ",
+            "أَكَلَٱلطِّفْلُٱلتُّفاحَةَ",
+            "يَسْكُنُٱلْجيرانُفِيٱلْبَيْتِٱلْجَدِيدِ",
+            "كَتَبَٱلْمُعَلِّمُٱلدَّرْسَعَلَىٱلْسَّبُّورَةِ",
+            "رَأَيْتُٱلْبَحْرَٱلْكَبيرَ"
+        ];
+
+        let currentSentence = "";
+        let correctAnswer = "";
+
+        // عناصر DOM
+        const wordDisplay = document.getElementById('word-display');
+        const userInput = document.getElementById('user-input');
+        const checkBtn = document.getElementById('check-btn');
+        const newBtn = document.getElementById('new-btn');
+        const feedback = document.getElementById('feedback');
+
+        // دالة لإزالة التشكيل من النص
+        function removeTashkeel(text) {
+            // نطابق كل الحركات والتشكيلات العربية ونزيلها
+            return text.replace(/[\u064B-\u065F\u0670\u0674\u06D6-\u06ED]/g, '');
+        }
+
+        // تهيئة اللعبة
+        function initGame() {
+            // اختيار جملة عشوائية
+            const randomIndex = Math.floor(Math.random() * sentences.length);
+            currentSentence = sentences[randomIndex];
+            
+            // إنشاء الإجابة الصحيحة بإضافة فراغات بين الكلمات (بعد إزالة التشكيل)
+            const withoutTashkeel = removeTashkeel(currentSentence);
+            correctAnswer = withoutTashkeel.replace(/([^\u0600-\u06FF])/g, '$1 ').trim();
+            
+            // عرض الجملة المتلاصقة
+            wordDisplay.textContent = currentSentence;
+            
+            // مسح حق الإدخال والتغذية الراجعة
+            userInput.value = "";
+            feedback.textContent = "";
+            feedback.className = "feedback";
+            wordDisplay.classList.remove("celebration");
+        }
+
+        // التحقق من الإجابة
+        function checkAnswer() {
+            const userAnswer = removeTashkeel(userInput.value.trim());
+            const expectedAnswer = removeTashkeel(correctAnswer);
+            
+            if (userAnswer === expectedAnswer) {
+                feedback.textContent = "إجابة صحيحة! أحسنت!";
+                feedback.className = "feedback correct";
+                wordDisplay.classList.add("celebration");
+            } else {
+                feedback.textContent = "حاول مرة أخرى! تذكر وضع فراغات بين الكلمات فقط.";
+                feedback.className = "feedback incorrect";
+            }
+        }
+
+        // أحداث النقر على الأزرار
+        checkBtn.addEventListener('click', checkAnswer);
+        newBtn.addEventListener('click', initGame);
+
+        // السماح بالتحقق عند الضغط على Enter
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+
+        // بدء اللعبة عند تحميل الصفحة
+        window.onload = initGame;
+    </script>
+</body>
+</html>

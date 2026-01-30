@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>لعبة التوصيل – الصور والكلمات</title>
+  <style>
+    body {
+      background: linear-gradient(to bottom, #fceabb, #f8b500);
+      font-family: 'Cairo', sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      color: #6c5ce7;
+    }
+    .game-container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 40px;
+      margin-top: 40px;
+    }
+    .column {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .item {
+      background: #ffeaa7;
+      border-radius: 12px;
+      padding: 10px;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: 0.3s;
+      border: 3px solid transparent;
+    }
+    .item:hover {
+      background: #fdcb6e;
+    }
+    .item.selected {
+      border-color: #6c5ce7;
+    }
+    .success {
+      background: #00b894 !important;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎯 لعبة التوصيل – صور وكلمات</h1>
+  <p>انقر على كلمة ثم على صورتها المناسبة</p>
+  <div class="game-container">
+    <div class="column" id="words">
+      <div class="item" data-match="cat">قطة</div>
+      <div class="item" data-match="apple">تفاحة</div>
+      <div class="item" data-match="car">سيارة</div>
+    </div>
+    <div class="column" id="images">
+      <div class="item" data-match="car">🚗</div>
+      <div class="item" data-match="apple">🍎</div>
+      <div class="item" data-match="cat">🐱</div>
+    </div>
+  </div>
+
+  <script>
+    let selectedWord = null;
+    const words = document.querySelectorAll('#words .item');
+    const images = document.querySelectorAll('#images .item');
+
+    words.forEach(word => {
+      word.addEventListener('click', () => {
+        words.forEach(w => w.classList.remove('selected'));
+        word.classList.add('selected');
+        selectedWord = word;
+      });
+    });
+
+    images.forEach(image => {
+      image.addEventListener('click', () => {
+        if (selectedWord) {
+          if (selectedWord.dataset.match === image.dataset.match) {
+            selectedWord.classList.add('success');
+            image.classList.add('success');
+            selectedWord.removeEventListener('click', () => {});
+            image.removeEventListener('click', () => {});
+          } else {
+            alert("❌ خطأ، حاول مرة أخرى!");
+          }
+          selectedWord.classList.remove('selected');
+          selectedWord = null;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

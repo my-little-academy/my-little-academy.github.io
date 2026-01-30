@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة مطابقة أصوات الحيوانات</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f9ff;
+            margin: 0;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin: 10px 0;
+            font-size: 1.5em;
+        }
+        
+        .game-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            max-width: 800px;
+            margin: 0 auto;
+            gap: 10px;
+        }
+        
+        .cards-column {
+            width: 48%;
+            min-width: 150px;
+        }
+        
+        .column-title {
+            background-color: #3498db;
+            color: white;
+            padding: 8px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 1em;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            margin: 6px 0;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+            overflow: hidden;
+            border: 2px solid transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100px;
+            width: 100%;
+            position: relative;
+            box-sizing: border-box;
+            padding: 5px;
+        }
+        
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .card.selected {
+            border-color: #3498db;
+            background-color: #e8f4fc;
+        }
+        
+        .card.matched {
+            border-color: #2ecc71;
+            background-color: #e8f8f0;
+            cursor: default;
+        }
+        
+        .animal-image {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            margin-bottom: 5px;
+        }
+        
+        .animal-name {
+            font-weight: bold;
+            font-size: 0.8em;
+            margin: 2px 0;
+            color: #2c3e50;
+            text-align: center;
+        }
+        
+        .sound-name {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #2c3e50;
+            text-align: center;
+            margin: 5px 0;
+        }
+        
+        .sound-icon {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            color: #3498db;
+            font-size: 0.9em;
+            background: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .feedback {
+            margin: 10px 0;
+            font-size: 0.9em;
+            font-weight: bold;
+            min-height: 20px;
+            padding: 8px;
+            border-radius: 6px;
+            background-color: #f8f9fa;
+            max-width: 90%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .correct {
+            color: #27ae60;
+            background-color: #e8f8f0;
+        }
+        
+        .wrong {
+            color: #e74c3c;
+            background-color: #fde8e8;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8em;
+            margin-top: 10px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-1px);
+        }
+        
+        .score {
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #3498db;
+        }
+    </style>
+</head>
+<body>
+    <h1>لعبة مطابقة أصوات الحيوانات</h1>
+    
+    <div class="score">التطابقات: <span id="matches">0</span>/<span id="total-pairs">6</span></div>
+    
+    <div class="game-container">
+        <div class="cards-column">
+            <div class="column-title">الحيوانات</div>
+            <div id="animals-cards"></div>
+        </div>
+        
+        <div class="cards-column">
+            <div class="column-title">الأصوات</div>
+            <div id="sounds-cards"></div>
+        </div>
+    </div>
+    
+    <div class="feedback" id="feedback"></div>
+    
+    <button id="new-game-btn">لعبة جديدة</button>
+    
+    <script>
+        const animalsData = [
+            {name:"أسد", sound:"زئير", image:"https://cdn-icons-png.flaticon.com/512/616/616408.png", audio:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"},
+            {name:"بقرة", sound:"خوار", image:"https://cdn-icons-png.flaticon.com/512/1998/1998610.png", audio:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"},
+            {name:"دجاجة", sound:"قوقأة", image:"https://cdn-icons-png.flaticon.com/512/234/234772.png", audio:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"},
+            {name:"كلب", sound:"نباح", image:"https://cdn-icons-png.flaticon.com/512/616/616430.png", audio:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"},
+            {name:"قطة", sound:"مواء", image:"https://cdn-icons-png.flaticon.com/512/220/220124.png", audio:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3"},
+            {name:"حصان", sound:"صهيل", image:"https://cdn-icons-png.flaticon.com/512/2040/2040520.png", audio:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3"}
+        ];
+
+        let selectedAnimalCard = null, selectedSoundCard = null, matchedPairs = 0, currentGameCards = [];
+        const audio = new Audio();
+        const animalsCardsContainer = document.getElementById('animals-cards');
+        const soundsCardsContainer = document.getElementById('sounds-cards');
+        const feedbackElement = document.getElementById('feedback');
+        const matchesElement = document.getElementById('matches');
+        const totalPairsElement = document.getElementById('total-pairs');
+        const newGameBtn = document.getElementById('new-game-btn');
+        
+        function initGame() {
+            audio.pause();
+            selectedAnimalCard = null;
+            selectedSoundCard = null;
+            matchedPairs = 0;
+            matchesElement.textContent = matchedPairs;
+            feedbackElement.textContent = '';
+            feedbackElement.className = 'feedback';
+            
+            currentGameCards = [...animalsData].sort(() => 0.5 - Math.random()).slice(0, 6);
+            totalPairsElement.textContent = currentGameCards.length;
+            
+            renderAnimalCards();
+            renderSoundCards();
+        }
+        
+        function renderAnimalCards() {
+            animalsCardsContainer.innerHTML = '';
+            currentGameCards.forEach((animal, index) => {
+                const card = document.createElement('div');
+                card.className = animal.matched ? 'card matched' : 'card';
+                card.innerHTML = `
+                    <img src="${animal.image}" alt="${animal.name}" class="animal-image">
+                    <div class="animal-name">${animal.name}</div>
+                `;
+                card.dataset.index = index;
+                if (!animal.matched) card.addEventListener('click', () => selectAnimalCard(card, index));
+                animalsCardsContainer.appendChild(card);
+            });
+        }
+        
+        function renderSoundCards() {
+            soundsCardsContainer.innerHTML = '';
+            [...currentGameCards].sort(() => 0.5 - Math.random()).forEach((animal, index) => {
+                const card = document.createElement('div');
+                card.className = animal.matched ? 'card matched' : 'card';
+                card.innerHTML = `
+                    <div class="sound-icon">🔊</div>
+                    <div class="sound-name">${animal.sound}</div>
+                `;
+                card.dataset.sound = animal.sound;
+                card.dataset.audio = animal.audio;
+                card.dataset.animalIndex = currentGameCards.findIndex(a => a.sound === animal.sound);
+                
+                if (!animal.matched) {
+                    card.addEventListener('click', (e) => {
+                        if (e.target.classList.contains('sound-icon')) {
+                            playSound(card.dataset.audio);
+                            return;
+                        }
+                        selectSoundCard(card, index);
+                    });
+                }
+                soundsCardsContainer.appendChild(card);
+            });
+        }
+        
+        function playSound(audioSrc) {
+            audio.src = audioSrc;
+            audio.play().catch(e => console.log("تعذر تشغيل الصوت:", e));
+        }
+        
+        function selectAnimalCard(card, index) {
+            if (currentGameCards[index].matched) return;
+            if (selectedAnimalCard) selectedAnimalCard.classList.remove('selected');
+            selectedAnimalCard = card;
+            card.classList.add('selected');
+            if (selectedSoundCard) checkMatch();
+        }
+        
+        function selectSoundCard(card, index) {
+            if (card.classList.contains('matched')) return;
+            playSound(card.dataset.audio);
+            if (selectedSoundCard) selectedSoundCard.classList.remove('selected');
+            selectedSoundCard = card;
+            card.classList.add('selected');
+            if (selectedAnimalCard) checkMatch();
+        }
+        
+        function checkMatch() {
+            const animalIndex = selectedAnimalCard.dataset.index;
+            const soundAnimalIndex = selectedSoundCard.dataset.animalIndex;
+            
+            if (animalIndex == soundAnimalIndex) {
+                feedbackElement.textContent = `صحيح! ${currentGameCards[animalIndex].name} يصدر صوت ${currentGameCards[animalIndex].sound}`;
+                feedbackElement.className = 'feedback correct';
+                selectedAnimalCard.classList.add('matched');
+                selectedSoundCard.classList.add('matched');
+                currentGameCards[animalIndex].matched = true;
+                matchesElement.textContent = ++matchedPairs;
+                selectedAnimalCard = null;
+                selectedSoundCard = null;
+                if (matchedPairs === currentGameCards.length) {
+                    feedbackElement.textContent = 'مبروك! لقد أكملت جميع التطابقات!';
+                }
+            } else {
+                feedbackElement.textContent = 'غير صحيح! حاول مرة أخرى';
+                feedbackElement.className = 'feedback wrong';
+            }
+        }
+        
+        newGameBtn.addEventListener('click', initGame);
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html>

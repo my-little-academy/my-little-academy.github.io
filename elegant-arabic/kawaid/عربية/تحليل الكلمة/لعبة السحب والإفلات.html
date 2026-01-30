@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>لعبة السحب والإفلات</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f0f8ff;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    .game-container {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 30px;
+    }
+
+    .left-panel, .right-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .card {
+      width: 150px;
+      height: 60px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      cursor: grab;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: transform 0.2s ease;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+    }
+
+    .drop-zone {
+      width: 150px;
+      height: 60px;
+      border: 2px dashed #3498db;
+      border-radius: 10px;
+      background-color: #ecf0f1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+
+    .drop-zone.over {
+      background-color: #d0ebff;
+    }
+  </style>
+</head>
+<body>
+
+<h1>لعبة السحب والإفلات</h1>
+<p>اسحب الأسئلة إلى الإجابات الصحيحة</p>
+
+<div class="game-container">
+  <!-- الجانب الأيسر - الأسئلة -->
+  <div class="left-panel">
+    <div class="card" draggable="true" data-card="1">ما أول ركن من أركان الإيمان؟</div>
+    <div class="card" draggable="true" data-card="2">من هو أول رسول؟</div>
+    <div class="card" draggable="true" data-card="3">كم عدد سور القرآن؟</div>
+    <div class="card" draggable="true" data-card="4">ما اسم أول مسجد؟</div>
+    <div class="card" draggable="true" data-card="5">من أول من آمن؟</div>
+  </div>
+
+  <!-- الجانب الأيمن - الإجابات -->
+  <div class="right-panel">
+    <div class="drop-zone" data-target="1">الإيمان بالله</div>
+    <div class="drop-zone" data-target="2">آدم عليه السلام</div>
+    <div class="drop-zone" data-target="3">114</div>
+    <div class="drop-zone" data-target="4">مسجد قباء</div>
+    <div class="drop-zone" data-target="5">خديجة الكبرى</div>
+  </div>
+</div>
+
+<script>
+  let draggedCard = null;
+
+  document.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('dragstart', () => {
+      draggedCard = card;
+    });
+    card.addEventListener('dragend', () => {
+      draggedCard = null;
+    });
+  });
+
+  document.querySelectorAll('.drop-zone').forEach(zone => {
+    zone.addEventListener('dragover', e => {
+      e.preventDefault();
+      zone.classList.add('over');
+    });
+    zone.addEventListener('dragleave', () => {
+      zone.classList.remove('over');
+    });
+    zone.addEventListener('drop', () => {
+      if (!draggedCard) return;
+
+      const targetData = zone.getAttribute('data-target');
+      const cardData = draggedCard.getAttribute('data-card');
+
+      if (targetData === cardData) {
+        zone.innerHTML = '';
+        zone.appendChild(draggedCard);
+      } else {
+        alert("الإجابة غير صحيحة");
+      }
+
+      draggedCard = null;
+      zone.classList.remove('over');
+    });
+  });
+</script>
+</body>
+</html>

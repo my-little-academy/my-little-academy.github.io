@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>لعبة الأسئلة التفاعلية مع الكونفيتي 🎉</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(#fdf6e3, #fce4ec);
+      text-align: center;
+      padding: 40px 20px;
+    }
+    #quiz-box {
+      background-color: #fff;
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #6a1b9a;
+      margin-bottom: 20px;
+    }
+    .quiz-option {
+      background-color: #ffffff;
+      border: 3px solid #ba68c8;
+      padding: 15px;
+      margin: 10px auto;
+      width: 90%;
+      border-radius: 15px;
+      cursor: pointer;
+      font-size: 20px;
+      color: #6a1b9a;
+      transition: all 0.3s ease;
+    }
+    .quiz-option:hover {
+      background-color: #f3e5f5;
+    }
+    .correct {
+      background-color: #c8e6c9 !important;
+      border-color: #388e3c !important;
+      color: #2e7d32 !important;
+    }
+    .wrong {
+      background-color: #ffcdd2 !important;
+      border-color: #d32f2f !important;
+      color: #b71c1c !important;
+    }
+    #next-btn {
+      background-color: #7c3aed;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 12px;
+      margin-top: 20px;
+      font-size: 18px;
+      cursor: pointer;
+      display: none;
+    }
+    #level-msg {
+      font-size: 22px;
+      color: #ff1493;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="quiz-box">
+    <h2 id="question-text">تحميل السؤال...</h2>
+    <div id="options-container"></div>
+    <button id="next-btn" onclick="loadNextQuestion()">السؤال التالي ▶</button>
+    <div id="level-msg"></div>
+  </div>
+
+  <!-- هنا نضع بيانات الأسئلة على شكل JSON داخل الصفحة -->
+  <script id="quiz-data" type="application/json">
+  [
+    {
+      "q": "ما هي عاصمة المغرب؟",
+      "options": ["الرباط", "مراكش", "طنجة", "الدار البيضاء"],
+      "answer": 0
+    },
+    {
+      "q": "كم عدد أرجل العنكبوت؟",
+      "options": ["6", "8", "10", "4"],
+      "answer": 1
+    },
+    {
+      "q": "ما هو الحيوان الذي ينام واقفًا؟",
+      "options": ["البقرة", "الحصان", "القطة", "الدلفين"],
+      "answer": 1
+    },
+    {
+      "q": "أيّ كوكب يُلقب بالكوكب الأحمر؟",
+      "options": ["المريخ", "المشتري", "الزهرة", "عطارد"],
+      "answer": 0
+    },
+    {
+      "q": "كم عدد أيام الأسبوع؟",
+      "options": ["5", "6", "7", "8"],
+      "answer": 2
+    }
+  ]
+  </script>
+
+  <!-- مكتبة الكونفيتي الخارجية -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <script>
+    // 1. نحصل على النص الموجود داخل <script> الذي يحتوي بيانات الأسئلة
+    const rawData = document.getElementById('quiz-data').textContent;
+
+    // 2. نحول النص من JSON إلى مصفوفة جافاسكريبت (أسئلة جاهزة للاستعمال)
+    const questions = JSON.parse(rawData);
+
+    // 3. متغير لتخزين رقم السؤال الحالي
+    let currentQuestion = 0;
+
+    // 4. متغير لتخزين عدد الإجابات الصحيحة
+    let score = 0;
+
+    // 5. نختار عناصر الصفحة التي سنستخدمها كثيرًا
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const nextBtn = document.getElementById('next-btn');
+    const levelMsg = document.getElementById('level-msg');
+
+    // 6. دالة لتحميل سؤال جديد على الصفحة
+    function loadQuestion(index) {
+      // 7. نأخذ السؤال الحالي من المصفوفة
+      const q = questions[index];
+
+      // 8. نعرض نص السؤال
+      questionText.innerText = `❓ ${q.q}`;
+
+      // 9. نمسح الإجابات القديمة
+      optionsContainer.innerHTML = "";
+
+      // 10. نضيف كل إجابة كزر قابل للضغط
+      q.options.forEach((optionText, i) => {
+        const btn = document.createElement('div');
+        btn.className = 'quiz-option';
+        btn.innerText = optionText;
+
+        // 11. نربط الزر بحدث عند الضغط عليه: نفحص هل هذه الإجابة صحيحة؟
+        btn.onclick = () => checkAnswer(btn, i === q.answer);
+
+        optionsContainer.appendChild(btn);
+      });
+
+      // 12. نخبئ زر "السؤال التالي" حتى يتم اختيار إجابة
+      nextBtn.style.display = 'none';
+
+      // 13. نزيل أي رسالة للمستوى السابق
+      levelMsg.innerText = "";
+    }
+
+    // 14. دالة لفحص الإجابة التي اختارها الطفل
+    function checkAnswer(element, isCorrect) {
+      // 15. منع الطفل من اختيار أكثر من إجابة للسؤال الحالي
+      const allOptions = document.querySelectorAll('.quiz-option');
+      allOptions.forEach(opt => opt.onclick = null);
+
+      if (isCorrect) {
+        // 16. إذا الإجابة صحيحة نلونها أخضر ونزيد النتيجة
+        element.classList.add('correct');
+        score++;
+        launchConfetti();
+      } else {
+        // 17. إذا كانت خاطئة نلونها أحمر
+        element.classList.add('wrong');
+
+        // 18. نُظهر الإجابة الصحيحة أيضًا
+        const correctIndex = questions[currentQuestion].answer;
+        allOptions[correctIndex].classList.add('correct');
+      }
+
+      // 19. نظهر زر "السؤال التالي"
+      nextBtn.style.display = 'inline-block';
+    }
+
+    // 20. دالة لتحميل السؤال التالي أو إظهار النتيجة النهائية
+    function loadNextQuestion() {
+      currentQuestion++;
+
+      if (currentQuestion < questions.length) {
+        loadQuestion(currentQuestion);
+
+        // 21. رسالة تشجيعية عند كل 3 أسئلة (اختياري)
+        if (currentQuestion % 3 === 0) {
+          levelMsg.innerText = `🌟 أحسنت! وصلت للسؤال رقم ${currentQuestion + 1} 🎉`;
+        }
+      } else {
+        showResult();
+      }
+    }
+
+    // 22. دالة لعرض النتيجة النهائية
+    function showResult() {
+      document.getElementById('quiz-box').innerHTML = `
+        <h2>🏆 انتهت اللعبة!</h2>
+        <p>نتيجتك: <strong>${score} من ${questions.length}</strong></p>
+        <p>أحسنت يا بطل! 👏</p>
+        <button onclick="location.reload()">🔁 إعادة اللعب</button>
+      `;
+    }
+
+    // 23. دالة لتشغيل تأثير الكونفيتي (الزينة المتساقطة)
+    function launchConfetti() {
+      confetti({
+        particleCount: 80,
+        spread: 60,
+        origin: { y: 0.6 },
+        colors: ['#ff0a54', '#ff477e', '#ff85a1', '#fbb1bd']
+      });
+    }
+
+    // 24. تحميل أول سؤال عند فتح الصفحة
+    loadQuestion(currentQuestion);
+
+  </script>
+</body>
+</html>
+
+<body>
+</body>
+</html>

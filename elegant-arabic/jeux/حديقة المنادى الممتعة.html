@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حديقة المنادى الممتعة</title>
+    <style>
+        :root {
+            --primary: #6ab04c;
+            --secondary: #f9ca24;
+            --accent: #eb4d4b;
+            --light: #f7f1e3;
+            --dark: #2c3e50;
+        }
+        
+        body {
+            font-family: 'Tajawal', 'Comic Sans MS', sans-serif;
+            background-color: #e8f8f5;
+            color: var(--dark);
+            margin: 0;
+            padding: 0;
+            background-image: url('https://img.freepik.com/free-vector/hand-drawn-colorful-doodle-background_23-2149015287.jpg');
+            background-size: 400px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 25px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 5px dotted var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        h1 {
+            color: var(--accent);
+            text-align: center;
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 0 rgba(0,0,0,0.1);
+            position: relative;
+            display: inline-block;
+            background-color: white;
+            padding: 0 30px;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: rotate(-3deg);
+        }
+        
+        h1::before {
+            content: "";
+            position: absolute;
+            bottom: -15px;
+            left: 20px;
+            width: 80%;
+            height: 20px;
+            background-color: var(--secondary);
+            z-index: -1;
+            border-radius: 10px;
+            opacity: 0.7;
+        }
+        
+        h2 {
+            color: var(--primary);
+            background-color: white;
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 0 30px 30px 0;
+            box-shadow: 5px 5px 0 var(--secondary);
+            font-size: 1.8em;
+            margin-top: 40px;
+            transform: rotate(1deg);
+        }
+        
+        .intro {
+            background-color: white;
+            padding: 20px;
+            border-radius: 20px;
+            margin: 30px 0;
+            border-left: 10px solid var(--accent);
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .intro::after {
+            content: "✨";
+            position: absolute;
+            font-size: 60px;
+            right: -20px;
+            top: -20px;
+            opacity: 0.3;
+            transform: rotate(20deg);
+        }
+        
+        .character {
+            width: 150px;
+            float: left;
+            margin-right: -30px;
+            margin-top: -20px;
+            animation: bounce 2s infinite;
+            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.2));
+        }
+        
+        @keyframes bounce {
+            0%, 100% {transform: translateY(0) rotate(-5deg);}
+            50% {transform: translateY(-15px) rotate(5deg);}
+        }
+        
+        /* لعبة المنادى المتحرك */
+        .call-game {
+            background-color: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin: 40px 0;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border: 3px dashed var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .call-game::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+        }
+        
+        .call-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .call-card {
+            width: 200px;
+            height: 120px;
+            background-color: var(--light);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--dark);
+            text-align: center;
+            padding: 10px;
+        }
+        
+        .call-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 15px 25px rgba(0,0,0,0.1);
+        }
+        
+        .call-card.correct {
+            background-color: var(--primary);
+            color: white;
+            animation: celebrate 0.5s;
+        }
+        
+        .call-card.incorrect {
+            background-color: var(--accent);
+            color: white;
+            animation: shake 0.5s;
+        }
+        
+        @keyframes celebrate {
+            0%, 100% {transform: translateY(0) scale(1);}
+            50% {transform: translateY(-20px) scale(1.1);}
+        }
+        
+        @keyframes shake {
+            0%, 100% {transform: translateX(0);}
+            25% {transform: translateX(-10px);}
+            75% {transform: translateX(10px);}
+        }
+        
+        /* مسرح المنادى */
+        .stage {
+            background-color: #f5f6fa;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 40px 0;
+            text-align: center;
+            position: relative;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+            border: 5px solid var(--secondary);
+        }
+        
+        .stage::before {
+            content: "مسرح المنادى";
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--accent);
+            color: white;
+            padding: 5px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+        
+        .actor {
+            width: 100px;
+            height: 100px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 20px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .actor:hover {
+            transform: scale(1.1) rotate(10deg);
+        }
+        
+        .actor.selected {
+            background-color: var(--accent);
+            transform: scale(1.2);
+            box-shadow: 0 0 30px var(--secondary);
+        }
+        
+        .speech-bubble {
+            background-color: white;
+            border-radius: 20px;
+            padding: 15px;
+            margin: 20px auto;
+            max-width: 400px;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: none;
+        }
+        
+        .speech-bubble::after {
+            content: "";
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            border: 15px solid transparent;
+            border-top-color: white;
+            border-bottom: 0;
+            margin-left: -15px;
+        }
+        
+        /* لعبة التركيب */
+        .build-game {
+            background-color: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin: 40px 0;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .build-game::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background: linear-gradient(90deg, var(--accent), var(--secondary), var(--primary));
+        }
+        
+        .sentence-parts {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .word {
+            background-color: var(--light);
+            padding: 10px 15px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+        
+        .word:hover {
+            background-color: var(--secondary);
+            color: white;
+            transform: translateY(-5px);
+        }
+        
+        .sentence-area {
+            min-height: 100px;
+            background-color: #f5f6fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            border: 2px dashed var(--primary);
+        }
+        
+        /* التغذية الراجعة والمكافآت */
+        .feedback {
+            text-align: center;
+            font-size: 1.3em;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 15px;
+            display: none;
+            font-weight: bold;
+        }
+        
+        .feedback.correct {
+            background-color: rgba(106, 176, 76, 0.2);
+            color: var(--primary);
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        .feedback.incorrect {
+            background-color: rgba(235, 77, 75, 0.2);
+            color: var(--accent);
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from {opacity: 0; transform: translateY(20px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+        
+        .btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 1.2em;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            display: inline-block;
+            font-weight: bold;
+            border: 3px solid white;
+        }
+        
+        .btn:hover {
+            background-color: var(--primary);
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+        
+        .reward {
+            text-align: center;
+            margin: 40px 0;
+            display: none;
+            animation: bounceIn 1s;
+        }
+        
+        @keyframes bounceIn {
+            0% {transform: scale(0.5); opacity: 0;}
+            70% {transform: scale(1.1); opacity: 1;}
+            100% {transform: scale(1);}
+        }
+        
+        .reward img {
+            width: 200px;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .stars {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .star {
+            font-size: 2.5em;
+            color: var(--secondary);
+            margin: 0 10px;
+            text-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        
+        .star.active {
+            transform: scale(1.3);
+            color: #f39c12;
+            animation: spin 1s;
+        }
+        
+        @keyframes spin {
+            0% {transform: scale(1) rotate(0deg);}
+            50% {transform: scale(1.5) rotate(180deg);}
+            100% {transform: scale(1.3) rotate(360deg);}
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>🌼 حديقة المنادى الممتعة 🌼</h1>
+        
+        <div class="intro">
+            <img src="https://img.icons8.com/color/144/000000/fairy.png" class="character" alt="جنية النحو">
+            <h2>مرحبًا أصدقائي في حديقة المنادى!</h2>
+            <p>أنا الجنية "نور"، سأرشدكم اليوم في رحلتنا لاكتشاف أسرار المنادى في اللغة العربية. هل أنتم مستعدون للمتعة والتعلم؟</p>
+        </div>
+        
+        <h2>🎪 ما هو المنادى؟</h2>
+        <div style="background-color: white; padding: 20px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+            <p>المنادى هو اسم يُذكر بعد أداة نداء لطلب الانتباه أو الحضور، مثل:</p>
+            <p style="font-size: 1.5em; text-align: center; color: var(--accent); font-weight: bold; margin: 15px 0;">
+                "يا <span style="color: var(--primary); text-decoration: underline;">طلابُ</span>، اجتهدوا في دراستكم"
+            </p>
+            <p>كلمة "<span style="color: var(--primary); font-weight: bold;">طلابُ</span>" هنا هي المنادى</p>
+        </div>
+        
+        <div class="call-game">
+            <h2>🎲 لعبة اكتشف المنادى</h2>
+            <p>اضغط على الكلمة التي تمثل المنادى في كل جملة:</p>
+            
+            <div class="call-container">
+                <div class="call-card" data-correct="true">يا <span style="color: var(--accent);">أطفالُ</span>، العبوا بهدوء</div>
+                <div class="call-card" data-correct="false"><span style="color: var(--primary);">يا</span> معلمون، قدوتنا الأفضل</div>
+                <div class="call-card" data-correct="false">أيها <span style="color: var(--accent);">طالبُ</span>، كن مجتهدًا</div>
+                <div class="call-card" data-correct="true">يا أطفال، <span style="color: var(--primary);">العبوا</span> بهدوء</div>
+            </div>
+            
+            <div class="feedback" id="call-feedback"></div>
+            
+            <div style="text-align: center;">
+                <button class="btn" id="check-call-btn">تحقق من إجاباتك</button>
+                <button class="btn" id="new-call-btn">جمل جديدة</button>
+            </div>
+        </div>
+        
+        <div class="stage">
+            <h2>🎭 مسرح المنادى</h2>
+            <p>اختر شخصية ثم اناديها بشكل صحيح:</p>
+            
+            <div style="margin: 30px 0;">
+                <div class="actor" data-name="علي">علي</div>
+                <div class="actor" data-name="مريم">مريم</div>
+                <div class="actor" data-name="أستاذ">أستاذ</div>
+                <div class="actor" data-name="أطفال">أطفال</div>
+            </div>
+            
+            <div class="speech-bubble" id="speech-bubble">
+                <p id="call-text"></p>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <button class="btn" id="call-btn">نادِ الشخصية</button>
+                <button class="btn" id="try-again-btn">حاول مرة أخرى</button>
+            </div>
+        </div>
+        
+        <div class="build-game">
+            <h2>🧩 لعبة تركيب الجمل</h2>
+            <p>استخدم القطع المبعثرة لتكوين جملة تحتوي على منادى:</p>
+            
+            <div class="sentence-parts">
+                <div class="word">يا</div>
+                <div class="word">أيها</div>
+                <div class="word">الطلاب</div>
+                <div class="word">المجتهدون</div>
+                <div class="word">احرصوا</div>
+                <div class="word">على</div>
+                <div class="word">الدراسة</div>
+            </div>
+            
+            <div class="sentence-area" id="sentence-area"></div>
+            
+            <div class="feedback" id="build-feedback"></div>
+            
+            <div style="text-align: center;">
+                <button class="btn" id="check-build-btn">تحقق من جملك</button>
+                <button class="btn" id="reset-build-btn">ابدأ من جديد</button>
+            </div>
+        </div>
+        
+        <div class="reward" id="reward">
+            <div class="stars">
+                <div class="star active">★</div>
+                <div class="star active">★</div>
+                <div class="star active">★</div>
+            </div>
+            <h2>🎉 مبروك! أنت الآن أمير المنادى! 🎉</h2>
+            <img src="https://img.icons8.com/color/144/000000/trophy.png" alt="كأس">
+            <p>لقد أتممت جميع التحديات بنجاح!</p>
+            <button class="btn" id="celebrate-btn">احتفل بنجاحي!</button>
+        </div>
+    </div>
+
+    <script>
+        // لعبة اكتشف المنادى
+        const callCards = document.querySelectorAll('.call-card');
+        const checkCallBtn = document.getElementById('check-call-btn');
+        const newCallBtn = document.getElementById('new-call-btn');
+        const callFeedback = document.getElementById('call-feedback');
+        
+        callCards.forEach(card => {
+            card.addEventListener('click', function() {
+                if (!this.classList.contains('correct') && !this.classList.contains('incorrect')) {
+                    const isCorrect = this.getAttribute('data-correct') === "true";
+                    
+                    if (isCorrect) {
+                        this.classList.add('correct');
+                    } else {
+                        this.classList.add('incorrect');
+                    }
+                }
+            });
+        });
+        
+        checkCallBtn.addEventListener('click', function() {
+            let correctCount = 0;
+            
+            callCards.forEach(card => {
+                if (card.classList.contains('correct') && card.getAttribute('data-correct') === "true") {
+                    correctCount++;
+                }
+            });
+            
+            const totalCorrectCards = document.querySelectorAll('.call-card[data-correct="true"]').length;
+            const percentage = Math.round((correctCount / totalCorrectCards) * 100);
+            callFeedback.textContent = `إجاباتك الصحيحة: ${correctCount} من ${totalCorrectCards} (${percentage}%)`;
+            callFeedback.className = correctCount === totalCorrectCards ? "feedback correct" : "feedback incorrect";
+            
+            if (correctCount === totalCorrectCards) {
+                document.querySelector('.call-game').style.background = "linear-gradient(135deg, white, #e8f8f5)";
+            }
+        });
+        
+        newCallBtn.addEventListener('click', function() {
+            const newSentences = [
+                {sentence: "يا <span style='color: var(--accent);'>أمهاتُ</span>، كونوا قدوة لأبنائكم", correct: true},
+                {sentence: "<span style='color: var(--primary);'>يا</span> رب، اغفر لنا ذنوبنا", correct: false},
+                {sentence: "أيتها <span style='color: var(--accent);'>المعلمةُ</span>، شكرًا على جهودك", correct: true},
+                {sentence: "يا أصدقاء، <span style='color: var(--primary);'>تعالوا</span> نلعب معًا", correct: false}
+            ];
+            
+            // ترتيب الجمل عشوائيًا
+            newSentences.sort(() => Math.random() - 0.5);
+            
+            callCards.forEach((card, index) => {
+                card.classList.remove('correct', 'incorrect');
+                card.innerHTML = newSentences[index].sentence;
+                card.setAttribute('data-correct', newSentences[index].correct);
+            });
+            
+            callFeedback.textContent = "";
+            document.querySelector('.call-game').style.background = "white";
+        });
+        
+        // مسرح المنادى
+        const actors = document.querySelectorAll('.actor');
+        const callBtn = document.getElementById('call-btn');
+        const tryAgainBtn = document.getElementById('try-again-btn');
+        const speechBubble = document.getElementById('speech-bubble');
+        const callText = document.getElementById('call-text');
+        
+        let selectedActor = null;
+        
+        actors.forEach(actor => {
+            actor.addEventListener('click', function() {
+                actors.forEach(a => a.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedActor = this.getAttribute('data-name');
+                speechBubble.style.display = "none";
+            });
+        });
+        
+        callBtn.addEventListener('click', function() {
+            if (selectedActor) {
+                let callPrefix = '';
+                let callTarget = '';
+                
+                if (selectedActor === "علي") {
+                    callPrefix = 'يا ';
+                    callTarget = 'عليُّ';
+                } else if (selectedActor === "مريم") {
+                    callPrefix = 'يا ';
+                    callTarget = 'مريمُ';
+                } else if (selectedActor === "أستاذ") {
+                    callPrefix = 'يا ';
+                    callTarget = 'أستاذُ';
+                } else if (selectedActor === "أطفال") {
+                    callPrefix = 'يا ';
+                    callTarget = 'أيها الأطفال';
+                }
+                
+                callText.innerHTML = `${callPrefix}<span style="color: var(--primary); font-weight: bold;">${callTarget}</span>، أحسنت باختيارك!`;
+                speechBubble.style.display = "block";
+                
+                // تغيير لون المسرح للاحتفال
+                document.querySelector('.stage').style.borderColor = 'var(--accent)';
+            } else {
+                alert("الرجاء اختيار شخصية أولاً!");
+            }
+        });
+        
+        tryAgainBtn.addEventListener('click', function() {
+            actors.forEach(a => a.classList.remove('selected'));
+            speechBubble.style.display = "none";
+            selectedActor = null;
+            document.querySelector('.stage').style.borderColor = 'var(--secondary)';
+        });
+        
+        // لعبة تركيب الجمل
+        const words = document.querySelectorAll('.word');
+        const sentenceArea = document.getElementById('sentence-area');
+        const checkBuildBtn = document.getElementById('check-build-btn');
+        const resetBuildBtn = document.getElementById('reset-build-btn');
+        const buildFeedback = document.getElementById('build-feedback');
+        
+        words.forEach(word => {
+            word.addEventListener('click', function() {
+                const clone = this.cloneNode(true);
+                clone.style.margin = "5px";
+                clone.style.transform = "scale(1.1)";
+                sentenceArea.appendChild(clone);
+                this.style.visibility = "hidden";
+            });
+        });
+        
+        checkBuildBtn.addEventListener('click', function() {
+            const sentence = Array.from(sentenceArea.children).map(word => word.textContent.trim()).join(' ');
+            
+            // قائمة بالجمل الصحيحة المقبولة
+            const correctSentences = [
+                "يا أيها الطلاب احرصوا على الدراسة",
+                "يا أيها الطلاب المجتهدون احرصوا على الدراسة"
+            ];
+            
+            if (correctSentences.includes(sentence)) {
+                buildFeedback.textContent = "أحسنت! هذه جملة صحيحة تحتوي على منادى!";
+                buildFeedback.className = "feedback correct";
+                
+                // عرض المكافأة إذا كانت كل الألعاب مكتملة
+                document.getElementById('reward').style.display = "block";
+            } else {
+                buildFeedback.textContent = "هذه الجملة غير صحيحة، حاول مرة أخرى!";
+                buildFeedback.className = "feedback incorrect";
+            }
+        });
+        
+        resetBuildBtn.addEventListener('click', function() {
+            sentenceArea.innerHTML = "";
+            words.forEach(word => word.style.visibility = "visible");
+            buildFeedback.textContent = "";
+        });
+        
+        // زر الاحتفال
+        const celebrateBtn = document.getElementById('celebrate-btn');
+        
+        celebrateBtn.addEventListener('click', function() {
+            // تأثيرات احتفالية
+            document.body.style.background = "linear-gradient(45deg, #e8f8f5, #f9f7f7, #f8f4e3, #f1f7e8)";
+            setTimeout(() => {
+                document.body.style.background = "#e8f8f5 url('https://img.freepik.com/free-vector/hand-drawn-colorful-doodle-background_23-2149015287.jpg')";
+            }, 2000);
+            
+            // رسالة احتفالية
+            alert("🎊🎉 مبروك! لقد أتممت جميع تحديات المنادى بنجاح! أنت رائع! 🎉🎊");
+        });
+    </script>
+</body>
+</html>

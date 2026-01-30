@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <title>تحليل الكلمات إلى مقاطع صوتية</title>
+  <style>
+    body {
+      background-color: #e0f7fa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      height: 100vh;
+      direction: rtl;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding-top: 20px;
+      position: relative;
+    }
+
+    h1 {
+      color: #006064;
+      font-size: 2.8rem;
+      margin-bottom: 4px;
+      text-shadow: 1px 1px 2px #a7d8d8;
+      user-select: none;
+    }
+
+    p.description {
+      color: #004d40;
+      font-size: 1.2rem;
+      margin-top: 0;
+      margin-bottom: 16px;
+      font-weight: 600;
+      user-select: none;
+      text-align: center;
+      max-width: 600px;
+    }
+
+    .ruler {
+      width: 820px;
+      height: 60px;
+      display: flex;
+      border: 2px solid #00796b;
+      border-radius: 12px;
+      background: linear-gradient(to bottom, #b2dfdb, #80cbc4);
+      box-sizing: border-box;
+      justify-content: space-between;
+      padding: 0;
+      margin: 8px 0;
+      position: relative;
+      z-index: 2;
+    }
+
+    .tick {
+      position: relative;
+      width: 20px;
+      height: 60px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      box-sizing: border-box;
+    }
+
+    .tick-line {
+      height: 40px;
+      border-left: 2px solid #004d40;
+    }
+
+    .tick-button {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: none;
+      background-color: #ffffff;
+      margin-top: 4px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+      z-index: 3;
+    }
+
+    .tick-button:hover {
+      background-color: #4dd0e1;
+    }
+
+    .tick-button.active {
+      background-color: #00bcd4;
+      box-shadow: 0 0 12px 3px #00e5ff;
+    }
+
+    .tick-button.connected {
+      background-color: #006064;
+      box-shadow: 0 0 10px 2px #4dd0e1;
+    }
+
+    .card {
+      width: 820px;
+      height: 200px;
+      background: linear-gradient(145deg, #ffffff, #dff9fb);
+      border: 3px solid #00acc1;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .writing-area {
+      font-family: 'Courier New', monospace;
+      font-size: 120px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      border: none;
+      outline: none;
+      background-color: transparent;
+      text-align: center;
+      color: #333;
+      width: 800px;
+    }
+
+    svg {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    .count-card {
+      margin-top: 12px;
+      width: 820px;
+      height: 60px;
+      background: linear-gradient(145deg, #ffffff, #dff9fb);
+      border: 3px solid #00acc1;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 600;
+      color: #006064;
+      border-radius: 12px;
+      user-select: none;
+      direction: rtl;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>تحليل الكلمات إلى مقاطع صوتية</h1>
+  <p class="description">اكتب كلمة في البطاقة أدناه، وقم بالنقر على الخطوط لتقسيم الكلمة إلى مقاطع صوتية وتعرّف على عدد المقاطع.</p>
+
+  <svg id="lineCanvas" width="1000" height="1000"></svg>
+
+  <div class="ruler" id="ruler-top"></div>
+
+  <div class="card">
+    <input type="text" class="writing-area" maxlength="25" placeholder="اكتب كلمة هنا" oninput="restrictToOneWord(this)" />
+  </div>
+
+  <div class="ruler" id="ruler-bottom"></div>
+
+  <div class="count-card" id="lineCount">عدد المقاطع الصوتية: 0</div>
+
+<script>
+  const totalWidth = 820;
+  const tickWidth = 20;
+  const numTicks = Math.floor(totalWidth / tickWidth);
+  const svg = document.getElementById("lineCanvas");
+  const lineCountCard = document.getElementById("lineCount");
+
+  function createRuler(id, position) {
+    const ruler = document.getElementById(id);
+    ruler.innerHTML = "";
+    for (let i = 0; i < numTicks; i++) {
+      const tick = document.createElement("div");
+      tick.className = "tick";
+
+      const tickLine = document.createElement("div");
+      tickLine.className = "tick-line";
+
+      const tickButton = document.createElement("button");
+      tickButton.className = "tick-button";
+      tickButton.id = `${position}-btn-${i}`;
+
+      tick.appendChild(tickButton);
+      tick.appendChild(tickLine);
+      ruler.appendChild(tick);
+
+      if (position === "top") {
+        tickButton.addEventListener("click", () => {
+          tickButton.classList.toggle("active");
+          if (document.getElementById(`line-${i}`)) {
+            removeLine(i);
+          } else {
+            drawLine(i);
+          }
+          updateLineCount();
+        });
+      }
+
+      if (position === "bottom") {
+        tickButton.addEventListener("click", () => {
+          removeLine(i);
+          document.getElementById(`top-btn-${i}`)?.classList.remove("active");
+          updateLineCount();
+        });
+      }
+    }
+  }
+
+  function drawLine(index) {
+    const btnTop = document.getElementById(`top-btn-${index}`);
+    const btnBottom = document.getElementById(`bottom-btn-${index}`);
+    const existing = document.getElementById(`line-${index}`);
+    if (existing || !btnTop || !btnBottom) return;
+
+    const rectTop = btnTop.getBoundingClientRect();
+    const rectBottom = btnBottom.getBoundingClientRect();
+
+    const x1 = rectTop.left + rectTop.width / 2 + window.scrollX;
+    const y1 = rectTop.top + rectTop.height / 2 + window.scrollY;
+    const x2 = rectBottom.left + rectBottom.width / 2 + window.scrollX;
+    const y2 = rectBottom.top + rectBottom.height / 2 + window.scrollY;
+
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("id", `line-${index}`);
+    line.setAttribute("x1", x1);
+    line.setAttribute("y1", y1);
+    line.setAttribute("x2", x2);
+    line.setAttribute("y2", y2);
+    line.setAttribute("stroke", "#006064");
+    line.setAttribute("stroke-width", "4");
+    line.setAttribute("stroke-linecap", "round");
+    line.setAttribute("opacity", "0.9");
+
+    svg.appendChild(line);
+
+    btnTop.classList.add("connected");
+    btnBottom.classList.add("connected");
+  }
+
+  function removeLine(index) {
+    const line = document.getElementById(`line-${index}`);
+    const btnTop = document.getElementById(`top-btn-${index}`);
+    const btnBottom = document.getElementById(`bottom-btn-${index}`);
+    if (line) line.remove();
+    if (btnTop) btnTop.classList.remove("connected", "active");
+    if (btnBottom) btnBottom.classList.remove("connected");
+  }
+
+  function updateLineCount() {
+    const lines = svg.querySelectorAll("line");
+    const count = lines.length === 0 ? 0 : lines.length + 1;
+    lineCountCard.textContent = `عدد المقاطع الصوتية: ${count}`;
+  }
+
+  createRuler("ruler-top", "top");
+  createRuler("ruler-bottom", "bottom");
+
+  function restrictToOneWord(input) {
+    input.value = input.value.replace(/\s+/g, '');
+  }
+
+  window.addEventListener("resize", () => {
+    svg.setAttribute("width", window.innerWidth);
+    svg.setAttribute("height", window.innerHeight);
+  });
+  svg.setAttribute("width", window.innerWidth);
+  svg.setAttribute("height", window.innerHeight);
+</script>
+
+</body>
+</html>

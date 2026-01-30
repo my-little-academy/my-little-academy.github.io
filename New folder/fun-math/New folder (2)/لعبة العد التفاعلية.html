@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة العد التفاعلية</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            text-align: right;
+        }
+        
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border: 5px solid #4CAF50;
+        }
+        
+        h1 {
+            color: #FF6B6B;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        /* إصلاح اتجاه الأرقام */
+        .number, input, .sequence-number, .step-value, .info-value {
+            direction: ltr;
+            unicode-bidi: embed;
+            display: inline-block;
+        }
+        
+        /* أنماط التحكم */
+        .controls {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .control-group {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        
+        button, select {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+        
+        select {
+            padding: 10px;
+            background-color: #118AB2;
+        }
+        
+        /* أنماط السلسلة العددية */
+        .sequence-container {
+            margin: 25px 0;
+        }
+        
+        .sequence {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .sequence-item {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            border-radius: 10px;
+            background-color: #FFD166;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sequence-item.empty {
+            background-color: #e9ecef;
+            border: 2px dashed #adb5bd;
+        }
+        
+        .sequence-item input {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: transparent;
+            text-align: center;
+            font-size: 1em;
+            border-radius: 10px;
+        }
+        
+        /* أنماط التغذية الراجعة */
+        .feedback {
+            font-size: 1.2em;
+            font-weight: bold;
+            min-height: 30px;
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .correct {
+            color: #06D6A0;
+            background-color: #e8f8f3;
+        }
+        
+        .wrong {
+            color: #EF476F;
+            background-color: #fde8ec;
+        }
+        
+        /* أنماط المعلومات */
+        .game-info {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .info-box {
+            text-align: center;
+        }
+        
+        @media (max-width: 600px) {
+            .sequence-item {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>لعبة العد التفاعلية</h1>
+        
+        <div class="control-group">
+            <h3>اختر نمط اللعب:</h3>
+            <div class="controls">
+                <select id="step-size">
+                    <option value="1">مقدار العد: 1</option>
+                    <option value="2">مقدار العد: 2</option>
+                    <option value="5">مقدار العد: 5</option>
+                    <option value="10">مقدار العد: 10</option>
+                    <option value="20">مقدار العد: 20</option>
+                    <option value="50">مقدار العد: 50</option>
+                    <option value="100">مقدار العد: 100</option>
+                </select>
+                
+                <select id="sequence-type">
+                    <option value="asc">عد تصاعدي</option>
+                    <option value="desc">عد تنازلي</option>
+                </select>
+                
+                <button id="start-btn">ابدأ اللعبة</button>
+            </div>
+        </div>
+        
+        <div class="sequence-container" id="sequence-container" style="display: none;">
+            <h3>أكمل الفراغات في السلسلة:</h3>
+            <div class="sequence" id="sequence">
+                <!-- السلسلة ستضاف هنا بالجافاسكريبت -->
+            </div>
+            
+            <div class="controls">
+                <button id="check-btn">تحقق من الإجابة</button>
+                <button id="new-game-btn">لعبة جديدة</button>
+            </div>
+            
+            <div class="feedback" id="feedback"></div>
+        </div>
+        
+        <div class="game-info">
+            <div class="info-box">
+                <div>مقدار العد: <span class="step-value" id="current-step">-</span></div>
+            </div>
+            <div class="info-box">
+                <div>النمط: <span id="current-type">-</span></div>
+            </div>
+            <div class="info-box">
+                <div>المحاولات: <span class="info-value" id="attempts">0</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // العناصر
+        const stepSizeSelect = document.getElementById('step-size');
+        const sequenceTypeSelect = document.getElementById('sequence-type');
+        const startBtn = document.getElementById('start-btn');
+        const sequenceContainer = document.getElementById('sequence-container');
+        const sequenceElement = document.getElementById('sequence');
+        const checkBtn = document.getElementById('check-btn');
+        const newGameBtn = document.getElementById('new-game-btn');
+        const feedback = document.getElementById('feedback');
+        const currentStepDisplay = document.getElementById('current-step');
+        const currentTypeDisplay = document.getElementById('current-type');
+        const attemptsDisplay = document.getElementById('attempts');
+        
+        // متغيرات اللعبة
+        let currentSequence = [];
+        let emptyIndices = [];
+        let stepSize = 1;
+        let sequenceType = 'asc';
+        let attempts = 0;
+        const sequenceLength = 10;
+        
+        // بدء لعبة جديدة
+        function startGame() {
+            stepSize = parseInt(stepSizeSelect.value);
+            sequenceType = sequenceTypeSelect.value;
+            
+            // إنشاء السلسلة العددية
+            const startNumber = Math.floor(Math.random() * 100) * stepSize;
+            currentSequence = [];
+            
+            for (let i = 0; i < sequenceLength; i++) {
+                const number = sequenceType === 'asc' ? 
+                    startNumber + (i * stepSize) : 
+                    startNumber - (i * stepSize);
+                currentSequence.push(number);
+            }
+            
+            // اختيار 4 خانات عشوائية لتبقى فارغة
+            emptyIndices = [];
+            while (emptyIndices.length < 4) {
+                const randomIndex = Math.floor(Math.random() * sequenceLength);
+                if (!emptyIndices.includes(randomIndex)) {
+                    emptyIndices.push(randomIndex);
+                }
+            }
+            
+            // عرض السلسلة
+            renderSequence();
+            
+            // تحديث معلومات اللعبة
+            currentStepDisplay.textContent = stepSize;
+            currentTypeDisplay.textContent = sequenceType === 'asc' ? 'تصاعدي' : 'تنازلي';
+            attempts = 0;
+            attemptsDisplay.textContent = attempts;
+            feedback.textContent = '';
+            
+            // إظهار منطقة اللعب
+            sequenceContainer.style.display = 'block';
+        }
+        
+        // عرض السلسلة العددية
+        function renderSequence() {
+            sequenceElement.innerHTML = '';
+            
+            currentSequence.forEach((number, index) => {
+                const item = document.createElement('div');
+                item.className = emptyIndices.includes(index) ? 
+                    'sequence-item empty' : 'sequence-item';
+                
+                if (emptyIndices.includes(index)) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.dataset.index = index;
+                    item.appendChild(input);
+                } else {
+                    item.textContent = number;
+                }
+                
+                sequenceElement.appendChild(item);
+            });
+        }
+        
+        // التحقق من الإجابة
+        function checkAnswers() {
+            let allCorrect = true;
+            attempts++;
+            attemptsDisplay.textContent = attempts;
+            
+            emptyIndices.forEach(index => {
+                const input = document.querySelector(`.sequence-item.empty input[data-index="${index}"]`);
+                const userAnswer = parseInt(input.value);
+                const correctAnswer = currentSequence[index];
+                
+                if (userAnswer === correctAnswer) {
+                    input.style.backgroundColor = '#c8e6c9';
+                } else {
+                    input.style.backgroundColor = '#ffcdd2';
+                    allCorrect = false;
+                }
+            });
+            
+            if (allCorrect) {
+                feedback.textContent = 'أحسنت! جميع الإجابات صحيحة';
+                feedback.className = 'feedback correct';
+            } else {
+                feedback.textContent = 'هناك بعض الأخطاء، حاول مرة أخرى';
+                feedback.className = 'feedback wrong';
+            }
+        }
+        
+        // أحداث الأزرار
+        startBtn.addEventListener('click', startGame);
+        checkBtn.addEventListener('click', checkAnswers);
+        newGameBtn.addEventListener('click', startGame);
+    </script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>لعبة تحليل الكلمات</title>
+  <style>
+    body {
+      font-family: 'Tajawal', sans-serif;
+      text-align: center;
+      background-color: #f0f9ff;
+      padding: 30px;
+    }
+
+    h1 {
+      color: #2c3e50;
+    }
+
+    .question-box {
+      margin: 30px auto;
+      max-width: 500px;
+      padding: 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    }
+
+    .word {
+      font-size: 28px;
+      margin-bottom: 20px;
+      color: #2c3e50;
+    }
+
+    .options button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .options .correct {
+      background-color: #2ecc71;
+      color: white;
+    }
+
+    .options .wrong {
+      background-color: #e74c3c;
+      color: white;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 20px;
+      font-weight: bold;
+      color: green;
+    }
+
+    /* زهور تسقط */
+    #flowerContainer {
+      position: absolute;
+      top: -50px;
+      left: 0;
+      right: 0;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    .falling-flower {
+      position: absolute;
+      width: 30px;
+      animation: fall 5s linear forwards;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(-50px); opacity: 1; }
+      100% { transform: translateY(100vh); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>🎙️ لعبة تحليل الكلمات إلى مقاطع صوتية</h1>
+<p>اختر عدد المقاطع الصوتية الصحيحة لكل كلمة</p>
+
+<div class="question-box">
+  <div class="word" id="word">كَتَبَ</div>
+
+  <div class="options" id="options">
+    <!-- الأزرار سيتم إنشاؤها عبر JavaScript -->
+  </div>
+
+  <div id="result"></div>
+</div>
+
+<!-- زهور تسقط -->
+<div id="flowerContainer"></div>
+
+<script>
+  // قائمة الكلمات مع عدد المقاطع الصحيحة
+  const questions = [
+    { word: "كَتَبَ", correct: 3 },
+    { word: "قَدِمَ", correct: 3 },
+    { word: "كتابًا", correct: 4 },
+    { word: "آكُلُ", correct: 3 },
+    { word: "اَلْبَيْتُ", correct: 3 },
+    { word: "اَلشِّمْسُ", correct: 3 },
+    { word: "جَلاَلًا", correct: 3 },
+    { word: "أَكَلَتْ", correct: 3 },
+    { word: "الْـوَرْدُ", correct: 3 },
+    { word: "الْـصَّبَا", correct: 3 }
+  ];
+
+  let currentQuestionIndex = 0;
+
+  const wordElement = document.getElementById("word");
+  const optionsElement = document.getElementById("options");
+  const resultElement = document.getElementById("result");
+
+  function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+  }
+
+  function generateOptions(correctAnswer) {
+    let options = [correctAnswer];
+    while (options.length < 3) {
+      const wrongOption = correctAnswer + (Math.floor(Math.random() * 2) === 0 ? -1 : 1);
+      if (!options.includes(wrongOption) && wrongOption > 0) {
+        options.push(wrongOption);
+      }
+    }
+    return shuffle(options);
+  }
+
+  function loadQuestion() {
+    const question = questions[currentQuestionIndex];
+    wordElement.textContent = question.word;
+
+    const options = generateOptions(question.correct);
+
+    optionsElement.innerHTML = '';
+    options.forEach(option => {
+      const btn = document.createElement("button");
+      btn.textContent = `عدد المقاطع: ${option}`;
+      btn.onclick = () => checkAnswer(btn, option, question.correct);
+      optionsElement.appendChild(btn);
+    });
+
+    resultElement.textContent = "";
+  }
+
+  function checkAnswer(button, selected, correct) {
+    if (selected === correct) {
+      button.classList.add("correct");
+      showFallingFlowers();
+      resultElement.textContent = "✅ صحيح! هذه الكلمة تحتوي على " + correct + " مقاطع.";
+      
+      setTimeout(() => {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questions.length) {
+          loadQuestion();
+        } else {
+          alert("🎉 مبروك! أنهيت اللعبة بنجاح.");
+          currentQuestionIndex = 0;
+          loadQuestion();
+        }
+      }, 1000);
+    } else {
+      button.classList.add("wrong");
+      resultElement.textContent = "❌ خطأ، حاول مرة أخرى.";
+    }
+
+    // تعطيل باقي الزرور بعد الاختيار
+    document.querySelectorAll(".options button").forEach(btn => btn.disabled = true);
+  }
+
+  function showFallingFlowers() {
+    const flowerContainer = document.getElementById('flowerContainer');
+    for (let i = 0; i < 5; i++) {
+      const flower = document.createElement('img');
+      flower.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Rose_flower.png/120px-Rose_flower.png'; 
+      flower.className = 'falling-flower';
+      flower.style.left = `${Math.random() * window.innerWidth}px`;
+      flowerContainer.appendChild(flower);
+
+      flower.addEventListener('animationend', () => {
+        flower.remove();
+      });
+    }
+  }
+
+  loadQuestion();
+</script>
+</body>
+</html>

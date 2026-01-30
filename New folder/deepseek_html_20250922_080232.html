@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الحروف والمقاطع العربية</title>
+    <style>
+        /* التنسيقات العامة */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #ffd6e7 0%, #c2e9fb 100%);
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #d63384;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* صندوق الكلمة الطائر */
+        .word-box {
+            position: sticky;
+            top: 10px;
+            background-color: #fff;
+            border-radius: 20px;
+            padding: 15px 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            z-index: 100;
+            border: 4px solid #ff9ec0;
+            text-align: center;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        /* أزرار التحكم */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .control-btn {
+            background-color: #ff9ec0;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 25px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .control-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+        }
+        
+        .control-btn:active {
+            transform: translateY(1px);
+        }
+        
+        .clear-btn {
+            background-color: #ff6b6b;
+        }
+        
+        .back-btn {
+            background-color: #4ecdc4;
+        }
+        
+        .speak-btn {
+            background-color: #ffd166;
+        }
+        
+        /* جدول الحروف والمقاطع */
+        .letters-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            background-color: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .letters-table th {
+            background-color: #ff9ec0;
+            color: white;
+            padding: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .letters-table td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .letter-cell {
+            font-size: 2rem;
+            font-weight: bold;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 10px;
+            min-width: 60px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .letter-cell:hover {
+            transform: scale(1.05);
+            background-color: #e9ecef;
+        }
+        
+        .syllable-cell {
+            background-color: white;
+            border-radius: 10px;
+            padding: 10px 5px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 70px;
+            margin: 2px;
+            display: inline-block;
+        }
+        
+        .syllable-cell:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .syllable-cell:active, .letter-cell:active {
+            transform: scale(0.95);
+        }
+        
+        .syllable-cell.clicked, .letter-cell.clicked {
+            animation: pulse 0.5s;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        /* ألوان المقاطع */
+        .short { background-color: #a0d2ff; color: #0056b3; }
+        .long { background-color: #a8e6cf; color: #0a6e4f; }
+        .tanween { background-color: #ffb6c1; color: #b3005e; }
+        .shadda { background-color: #d9b8ff; color: #5e2a9e; }
+        .sukun { background-color: #c8a2e6; color: #4b0082; }
+        
+        /* قسم الحروف الخاصة */
+        .special-letters {
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .special-letters h2 {
+            color: #d63384;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .special-letters-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .special-letter {
+            font-size: 2rem;
+            font-weight: bold;
+            background-color: #fff0f5;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid #ff9ec0;
+        }
+        
+        .special-letter:hover {
+            transform: translateY(-3px);
+            background-color: #ffebf0;
+        }
+        
+        /* اقتراحات الكلمات */
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .suggestion {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 10px 15px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .suggestion:hover {
+            background-color: #ffeb3b;
+            transform: translateY(-3px);
+        }
+        
+        /* تأثير الكونفيتي */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            border-radius: 50%;
+            animation: confetti-fall 3s linear forwards;
+            z-index: 1000;
+        }
+        
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+        
+        /* التجاوب مع مختلف الأجهزة */
+        @media (max-width: 768px) {
+            .letters-table {
+                font-size: 0.9rem;
+            }
+            
+            .letter-cell {
+                font-size: 1.5rem;
+                min-width: 50px;
+            }
+            
+            .syllable-cell {
+                font-size: 1.4rem;
+                min-width: 60px;
+                padding: 8px 4px;
+            }
+            
+            .word-box {
+                font-size: 2rem;
+                min-height: 70px;
+            }
+            
+            .control-btn {
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .special-letter {
+                font-size: 1.5rem;
+                padding: 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .letters-table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .syllable-cell {
+                font-size: 1.2rem;
+                min-width: 50px;
+                padding: 6px 3px;
+            }
+            
+            .word-box {
+                font-size: 1.8rem;
+                min-height: 60px;
+            }
+            
+            .controls {
+                flex-wrap: wrap;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .special-letters-container {
+                gap: 10px;
+            }
+            
+            .special-letter {
+                font-size: 1.3rem;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>لعبة الحروف والمقاطع العربية</h1>
+        
+        <!-- صندوق الكلمة الطائر -->
+        <div class="word-box" id="wordBox">...</div>
+        
+        <!-- أزرار التحكم -->
+        <div class="controls">
+            <button class="control-btn clear-btn" id="clearBtn">مسح الكلمة</button>
+            <button class="control-btn back-btn" id="backBtn">رجوع</button>
+            <button class="control-btn speak-btn" id="speakBtn">نطق الكلمة</button>
+        </div>
+        
+        <!-- قسم الحروف الخاصة -->
+        <div class="special-letters">
+            <h2>الحروف الخاصة</h2>
+            <div class="special-letters-container" id="specialLetters">
+                <!-- سيتم ملء هذا القسم بالحروف الخاصة -->
+            </div>
+        </div>
+        
+        <!-- جدول الحروف والمقاطع -->
+        <table class="letters-table" id="lettersTable">
+            <thead>
+                <tr>
+                    <th>الحرف</th>
+                    <th>المقاطع القصيرة</th>
+                    <th>المقاطع الطويلة</th>
+                    <th>التنوين</th>
+                    <th>المشددة</th>
+                    <th>الساكنة</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- سيتم ملء الجدول ديناميكيًا -->
+            </tbody>
+        </table>
+        
+        <!-- اقتراحات الكلمات -->
+        <div class="suggestions" id="suggestions">
+            <!-- سيتم ملء هذا القسم بالكلمات المقترحة ديناميكيًا -->
+        </div>
+    </div>
+
+    <script>
+        // بيانات الحروف الأساسية
+        const arabicLetters = [
+            'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 
+            'ز', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 
+            'ق', 'ك', 'ل', 'م', 'ن', 'ه', 'و', 'ي'
+        ];
+
+        // الحروف الخاصة (الهمزة وأشكالها)
+        const specialLetters = ['ء', 'أ', 'إ', 'آ', 'ؤ', 'ئ', 'ى', 'ة'];
+
+        // الحروف التي لا تتصل بما بعدها
+        const nonConnectingLetters = ['ا', 'د', 'ذ', 'ر', 'ز', 'و'];
+
+        // المقاطع الخاصة بحرف الألف والهمزة
+        const getHamzaSyllables = () => {
+            return {
+                short: ['أَ', 'أُ', 'إِ'],  // فتحة، ضمة، كسرة
+                long: ['آ', 'ؤ', 'ئي'],     // ألف مد، واو مد، ياء مد
+                tanween: ['ءً', 'ءٌ', 'ءٍ'], // تنوين بالنصب، بالرفع، بالجر
+                shadda: 'ءّ',
+                sukun: 'ءْ'
+            };
+        };
+
+        // المقاطع لكل حرف مع مراعاة الحروف غير المتصلة
+        const getSyllablesForLetter = (letter) => {
+            // إذا كان حرف الألف أو الهمزة
+            if (['أ', 'إ', 'آ', 'ؤ', 'ئ', 'ء'].includes(letter)) {
+                return getHamzaSyllables();
+            }
+            
+            const hasConnection = !nonConnectingLetters.includes(letter);
+            
+            return {
+                short: hasConnection ? 
+                    [`${letter}َـ`, `${letter}ِـ`, `${letter}ُـ`] : 
+                    [`${letter}َ`, `${letter}ِ`, `${letter}ُ`],
+                long: [`${letter}ا`, `${letter}و`, `${letter}ي`],
+                tanween: hasConnection ? 
+                    [`${letter}ًا`, `${letter}ٍ`, `${letter}ٌ`] : 
+                    [`${letter}ًا`, `${letter}ٍ`, `${letter}ٌ`],
+                shadda: `${letter}ّ`,
+                sukun: `${letter}ْ`
+            };
+        };
+
+        // قائمة الكلمات العربية الشائعة
+        const commonWords = [
+            'باب', 'بيت', 'توت', 'ثوب', 'جمل', 'حبل', 'خبز', 'درب', 'ذهب', 'رمل',
+            'زهر', 'سور', 'شمس', 'صقر', 'ضفدع', 'طائر', 'ظبي', 'عسل', 'غيمة', 'فأس',
+            'قمر', 'كتاب', 'ليمون', 'ماء', 'نهر', 'هدهد', 'وردة', 'يد', 'يوم', 'كرة',
+            'قلم', 'شجرة', 'تفاحة', 'سيارة', 'منزل', 'طاولة', 'كرسي', 'نافذة', 'بحر', 'جبل',
+            'مدرسة', 'معلمة', 'طبيبة', 'مهندس', 'حديقة', 'ورقة', 'قصة', 'لعبة', 'كرة', 'دمية',
+            'أم', 'أب', 'إبرة', 'آلة', 'ؤلة', 'ئنة', 'إناء', 'أوان'
+        ];
+
+        // متغيرات التطبيق
+        let currentWord = '';
+        let speechSynthesis = window.speechSynthesis;
+        
+        // تهيئة التطبيق
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSpecialLetters();
+            initializeLettersTable();
+            updateWordBox();
+            setupEventListeners();
+        });
+        
+        // إنشاء قسم الحروف الخاصة (الهمزة وأشكالها)
+        function initializeSpecialLetters() {
+            const specialLettersContainer = document.getElementById('specialLetters');
+            specialLettersContainer.innerHTML = '';
+            
+            specialLetters.forEach(letter => {
+                const specialLetterDiv = document.createElement('div');
+                specialLetterDiv.className = 'special-letter';
+                specialLetterDiv.textContent = letter;
+                specialLetterDiv.addEventListener('click', function() {
+                    handleLetterClick(letter);
+                });
+                specialLettersContainer.appendChild(specialLetterDiv);
+            });
+        }
+        
+        // إنشاء جدول الحروف والمقاطع
+        function initializeLettersTable() {
+            const tableBody = document.querySelector('#lettersTable tbody');
+            tableBody.innerHTML = '';
+            
+            // إضافة حرف الألف كحرف أساسي
+            const alifRow = document.createElement('tr');
+            const alifCell = document.createElement('td');
+            const alifDiv = document.createElement('div');
+            alifDiv.className = 'letter-cell';
+            alifDiv.textContent = 'ا';
+            alifDiv.addEventListener('click', function() {
+                handleLetterClick('ا');
+            });
+            alifCell.appendChild(alifDiv);
+            alifRow.appendChild(alifCell);
+            
+            // مقاطع حرف الألف
+            const alifSyllables = {
+                short: ['اَ', 'اِ', 'اُ'],
+                long: ['اا', 'او', 'اي'],
+                tanween: ['اً', 'ٍ', 'ٌ'],
+                shadda: 'اّ',
+                sukun: 'اْ'
+            };
+            
+            // إضافة مقاطع الألف
+            ['short', 'long', 'tanween'].forEach(type => {
+                const cell = document.createElement('td');
+                alifSyllables[type].forEach(syllable => {
+                    const syllableDiv = document.createElement('div');
+                    syllableDiv.className = `syllable-cell ${type}`;
+                    syllableDiv.textContent = syllable;
+                    syllableDiv.addEventListener('click', function() {
+                        handleSyllableClick(syllable);
+                    });
+                    cell.appendChild(syllableDiv);
+                });
+                alifRow.appendChild(cell);
+            });
+            
+            // المشددة والساكنة للألف
+            const shaddaCell = document.createElement('td');
+            const shaddaDiv = document.createElement('div');
+            shaddaDiv.className = 'syllable-cell shadda';
+            shaddaDiv.textContent = alifSyllables.shadda;
+            shaddaDiv.addEventListener('click', function() {
+                handleSyllableClick(alifSyllables.shadda);
+            });
+            shaddaCell.appendChild(shaddaDiv);
+            alifRow.appendChild(shaddaCell);
+            
+            const sukunCell = document.createElement('td');
+            const sukunDiv = document.createElement('div');
+            sukunDiv.className = 'syllable-cell sukun';
+            sukunDiv.textContent = alifSyllables.sukun;
+            sukunDiv.addEventListener('click', function() {
+                handleSyllableClick(alifSyllables.sukun);
+            });
+            sukunCell.appendChild(sukunDiv);
+            alifRow.appendChild(sukunCell);
+            
+            tableBody.appendChild(alifRow);
+            
+            // إضافة بقية الحروف
+            arabicLetters.forEach(letter => {
+                const syllables = getSyllablesForLetter(letter);
+                const row = document.createElement('tr');
+                
+                // خلية الحرف
+                const letterCell = document.createElement('td');
+                const letterDiv = document.createElement('div');
+                letterDiv.className = 'letter-cell';
+                letterDiv.textContent = letter;
+                letterDiv.addEventListener('click', function() {
+                    handleLetterClick(letter);
+                });
+                letterCell.appendChild(letterDiv);
+                row.appendChild(letterCell);
+                
+                // خلايا المقاطع القصيرة
+                const shortCell = document.createElement('td');
+                syllables.short.forEach(syllable => {
+                    const syllableDiv = document.createElement('div');
+                    syllableDiv.className = 'syllable-cell short';
+                    syllableDiv.textContent = syllable;
+                    syllableDiv.addEventListener('click', function() {
+                        handleSyllableClick(syllable);
+                    });
+                    shortCell.appendChild(syllableDiv);
+                });
+                row.appendChild(shortCell);
+                
+                // خلايا المقاطع الطويلة
+                const longCell = document.createElement('td');
+                syllables.long.forEach(syllable => {
+                    const syllableDiv = document.createElement('div');
+                    syllableDiv.className = 'syllable-cell long';
+                    syllableDiv.textContent = syllable;
+                    syllableDiv.addEventListener('click', function() {
+                        handleSyllableClick(syllable);
+                    });
+                    longCell.appendChild(syllableDiv);
+                });
+                row.appendChild(longCell);
+                
+                // خلايا التنوين
+                const tanweenCell = document.createElement('td');
+                syllables.tanween.forEach(syllable => {
+                    const syllableDiv = document.createElement('div');
+                    syllableDiv.className = 'syllable-cell tanween';
+                    syllableDiv.textContent = syllable;
+                    syllableDiv.addEventListener('click', function() {
+                        handleSyllableClick(syllable);
+                    });
+                    tanweenCell.appendChild(syllableDiv);
+                });
+                row.appendChild(tanweenCell);
+                
+                // خلية المشددة
+                const shaddaCell = document.createElement('td');
+                const shaddaDiv = document.createElement('div');
+                shaddaDiv.className = 'syllable-cell shadda';
+                shaddaDiv.textContent = syllables.shadda;
+                shaddaDiv.addEventListener('click', function() {
+                    handleSyllableClick(syllables.shadda);
+                });
+                shaddaCell.appendChild(shaddaDiv);
+                row.appendChild(shaddaCell);
+                
+                // خلية الساكنة
+                const sukunCell = document.createElement('td');
+                const sukunDiv = document.createElement('div');
+                sukunDiv.className = 'syllable-cell sukun';
+                sukunDiv.textContent = syllables.sukun;
+                sukunDiv.addEventListener('click', function() {
+                    handleSyllableClick(syllables.sukun);
+                });
+                sukunCell.appendChild(sukunDiv);
+                row.appendChild(sukunCell);
+                
+                tableBody.appendChild(row);
+            });
+
+            // إضافة الحروف غير المتصلة الأخرى
+            ['د', 'ذ', 'ر', 'ز', 'و'].forEach(letter => {
+                const syllables = getSyllablesForLetter(letter);
+                const row = document.createElement('tr');
+                
+                const letterCell = document.createElement('td');
+                const letterDiv = document.createElement('div');
+                letterDiv.className = 'letter-cell';
+                letterDiv.textContent = letter;
+                letterDiv.addEventListener('click', function() {
+                    handleLetterClick(letter);
+                });
+                letterCell.appendChild(letterDiv);
+                row.appendChild(letterCell);
+                
+                // خلايا المقاطع القصيرة
+                const shortCell = document.createElement('td');
+                syllables.short.forEach(syllable => {
+                    const syllableDiv = document.createElement('div');
+                    syllableDiv.className = 'syllable-cell short';
+                    syllableDiv.textContent = syllable;
+                    syllableDiv.addEventListener('click', function() {
+                        handleSyllableClick(syllable);
+                    });
+                    shortCell.appendChild(syllableDiv);
+                });
+                row.appendChild(shortCell);
+                
+                // خلايا المقاطع الطويلة
+                const longCell = document.createElement('td');
+                syllables.long.forEach(syllable => {
+                    const syllableDiv = document.createElement('div');
+                    syllableDiv.className = 'syllable-cell long';
+                    syllableDiv.textContent = syllable;
+                    syllableDiv.addEventListener('click', function() {
+                        handleSyllableClick(syllable);
+                    });
+                    longCell.appendChild(syllableDiv);
+                });
+                row.appendChild(longCell);
+                
+                // خلايا التنوين
+                const tanweenCell = document.createElement('td');
+                syllables.tanween.forEach(syllable => {
+                    const syllableDiv = document.createElement('div');
+                    syllableDiv.className = 'syllable-cell tanween';
+                    syllableDiv.textContent = syllable;
+                    syllableDiv.addEventListener('click', function() {
+                        handleSyllableClick(syllable);
+                    });
+                    tanweenCell.appendChild(syllableDiv);
+                });
+                row.appendChild(tanweenCell);
+                
+                // خلية المشددة
+                const shaddaCell = document.createElement('td');
+                const shaddaDiv = document.createElement('div');
+                shaddaDiv.className = 'syllable-cell shadda';
+                shaddaDiv.textContent = syllables.shadda;
+                shaddaDiv.addEventListener('click', function() {
+                    handleSyllableClick(syllables.shadda);
+                });
+                shaddaCell.appendChild(shaddaDiv);
+                row.appendChild(shaddaCell);
+                
+                // خلية الساكنة
+                const sukunCell = document.createElement('td');
+                const sukunDiv = document.createElement('div');
+                sukunDiv.className = 'syllable-cell sukun';
+                sukunDiv.textContent = syllables.sukun;
+                sukunDiv.addEventListener('click', function() {
+                    handleSyllableClick(syllables.sukun);
+                });
+                sukunCell.appendChild(sukunDiv);
+                row.appendChild(sukunCell);
+                
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // التعامل مع النقر على الحروف
+        function handleLetterClick(letter) {
+            currentWord += letter;
+            updateWordBox();
+            speakSyllable(letter);
+            highlightCell(letter);
+            updateSuggestions();
+        }
+        
+        // التعامل مع النقر على المقاطع
+        function handleSyllableClick(syllable) {
+            currentWord += syllable;
+            updateWordBox();
+            speakSyllable(syllable);
+            highlightCell(syllable);
+            updateSuggestions();
+        }
+        
+        // تحديث صندوق الكلمة
+        function updateWordBox() {
+            const wordBox = document.getElementById('wordBox');
+            wordBox.textContent = currentWord || '...';
+        }
+        
+        // نطق المقطع صوتيًا
+        function speakSyllable(syllable) {
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+            }
+            
+            const utterance = new SpeechSynthesisUtterance(syllable);
+            utterance.lang = 'ar-SA';
+            utterance.rate = 0.8;
+            speechSynthesis.speak(utterance);
+        }
+        
+        // نطق الكلمة كاملة
+        function speakWord() {
+            if (currentWord && currentWord !== '...') {
+                if (speechSynthesis.speaking) {
+                    speechSynthesis.cancel();
+                }
+                
+                const utterance = new SpeechSynthesisUtterance(currentWord);
+                utterance.lang = 'ar-SA';
+                utterance.rate = 0.8;
+                speechSynthesis.speak(utterance);
+            }
+        }
+        
+        // إضاءة الخلية عند النقر
+        function highlightCell(char) {
+            const cells = document.querySelectorAll('.syllable-cell, .letter-cell, .special-letter');
+            cells.forEach(cell => {
+                if (cell.textContent === char) {
+                    cell.classList.add('clicked');
+                    setTimeout(() => {
+                        cell.classList.remove('clicked');
+                    }, 500);
+                }
+            });
+        }
+        
+        // تحديث اقتراحات الكلمات
+        function updateSuggestions() {
+            const suggestionsContainer = document.getElementById('suggestions');
+            suggestionsContainer.innerHTML = '';
+            
+            if (currentWord.length === 0) return;
+            
+            const filteredWords = commonWords.filter(word => 
+                word.startsWith(currentWord) && word !== currentWord
+            ).slice(0, 5);
+            
+            filteredWords.forEach(word => {
+                const suggestion = document.createElement('div');
+                suggestion.className = 'suggestion';
+                suggestion.textContent = word;
+                
+                suggestion.addEventListener('click', function() {
+                    currentWord = word;
+                    updateWordBox();
+                    speakWord();
+                    createConfetti();
+                    updateSuggestions();
+                });
+                
+                suggestionsContainer.appendChild(suggestion);
+            });
+        }
+        
+        // إنشاء تأثير الكونفيتي
+        function createConfetti() {
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+            
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = Math.random() * 10 + 5 + 'px';
+                confetti.style.height = Math.random() * 10 + 5 + 'px';
+                confetti.style.animationDuration = Math.random() * 3 + 2 + 's';
+                
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+        
+        // إعداد مستمعي الأحداث
+        function setupEventListeners() {
+            // زر مسح الكلمة
+            document.getElementById('clearBtn').addEventListener('click', function() {
+                currentWord = '';
+                updateWordBox();
+                updateSuggestions();
+            });
+            
+            // زر الرجوع
+            document.getElementById('backBtn').addEventListener('click', function() {
+                if (currentWord.length > 0) {
+                    currentWord = currentWord.slice(0, -1);
+                    updateWordBox();
+                    updateSuggestions();
+                }
+            });
+            
+            // زر نطق الكلمة
+            document.getElementById('speakBtn').addEventListener('click', function() {
+                speakWord();
+            });
+        }
+    </script>
+</body>
+</html>

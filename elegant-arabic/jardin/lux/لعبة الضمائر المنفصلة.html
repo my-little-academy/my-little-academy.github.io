@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الضمائر المنفصلة</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #d81b60;
+            --primary-light: #ff5c8d;
+            --primary-dark: #a00037;
+            --secondary-color: #880e4f;
+            --bg-gradient-start: #ffd6e8;
+            --bg-gradient-end: #ffb3c6;
+            --correct-color: #4caf50;
+            --wrong-color: #f44336;
+            --text-color: #333;
+            --light-text: #fff;
+            --border-radius: 25px;
+            --option-radius: 20px;
+            --box-shadow: 0 8px 20px rgba(216, 27, 96, 0.3);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            width: 100%;
+            max-width: 700px;
+            background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quiz-header {
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 32px;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .question-container {
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .question {
+            font-size: 24px;
+            color: var(--secondary-color);
+            font-weight: 700;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .option {
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 2px solid var(--primary-light);
+            border-radius: var(--option-radius);
+            padding: 15px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            color: var(--text-color);
+        }
+
+        .option:hover {
+            transform: scale(1.03);
+            background-color: var(--primary-light);
+            color: var(--light-text);
+        }
+
+        .option.selected {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            border-color: var(--primary-dark);
+        }
+
+        .option.correct {
+            background-color: var(--correct-color);
+            color: var(--light-text);
+            border-color: #2e7d32;
+            animation: pulse 0.5s;
+        }
+
+        .option.wrong {
+            background-color: var(--wrong-color);
+            color: var(--light-text);
+            border-color: #c62828;
+            animation: shake 0.5s;
+        }
+
+        .buttons-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: var(--option-radius);
+            padding: 12px 30px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--light-text);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .check-btn {
+            background-color: var(--primary-color);
+        }
+
+        .check-btn:hover:not(:disabled) {
+            background-color: var(--primary-dark);
+        }
+
+        .next-btn {
+            background-color: var(--secondary-color);
+            display: none;
+        }
+
+        .next-btn:hover:not(:disabled) {
+            background-color: #6a0f3d;
+        }
+
+        .next-btn.active {
+            display: block;
+            animation: pulse 1.5s infinite;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            font-size: 22px;
+            font-weight: bold;
+            min-height: 30px;
+        }
+
+        .feedback.correct {
+            color: var(--correct-color);
+        }
+
+        .feedback.wrong {
+            color: var(--wrong-color);
+        }
+
+        .mascot {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background-image: url('https://img.icons8.com/color/96/000000/teacher.png');
+            background-size: contain;
+            pointer-events: none;
+            transition: transform 0.3s ease;
+            z-index: 10;
+        }
+
+        .progress {
+            margin-top: 20px;
+            font-size: 18px;
+            color: var(--secondary-color);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+
+        @media (max-width: 600px) {
+            .quiz-container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 26px;
+            }
+            
+            .question {
+                font-size: 20px;
+            }
+            
+            .option {
+                font-size: 18px;
+                padding: 12px;
+            }
+            
+            .btn {
+                font-size: 18px;
+                padding: 10px 20px;
+            }
+            
+            .buttons-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container" id="quiz">
+        <div class="mascot" id="mascot"></div>
+        <div class="quiz-header">
+            <h1>لعبة الضمائر المنفصلة</h1>
+        </div>
+        
+        <div class="progress" id="progress">السؤال 1 من 10</div>
+        
+        <div class="question-container">
+            <h2 class="question" id="question">السؤال يظهر هنا</h2>
+        </div>
+        
+        <div class="options-container" id="options">
+            <!-- الخيارات يتم إضافتها ديناميكيًا -->
+        </div>
+        
+        <div class="feedback" id="feedback"></div>
+        
+        <div class="buttons-container">
+            <button class="btn check-btn" id="check-btn" disabled>تحقق</button>
+            <button class="btn next-btn" id="next-btn" disabled>التالي</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // عناصر DOM
+            const quizContainer = document.getElementById('quiz');
+            const questionElement = document.getElementById('question');
+            const optionsContainer = document.getElementById('options');
+            const checkBtn = document.getElementById('check-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const feedbackElement = document.getElementById('feedback');
+            const progressElement = document.getElementById('progress');
+            const mascotElement = document.getElementById('mascot');
+
+            // بيانات الأسئلة (الضمائر المنفصلة)
+            const questions = [
+                {
+                    question: "ما الضمير المنفصل الذي يعود على المتكلم؟",
+                    options: ["هو", "أنت", "أنا", "هم"],
+                    correctAnswer: "أنا",
+                    explanation: "الضمير 'أنا' يعود على المتكلم."
+                },
+                {
+                    question: "أي من هذه الضمائر يعود على الغائب المفرد المذكر؟",
+                    options: ["هي", "هو", "أنتما", "نحن"],
+                    correctAnswer: "هو",
+                    explanation: "الضمير 'هو' يعود على الغائب المفرد المذكر."
+                },
+                {
+                    question: "ما الضمير المنفصل الذي يناسب الجملة: '___ طالب مجتهد'؟",
+                    options: ["أنتما", "هو", "أنتم", "هن"],
+                    correctAnswer: "هو",
+                    explanation: "الضمير 'هو' يناسب الجملة لأنه يعود على المفرد المذكر."
+                },
+                {
+                    question: "أي من هذه الضمائر يعود على المخاطبة المؤنث؟",
+                    options: ["أنتِ", "هو", "أنتم", "نحن"],
+                    correctAnswer: "أنتِ",
+                    explanation: "الضمير 'أنتِ' يعود على المخاطب المؤنث."
+                },
+                {
+                    question: "ما الضمير المنفصل في الجملة: 'هم لاعبون ماهرون'؟",
+                    options: ["هم", "اللاعبون", "ماهرون", "لا يوجد ضمير"],
+                    correctAnswer: "هم",
+                    explanation: "الضمير 'هم' هو الضمير المنفصل في الجملة."
+                },
+                {
+                    question: "أي ضمير يناسب الجملة: '___ طالبات مجتهدات'؟",
+                    options: ["هو", "هن", "أنت", "أنا"],
+                    correctAnswer: "هن",
+                    explanation: "الضمير 'هن' يناسب الجملة لأنه يعود على جمع المؤنث."
+                },
+                {
+                    question: "ما الضمير المنفصل الذي يعود على المتكلمين؟",
+                    options: ["أنا", "نحن", "أنتم", "هم"],
+                    correctAnswer: "نحن",
+                    explanation: "الضمير 'نحن' يعود على المتكلمين."
+                },
+                {
+                    question: "أي من هذه الضمائر يعود على المخاطبين المذكرين؟",
+                    options: ["أنتِ", "أنتم", "هن", "هو"],
+                    correctAnswer: "أنتم",
+                    explanation: "الضمير 'أنتما' يعود على المخاطبين المذكرين."
+                },
+                {
+                    question: "ما الضمير المنفصل في الجملة: 'أنتِ معلمة ممتازة'؟",
+                    options: ["معلمة", "ممتازة", "أنتِ", "لا يوجد ضمير"],
+                    correctAnswer: "أنتِ",
+                    explanation: "الضمير 'أنتِ' هو الضمير المنفصل في الجملة."
+                },
+                {
+                    question: "أي ضمير يناسب الجملة: '___ أطباء ماهرون'؟",
+                    options: ["هو", "هي", "هم", "أنتِ"],
+                    correctAnswer: "هم",
+                    explanation: "الضمير 'هم' يناسب الجملة لأنه يعود على جمع المذكر."
+                }
+            ];
+
+            // متغيرات اللعبة
+            let currentQuestionIndex = 0;
+            let score = 0;
+            let selectedOption = null;
+            let shuffledQuestions = [...questions];
+
+            // تهيئة اللعبة
+            function initGame() {
+                // خلط الأسئلة
+                shuffleArray(shuffledQuestions);
+                currentQuestionIndex = 0;
+                score = 0;
+                loadQuestion();
+            }
+
+            // تحميل السؤال الحالي
+            function loadQuestion() {
+                resetState();
+                const currentQuestion = shuffledQuestions[currentQuestionIndex];
+                
+                // عرض السؤال والتقدم
+                questionElement.textContent = currentQuestion.question;
+                progressElement.textContent = `السؤال ${currentQuestionIndex + 1} من ${shuffledQuestions.length}`;
+                
+                // خلط الخيارات وعرضها
+                const shuffledOptions = shuffleArray([...currentQuestion.options]);
+                shuffledOptions.forEach(option => {
+                    const optionElement = document.createElement('div');
+                    optionElement.classList.add('option');
+                    optionElement.textContent = option;
+                    optionElement.addEventListener('click', () => selectOption(optionElement, option));
+                    optionsContainer.appendChild(optionElement);
+                });
+            }
+
+            // إعادة تعيين حالة السؤال
+            function resetState() {
+                // مسح الخيارات السابقة
+                while (optionsContainer.firstChild) {
+                    optionsContainer.removeChild(optionsContainer.firstChild);
+                }
+                
+                // إعادة تعيين العناصر
+                feedbackElement.textContent = '';
+                feedbackElement.className = 'feedback';
+                checkBtn.disabled = true;
+                nextBtn.disabled = true;
+                nextBtn.classList.remove('active');
+                selectedOption = null;
+            }
+
+            // اختيار خيار
+            function selectOption(optionElement, option) {
+                // إلغاء تحديد الخيارات الأخرى
+                const options = document.querySelectorAll('.option');
+                options.forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                
+                // تحديد الخيار الحالي
+                optionElement.classList.add('selected');
+                selectedOption = option;
+                checkBtn.disabled = false;
+            }
+
+            // التحقق من الإجابة
+            function checkAnswer() {
+                if (selectedOption === null) return;
+                
+                const currentQuestion = shuffledQuestions[currentQuestionIndex];
+                const options = document.querySelectorAll('.option');
+                
+                // تعطيل جميع الخيارات وزر التحقق
+                options.forEach(option => {
+                    option.style.pointerEvents = 'none';
+                });
+                checkBtn.disabled = true;
+                
+                // تحديد الإجابة الصحيحة والخاطئة
+                options.forEach(option => {
+                    if (option.textContent === currentQuestion.correctAnswer) {
+                        option.classList.add('correct');
+                    } else if (option.textContent === selectedOption && selectedOption !== currentQuestion.correctAnswer) {
+                        option.classList.add('wrong');
+                    }
+                });
+                
+                // عرض التعليق
+                if (selectedOption === currentQuestion.correctAnswer) {
+                    feedbackElement.textContent = 'إجابة صحيحة! أحسنت!';
+                    feedbackElement.classList.add('correct');
+                    score++;
+                } else {
+                    feedbackElement.textContent = `إجابة خاطئة. الإجابة الصحيحة هي: ${currentQuestion.correctAnswer}. ${currentQuestion.explanation}`;
+                    feedbackElement.classList.add('wrong');
+                }
+                
+                // تفعيل زر التالي
+                nextBtn.disabled = false;
+                nextBtn.classList.add('active');
+            }
+
+            // الانتقال إلى السؤال التالي
+            function nextQuestion() {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < shuffledQuestions.length) {
+                    loadQuestion();
+                } else {
+                    // نهاية اللعبة
+                    endGame();
+                }
+            }
+
+            // نهاية اللعبة
+            function endGame() {
+                quizContainer.innerHTML = `
+                    <div class="quiz-header">
+                        <h1>انتهت اللعبة!</h1>
+                    </div>
+                    <div class="question-container">
+                        <h2 class="question">نتيجتك: ${score} من ${shuffledQuestions.length}</h2>
+                    </div>
+                    <div class="feedback" style="font-size: 24px; margin-bottom: 30px;">
+                        ${getFinalFeedback(score, shuffledQuestions.length)}
+                    </div>
+                    <button class="btn check-btn" onclick="location.reload()">اللعب مرة أخرى</button>
+                `;
+            }
+
+            // الحصول على تعليق نهائي بناء على النتيجة
+            function getFinalFeedback(score, total) {
+                const percentage = (score / total) * 100;
+                
+                if (percentage >= 90) {
+                    return 'ممتاز! أنت خبير في الضمائر المنفصلة!';
+                } else if (percentage >= 70) {
+                    return 'جيد جداً! لديك فهم قوي للضمائر المنفصلة.';
+                } else if (percentage >= 50) {
+                    return 'ليس سيئاً! يمكنك مراجعة بعض الضمائر لتحسين أدائك.';
+                } else {
+                    return 'يحتاج إلى تحسين. ننصحك بمراجعة درس الضمائر المنفصلة.';
+                }
+            }
+
+            // خلط المصفوفة
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+
+            // متابعة حركة الماوس للشخصية
+            document.addEventListener('mousemove', (e) => {
+                mascotElement.style.left = `${e.clientX - 40}px`;
+                mascotElement.style.top = `${e.clientY - 40}px`;
+            });
+
+            // أحداث الأزرار
+            checkBtn.addEventListener('click', checkAnswer);
+            nextBtn.addEventListener('click', nextQuestion);
+
+            // بدء اللعبة
+            initGame();
+        });
+    </script>
+</body>
+</html>

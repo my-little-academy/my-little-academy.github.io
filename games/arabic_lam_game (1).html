@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة قنص اللام الشمسية والقمرية</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Amiri', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            overflow: hidden;
+            cursor: crosshair;
+            position: relative;
+        }
+
+        .game-container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 107, 107, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(78, 205, 196, 0.3) 0%, transparent 50%);
+        }
+
+        .ui-panel {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .game-title {
+            font-size: 1.5rem;
+            color: #ff6b6b;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .game-stats {
+            display: flex;
+            gap: 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sun-stat { color: #ff9a56; }
+        .moon-stat { color: #4facfe; }
+        .score-stat { color: #6c5ce7; }
+        .time-stat { color: #e17055; }
+
+        .target-mode {
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 999;
+            animation: pulse 2s infinite;
+        }
+
+        .word-target {
+            position: absolute;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 15px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: crosshair;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            text-align: center;
+            min-width: 120px;
+            border: 3px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(5px);
+        }
+
+        .word-target.sun-word {
+            background: linear-gradient(135deg, #ff9a56, #ff6b6b);
+            box-shadow: 0 5px 20px rgba(255, 107, 107, 0.5);
+        }
+
+        .word-target.moon-word {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            box-shadow: 0 5px 20px rgba(79, 172, 254, 0.5);
+        }
+
+        .word-target:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+        }
+
+        .crosshair {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            pointer-events: none;
+            z-index: 1001;
+            transform: translate(-50%, -50%);
+        }
+
+        .crosshair::before,
+        .crosshair::after {
+            content: '';
+            position: absolute;
+            background: #ff6b6b;
+            box-shadow: 0 0 10px #ff6b6b;
+        }
+
+        .crosshair::before {
+            width: 2px;
+            height: 40px;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+        }
+
+        .crosshair::after {
+            width: 40px;
+            height: 2px;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+        }
+
+        .hit-effect {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 998;
+            animation: hit-explosion 0.6s ease-out forwards;
+        }
+
+        .hit-correct {
+            background: radial-gradient(circle, rgba(86, 204, 42, 0.8) 0%, transparent 70%);
+        }
+
+        .hit-wrong {
+            background: radial-gradient(circle, rgba(255, 65, 108, 0.8) 0%, transparent 70%);
+        }
+
+        .muzzle-flash {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle, #ffff00 0%, #ff6b6b 50%, transparent 100%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 997;
+            animation: flash 0.2s ease-out forwards;
+        }
+
+        .bullet-trail {
+            position: absolute;
+            width: 3px;
+            height: 20px;
+            background: linear-gradient(to bottom, #ffff00, transparent);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 996;
+            animation: bullet-fly 0.3s linear forwards;
+        }
+
+        .game-over {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 1002;
+            backdrop-filter: blur(10px);
+        }
+
+        .game-over-title {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .final-score {
+            font-size: 2rem;
+            margin-bottom: 30px;
+            color: #4ecdc4;
+        }
+
+        .restart-btn {
+            padding: 20px 40px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.5rem;
+            font-family: 'Amiri', serif;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+        }
+
+        .combo {
+            position: fixed;
+            top: 200px;
+            right: 50px;
+            color: #ff6b6b;
+            font-size: 2rem;
+            font-weight: bold;
+            z-index: 999;
+            animation: combo-bounce 0.5s ease-out;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.05); }
+        }
+
+        @keyframes hit-explosion {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(1); opacity: 0; }
+        }
+
+        @keyframes flash {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(1); opacity: 0; }
+        }
+
+        @keyframes bullet-fly {
+            0% { transform: scale(1) rotate(0deg); opacity: 1; }
+            100% { transform: scale(0.3) rotate(360deg); opacity: 0; }
+        }
+
+        @keyframes combo-bounce {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .stars-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.3; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.5); }
+        }
+
+        @media (max-width: 768px) {
+            .game-title { font-size: 1.2rem; }
+            .game-stats { font-size: 1rem; gap: 15px; }
+            .ui-panel { padding: 10px 20px; }
+            .word-target { font-size: 1.3rem; padding: 12px 20px; }
+            .target-mode { font-size: 1.1rem; padding: 12px 25px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- خلفية النجوم -->
+        <div class="stars-bg" id="stars"></div>
+        
+        <!-- الواجهة العلوية -->
+        <div class="ui-panel">
+            <div class="game-title">🎯 قنص اللام الشمسية والقمرية</div>
+            <div class="game-stats">
+                <div class="stat-item sun-stat">
+                    <span>☀️</span>
+                    <span id="sunHits">0</span>
+                </div>
+                <div class="stat-item moon-stat">
+                    <span>🌙</span>
+                    <span id="moonHits">0</span>
+                </div>
+                <div class="stat-item score-stat">
+                    <span>🏆</span>
+                    <span id="score">0</span>
+                </div>
+                <div class="stat-item time-stat">
+                    <span>⏰</span>
+                    <span id="timer">60</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- وضع الهدف الحالي -->
+        <div class="target-mode" id="targetMode">
+            🎯 اقنص الكلمات التي تحتوي على لام شمسية!
+        </div>
+
+        <!-- المنظار -->
+        <div class="crosshair" id="crosshair"></div>
+    </div>
+
+    <!-- شاشة نهاية اللعبة -->
+    <div class="game-over" id="gameOver" style="display: none;">
+        <div class="game-over-title">🎯 انتهت اللعبة!</div>
+        <div class="final-score" id="finalScore"></div>
+        <button class="restart-btn" onclick="restartGame()">🔄 العب مرة أخرى</button>
+    </div>
+
+    <script>
+        const words = [
+            // كلمات بلام شمسية
+            { word: 'الشمس', type: 'شمسية', emoji: '☀️' },
+            { word: 'النور', type: 'شمسية', emoji: '💡' },
+            { word: 'الطائر', type: 'شمسية', emoji: '🐦' },
+            { word: 'السماء', type: 'شمسية', emoji: '🌌' },
+            { word: 'الذهب', type: 'شمسية', emoji: '✨' },
+            { word: 'الزهرة', type: 'شمسية', emoji: '🌸' },
+            { word: 'الصباح', type: 'شمسية', emoji: '🌅' },
+            { word: 'التفاح', type: 'شمسية', emoji: '🍎' },
+            { word: 'الرياح', type: 'شمسية', emoji: '💨' },
+            { word: 'الليل', type: 'شمسية', emoji: '🌃' },
+            { word: 'الدار', type: 'شمسية', emoji: '🏠' },
+            { word: 'الثلج', type: 'شمسية', emoji: '❄️' },
+            
+            // كلمات بلام قمرية
+            { word: 'القمر', type: 'قمرية', emoji: '🌙' },
+            { word: 'الكتاب', type: 'قمرية', emoji: '📚' },
+            { word: 'البيت', type: 'قمرية', emoji: '🏠' },
+            { word: 'الماء', type: 'قمرية', emoji: '💧' },
+            { word: 'الولد', type: 'قمرية', emoji: '👦' },
+            { word: 'الفيل', type: 'قمرية', emoji: '🐘' },
+            { word: 'الحديقة', type: 'قمرية', emoji: '🌳' },
+            { word: 'الجبل', type: 'قمرية', emoji: '🏔️' },
+            { word: 'العصفور', type: 'قمرية', emoji: '🐤' },
+            { word: 'الهدية', type: 'قمرية', emoji: '🎁' },
+            { word: 'الورد', type: 'قمرية', emoji: '🌹' },
+            { word: 'الغابة', type: 'قمرية', emoji: '🌲' }
+        ];
+
+        let gameState = {
+            score: 0,
+            sunHits: 0,
+            moonHits: 0,
+            timeLeft: 60,
+            currentTarget: 'شمسية', // الهدف الحالي
+            combo: 0,
+            gameRunning: false,
+            targets: []
+        };
+
+        let gameTimer;
+        let spawnTimer;
+
+        function initGame() {
+            gameState.score = 0;
+            gameState.sunHits = 0;
+            gameState.moonHits = 0;
+            gameState.timeLeft = 60;
+            gameState.currentTarget = 'شمسية';
+            gameState.combo = 0;
+            gameState.gameRunning = true;
+            gameState.targets = [];
+
+            updateUI();
+            createStars();
+            startGameTimer();
+            startSpawning();
+            
+            // تغيير الهدف كل 10 ثواني
+            setInterval(() => {
+                if (gameState.gameRunning) {
+                    gameState.currentTarget = gameState.currentTarget === 'شمسية' ? 'قمرية' : 'شمسية';
+                    updateTargetMode();
+                }
+            }, 10000);
+        }
+
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            starsContainer.innerHTML = '';
+            
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 2 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        function updateTargetMode() {
+            const targetMode = document.getElementById('targetMode');
+            const emoji = gameState.currentTarget === 'شمسية' ? '☀️' : '🌙';
+            const text = gameState.currentTarget === 'شمسية' ? 
+                '🎯 اقنص الكلمات التي تحتوي على لام شمسية!' :
+                '🎯 اقنص الكلمات التي تحتوي على لام قمرية!';
+            
+            targetMode.innerHTML = emoji + ' ' + text;
+            targetMode.style.background = gameState.currentTarget === 'شمسية' ? 
+                'linear-gradient(45deg, #ff9a56, #ff6b6b)' :
+                'linear-gradient(45deg, #4facfe, #00f2fe)';
+        }
+
+        function spawnTarget() {
+            if (!gameState.gameRunning) return;
+
+            const word = words[Math.floor(Math.random() * words.length)];
+            const target = document.createElement('div');
+            
+            target.className = `word-target ${word.type === 'شمسية' ? 'sun-word' : 'moon-word'}`;
+            target.innerHTML = `${word.emoji}<br>${word.word}`;
+            target.dataset.type = word.type;
+            
+            // موضع عشوائي
+            const x = Math.random() * (window.innerWidth - 200);
+            const y = Math.random() * (window.innerHeight - 300) + 150;
+            
+            target.style.left = x + 'px';
+            target.style.top = y + 'px';
+            
+            // حركة عشوائية
+            const moveX = (Math.random() - 0.5) * 200;
+            const moveY = (Math.random() - 0.5) * 100;
+            
+            target.style.transform = `translate(${moveX}px, ${moveY}px)`;
+            target.style.transition = 'transform 3s linear';
+            
+            // إضافة مستمع النقر
+            target.addEventListener('click', (e) => shootTarget(e, target));
+            
+            document.querySelector('.game-container').appendChild(target);
+            gameState.targets.push(target);
+            
+            // إزالة الهدف بعد 4 ثواني
+            setTimeout(() => {
+                if (target.parentNode) {
+                    target.remove();
+                    gameState.targets = gameState.targets.filter(t => t !== target);
+                }
+            }, 4000);
+        }
+
+        function shootTarget(e, target) {
+            e.preventDefault();
+            
+            const targetType = target.dataset.type;
+            const rect = target.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            // تأثيرات الرماية
+            createMuzzleFlash(e.clientX, e.clientY);
+            createBulletTrail(e.clientX, e.clientY, centerX, centerY);
+            
+            // تحقق من الإصابة
+            const isCorrectHit = targetType === gameState.currentTarget;
+            
+            if (isCorrectHit) {
+                gameState.score += 10 + (gameState.combo * 2);
+                gameState.combo++;
+                
+                if (targetType === 'شمسية') {
+                    gameState.sunHits++;
+                } else {
+                    gameState.moonHits++;
+                }
+                
+                createHitEffect(centerX, centerY, true);
+                showCombo();
+                
+                // كونفيتي عند الكومبو العالي
+                if (gameState.combo % 5 === 0) {
+                    createConfetti();
+                }
+                
+            } else {
+                gameState.score = Math.max(0, gameState.score - 5);
+                gameState.combo = 0;
+                createHitEffect(centerX, centerY, false);
+            }
+            
+            // إزالة الهدف
+            target.remove();
+            gameState.targets = gameState.targets.filter(t => t !== target);
+            updateUI();
+        }
+
+        function createMuzzleFlash(x, y) {
+            const flash = document.createElement('div');
+            flash.className = 'muzzle-flash';
+            flash.style.left = (x - 15) + 'px';
+            flash.style.top = (y - 15) + 'px';
+            document.body.appendChild(flash);
+            
+            setTimeout(() => flash.remove(), 200);
+        }
+
+        function createBulletTrail(startX, startY, endX, endY) {
+            const trail = document.createElement('div');
+            trail.className = 'bullet-trail';
+            
+            const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
+            const distance = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+            
+            trail.style.left = startX + 'px';
+            trail.style.top = startY + 'px';
+            trail.style.transform = `rotate(${angle + 90}deg)`;
+            trail.style.height = Math.min(distance, 50) + 'px';
+            
+            document.body.appendChild(trail);
+            
+            setTimeout(() => trail.remove(), 300);
+        }
+
+        function createHitEffect(x, y, isCorrect) {
+            const effect = document.createElement('div');
+            effect.className = `hit-effect ${isCorrect ? 'hit-correct' : 'hit-wrong'}`;
+            effect.style.left = (x - 50) + 'px';
+            effect.style.top = (y - 50) + 'px';
+            document.body.appendChild(effect);
+            
+            setTimeout(() => effect.remove(), 600);
+        }
+
+        function showCombo() {
+            if (gameState.combo <= 1) return;
+            
+            const combo = document.querySelector('.combo');
+            if (combo) combo.remove();
+            
+            const newCombo = document.createElement('div');
+            newCombo.className = 'combo';
+            newCombo.textContent = `🔥 COMBO x${gameState.combo}!`;
+            document.body.appendChild(newCombo);
+            
+            setTimeout(() => newCombo.remove(), 1500);
+        }
+
+        function createConfetti() {
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7', '#a29bfe'];
+            
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.style.position = 'fixed';
+                    confetti.style.width = '8px';
+                    confetti.style.height = '8px';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.top = '-10px';
+                    confetti.style.borderRadius = '50%';
+                    confetti.style.zIndex = '999';
+                    confetti.style.animation = 'confetti-fall 2s linear forwards';
+                    
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 2000);
+                }, i * 100);
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('sunHits').textContent = gameState.sunHits;
+            document.getElementById('moonHits').textContent = gameState.moonHits;
+            document.getElementById('timer').textContent = gameState.timeLeft;
+            updateTargetMode();
+        }
+
+        function startGameTimer() {
+            gameTimer = setInterval(() => {
+                gameState.timeLeft--;
+                updateUI();
+                
+                if (gameState.timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function startSpawning() {
+            spawnTimer = setInterval(() => {
+                if (gameState.gameRunning && gameState.targets.length < 5) {
+                    spawnTarget();
+                }
+            }, 1500);
+        }
+
+        function endGame() {
+            gameState.gameRunning = false;
+            clearInterval(gameTimer);
+            clearInterval(spawnTimer);
+            
+            // إزالة جميع الأهداف
+            gameState.targets.forEach(target => target.remove());
+            
+            // إظهار شاشة النهاية
+            const gameOver = document.getElementById('gameOver');
+            const finalScore = document.getElementById('finalScore');
+            
+            let message = '';
+            if (gameState.score >= 200) {
+                message = `🏆 ممتاز! النتيجة: ${gameState.score} نقطة`;
+            } else if (gameState.score >= 100) {
+                message = `👏 جيد جداً! النتيجة: ${gameState.score} نقطة`;
+            } else {
+                message = `💪 حاول مرة أخرى! النتيجة: ${gameState.score} نقطة`;
+            }
+            
+            finalScore.textContent = message;
+            gameOver.style.display = 'flex';
+            
+            if (gameState.score >= 150) {
+                createConfetti();
+            }
+        }
+
+        function restartGame() {
+            document.getElementById('gameOver').style.display = 'none';
+            
+            // تنظيف الشاشة
+            document.querySelectorAll('.word-target, .hit-effect, .muzzle-flash, .bullet-trail, .combo').forEach(el => el.remove());
+            
+            initGame();
+        }
+
+        // تحريك المنظار مع الماوس
+        document.addEventListener('mousemove', (e) => {
+            const crosshair = document.getElementById('crosshair');
+            crosshair.style.left = e.clientX + 'px';
+            crosshair.style.top = e.clientY + 'px';
+        });
+
+        // منع القائمة السياقية
+        document.addEventListener('contextmenu', e => e.preventDefault());
+
+        // إضافة تأثيرات CSS للكونفيتي
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes confetti-fall {
+                0% {
+                    opacity: 1;
+                    transform: translateY(-10px) rotate(0deg);
+                }
+                100% {
+                    opacity: 0;
+                    transform: translateY(100vh) rotate(720deg);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // بدء اللعبة
+        window.onload = initGame;
+    </script>
+</body>
+</html>

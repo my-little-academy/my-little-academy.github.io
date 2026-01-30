@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<title>رحلة الجواب الذهبي 🌟</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Amiri&display=swap');
+
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Amiri', serif;
+    background: linear-gradient(135deg, #fff0db, #ffe6ec);
+    background-image: url('https://i.imgur.com/9zTBP1D.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: #4e1e2a;
+    text-align: center;
+  }
+
+  .container {
+    background: rgba(255, 255, 255, 0.9);
+    margin: 50px auto;
+    padding: 40px;
+    border-radius: 25px;
+    max-width: 700px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    animation: fadeIn 1s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from {opacity: 0; transform: translateY(20px);}
+    to {opacity: 1; transform: translateY(0);}
+  }
+
+  h1 {
+    font-size: 32px;
+    color: #b02b59;
+    margin-bottom: 30px;
+    text-shadow: 1px 1px 2px #fff;
+  }
+
+  .question {
+    font-size: 24px;
+    margin-bottom: 25px;
+    background-color: #fff6f6;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: inset 0 0 5px #ffbedb;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .option {
+    background: #ffe0f0;
+    border: 2px solid #d81b60;
+    border-radius: 20px;
+    padding: 12px;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .option:hover {
+    background-color: #fcd2e0;
+    transform: scale(1.05);
+  }
+
+  .correct {
+    background-color: #c8e6c9 !important;
+    border-color: #388e3c !important;
+  }
+
+  .wrong {
+    background-color: #ffcdd2 !important;
+    border-color: #d32f2f !important;
+  }
+
+  #next-btn {
+    margin-top: 30px;
+    padding: 12px 25px;
+    font-size: 20px;
+    border: none;
+    border-radius: 25px;
+    background-color: #d81b60;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  #next-btn:hover {
+    background-color: #b01250;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>رحلة الجواب الذهبي ✨</h1>
+  <div class="question" id="question"></div>
+  <div class="options" id="options"></div>
+  <button id="next-btn" style="display:none;">التالي ➡️</button>
+</div>
+
+<script>
+  const questions = [
+    {
+      q: "من هو النبي الذي جاء بعد عيسى عليه السلام؟",
+      answers: ["محمد ﷺ", "إبراهيم عليه السلام", "يوسف عليه السلام", "موسى عليه السلام"],
+      correct: "محمد ﷺ"
+    },
+    {
+      q: "في أي غار نزل الوحي على النبي ﷺ لأول مرة؟",
+      answers: ["غار حراء", "غار ثور", "غار أحد", "غار الزيتون"],
+      correct: "غار حراء"
+    },
+    {
+      q: "كم كان عمر النبي ﷺ حين بُعث؟",
+      answers: ["40 سنة", "30 سنة", "25 سنة", "45 سنة"],
+      correct: "40 سنة"
+    },
+    {
+      q: "من كانت أول من آمنت بالنبي ﷺ من النساء؟",
+      answers: ["خديجة رضي الله عنها", "حفصة رضي الله عنها", "عائشة رضي الله عنها", "أم سلمة رضي الله عنها"],
+      correct: "خديجة رضي الله عنها"
+    }
+  ];
+
+  let current = 0;
+
+  const questionDiv = document.getElementById("question");
+  const optionsDiv = document.getElementById("options");
+  const nextBtn = document.getElementById("next-btn");
+
+  function loadQuestion() {
+    questionDiv.textContent = questions[current].q;
+    optionsDiv.innerHTML = "";
+    nextBtn.style.display = "none";
+
+    const shuffled = [...questions[current].answers].sort(() => Math.random() - 0.5);
+
+    shuffled.forEach(answer => {
+      const btn = document.createElement("div");
+      btn.className = "option";
+      btn.textContent = answer;
+      btn.onclick = () => checkAnswer(btn, answer);
+      optionsDiv.appendChild(btn);
+    });
+  }
+
+  function checkAnswer(button, selected) {
+    const correct = questions[current].correct;
+    const allOptions = document.querySelectorAll(".option");
+    allOptions.forEach(opt => opt.onclick = null); // Disable others
+
+    if (selected === correct) {
+      button.classList.add("correct");
+    } else {
+      button.classList.add("wrong");
+      allOptions.forEach(opt => {
+        if (opt.textContent === correct) opt.classList.add("correct");
+      });
+    }
+    nextBtn.style.display = "inline-block";
+  }
+
+  nextBtn.onclick = () => {
+    current = (current + 1) % questions.length;
+    loadQuestion();
+  };
+
+  loadQuestion();
+</script>
+
+</body>
+</html>

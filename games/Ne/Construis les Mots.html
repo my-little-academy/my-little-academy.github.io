@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Construis les Mots - Jeu de Syllabes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 1000px;
+            width: 100%;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shine 4s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .header {
+            position: relative;
+            z-index: 1;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 2.5em;
+            color: #4a5568;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .subtitle {
+            color: #718096;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .level-selector {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .level-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .level-btn.facile {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            color: white;
+        }
+
+        .level-btn.moyen {
+            background: linear-gradient(45deg, #fa709a, #fee140);
+            color: white;
+        }
+
+        .level-btn.difficile {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+
+        .level-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .level-btn.active {
+            transform: scale(1.1);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.5);
+            padding: 15px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+        }
+
+        .stat {
+            text-align: center;
+            color: #4a5568;
+            font-weight: bold;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            transform: scale(0.95);
+            animation: cardAppear 0.5s ease forwards;
+        }
+
+        @keyframes cardAppear {
+            to { transform: scale(1); }
+        }
+
+        .question {
+            font-size: 1.8em;
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .image-hint {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(45deg, #f7fafc, #edf2f7);
+            border-radius: 15px;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            border: 3px solid #e2e8f0;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .word-construction {
+            margin: 30px 0;
+            min-height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .syllable-slot {
+            min-width: 80px;
+            height: 60px;
+            border: 3px dashed #cbd5e0;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #a0aec0;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .syllable-slot.filled {
+            border-color: #667eea;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-style: solid;
+            animation: fillSlot 0.5s ease;
+        }
+
+        .syllable-slot.correct {
+            border-color: #56ab2f;
+            background: linear-gradient(45deg, #56ab2f, #a8e6cf);
+            animation: correctSlot 0.6s ease;
+        }
+
+        .syllable-slot.incorrect {
+            border-color: #ff6b6b;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            animation: incorrectSlot 0.6s ease;
+        }
+
+        @keyframes fillSlot {
+            0% { transform: scale(0.8); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes correctSlot {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes incorrectSlot {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+            100% { transform: translateX(0); }
+        }
+
+        .syllables-pool {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 30px 0;
+            min-height: 100px;
+        }
+
+        .syllable-card {
+            padding: 15px 20px;
+            border: 2px solid #667eea;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            color: #667eea;
+            user-select: none;
+            position: relative;
+            min-width: 70px;
+            text-align: center;
+        }
+
+        .syllable-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            background: #667eea;
+            color: white;
+        }
+
+        .syllable-card.selected {
+            background: #667eea;
+            color: white;
+            transform: scale(0.9);
+            opacity: 0.6;
+        }
+
+        .syllable-card.used {
+            background: #e2e8f0;
+            color: #a0aec0;
+            border-color: #e2e8f0;
+            cursor: not-allowed;
+            transform: scale(0.9);
+            opacity: 0.5;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .action-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .check-btn {
+            background: linear-gradient(45deg, #56ab2f, #a8e6cf);
+            color: white;
+        }
+
+        .clear-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+
+        .feedback.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .feedback.correct {
+            background: linear-gradient(45deg, #56ab2f, #a8e6cf);
+            color: white;
+        }
+
+        .feedback.incorrect {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+
+        .final-score {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .final-score h2 {
+            font-size: 2.5em;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .score-details {
+            font-size: 1.2em;
+            color: #4a5568;
+            margin-bottom: 30px;
+        }
+
+        .restart-btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .syllables-pool {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .syllable-card {
+                width: 200px;
+            }
+            
+            .word-construction {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1 class="title">🧩 Construis les Mots</h1>
+            <p class="subtitle">Assemble les syllabes pour former des mots français</p>
+        </div>
+
+        <div class="level-selector">
+            <button class="level-btn facile active" onclick="setLevel('facile')">
+                Facile 🌟
+            </button>
+            <button class="level-btn moyen" onclick="setLevel('moyen')">
+                Moyen 🔥
+            </button>
+            <button class="level-btn difficile" onclick="setLevel('difficile')">
+                Difficile 💪
+            </button>
+        </div>
+
+        <div class="game-stats">
+            <div class="stat">
+                <div class="stat-value" id="score">0</div>
+                <div>Points</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="question-number">1</div>
+                <div>Question</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="level-display">Facile</div>
+                <div>Niveau</div>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress"></div>
+        </div>
+
+        <div class="question-card" id="question-card">
+            <div class="question">Forme le mot avec les syllabes :</div>
+            
+            <div class="image-hint" id="image-hint">🏠</div>
+            
+            <div class="word-construction" id="word-construction">
+                <!-- Syllable slots will be generated here -->
+            </div>
+            
+            <div class="syllables-pool" id="syllables-pool">
+                <!-- Syllable cards will be generated here -->
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-btn check-btn" onclick="checkAnswer()" id="check-btn">
+                    Vérifier ✓
+                </button>
+                <button class="action-btn clear-btn" onclick="clearConstruction()">
+                    Effacer ✗
+                </button>
+            </div>
+            
+            <div class="feedback" id="feedback"></div>
+        </div>
+
+        <div class="final-score hidden" id="final-score">
+            <h2>🎉 Fantastique !</h2>
+            <div class="score-details">
+                <p>Score final : <span id="final-points">0</span> points</p>
+                <p>Mots réussis : <span id="correct-answers">0</span> sur <span id="total-questions">10</span></p>
+                <p id="performance-message">Excellent travail !</p>
+            </div>
+            <button class="restart-btn" onclick="restartGame()">Rejouer 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        const words = {
+            facile: [
+                { word: 'maison', syllables: ['mai', 'son'], emoji: '🏠', hint: 'Où on habite' },
+                { word: 'chat', syllables: ['chat'], emoji: '🐱', hint: 'Animal domestique' },
+                { word: 'soleil', syllables: ['so', 'leil'], emoji: '☀️', hint: 'Astre du jour' },
+                { word: 'fleur', syllables: ['fleur'], emoji: '🌸', hint: 'Plante colorée' },
+                { word: 'voiture', syllables: ['voi', 'ture'], emoji: '🚗', hint: 'Moyen de transport' },
+                { word: 'bateau', syllables: ['ba', 'teau'], emoji: '🚢', hint: 'Navigue sur l\'eau' },
+                { word: 'école', syllables: ['é', 'cole'], emoji: '🏫', hint: 'Lieu d\'apprentissage' },
+                { word: 'pomme', syllables: ['pomme'], emoji: '🍎', hint: 'Fruit rouge ou vert' },
+                { word: 'lion', syllables: ['lion'], emoji: '🦁', hint: 'Roi des animaux' },
+                { word: 'poisson', syllables: ['pois', 'son'], emoji: '🐠', hint: 'Nage dans l\'eau' }
+            ],
+            moyen: [
+                { word: 'ordinateur', syllables: ['or', 'di', 'na', 'teur'], emoji: '💻', hint: 'Machine informatique' },
+                { word: 'téléphone', syllables: ['té', 'lé', 'phone'], emoji: '📱', hint: 'Appareil de communication' },
+                { word: 'bicyclette', syllables: ['bi', 'cy', 'clette'], emoji: '🚲', hint: 'Véhicule à deux roues' },
+                { word: 'papillon', syllables: ['pa', 'pi', 'llon'], emoji: '🦋', hint: 'Insecte coloré' },
+                { word: 'hélicoptère', syllables: ['hé', 'li', 'cop', 'tère'], emoji: '🚁', hint: 'Appareil volant' },
+                { word: 'bibliothèque', syllables: ['bi', 'blio', 'thèque'], emoji: '📚', hint: 'Lieu des livres' },
+                { word: 'pharmacie', syllables: ['phar', 'ma', 'cie'], emoji: '💊', hint: 'Magasin de médicaments' },
+                { word: 'hôpital', syllables: ['hô', 'pi', 'tal'], emoji: '🏥', hint: 'Lieu de soins' },
+                { word: 'restaurant', syllables: ['res', 'tau', 'rant'], emoji: '🍽️', hint: 'Lieu pour manger' },
+                { word: 'appartement', syllables: ['ap', 'par', 'te', 'ment'], emoji: '🏢', hint: 'Logement en immeuble' }
+            ],
+            difficile: [
+                { word: 'mathématiques', syllables: ['ma', 'thé', 'ma', 'tiques'], emoji: '🔢', hint: 'Science des nombres' },
+                { word: 'philosophie', syllables: ['phi', 'lo', 'so', 'phie'], emoji: '🤔', hint: 'Étude de la pensée' },
+                { word: 'technologie', syllables: ['tech', 'no', 'lo', 'gie'], emoji: '⚙️', hint: 'Science appliquée' },
+                { word: 'université', syllables: ['u', 'ni', 'ver', 'si', 'té'], emoji: '🎓', hint: 'Enseignement supérieur' },
+                { word: 'expérimentation', syllables: ['ex', 'pé', 'ri', 'men', 'ta', 'tion'], emoji: '🔬', hint: 'Test scientifique' },
+                { word: 'communication', syllables: ['com', 'mu', 'ni', 'ca', 'tion'], emoji: '📢', hint: 'Échange d\'informations' },
+                { word: 'international', syllables: ['in', 'ter', 'na', 'tio', 'nal'], emoji: '🌍', hint: 'Entre plusieurs pays' },
+                { word: 'démocratique', syllables: ['dé', 'mo', 'cra', 'tique'], emoji: '🗳️', hint: 'Système politique' },
+                { word: 'photographie', syllables: ['pho', 'to', 'gra', 'phie'], emoji: '📸', hint: 'Art de l\'image' },
+                { word: 'réfrigérateur', syllables: ['ré', 'fri', 'gé', 'ra', 'teur'], emoji: '❄️', hint: 'Appareil de conservation' }
+            ]
+        };
+
+        let currentLevel = 'facile';
+        let currentQuestion = 0;
+        let score = 0;
+        let correctAnswers = 0;
+        let totalQuestions = 10;
+        let gameQuestions = [];
+        let userConstruction = [];
+        let isAnswered = false;
+
+        function setLevel(level) {
+            currentLevel = level;
+            document.querySelectorAll('.level-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.level-btn.${level}`).classList.add('active');
+            
+            const levelDisplay = document.getElementById('level-display');
+            const levelNames = {
+                facile: 'Facile',
+                moyen: 'Moyen',
+                difficile: 'Difficile'
+            };
+            levelDisplay.textContent = levelNames[level];
+            
+            generateQuestions();
+            loadQuestion();
+        }
+
+        function generateQuestions() {
+            gameQuestions = [...words[currentLevel]];
+            
+            // Shuffle questions
+            for (let i = gameQuestions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [gameQuestions[i], gameQuestions[j]] = [gameQuestions[j], gameQuestions[i]];
+            }
+            
+            currentQuestion = 0;
+            score = 0;
+            correctAnswers = 0;
+            isAnswered = false;
+        }
+
+        function loadQuestion() {
+            if (currentQuestion >= totalQuestions) {
+                showFinalScore();
+                return;
+            }
+
+            const question = gameQuestions[currentQuestion];
+            userConstruction = [];
+            
+            // Update display
+            document.getElementById('question-number').textContent = currentQuestion + 1;
+            document.getElementById('score').textContent = score;
+            document.getElementById('image-hint').textContent = question.emoji;
+            
+            // Update progress bar
+            const progress = (currentQuestion / totalQuestions) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+            
+            // Create syllable slots
+            const wordConstruction = document.getElementById('word-construction');
+            wordConstruction.innerHTML = '';
+            
+            for (let i = 0; i < question.syllables.length; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'syllable-slot';
+                slot.textContent = i + 1;
+                slot.dataset.index = i;
+                wordConstruction.appendChild(slot);
+            }
+            
+            // Create syllable pool (shuffled)
+            const syllablesPool = document.getElementById('syllables-pool');
+            syllablesPool.innerHTML = '';
+            
+            // Add correct syllables and some distractors
+            const allSyllables = [...question.syllables];
+            const distractors = getDistractors(question.syllables);
+            allSyllables.push(...distractors);
+            
+            // Shuffle syllables
+            for (let i = allSyllables.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [allSyllables[i], allSyllables[j]] = [allSyllables[j], allSyllables[i]];
+            }
+            
+            allSyllables.forEach(syllable => {
+                const card = document.createElement('div');
+                card.className = 'syllable-card';
+                card.textContent = syllable;
+                card.onclick = () => selectSyllable(syllable, card);
+                syllablesPool.appendChild(card);
+            });
+            
+            // Reset feedback
+            document.getElementById('feedback').classList.remove('show');
+            document.getElementById('check-btn').disabled = false;
+            
+            isAnswered = false;
+        }
+
+        function getDistractors(correctSyllables) {
+            const allSyllables = [];
+            Object.values(words[currentLevel]).forEach(wordObj => {
+                allSyllables.push(...wordObj.syllables);
+            });
+            
+            const distractors = [];
+            const used = new Set(correctSyllables);
+            
+            for (let syllable of allSyllables) {
+                if (!used.has(syllable) && distractors.length < 3) {
+                    distractors.push(syllable);
+                    used.add(syllable);
+                }
+            }
+            
+            return distractors;
+        }
+
+        function selectSyllable(syllable, card) {
+            if (isAnswered || card.classList.contains('used')) return;
+            
+            const question = gameQuestions[currentQuestion];
+            
+            if (userConstruction.length < question.syllables.length) {
+                userConstruction.push(syllable);
+                card.classList.add('used');
+                
+                // Fill the next empty slot
+                const slots = document.querySelectorAll('.syllable-slot');
+                const nextSlot = slots[userConstruction.length - 1];
+                nextSlot.textContent = syllable;
+                nextSlot.classList.add('filled');
+            }
+        }
+
+        function clearConstruction() {
+            if (isAnswered) return;
+            
+            userConstruction = [];
+            
+            // Clear slots
+            document.querySelectorAll('.syllable-slot').forEach((slot, index) => {
+                slot.textContent = index + 1;
+                slot.classList.remove('filled', 'correct', 'incorrect');
+            });
+            
+            // Reset syllable cards
+            document.querySelectorAll('.syllable-card').forEach(card => {
+                card.classList.remove('used', 'selected');
+            });
+        }
+
+        function checkAnswer() {
+            if (isAnswered || userConstruction.length === 0) return;
+            
+            isAnswered = true;
+            const question = gameQuestions[currentQuestion];
+            const isCorrect = JSON.stringify(userConstruction) === JSON.stringify(question.syllables);
+            
+            // Color the slots
+            document.querySelectorAll('.syllable-slot').forEach(slot => {
+                slot.classList.add(isCorrect ? 'correct' : 'incorrect');
+            });
+            
+            // Show feedback
+            const feedback = document.getElementById('feedback');
+            
+            if (isCorrect) {
+                feedback.textContent = `🎉 Parfait ! Tu as formé "${question.word}" !`;
+                feedback.className = 'feedback correct show';
+                score += currentLevel === 'facile' ? 10 : currentLevel === 'moyen' ? 15 : 20;
+                correctAnswers++;
+            } else {
+                feedback.textContent = `❌ Pas tout à fait ! Le mot correct est "${question.word}" : ${question.syllables.join(' - ')}`;
+                feedback.className = 'feedback incorrect show';
+            }
+            
+            document.getElementById('check-btn').disabled = true;
+            
+            // Move to next question
+            setTimeout(() => {
+                currentQuestion++;
+                loadQuestion();
+            }, 3000);
+        }
+
+        function showFinalScore() {
+            document.getElementById('question-card').classList.add('hidden');
+            
+            const finalScore = document.getElementById('final-score');
+            document.getElementById('final-points').textContent = score;
+            document.getElementById('correct-answers').textContent = correctAnswers;
+            document.getElementById('total-questions').textContent = totalQuestions;
+            
+            // Performance message
+            const percentage = (correctAnswers / totalQuestions) * 100;
+            const performanceMessage = document.getElementById('performance-message');
+            
+            if (percentage >= 90) {
+                performanceMessage.textContent = "🌟 Extraordinaire ! Tu es un expert des syllabes !";
+                performanceMessage.style.color = "#56ab2f";
+            } else if (percentage >= 70) {
+                performanceMessage.textContent = "👍 Très bon travail ! Continue !";
+                performanceMessage.style.color = "#667eea";
+            } else if (percentage >= 50) {
+                performanceMessage.textContent = "👌 Bien joué ! Tu progresses !";
+                performanceMessage.style.color = "#fa709a";
+            } else {
+                performanceMessage.textContent = "💪 Continue à t'entraîner, tu vas y arriver !";
+                performanceMessage.style.color = "#ff6b6b";
+            }
+            
+            finalScore.classList.remove('hidden');
+        }
+
+        function restartGame() {
+            document.getElementById('final-score').classList.add('hidden');
+            document.getElementById('question-card').classList.remove('hidden');
+            generateQuestions();
+            loadQuestion();
+        }
+
+        // Start the game
+        generateQuestions();
+        loadQuestion();
+    </script>
+</body>
+</html>

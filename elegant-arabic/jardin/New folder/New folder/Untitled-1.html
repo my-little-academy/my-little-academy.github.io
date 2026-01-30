@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الكلمات المفقودة</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* خلفية الأزهار المتحركة */
+        .flower-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .flower {
+            position: absolute;
+            font-size: 2rem;
+            opacity: 0.7;
+            animation: floatAndRotate 10s infinite linear;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+        }
+
+        @keyframes floatAndRotate {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.7;
+            }
+            90% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* تأثير الضباب الساحر */
+        .magical-mist {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: mistMove 15s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        @keyframes mistMove {
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.3; }
+            50% { transform: scale(1.2) rotate(180deg); opacity: 0.1; }
+        }
+
+        /* المحتوى الرئيسي */
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            text-align: center;
+        }
+
+        .header {
+            margin-bottom: 3rem;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease-in-out infinite, titleGlow 2s ease-in-out infinite alternate;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            margin-bottom: 1rem;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes titleGlow {
+            0% { filter: brightness(1); }
+            100% { filter: brightness(1.3); }
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 300;
+            animation: fadeIn 2s ease-out 0.5s both;
+            line-height: 1.6;
+        }
+
+        /* بطاقة اللعبة */
+        .game-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 2.5rem;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            width: 100%;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: fadeInUp 1s ease-out;
+            animation-delay: 1.5s;
+            animation-fill-mode: both;
+            text-align: center;
+        }
+
+        .question-text {
+            font-size: 1.8rem;
+            color: white;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            line-height: 1.8;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            transition: all 0.5s ease-in-out;
+        }
+        
+        .question-text span {
+            color: yellow;
+        }
+
+        .options-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .option-button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 1rem 2rem;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .option-button:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .option-button.correct {
+            background: #4CAF50; /* أخضر */
+            border-color: #388E3C;
+            transform: scale(1.1);
+            animation: pulseCorrect 1s infinite alternate;
+        }
+        
+        @keyframes pulseCorrect {
+            from { transform: scale(1.1); }
+            to { transform: scale(1.15); }
+        }
+
+        .option-button.incorrect {
+            background: #F44336; /* أحمر */
+            border-color: #D32F2F;
+            transform: scale(0.95);
+        }
+
+        .feedback-message {
+            margin-top: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            min-height: 2rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .next-button {
+            background: #45b7d1;
+            color: white;
+            border: none;
+            padding: 1rem 3rem;
+            border-radius: 50px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .next-button:hover {
+            background: #36a4be;
+            transform: scale(1.05);
+        }
+
+        .results-container {
+            font-size: 2rem;
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 1s ease-out;
+            margin-top: 2rem;
+        }
+
+        /* تأثيرات الحركة */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* تأثير الجسيمات المتطايرة */
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        .particle::before {
+            content: '✨';
+            font-size: 1rem;
+            animation: particleFloat 8s linear infinite;
+            display: block;
+        }
+
+        @keyframes particleFloat {
+            0% {
+                transform: translateY(100vh) translateX(0px) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* تأثير الفراشات */
+        .butterfly {
+            position: fixed;
+            font-size: 1.5rem;
+            animation: butterflyFly 12s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 4;
+        }
+
+        @keyframes butterflyFly {
+            0%, 100% {
+                transform: translateX(-100px) translateY(50vh);
+            }
+            25% {
+                transform: translateX(25vw) translateY(20vh);
+            }
+            50% {
+                transform: translateX(75vw) translateY(70vh);
+            }
+            75% {
+                transform: translateX(50vw) translateY(30vh);
+            }
+        }
+
+        /* استجابة للشاشات الصغيرة */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            .game-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="flower-background" id="flowerBackground"></div>
+    
+    <div class="magical-mist"></div>
+    
+    <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+    <div class="particle" style="left: 30%; animation-delay: 2s;"></div>
+    <div class="particle" style="left: 50%; animation-delay: 4s;"></div>
+    <div class="particle" style="left: 70%; animation-delay: 6s;"></div>
+    <div class="particle" style="left: 90%; animation-delay: 1s;"></div>
+    
+    <div class="butterfly" style="animation-delay: 0s;">🦋</div>
+    <div class="butterfly" style="animation-delay: 4s;">🦋</div>
+    <div class="butterfly" style="animation-delay: 8s;">🦋</div>
+
+    <div class="container">
+        <header class="header">
+            <h1 class="title">لعبة الكلمات المفقودة ✨</h1>
+            <p class="subtitle">هل أنت مستعد لاختبار معلوماتك؟ اختر الكلمة الصحيحة لإكمال كل جملة!</p>
+        </header>
+
+        <main id="game-area">
+            <div class="game-card">
+                <div id="question-container">
+                    <p class="question-text" id="question-text"></p>
+                    <div class="options-container" id="options-container"></div>
+                </div>
+                <div id="feedback-container">
+                    <p class="feedback-message" id="feedback-message"></p>
+                </div>
+            </div>
+            <button class="next-button" id="next-button" style="display:none;">السؤال التالي</button>
+        </main>
+        
+        <div id="results-area" class="results-container" style="display:none;">
+            <h2 id="final-score"></h2>
+            <p id="congrats-message"></p>
+            <button class="next-button" onclick="location.reload();">إعادة اللعب</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                sentence: "هَذَا وَلَدٌ __.",
+                options: ["لَطِيفٍ", "لَطِيفٌ", "لَطِيفًا"],
+                answer: "لَطِيفٌ"
+            },
+            {
+                sentence: "تُشْرِقُ __ فِي الصَّبَاحِ.",
+                options: ["اَلْقَمَرُ", "اَلشَّمْسُ", "اَلنُّجُومُ"],
+                answer: "اَلشَّمْسُ"
+            },
+            {
+                sentence: "رَأَيْتُ __ فِي الحَدِيقَةِ.",
+                options: ["شَجَرَةً", "شَجَرَت", "شَجَرَهً"],
+                answer: "شَجَرَةً"
+            },
+            {
+                sentence: "قَرَأْتُ __ عَنْ قِصَّةٍ.",
+                options: ["جُزْءٌ", "جُزْءٍ", "جُزْءً"],
+                answer: "جُزْءً"
+            },
+            {
+                sentence: "أَكَلَتْ __ التُّفَّاحَةَ.",
+                options: ["فَاطِمَةُ", "فَاطِمَتْ", "فَاطِمَةَ"],
+                answer: "فَاطِمَةُ"
+            },
+            {
+                sentence: "اِشْتًرًيْتُ __ .",
+                options: ["الْمكَتَبَةِ", "اَلْكَتَبَةِ", "الْكُتُبَ"],
+                answer: "الْكُتُبَ"
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const nextButton = document.getElementById('next-button');
+        const gameArea = document.getElementById('game-area');
+        const resultsArea = document.getElementById('results-area');
+        const finalScore = document.getElementById('final-score');
+        const congratsMessage = document.getElementById('congrats-message');
+
+        function showQuestion() {
+            if (currentQuestionIndex < questions.length) {
+                const currentQuestion = questions[currentQuestionIndex];
+                
+                // تحديث نص السؤال
+                questionText.textContent = currentQuestion.sentence.replace('__', '...');
+                
+                // تحديث الخيارات
+                optionsContainer.innerHTML = '';
+                currentQuestion.options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = 'option-button';
+                    button.textContent = option;
+                    button.addEventListener('click', () => checkAnswer(button, option, currentQuestion.answer));
+                    optionsContainer.appendChild(button);
+                });
+                
+                // إخفاء زر التالي والرسالة
+                nextButton.style.display = 'none';
+                feedbackMessage.textContent = '';
+                
+            } else {
+                showResults();
+            }
+        }
+
+        function checkAnswer(button, selectedOption, correctAnswer) {
+            // تعطيل جميع الأزرار بعد الاختيار
+            const allButtons = optionsContainer.querySelectorAll('.option-button');
+            allButtons.forEach(btn => btn.disabled = true);
+
+            if (selectedOption === correctAnswer) {
+                score++;
+                button.classList.add('correct');
+                feedbackMessage.textContent = 'إجابة صحيحة! 🎉';
+                feedbackMessage.style.color = '#4CAF50';
+            } else {
+                button.classList.add('incorrect');
+                // إظهار الإجابة الصحيحة
+                const correctButton = Array.from(allButtons).find(btn => btn.textContent === correctAnswer);
+                if (correctButton) {
+                    correctButton.classList.add('correct');
+                }
+                feedbackMessage.textContent = 'إجابة خاطئة. 😔';
+                feedbackMessage.style.color = '#F44336';
+            }
+            
+            // تأكد من ظهور زر التالي بعد الإجابة
+            nextButton.style.display = 'block';
+        }
+
+        function showResults() {
+            gameArea.style.display = 'none';
+            resultsArea.style.display = 'block';
+            finalScore.textContent = `لقد حصلت على ${score} من أصل ${questions.length} نقاط!`;
+            
+            let message = '';
+            if (score === questions.length) {
+                message = "مذهل! لقد أجبت على كل الأسئلة بشكل صحيح. أنت محترف في القواعد!";
+                congratsMessage.style.color = '#4CAF50';
+            } else if (score >= questions.length / 2) {
+                message = "أحسنت! لديك معرفة جيدة بالقواعد. استمر في التدريب!";
+                congratsMessage.style.color = '#FFC107';
+            } else {
+                message = "لا بأس! هذه مجرد بداية. يمكنك العودة لصفحات القواعد السابقة ومراجعتها.";
+                congratsMessage.style.color = '#F44336';
+            }
+            congratsMessage.textContent = message;
+        }
+
+        nextButton.addEventListener('click', () => {
+            currentQuestionIndex++;
+            showQuestion();
+        });
+
+        // تشغيل اللعبة عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', () => {
+            showQuestion();
+            // تشغيل تأثيرات الخلفية
+            function createFlowers() {
+                const flowerBackground = document.getElementById('flowerBackground');
+                const flowers = ['🌸', '🌺', '🌹', '🌷', '🌼', '🌻', '🌴', '🍀', '🌿', '🌱'];
+                function addFlower() {
+                    const flower = document.createElement('div');
+                    flower.className = 'flower';
+                    flower.style.left = Math.random() * 100 + '%';
+                    flower.style.animationDuration = (Math.random() * 5 + 8) + 's';
+                    flower.style.animationDelay = Math.random() * 2 + 's';
+                    flower.textContent = flowers[Math.floor(Math.random() * flowers.length)];
+                    flowerBackground.appendChild(flower);
+                    setTimeout(() => { if (flower.parentNode) flower.parentNode.removeChild(flower); }, 12000);
+                }
+                setInterval(addFlower, 2000);
+                for (let i = 0; i < 5; i++) { setTimeout(addFlower, i * 400); }
+            }
+            createFlowers();
+        });
+    </script>
+</body>
+</html>

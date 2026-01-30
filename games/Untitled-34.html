@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة تحليل الكلمات صوتيًا</title>
+    <link href="https://fonts.googleapis.com/css2?family=Changa:wght@600;800&family=Cairo:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #FF6B6B; /* Vibrant Red */
+            --secondary-color: #4ECDC4; /* Teal Green */
+            --accent-color-1: #FFE66D; /* Sunny Yellow */
+            --accent-color-2: #484848; /* Dark Grey for text */
+            --bg-light: #F7FFF7; /* Off-white for general background */
+            --bg-dark: #2F3640; /* Darker background for contrast */
+            --shadow-light: rgba(0, 0, 0, 0.15);
+            --shadow-medium: rgba(0, 0, 0, 0.25);
+        }
+
+        body {
+            font-family: 'Changa', sans-serif; /* Playful Arabic font */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--bg-light) 0%, #DFF3E0 100%); /* Soft gradient background */
+            color: var(--accent-color-2);
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow: hidden; /* Prevent scrollbar from animation */
+        }
+
+        /* Confetti effect on correct answer */
+        .confetti-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 9999;
+        }
+
+        .confetti {
+            width: 10px;
+            height: 10px;
+            background-color: var(--accent-color-1);
+            position: absolute;
+            opacity: 0;
+            animation: fall 3s forwards ease-out;
+            border-radius: 50%;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 25px; /* More rounded corners */
+            box-shadow: 0 10px 30px var(--shadow-medium); /* Stronger shadow */
+            width: 95%;
+            max-width: 650px;
+            border: 5px solid var(--secondary-color); /* Colorful border */
+            position: relative;
+            z-index: 10;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-size: 2.8em;
+            text-shadow: 2px 2px 4px var(--shadow-light);
+            font-family: 'Cairo', sans-serif; /* Stronger header font */
+        }
+
+        p {
+            font-size: 1.4em;
+            margin-bottom: 20px;
+            color: var(--accent-color-2);
+        }
+
+        #word-display {
+            font-size: 4.5em; /* Larger word */
+            font-weight: 800; /* Bolder */
+            margin: 40px 0;
+            color: var(--primary-color);
+            text-shadow: 3px 3px 6px var(--shadow-light);
+            letter-spacing: 2px;
+            word-wrap: break-word;
+            min-height: 1.5em; /* Prevent layout shift */
+            background-color: var(--accent-color-1); /* Highlight word */
+            padding: 15px 30px;
+            border-radius: 15px;
+            box-shadow: inset 0 2px 8px var(--shadow-light);
+            display: inline-block; /* To apply padding */
+        }
+
+        input[type="number"] {
+            padding: 15px;
+            font-size: 1.5em;
+            width: 100px;
+            margin-bottom: 25px;
+            border: 3px solid var(--secondary-color); /* Thicker border */
+            border-radius: 10px;
+            text-align: center;
+            -moz-appearance: textfield;
+            box-shadow: inset 0 2px 5px var(--shadow-light);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            font-family: 'Changa', sans-serif;
+            color: var(--accent-color-2);
+        }
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.3); /* Focus glow */
+        }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        button {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 15px 35px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            margin: 10px;
+            box-shadow: 0 5px 15px var(--shadow-light);
+            font-family: 'Changa', sans-serif;
+            font-weight: 600;
+        }
+        button:hover {
+            background-color: #3BB7B0; /* Slightly darker teal */
+            transform: translateY(-3px); /* Lift effect */
+            box-shadow: 0 8px 20px var(--shadow-medium);
+        }
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 10px var(--shadow-light);
+        }
+
+        #check-button {
+            background-color: var(--primary-color);
+        }
+        #check-button:hover {
+            background-color: #E65A5A;
+        }
+
+        #feedback {
+            margin-top: 30px;
+            font-size: 1.8em;
+            font-weight: 800;
+            min-height: 2.2em; /* Reserve space */
+            color: var(--accent-color-2);
+            text-shadow: 1px 1px 2px var(--shadow-light);
+        }
+        .correct {
+            color: var(--primary-color); /* Green for correct */
+            animation: bounceIn 0.8s ease-out;
+        }
+        .wrong {
+            color: #E74C3C; /* Brighter red for wrong */
+            animation: shake 0.5s ease-out;
+        }
+
+        @keyframes bounceIn {
+            0%, 20%, 40%, 60%, 80%, 100% {
+                transition-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+            }
+            0% {
+                opacity: 0;
+                transform: scale3d(0.3, 0.3, 0.3);
+            }
+            20% {
+                transform: scale3d(1.1, 1.1, 1.1);
+            }
+            40% {
+                transform: scale3d(0.9, 0.9, 0.9);
+            }
+            60% {
+                opacity: 1;
+                transform: scale3d(1.03, 1.03, 1.03);
+            }
+            80% {
+                transform: scale3d(0.97, 0.97, 0.97);
+            }
+            100% {
+                opacity: 1;
+                transform: scale3d(1, 1, 1);
+            }
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+            100% { transform: translateX(0); }
+        }
+
+        #syllables-display {
+            margin-top: 25px;
+            font-size: 2em;
+            font-weight: 600;
+            color: var(--secondary-color);
+            min-height: 2.5em; /* Reserve space */
+            word-wrap: break-word;
+            background-color: #E0FFF7; /* Light background for syllables */
+            padding: 10px 20px;
+            border-radius: 10px;
+            box-shadow: inset 0 1px 5px var(--shadow-light);
+            animation: slideInUp 0.7s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Basic responsiveness */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2em;
+            }
+            #word-display {
+                font-size: 3.5em;
+                padding: 10px 20px;
+            }
+            input[type="number"] {
+                font-size: 1.3em;
+                width: 80px;
+            }
+            button {
+                font-size: 1.3em;
+                padding: 12px 25px;
+            }
+            #feedback {
+                font-size: 1.5em;
+            }
+            #syllables-display {
+                font-size: 1.6em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="confetti-effect" id="confetti-container"></div>
+
+    <div class="container">
+        <h1>لعبة تحليل الكلمات صوتيًا</h1>
+        <p>كم عدد المقاطع الصوتية في الكلمة التالية؟</p>
+        <div id="word-display"></div>
+        <input type="number" id="user-answer" min="1" placeholder="العدد">
+        <button id="check-button">تحقق</button>
+        <button id="next-word-button" style="display: none;">كلمة جديدة</button>
+        <div id="feedback"></div>
+        <div id="syllables-display"></div>
+    </div>
+
+    <script>
+        // الكلمات التي ستستخدمها اللعبة (مع التقطيع الصوتي الصحيح يدوياً)
+        // هذا يضمن الدقة بنسبة 100% لأننا نتحكم بالتقطيع لكل كلمة
+        const words = [
+            { word: "كِتَابٌ", syllables: ["كِ", "تا", "بٌ"] },
+            { word: "مَدْرَسَةٌ", syllables: ["مَدْ", "رَ", "سَةٌ"] },
+            { word: "شَمْسٌ", syllables: ["شَمْ", "سٌ"] },
+            { word: "قَمَرٌ", syllables: ["قَ", "مَرٌ"] },
+            { word: "اَلْبَيْتُ", syllables: ["الْ", "بَيْ", "تُ"] },
+            { word: "اَلشَّمْسُ", syllables: ["الْشْ", "شَمْ", "سُ"] }, // تصحيح التقطيع هنا
+            { word: "تُفَّاحٌ", syllables: ["تُفْ", "فا", "حٌ"] },
+            { word: "أَزْهَارٌ", syllables: ["أَزْ", "ها", "رٌ"] },
+            { word: "اَلْمُعَلِّمُ", syllables: ["الْ", "مُ", "عَلْ", "لِمُ"] },
+            { word: "اَلطَّائِرَةُ", syllables: ["الْطْ", "طا", "ئِ", "رَةُ"] }, // تصحيح التقطيع هنا
+            { word: "جَمَلٌ", syllables: ["جَ", "مَلٌ"] },
+            { word: "فِيلٌ", syllables: ["في", "لٌ"] },
+            { word: "كُرْسِيٌّ", syllables: ["كُرْ", "سيٌّ"] }, // شدة على الياء
+            { word: "سَيَّارَةٌ", syllables: ["سَيّ", "ا", "رَةٌ"] }, // شدة على الياء مع مد
+            { word: "مِفْتَاحٌ", syllables: ["مِفْ", "تا", "حٌ"] },
+            { word: "بَابٌ", syllables: ["با", "بٌ"] },
+            { word: "نَافِذَةٌ", syllables: ["نا", "فِ", "ذَةٌ"] },
+            { word: "حَدِيقَةٌ", syllables: ["حَ", "دي", "قَةٌ"] },
+            { word: "مَلَابِسُ", syllables: ["مَ", "لا", "بِسُ"] },
+            { word: "طَبِيبٌ", syllables: ["طَ", "بي", "بٌ"] },
+            { word: "تَفَكَّرَ", syllables: ["تَ", "فَكْ", "كَرَا"] }, // شدة على الكاف، واضحة
+            { word: "شَجَرَةٌ", syllables: ["شَ", "جَ", "رَةٌ"] },
+            { word: "مِكْوَاةٌ", syllables: ["مِكْ", "وا", "ةٌ"] },
+            { word: "أَصْغَرُ", syllables: ["أَصْ", "غَرُ"] },
+            { word: "اَلْأَرْضُ", syllables: ["الْ", "أَرْ", "ضُ"] }
+            // يمكنك إضافة المزيد من الكلمات هنا مع تقطيعاتها الصحيحة يدوياً
+        ];
+
+        let currentWordData = {};
+
+        const wordDisplay = document.getElementById('word-display');
+        const userAnswerInput = document.getElementById('user-answer');
+        const checkButton = document.getElementById('check-button');
+        const nextWordButton = document.getElementById('next-word-button');
+        const feedbackDiv = document.getElementById('feedback');
+        const syllablesDisplay = document.getElementById('syllables-display');
+        const confettiContainer = document.getElementById('confetti-container');
+
+        function getRandomWord() {
+            const randomIndex = Math.floor(Math.random() * words.length);
+            return words[randomIndex];
+        }
+
+        function displayNewWord() {
+            currentWordData = getRandomWord();
+            wordDisplay.textContent = currentWordData.word;
+            userAnswerInput.value = '';
+            feedbackDiv.textContent = '';
+            feedbackDiv.className = 'feedback'; // Reset class
+            syllablesDisplay.textContent = '';
+            syllablesDisplay.style.animation = 'none'; // Reset animation for new word
+            checkButton.style.display = 'inline-block';
+            checkButton.textContent = 'تحقق'; // Reset button text
+            nextWordButton.style.display = 'none';
+            userAnswerInput.disabled = false;
+            userAnswerInput.focus();
+            stopConfetti(); // Ensure confetti stops
+        }
+
+        function launchConfetti() {
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 70%)`; // Random color
+                confetti.style.animationDuration = (Math.random() * 2 + 1) + 's';
+                confetti.style.animationDelay = (Math.random() * 0.5) + 's';
+                confetti.style.transform = `scale(${Math.random() * 0.5 + 0.5})`; // Random size
+                confettiContainer.appendChild(confetti);
+
+                // Remove confetti after animation to prevent DOM clutter
+                confetti.addEventListener('animationend', () => {
+                    confetti.remove();
+                });
+            }
+        }
+
+        function stopConfetti() {
+            confettiContainer.innerHTML = ''; // Clear all confetti elements
+        }
+
+        function checkAnswer() {
+            const userAnswer = parseInt(userAnswerInput.value);
+            const correctSyllablesCount = currentWordData.syllables.length;
+
+            if (isNaN(userAnswer)) {
+                feedbackDiv.textContent = 'الرجاء إدخال رقم!';
+                feedbackDiv.className = 'feedback wrong';
+                return;
+            }
+
+            if (userAnswer === correctSyllablesCount) {
+                feedbackDiv.textContent = 'أحسنت! إجابة صحيحة ✅';
+                feedbackDiv.className = 'feedback correct';
+                syllablesDisplay.textContent = `التقطيع الصحيح: ${currentWordData.syllables.join(' - ')}`;
+                syllablesDisplay.style.animation = 'slideInUp 0.7s ease-out'; // Apply animation
+                checkButton.style.display = 'none';
+                nextWordButton.style.display = 'inline-block';
+                userAnswerInput.disabled = true;
+                launchConfetti(); // Launch confetti!
+            } else {
+                feedbackDiv.textContent = 'إجابة خاطئة ❌. الحل هو:';
+                feedbackDiv.className = 'feedback wrong';
+                checkButton.style.display = 'none'; // Hide "تحقق"
+                nextWordButton.style.display = 'inline-block'; // Show "كلمة جديدة" directly
+
+                // Display correct answer immediately after wrong attempt
+                syllablesDisplay.textContent = `التقطيع الصحيح: ${currentWordData.syllables.join(' - ')}`;
+                syllablesDisplay.style.animation = 'slideInUp 0.7s ease-out'; // Apply animation
+                userAnswerInput.disabled = true;
+            }
+        }
+
+        checkButton.addEventListener('click', checkAnswer);
+        nextWordButton.addEventListener('click', displayNewWord);
+        userAnswerInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter' && !userAnswerInput.disabled) {
+                checkAnswer();
+            }
+        });
+
+        // Initial word display
+        displayNewWord();
+    </script>
+</body>
+</html>

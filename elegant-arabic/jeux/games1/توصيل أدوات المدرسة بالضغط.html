@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة توصيل أدوات المدرسة</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f8ff;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .game-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .word-box, .image-box {
+            width: 150px;
+            height: 150px;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .image-box {
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        .word-box.selected, .image-box.selected {
+            border-color: #e74c3c;
+            background-color: #ffecec;
+            transform: scale(1.05);
+        }
+        .word-box.matched, .image-box.matched {
+            border-color: #2ecc71;
+            background-color: #e8f8f0;
+            opacity: 0.7;
+            cursor: default;
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #2ecc71;
+            height: 30px;
+        }
+        .reset-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .reset-btn:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <h1>لعبة توصيل أدوات المدرسة</h1>
+    <p>اختر كلمة ثم اختر الصورة التي تناسبها</p>
+    
+    <div class="game-container" id="words-container">
+        <!-- الكلمات ستضاف هنا بالجافاسكريبت -->
+    </div>
+    
+    <div class="game-container" id="images-container">
+        <!-- الصور ستضاف هنا بالجافاسكريبت -->
+    </div>
+    
+    <div class="message" id="message"></div>
+    <button class="reset-btn" onclick="resetGame()">إعادة اللعبة</button>
+    
+    <script>
+        // بيانات اللعبة (الكلمات والصور المتطابقة)
+        const gameData = [
+            { word: "قلم رصاص", image: "https://cdn.pixabay.com/photo/2014/09/17/21/30/pencil-450627_640.png" },
+            { word: "ممحاة", image: "https://cdn.pixabay.com/photo/2013/07/12/18/39/eraser-153547_640.png" },
+            { word: "مسطرة", image: "https://cdn.pixabay.com/photo/2013/07/12/18/56/ruler-154298_640.png" },
+            { word: "مقص", image: "https://cdn.pixabay.com/photo/2013/07/12/19/31/scissors-154743_640.png" },
+            { word: "حقيبة", image: "https://cdn.pixabay.com/photo/2014/04/03/00/41/school-bag-309417_640.png" },
+            { word: "كتاب", image: "https://cdn.pixabay.com/photo/2018/01/03/09/09/book-3057902_640.png" }
+        ];
+        
+        let selectedWord = null;
+        let selectedImage = null;
+        let matchedPairs = 0;
+        
+        // تهيئة اللعبة
+        function initGame() {
+            const wordsContainer = document.getElementById('words-container');
+            const imagesContainer = document.getElementById('images-container');
+            
+            // خلط العناصر عشوائياً
+            const shuffledWords = [...gameData].sort(() => Math.random() - 0.5);
+            const shuffledImages = [...gameData].sort(() => Math.random() - 0.5);
+            
+            // إضافة الكلمات
+            shuffledWords.forEach(item => {
+                const wordBox = document.createElement('div');
+                wordBox.className = 'word-box';
+                wordBox.textContent = item.word;
+                wordBox.dataset.word = item.word;
+                wordBox.onclick = () => selectWord(wordBox);
+                wordsContainer.appendChild(wordBox);
+            });
+            
+            // إضافة الصور
+            shuffledImages.forEach(item => {
+                const imageBox = document.createElement('div');
+                imageBox.className = 'image-box';
+                imageBox.style.backgroundImage = `url(${item.image})`;
+                imageBox.dataset.word = item.word;
+                imageBox.onclick = () => selectImage(imageBox);
+                imagesContainer.appendChild(imageBox);
+            });
+        }
+        
+        // اختيار كلمة
+        function selectWord(wordBox) {
+            if (wordBox.classList.contains('matched')) return;
+            
+            // إلغاء تحديد الكلمة السابقة إذا كانت موجودة
+            if (selectedWord) {
+                selectedWord.classList.remove('selected');
+            }
+            
+            selectedWord = wordBox;
+            wordBox.classList.add('selected');
+            
+            checkMatch();
+        }
+        
+        // اختيار صورة
+        function selectImage(imageBox) {
+            if (imageBox.classList.contains('matched')) return;
+            
+            // إلغاء تحديد الصورة السابقة إذا كانت موجودة
+            if (selectedImage) {
+                selectedImage.classList.remove('selected');
+            }
+            
+            selectedImage = imageBox;
+            imageBox.classList.add('selected');
+            
+            checkMatch();
+        }
+        
+        // التحقق من التطابق
+        function checkMatch() {
+            if (selectedWord && selectedImage) {
+                if (selectedWord.dataset.word === selectedImage.dataset.word) {
+                    // تطابق صحيح
+                    selectedWord.classList.add('matched');
+                    selectedImage.classList.add('matched');
+                    document.getElementById('message').textContent = 'أحسنت! تطابق صحيح';
+                    
+                    matchedPairs++;
+                    selectedWord = null;
+                    selectedImage = null;
+                    
+                    // التحقق من اكتمال اللعبة
+                    if (matchedPairs === gameData.length) {
+                        document.getElementById('message').textContent = 'مبروك! لقد أكملت اللعبة بنجاح';
+                    }
+                } else {
+                    // تطابق خاطئ
+                    document.getElementById('message').textContent = 'حاول مرة أخرى';
+                    setTimeout(() => {
+                        selectedWord.classList.remove('selected');
+                        selectedImage.classList.remove('selected');
+                        selectedWord = null;
+                        selectedImage = null;
+                        document.getElementById('message').textContent = '';
+                    }, 1000);
+                }
+            }
+        }
+        
+        // إعادة اللعبة
+        function resetGame() {
+            const wordsContainer = document.getElementById('words-container');
+            const imagesContainer = document.getElementById('images-container');
+            
+            wordsContainer.innerHTML = '';
+            imagesContainer.innerHTML = '';
+            document.getElementById('message').textContent = '';
+            
+            selectedWord = null;
+            selectedImage = null;
+            matchedPairs = 0;
+            
+            initGame();
+        }
+        
+        // بدء اللعبة عند تحميل الصفحة
+        window.onload = initGame;
+    </script>
+</body>
+</html>

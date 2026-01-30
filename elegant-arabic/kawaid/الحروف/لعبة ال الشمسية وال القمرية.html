@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لعبة: ال الشمسية والقمرية</title>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background-color: #f0f8ff;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #3b82f6;
+    }
+    .game-container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 40px;
+      margin-top: 40px;
+    }
+    .column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    .item {
+      background-color: #fff;
+      border: 2px solid #ddd;
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-size: 1.2em;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .item:hover {
+      background-color: #dbeafe;
+    }
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎯 لعبة ال الشمسية وال القمرية</h1>
+  <p>اربط كل كلمة بنوع "ال" المناسب لها!</p>
+  <div class="game-container">
+    <div class="column" id="words">
+      <div class="item" draggable="true" id="item1">الطبيب</div>
+      <div class="item" draggable="true" id="item2">المدرسة</div>
+      <div class="item" draggable="true" id="item3">القمر</div>
+      <div class="item" draggable="true" id="item4">الجمل</div>
+    </div>
+    <div class="column" id="categories">
+      <div class="item" ondrop="drop(event)" ondragover="allowDrop(event)" data-type="شمسية">☀️ ال الشمسية</div>
+      <div class="item" ondrop="drop(event)" ondragover="allowDrop(event)" data-type="قمرية">🌙 ال القمرية</div>
+    </div>
+  </div>
+
+  <script>
+    let items = document.querySelectorAll('.item[draggable=true]');
+
+    items.forEach(item => {
+      item.addEventListener('dragstart', drag);
+    });
+
+    function allowDrop(ev) {
+      ev.preventDefault();
+    }
+
+    function drag(ev) {
+      ev.dataTransfer.setData("text", ev.target.id);
+    }
+
+    function drop(ev) {
+      ev.preventDefault();
+      let data = ev.dataTransfer.getData("text");
+      let draggedElement = document.getElementById(data);
+      let dropTarget = ev.target;
+
+      // تحقق من التطابق
+      const sunLetters = ['الطبيب', 'المدرسة'];
+      const moonLetters = ['القمر', 'الجمل'];
+
+      if ((dropTarget.dataset.type === 'شمسية' && sunLetters.includes(draggedElement.textContent)) ||
+          (dropTarget.dataset.type === 'قمرية' && moonLetters.includes(draggedElement.textContent))) {
+        dropTarget.appendChild(draggedElement);
+        draggedElement.style.background = '#bbf7d0';
+        draggedElement.style.cursor = 'default';
+        draggedElement.setAttribute('draggable', 'false');
+      } else {
+        alert('❌ حاول مرة أخرى!');
+      }
+    }
+  </script>
+</body>
+</html>

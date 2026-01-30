@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ألعاب سورة الإنسان للأطفال</title>
+    <style>
+        :root {
+            --primary-color: #9c27b0;
+            --secondary-color: #673ab7;
+            --accent-color: #ff9800;
+            --light-color: #f3e5f5;
+            --dark-color: #4a148c;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: var(--dark-color);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            padding: 10px;
+        }
+        
+        .game-container {
+            background-color: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border: 3px solid var(--primary-color);
+            transition: all 0.3s;
+        }
+        
+        .game-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+        
+        .game-title {
+            color: var(--primary-color);
+            margin-top: 0;
+            font-size: 1.8em;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        button {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 18px;
+            margin: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+        
+        button:after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255,255,255,0.1);
+            transform: rotate(30deg);
+            transition: all 0.3s;
+        }
+        
+        button:hover:after {
+            left: 100%;
+        }
+        
+        .verse {
+            font-size: 24px;
+            color: var(--dark-color);
+            margin: 20px 0;
+            font-weight: bold;
+            line-height: 1.6;
+        }
+        
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .option {
+            background: linear-gradient(45deg, var(--light-color), #e1bee7);
+            padding: 15px 20px;
+            margin: 10px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 18px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            color: var(--dark-color);
+            font-weight: bold;
+            border: 2px solid var(--primary-color);
+        }
+        
+        .option:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+        
+        .correct {
+            background: linear-gradient(45deg, #4caf50, #8bc34a) !important;
+            animation: bounce 0.5s;
+            color: white !important;
+            border-color: #4caf50 !important;
+        }
+        
+        .wrong {
+            background: linear-gradient(45deg, #f44336, #e91e63) !important;
+            animation: shake 0.5s;
+            color: white !important;
+            border-color: #f44336 !important;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        .feedback {
+            font-size: 22px;
+            margin: 20px 0;
+            min-height: 40px;
+            color: var(--primary-color);
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: rgba(156, 39, 176, 0.1);
+        }
+        
+        .score {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .score span {
+            margin: 0 5px;
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+        
+        .kofte {
+            font-size: 40px;
+            animation: float 2s infinite;
+            display: none;
+            margin: 20px 0;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        /* لعبة الذاكرة */
+        .memory-game {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px auto;
+            max-width: 500px;
+        }
+        
+        .memory-card {
+            height: 100px;
+            background: linear-gradient(45deg, var(--light-color), #e1bee7);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            perspective: 1000px;
+            transform-style: preserve-3d;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .memory-card.flipped {
+            transform: rotateY(180deg);
+        }
+        
+        .memory-card .front,
+        .memory-card .back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+        }
+        
+        .memory-card .front {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            transform: rotateY(180deg);
+        }
+        
+        .memory-card .back {
+            background: linear-gradient(45deg, var(--light-color), #e1bee7);
+            color: var(--dark-color);
+        }
+        
+        /* لعبة السحب والإفلات */
+        .drag-drop-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .drag-item {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 10px;
+            cursor: grab;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .drop-zone {
+            min-height: 100px;
+            border: 3px dashed var(--primary-color);
+            border-radius: 15px;
+            margin: 20px 0;
+            padding: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(156, 39, 176, 0.05);
+            transition: all 0.3s;
+        }
+        
+        .drop-zone.highlight {
+            background-color: rgba(156, 39, 176, 0.1);
+            border-color: var(--accent-color);
+        }
+        
+        /* لعبة الاختيار الزمني */
+        .timed-choice-container {
+            position: relative;
+            height: 100px;
+            margin: 30px 0;
+        }
+        
+        .timed-progress {
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .timed-progress-bar {
+            height: 100%;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            width: 100%;
+            transition: width 0.1s linear;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tab-button {
+            background: linear-gradient(45deg, var(--light-color), #e1bee7);
+            color: var(--dark-color);
+            border: 2px solid var(--primary-color);
+            padding: 10px 20px;
+            cursor: pointer;
+            margin: 0 5px 10px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        
+        .tab-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+        
+        .tab-button.active {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+        
+        /* تأثيرات خاصة */
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: var(--primary-color);
+            animation: confetti-fall 3s linear forwards;
+        }
+        
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 ألعاب سورة الإنسان للأطفال 🧠</h1>
+        
+        <div class="tab-buttons">
+            <button class="tab-button active" onclick="showGame(1)">ذاكرة الآيات</button>
+            <button class="tab-button" onclick="showGame(2)">تركيب السورة</button>
+            <button class="tab-button" onclick="showGame(3)">تحدي الزمن</button>
+        </div>
+        
+        <!-- لعبة ذاكرة الآيات -->
+        <div id="game1" class="game-container">
+            <h2 class="game-title">🧩 لعبة ذاكرة آيات سورة الإنسان 🧩</h2>
+            <p>اطبع الآيات في ذاكرتك بتطابق الآيات المتشابهة!</p>
+            
+            <div class="memory-game" id="memory-board"></div>
+            
+            <div class="feedback" id="feedback1"></div>
+            <div class="score">الأزواج المطابقة: <span id="pairs-matched">0</span> من <span id="total-pairs">0</span></div>
+            <div class="kofte" id="kofte1">🎖️ كوفيتي لك! 🎖️</div>
+            
+            <button onclick="startMemoryGame()">ابدأ اللعبة</button>
+        </div>
+        
+        <!-- لعبة تركيب السورة -->
+        <div id="game2" class="game-container hidden">
+            <h2 class="game-title">🧩 لعبة تركيب سورة الإنسان 🧩</h2>
+            <p>اسحب وأسقط الآيات لتركيب السورة بالترتيب الصحيح!</p>
+            
+            <div class="drag-drop-container" id="drag-items"></div>
+            
+            <div class="verse">الترتيب الصحيح:</div>
+            <div class="drop-zone" id="drop-zone"></div>
+            
+            <div class="feedback" id="feedback2"></div>
+            <div class="kofte" id="kofte2">🎖️ كوفيتي لك! 🎖️</div>
+            
+            <button onclick="startDragDropGame()">ابدأ اللعبة</button>
+        </div>
+        
+        <!-- لعبة تحدي الزمن -->
+        <div id="game3" class="game-container hidden">
+            <h2 class="game-title">⏱️ تحدي الزمن مع سورة الإنسان ⏱️</h2>
+            <p>اختر الإجابة الصحيحة قبل انتهاء الوقت!</p>
+            
+            <div class="verse" id="timed-verse"></div>
+            
+            <div class="timed-choice-container">
+                <div class="timed-progress">
+                    <div class="timed-progress-bar" id="time-bar"></div>
+                </div>
+                <div id="timed-options" class="options"></div>
+            </div>
+            
+            <div class="feedback" id="feedback3"></div>
+            <div class="score">النقاط: <span id="score3">0</span></div>
+            <div class="kofte" id="kofte3">🎖️ كوفيتي لك! 🎖️</div>
+            
+            <button onclick="startTimedGame()">ابدأ التحدي</button>
+        </div>
+    </div>
+
+    <div class="celebration" id="celebration"></div>
+
+    <script>
+        // آيات سورة الإنسان
+        const verses = [
+            "هَلْ أَتَىٰ عَلَى الْإِنسَانِ حِينٌ مِّنَ الدَّهْرِ لَمْ يَكُن شَيْئًا مَّذْكُورًا",
+            "إِنَّا خَلَقْنَا الْإِنسَانَ مِن نُّطْفَةٍ أَمْشَاجٍ نَّبْتَلِيهِ فَجَعَلْنَاهُ سَمِيعًا بَصِيرًا",
+            "إِنَّا هَدَيْنَاهُ السَّبِيلَ إِمَّا شَاكِرًا وَإِمَّا كَفُورًا",
+            "إِنَّا أَعْتَدْنَا لِلْكَافِرِينَ سَلَاسِلَ وَأَغْلَالًا وَسَعِيرًا",
+            "إِنَّ الْأَبْرَارَ يَشْرَبُونَ مِن كَأْسٍ كَانَ مِزَاجُهَا كَافُورًا",
+            "عَيْنًا يَشْرَبُ بِهَا عِبَادُ اللَّهِ يُفَجِّرُونَهَا تَفْجِيرًا",
+            "يُوفُونَ بِالنَّذْرِ وَيَخَافُونَ يَوْمًا كَانَ شَرُّهُ مُسْتَطِيرًا",
+            "وَيُطْعِمُونَ الطَّعَامَ عَلَىٰ حُبِّهِ مِسْكِينًا وَيَتِيمًا وَأَسِيرًا",
+            "إِنَّمَا نُطْعِمُكُمْ لِوَجْهِ اللَّهِ لَا نُرِيدُ مِنكُمْ جَزَاءً وَلَا شُكُورًا",
+            "إِنَّا نَخَافُ مِن رَّبِّنَا يَوْمًا عَبُوسًا قَمْطَرِيرًا",
+            "فَوَقَاهُمُ اللَّهُ شَرَّ ذَٰلِكَ الْيَوْمِ وَلَقَّاهُمْ نَضْرَةً وَسُرُورًا",
+            "وَجَزَاهُم بِمَا صَبَرُوا جَنَّةً وَحَرِيرًا",
+            "مُتَّكِئِينَ فِيهَا عَلَى الْأَرَائِكِ ۖ لَا يَرَوْنَ فِيهَا شَمْسًا وَلَا زَمْهَرِيرًا",
+            "وَدَانِيَةً عَلَيْهِمْ ظِلَالُهَا وَذُلِّلَتْ قُطُوفُهَا تَذْلِيلًا",
+            "وَيُطَافُ عَلَيْهِم بِآنِيَةٍ مِّن فِضَّةٍ وَأَكْوَابٍ كَانَتْ قَوَارِيرَا",
+            "قَوَارِيرَ مِن فِضَّةٍ قَدَّرُوهَا تَقْدِيرًا",
+            "وَيُسْقَوْنَ فِيهَا كَأْسًا كَانَ مِزَاجُهَا زَنجَبِيلًا",
+            "عَيْنًا فِيهَا تُسَمَّىٰ سَلْسَبِيلًا",
+            "وَيَطُوفُ عَلَيْهِمْ وِلْدَانٌ مُّخَلَّدُونَ إِذَا رَأَيْتَهُمْ حَسِبْتَهُمْ لُؤْلُؤًا مَّنثُورًا",
+            "وَإِذَا رَأَيْتَ ثَمَّ رَأَيْتَ نَعِيمًا وَمُلْكًا كَبِيرًا",
+            "عَالِيَهُمْ ثِيَابُ سُندُسٍ خُضْرٌ وَإِسْتَبْرَقٌ ۖ وَحُلُّوا أَسَاوِرَ مِن فِضَّةٍ وَسَقَاهُمْ رَبُّهُمْ شَرَابًا طَهُورًا",
+            "إِنَّ هَٰذَا كَانَ لَكُمْ جَزَاءً وَكَانَ سَعْيُكُم مَّشْكُورًا"
+        ];
+        
+        // لعرض لعبة معينة وإخفاء الأخرى
+        function showGame(gameNumber) {
+            document.querySelectorAll('.game-container').forEach(game => {
+                game.classList.add('hidden');
+            });
+            
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            document.getElementById('game' + gameNumber).classList.remove('hidden');
+            document.querySelectorAll('.tab-button')[gameNumber-1].classList.add('active');
+        }
+        
+        // ============= لعبة الذاكرة =============
+        let memoryCards = [];
+        let hasFlippedCard = false;
+        let lockBoard = false;
+        let firstCard, secondCard;
+        let pairsMatched = 0;
+        
+        function startMemoryGame() {
+            // اختيار 6 آيات عشوائية (12 بطاقة)
+            const selectedVerses = [...verses].sort(() => 0.5 - Math.random()).slice(0, 6);
+            
+            // إنشاء أزواج من البطاقات
+            memoryCards = [...selectedVerses, ...selectedVerses];
+            
+            // خلط البطاقات
+            memoryCards.sort(() => 0.5 - Math.random());
+            
+            // إعادة تعيين الحالة
+            pairsMatched = 0;
+            hasFlippedCard = false;
+            lockBoard = false;
+            firstCard = null;
+            secondCard = null;
+            
+            document.getElementById('pairs-matched').textContent = '0';
+            document.getElementById('total-pairs').textContent = selectedVerses.length;
+            document.getElementById('feedback1').textContent = '';
+            document.getElementById('kofte1').style.display = 'none';
+            
+            // إنشاء لوحة اللعبة
+            const memoryBoard = document.getElementById('memory-board');
+            memoryBoard.innerHTML = '';
+            
+            memoryCards.forEach((verse, index) => {
+                const card = document.createElement('div');
+                card.className = 'memory-card';
+                card.dataset.index = index;
+                card.dataset.verse = verse;
+                
+                const front = document.createElement('div');
+                front.className = 'front';
+                front.textContent = verse.split(' ').slice(0, 3).join(' ') + '...';
+                
+                const back = document.createElement('div');
+                back.className = 'back';
+                back.textContent = '❓';
+                
+                card.appendChild(front);
+                card.appendChild(back);
+                
+                card.addEventListener('click', flipCard);
+                
+                memoryBoard.appendChild(card);
+            });
+        }
+        
+        function flipCard() {
+            if (lockBoard) return;
+            if (this === firstCard) return;
+            
+            this.classList.add('flipped');
+            
+            if (!hasFlippedCard) {
+                // النقرة الأولى
+                hasFlippedCard = true;
+                firstCard = this;
+                return;
+            }
+            
+            // النقرة الثانية
+            secondCard = this;
+            checkForMatch();
+        }
+        
+        function checkForMatch() {
+            const isMatch = firstCard.dataset.verse === secondCard.dataset.verse;
+            
+            if (isMatch) {
+                disableCards();
+                pairsMatched++;
+                document.getElementById('pairs-matched').textContent = pairsMatched;
+                
+                if (pairsMatched === parseInt(document.getElementById('total-pairs').textContent)) {
+                    document.getElementById('feedback1').textContent = '🎉 أحسنت! لقد أكملت لعبة الذاكرة!';
+                    document.getElementById('kofte1').style.display = 'block';
+                    createConfetti();
+                }
+            } else {
+                unflipCards();
+            }
+        }
+        
+        function disableCards() {
+            firstCard.removeEventListener('click', flipCard);
+            secondCard.removeEventListener('click', flipCard);
+            
+            resetBoard();
+        }
+        
+        function unflipCards() {
+            lockBoard = true;
+            
+            setTimeout(() => {
+                firstCard.classList.remove('flipped');
+                secondCard.classList.remove('flipped');
+                
+                resetBoard();
+            }, 1000);
+        }
+        
+        function resetBoard() {
+            [hasFlippedCard, lockBoard] = [false, false];
+            [firstCard, secondCard] = [null, null];
+        }
+        
+        // ============= لعبة السحب والإفلات =============
+        function startDragDropGame() {
+            // اختيار 5 آيات عشوائية
+            const selectedVerses = [...verses].sort(() => 0.5 - Math.random()).slice(0, 5);
+            
+            // ترتيب الآيات الصحيح
+            const correctOrder = [...selectedVerses].sort((a, b) => verses.indexOf(a) - verses.indexOf(b));
+            
+            document.getElementById('feedback2').textContent = '';
+            document.getElementById('kofte2').style.display = 'none';
+            
+            // عرض الآيات للسحب
+            const dragItems = document.getElementById('drag-items');
+            dragItems.innerHTML = '';
+            
+            selectedVerses.forEach((verse, index) => {
+                const item = document.createElement('div');
+                item.className = 'drag-item';
+                item.textContent = verse;
+                item.draggable = true;
+                item.dataset.verse = verse;
+                
+                item.addEventListener('dragstart', dragStart);
+                
+                dragItems.appendChild(item);
+            });
+            
+            // منطقة الإفلات
+            const dropZone = document.getElementById('drop-zone');
+            dropZone.innerHTML = '';
+            dropZone.dataset.correctOrder = JSON.stringify(correctOrder);
+            
+            // أحداث السحب والإفلات
+            dropZone.addEventListener('dragover', dragOver);
+            dropZone.addEventListener('dragleave', dragLeave);
+            dropZone.addEventListener('drop', drop);
+        }
+        
+        function dragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.dataset.verse);
+            setTimeout(() => {
+                e.target.style.display = 'none';
+            }, 0);
+        }
+        
+        function dragOver(e) {
+            e.preventDefault();
+            e.target.classList.add('highlight');
+        }
+        
+        function dragLeave(e) {
+            e.target.classList.remove('highlight');
+        }
+        
+        function drop(e) {
+            e.preventDefault();
+            e.target.classList.remove('highlight');
+            
+            const verse = e.dataTransfer.getData('text/plain');
+            const item = document.querySelector(`.drag-item[data-verse="${verse}"]`);
+            
+            // إضافة العنصر إلى منطقة الإفلات
+            const newItem = document.createElement('div');
+            newItem.className = 'drag-item';
+            newItem.textContent = verse;
+            newItem.dataset.verse = verse;
+            e.target.appendChild(newItem);
+            
+            // إظهار العنصر الأصلي
+            item.style.display = 'inline-block';
+            
+            // التحقق من الحل
+            checkDropSolution();
+        }
+        
+        function checkDropSolution() {
+            const dropZone = document.getElementById('drop-zone');
+            const correctOrder = JSON.parse(dropZone.dataset.correctOrder);
+            const currentItems = [...dropZone.children].map(item => item.dataset.verse);
+            
+            if (currentItems.length === correctOrder.length) {
+                let isCorrect = true;
+                for (let i = 0; i < currentItems.length; i++) {
+                    if (currentItems[i] !== correctOrder[i]) {
+                        isCorrect = false;
+                        break;
+                    }
+                }
+                
+                if (isCorrect) {
+                    document.getElementById('feedback2').textContent = '🎉 أحسنت! لقد رتبت الآيات بشكل صحيح!';
+                    document.getElementById('kofte2').style.display = 'block';
+                    createConfetti();
+                    
+                    // تلوين العناصر باللون الأخضر
+                    [...dropZone.children].forEach(item => {
+                        item.style.background = 'linear-gradient(45deg, #4caf50, #8bc34a)';
+                        item.style.color = 'white';
+                    });
+                } else {
+                    document.getElementById('feedback2').textContent = 'ليس تماماً، حاول مرة أخرى!';
+                }
+            }
+        }
+        
+        // ============= لعبة تحدي الزمن =============
+        let timeLeft = 10;
+        let timer;
+        let currentTimedVerse = '';
+        let timedScore = 0;
+        
+        function startTimedGame() {
+            timedScore = 0;
+            timeLeft = 10;
+            document.getElementById('score3').textContent = '0';
+            document.getElementById('feedback3').textContent = '';
+            document.getElementById('kofte3').style.display = 'none';
+            
+            nextTimedQuestion();
+        }
+        
+        function nextTimedQuestion() {
+            clearInterval(timer);
+            
+            // اختيار آية عشوائية
+            const randomIndex = Math.floor(Math.random() * verses.length);
+            currentTimedVerse = verses[randomIndex];
+            document.getElementById('timed-verse').textContent = currentTimedVerse;
+            
+            // إنشاء خيارات (آيات صحيحة وخاطئة)
+            const options = [currentTimedVerse];
+            while (options.length < 3) {
+                const randomVerse = verses[Math.floor(Math.random() * verses.length)];
+                if (randomVerse !== currentTimedVerse && !options.includes(randomVerse)) {
+                    options.push(randomVerse);
+                }
+            }
+            
+            // خلط الخيارات
+            options.sort(() => Math.random() - 0.5);
+            
+            // عرض الخيارات
+            const optionsContainer = document.getElementById('timed-options');
+            optionsContainer.innerHTML = '';
+            
+            options.forEach(option => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.textContent = option;
+                
+                optionElement.addEventListener('click', function() {
+                    checkTimedAnswer(option);
+                });
+                
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            // بدء المؤقت
+            timeLeft = 10;
+            document.getElementById('time-bar').style.width = '100%';
+            
+            timer = setInterval(() => {
+                timeLeft -= 0.1;
+                document.getElementById('time-bar').style.width = (timeLeft / 10 * 100) + '%';
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    document.getElementById('feedback3').textContent = '⏱️ انتهى الوقت! حاول مرة أخرى';
+                    setTimeout(() => {
+                        nextTimedQuestion();
+                    }, 2000);
+                }
+            }, 100);
+        }
+        
+        function checkTimedAnswer(selectedOption) {
+            clearInterval(timer);
+            
+            const options = document.querySelectorAll('#timed-options .option');
+            
+            options.forEach(option => {
+                if (option.textContent === currentTimedVerse) {
+                    option.classList.add('correct');
+                }
+                
+                if (option.textContent === selectedOption && selectedOption !== currentTimedVerse) {
+                    option.classList.add('wrong');
+                }
+                
+                option.style.pointerEvents = 'none';
+            });
+            
+            if (selectedOption === currentTimedVerse) {
+                document.getElementById('feedback3').textContent = '🎯 أحسنت! إجابة صحيحة';
+                timedScore += Math.floor(timeLeft * 10);
+                document.getElementById('score3').textContent = timedScore;
+                
+                if (timedScore >= 100) {
+                    document.getElementById('kofte3').style.display = 'block';
+                    createConfetti();
+                }
+                
+                setTimeout(() => {
+                    nextTimedQuestion();
+                }, 1500);
+            } else {
+                document.getElementById('feedback3').textContent = '❌ إجابة خاطئة، حاول مرة أخرى';
+                setTimeout(() => {
+                    nextTimedQuestion();
+                }, 2000);
+            }
+        }
+        
+        // تأثيرات الاحتفال
+        function createConfetti() {
+            const celebration = document.getElementById('celebration');
+            celebration.innerHTML = '';
+            celebration.style.display = 'block';
+            
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = getRandomColor();
+                confetti.style.animationDuration = Math.random() * 2 + 2 + 's';
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                celebration.appendChild(confetti);
+            }
+            
+            setTimeout(() => {
+                celebration.style.display = 'none';
+            }, 3000);
+        }
+        
+        function getRandomColor() {
+            const colors = ['#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4caf50', '#8bc34a', '#cddc39', '#ffeb3b', '#ffc107', '#ff9800', '#ff5722', '#e91e63'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+        
+        // عرض اللعبة الأولى عند تحميل الصفحة
+        window.onload = function() {
+            showGame(1);
+        };
+    </script>
+</body>
+</html>

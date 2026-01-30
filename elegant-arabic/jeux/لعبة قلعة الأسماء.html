@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة قلعة الأسماء</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sky-start: #6a85b6;
+            --sky-end: #b6d5e1;
+            --castle-base: #b0a48f;
+            --gate-1-color: #d15a5a; /* For Singular nouns */
+            --gate-2-color: #5aa4d1; /* For Dual nouns */
+            --gate-3-color: #6fd15a; /* For Plural nouns */
+            --word-bg: #fff;
+            --correct-glow: #7cff7c;
+            --wrong-glow: #ff7c7c;
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Scheherazade New', serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to top, var(--sky-start), var(--sky-end));
+            position: relative;
+            user-select: none;
+            color: #333;
+            direction: rtl;
+        }
+
+        .game-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .hud {
+            position: absolute;
+            top: 20px;
+            width: 90%;
+            max-width: 800px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 15px 25px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+
+        .hud-item {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .castle-container {
+            position: relative;
+            width: 100%;
+            height: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            pointer-events: none;
+        }
+
+        .castle-base {
+            width: 80%;
+            max-width: 700px;
+            height: 150px;
+            background: var(--castle-base);
+            border-top-left-radius: 30px;
+            border-top-right-radius: 30px;
+            box-shadow: inset 0 10px 15px rgba(0, 0, 0, 0.15);
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            pointer-events: auto;
+            padding-top: 20px;
+        }
+
+        .gate {
+            width: 150px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .gate-title {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 5px 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .gate-area {
+            width: 100%;
+            height: 100%;
+            border-radius: 15px;
+            background-color: rgba(0, 0, 0, 0.1);
+            border: 2px dashed rgba(0, 0, 0, 0.2);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .gate-area:hover, .gate-area.hovered {
+            box-shadow: 0 0 15px 5px rgba(255, 255, 255, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .word-projectile {
+            position: absolute;
+            background-color: var(--word-bg);
+            padding: 10px 20px;
+            border-radius: 15px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            cursor: grab;
+            transition: transform 0.1s ease-out;
+            z-index: 5;
+        }
+        
+        .word-projectile.dragging {
+            cursor: grabbing;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            transform: scale(1.1);
+        }
+
+        .word-projectile.correct {
+            animation: glow-correct 1s forwards;
+        }
+        
+        .word-projectile.wrong {
+            animation: glow-wrong 1s forwards;
+        }
+
+        @keyframes glow-correct {
+            from { box-shadow: 0 0 10px var(--correct-glow); }
+            to { box-shadow: 0 0 30px 10px var(--correct-glow); opacity: 0; }
+        }
+        
+        @keyframes glow-wrong {
+            from { box-shadow: 0 0 10px var(--wrong-glow); }
+            to { box-shadow: 0 0 30px 10px var(--wrong-glow); opacity: 0; }
+        }
+
+        .message-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 20;
+        }
+        
+        .message-box h2 {
+            margin-top: 0;
+            font-size: 2rem;
+            color: var(--primary-color);
+        }
+        
+        .message-box button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-family: inherit;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <div class="hud">
+            <div class="hud-item">النقاط: <span id="score">0</span></div>
+            <div class="hud-item">القلعة: <span id="health">100%</span></div>
+        </div>
+
+        <div class="castle-container">
+            <div class="castle-base">
+                <div class="gate" data-type="singular">
+                    <span class="gate-title">مفرد</span>
+                    <div class="gate-area"></div>
+                </div>
+                <div class="gate" data-type="dual">
+                    <span class="gate-title">مثنى</span>
+                    <div class="gate-area"></div>
+                </div>
+                <div class="gate" data-type="plural">
+                    <span class="gate-title">جمع</span>
+                    <div class="gate-area"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="message-box" class="message-box">
+        <h2 id="message-title"></h2>
+        <p id="message-text"></p>
+        <button onclick="window.location.reload()">إعادة اللعب</button>
+    </div>
+
+<script>
+    // Game state variables
+    let score = 0;
+    let health = 100;
+    let wordInterval;
+    let currentSpeed = 5000; // Time in ms for a word to travel
+    let draggingItem = null;
+
+    // DOM elements
+    const scoreEl = document.getElementById('score');
+    const healthEl = document.getElementById('health');
+    const castleContainer = document.querySelector('.castle-container');
+    const gates = document.querySelectorAll('.gate-area');
+    const messageBox = document.getElementById('message-box');
+    const messageTitle = document.getElementById('message-title');
+    const messageText = document.getElementById('message-text');
+
+    // Word database
+    const nouns = {
+        singular: ["كتاب", "قلم", "طالب", "معلم", "بنت", "شجرة", "بيت"],
+        dual: ["كتابان", "قلمان", "طالبان", "معلمان", "بنتان", "شجرتان", "بيتان"],
+        plural: ["كتب", "أقلام", "طلاب", "معلمون", "بنات", "أشجار", "بيوت"]
+    };
+
+    // Initialize game
+    document.addEventListener('DOMContentLoaded', startGame);
+
+    function startGame() {
+        startWordGeneration();
+        setupDragAndDrop();
+    }
+
+    // Determine the type of a word
+    function getWordType(word) {
+        if (nouns.singular.includes(word)) return 'singular';
+        if (nouns.dual.includes(word)) return 'dual';
+        if (nouns.plural.includes(word)) return 'plural';
+        return null;
+    }
+    
+    // Generate a random word and launch it
+    function generateWord() {
+        const types = Object.keys(nouns);
+        const randomType = types[Math.floor(Math.random() * types.length)];
+        const wordsOfType = nouns[randomType];
+        const randomWord = wordsOfType[Math.floor(Math.random() * wordsOfType.length)];
+
+        const projectile = document.createElement('div');
+        projectile.className = 'word-projectile';
+        projectile.textContent = randomWord;
+        projectile.dataset.type = randomType;
+        projectile.style.left = `${Math.random() * 80 + 10}%`; // Random horizontal position
+        
+        castleContainer.appendChild(projectile);
+
+        animateProjectile(projectile);
+    }
+
+    // Animate the word moving towards the castle
+    function animateProjectile(projectile) {
+        const startY = -100; // Start off-screen
+        let currentY = startY;
+        const targetY = window.innerHeight * 0.5; // Halfway down the screen
+        const speed = (targetY - startY) / (currentSpeed / 16); // px per frame
+        
+        function move() {
+            if (!projectile.parentNode) return;
+            
+            currentY += speed;
+            projectile.style.top = `${currentY}px`;
+            
+            if (currentY < targetY) {
+                requestAnimationFrame(move);
+            } else {
+                // Word reached the castle without being sorted
+                projectile.remove();
+                takeDamage();
+            }
+        }
+        requestAnimationFrame(move);
+    }
+
+    // Start generating words at regular intervals
+    function startWordGeneration() {
+        wordInterval = setInterval(() => {
+            generateWord();
+            // Increase speed over time for more challenge
+            if (currentSpeed > 1000) {
+                currentSpeed -= 50;
+            }
+        }, currentSpeed + 1000);
+    }
+    
+    // Handle damage to the castle
+    function takeDamage() {
+        health -= 10;
+        healthEl.textContent = `${health}%`;
+        
+        if (health <= 0) {
+            endGame("لقد خسرت!");
+        }
+    }
+    
+    // Setup drag and drop functionality
+    function setupDragAndDrop() {
+        document.addEventListener('mousedown', (e) => {
+            const item = e.target.closest('.word-projectile');
+            if (item) {
+                draggingItem = item;
+                draggingItem.classList.add('dragging');
+                draggingItem.style.position = 'absolute';
+                
+                const shiftX = e.clientX - draggingItem.getBoundingClientRect().left;
+                const shiftY = e.clientY - draggingItem.getBoundingClientRect().top;
+                
+                function moveAt(pageX, pageY) {
+                    draggingItem.style.left = pageX - shiftX + 'px';
+                    draggingItem.style.top = pageY - shiftY + 'px';
+                }
+                
+                function onMouseMove(e) {
+                    moveAt(e.pageX, e.pageY);
+                    
+                    // Check for hover over gates
+                    gates.forEach(gate => gate.classList.remove('hovered'));
+                    const targetGate = e.target.closest('.gate-area');
+                    if (targetGate) {
+                        targetGate.classList.add('hovered');
+                    }
+                }
+                
+                document.addEventListener('mousemove', onMouseMove);
+                
+                draggingItem.onmouseup = (e) => {
+                    document.removeEventListener('mousemove', onMouseMove);
+                    draggingItem.onmouseup = null;
+                    
+                    const dropTarget = document.elementFromPoint(e.clientX, e.clientY).closest('.gate');
+                    
+                    if (dropTarget) {
+                        const targetType = dropTarget.dataset.type;
+                        const itemType = draggingItem.dataset.type;
+                        
+                        if (targetType === itemType) {
+                            // Correct drop
+                            score += 1;
+                            scoreEl.textContent = score;
+                            draggingItem.classList.add('correct');
+                        } else {
+                            // Wrong drop
+                            takeDamage();
+                            draggingItem.classList.add('wrong');
+                        }
+                    } else {
+                        // Dropped outside a gate
+                        takeDamage();
+                        draggingItem.classList.add('wrong');
+                    }
+                    
+                    // Cleanup
+                    draggingItem.style.position = '';
+                    draggingItem.classList.remove('dragging');
+                    gates.forEach(gate => gate.classList.remove('hovered'));
+                    
+                    // Remove word after animation
+                    setTimeout(() => {
+                        if (draggingItem && draggingItem.parentNode) {
+                            draggingItem.remove();
+                        }
+                    }, 1000);
+                    draggingItem = null;
+                };
+            }
+        });
+    }
+
+    // End game screen
+    function endGame(title) {
+        clearInterval(wordInterval);
+        messageTitle.textContent = title;
+        messageText.textContent = `لقد دافعت عن القلعة وجمعت ${score} نقطة.`;
+        messageBox.style.display = 'block';
+    }
+    
+</script>
+
+</body>
+</html>

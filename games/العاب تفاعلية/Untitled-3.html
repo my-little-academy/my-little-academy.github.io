@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<title>لعبة رحلة الحروف - حرف الباء</title>
+<style>
+  body {
+    margin: 0; background: #cce7ff; overflow: hidden; font-family: 'Tajawal', sans-serif;
+  }
+  #gameCanvas {
+    background: linear-gradient(to top, #80d0ff 0%, #a0e9ff 100%);
+    display: block; margin: 0 auto; border: 2px solid #005f99;
+    border-radius: 15px;
+  }
+  #scoreBoard {
+    text-align: center;
+    font-size: 24px;
+    color: #003366;
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="gameCanvas" width="600" height="400"></canvas>
+<div id="scoreBoard">النقاط: 0</div>
+
+<script>
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+
+  const player = {
+    x: canvas.width / 2 - 25,
+    y: canvas.height - 60,
+    width: 50,
+    height: 50,
+    speed: 7,
+    color: '#d10000',
+    letter: 'ب',
+    name: 'بسّام البطيخ',
+  };
+
+  let keys = {};
+  let score = 0;
+  let gameOver = false;
+
+  // أشياء يجب جمعها (تبدأ بحرف ب)
+  const collectables = [
+    {word: 'بَطيخ', emoji: '🍉'},
+    {word: 'بَاب', emoji: '🚪'},
+    {word: 'بَطريق', emoji: '🐧'},
+  ];
+
+  // أشياء يجب تفاديها (حروف أخرى)
+  const obstacles = [
+    {word: 'تِمساح', emoji: '🐊'},
+    {word: 'سَمَك', emoji: '🐟'},
+    {word: 'جَمَل', emoji: '🐫'},
+  ];
+
+  // الأجسام المتساقطة في اللعبة
+  let items = [];
+
+  // إنشاء عنصر جديد (كلمة أو عقبة)
+  function createItem() {
+    const isCollectable = Math.random() < 0.6; // 60% جمع، 40% عقبة
+    const itemData = isCollectable 
+      ? collectables[Math.floor(Math.random() * collectables.length)]
+      : obstacles[Math.floor(Math.random() * obstacles.length)];
+    return {
+      x: Math.random() * (canvas.width - 50),
+      y: -50,
+      width: 50,
+      height: 50,
+      word: itemData.word,
+      emoji: itemData.emoji,
+      isCollectable,
+      speed: 3 + Math.random() * 2,
+    };
+  }
+
+  // حركة اللاعب
+  function movePlayer() {
+    if (keys['ArrowLeft'] && player.x > 0) {
+      player.x -= player.speed;
+    }
+    if (keys['ArrowRight'] && player.x + player.width < canvas.width) {
+      player.x += player.speed;
+    }
+  }
+
+  // رسم اللاعب
+  function drawPlayer() {
+    ctx.fillStyle = player.color;
+    ctx.fillRect(player.x, player.y, player.width, player.height);
+    ctx.fillStyle = 'white';
+    ctx.font = '40px Tajawal, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(player.letter, player.x + player.width / 2, player.y + player.height / 2);
+  }
+
+  // رسم عنصر (كلمة أو عقبة)
+  function drawItem(item) {
+    ctx.font = '30px Arial';
+    ctx.fillText(item.emoji, item.x + item.width / 2, item.y + item.height / 1.5);
+    ctx.font = '14px Tajawal, sans-serif';
+    ctx.fillText(item.word, item.x + item.width / 2, item.y + item.height + 15);
+  }
+
+  // تحديث موقع العناصر
+  function updateItems() {
+    for (let i = items.length - 1; i >= 0; i--) {
+      items[i].y += items[i].speed;
+      // إزالة العناصر خارج الشاشة
+      if (items[i].y > canvas.height) {
+        items.splice(i, 1);
+      }
+    }
+  }
+
+  // التحقق من التصادم بين اللاعب والعناصر
+  function checkCollision(rect1, rect2) {
+    return !(rect1.x > rect2.x + rect2.width || 
+             rect1.x + rect1.width < rect2.x || 
+             rect1.y > rect2.y + rect2.height ||
+             rect1.y + rect1.height < rect2.y);
+  }
+
+  // التحقق من جمع أو تفادي العناصر
+  function handleCollisions() {
+    for (let i = items.length - 1; i >= 0; i--) {
+      if (checkCollision(player, items[i])) {
+        if (items[i].isCollectable) {
+          score += 10;
+          items.splice(i, 1);
+          updateScore();
+        } else {
+          gameOver = true;
+          alert('انتهت اللعبة! حاول مرة أخرى.');
+          document.location.reload();
+        }
+      }
+    }
+  }
+
+  // تحديث عرض النقاط
+  function updateScore() {
+    document.getElementById('scoreBoard').textContent = 'النقاط: ' + score;
+  }
+
+  // الحلقة الرئيسية للعبة
+  function gameLoop() {
+    if (gameOver) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    movePlayer();
+    drawPlayer();
+
+    // إنشاء عنصر جديد عشوائياً
+    if (Math.random() < 0.02) {
+      items.push(createItem());
+    }
+
+    updateItems();
+    items.forEach(drawItem);
+
+    handleCollisions();
+
+    requestAnimationFrame(gameLoop);
+  }
+
+  // بدء اللعبة
+  gameLoop();
+
+  // أحداث لوحة المفاتيح
+  window.addEventListener('keydown', e => {
+    keys[e.key] = true;
+  });
+  window.addEventListener('keyup', e => {
+    keys[e.key] = false;
+  });
+</script>
+
+</body>
+</html>

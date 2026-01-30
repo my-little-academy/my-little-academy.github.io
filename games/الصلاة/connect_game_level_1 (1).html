@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>لعبة السحب والإفلات – أدوات الصلاة</title>
+  <style>
+    /* تنسيق الخلفية والخط العام */
+    body {
+      background: linear-gradient(to bottom, #dff9fb, #c7ecee);
+      font-family: 'Cairo', sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #6c5ce7;
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 30px;
+    }
+
+    .items, .targets {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .draggable {
+      background: #fab1a0;
+      padding: 12px 20px;
+      border-radius: 10px;
+      cursor: grab;
+      font-size: 1.2em;
+      border: 2px solid #d63031;
+    }
+
+    .droppable {
+      background: #ffeaa7;
+      width: 200px;
+      height: 50px;
+      border: 3px dashed #fdcb6e;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1em;
+    }
+
+    .success {
+      background-color: #55efc4 !important;
+      border-color: #00b894 !important;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <!-- عنوان اللعبة -->
+  <h1>🕌 لعبة السحب والإفلات – أدوات الصلاة</h1>
+  <p>اسحب كل أداة إلى المكان المناسب لها</p>
+
+  <!-- الحاوية الرئيسية -->
+  <div class="container">
+
+    <!-- عناصر السحب -->
+    <div class="items">
+      <div class="draggable" draggable="true" data-match="سجادة">سجادة</div>
+      <div class="draggable" draggable="true" data-match="مسبحة">مسبحة</div>
+      <div class="draggable" draggable="true" data-match="مصحف">مصحف</div>
+    </div>
+
+    <!-- أماكن الإفلات -->
+    <div class="targets">
+      <div class="droppable" data-match="مصحف">📖 مكان المصحف</div>
+      <div class="droppable" data-match="سجادة">🧺 مكان السجادة</div>
+      <div class="droppable" data-match="مسبحة">🧵 مكان المسبحة</div>
+    </div>
+  </div>
+
+  <script>
+    // اختيار كل العناصر القابلة للسحب
+    const draggables = document.querySelectorAll('.draggable');
+    // اختيار كل مناطق الإفلات
+    const droppables = document.querySelectorAll('.droppable');
+
+    // تفعيل السحب
+    draggables.forEach(item => {
+      item.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', item.dataset.match);
+        item.classList.add('dragging');
+      });
+    });
+
+    // تفعيل مناطق الإفلات
+    droppables.forEach(zone => {
+      // عندما يُسحب عنصر فوق المنطقة
+      zone.addEventListener('dragover', e => {
+        e.preventDefault(); // السماح بالإفلات
+        zone.style.background = '#ffeaa7';
+      });
+
+      // عند مغادرة العنصر للمنطقة دون الإفلات
+      zone.addEventListener('dragleave', () => {
+        zone.style.background = '#ffeaa7';
+      });
+
+      // عند إفلات العنصر
+      zone.addEventListener('drop', e => {
+        e.preventDefault();
+        const dragged = e.dataTransfer.getData('text/plain');
+
+        // التحقق من التطابق بين العنصر والمنطقة
+        if (dragged === zone.dataset.match) {
+          zone.classList.add('success');
+          zone.textContent = `✔️ ${dragged} في مكانه الصحيح`;
+        } else {
+          alert('❌ خطأ، حاول مرة أخرى!');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>الإحرام - رحلة الحاج الصغير</title>
+  <style>
+    body {
+      background: #e0f7fa;
+      font-family: 'Cairo', sans-serif;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    h1 {
+      color: #00796b;
+      margin-top: 20px;
+    }
+
+    .question-box {
+      background: #ffffff;
+      margin: 30px auto;
+      padding: 20px;
+      border-radius: 15px;
+      width: 80%;
+      max-width: 500px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .options button {
+      display: block;
+      margin: 10px auto;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      background-color: #b2dfdb;
+      color: #004d40;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .options button:hover {
+      background-color: #80cbc4;
+    }
+
+    .message {
+      margin-top: 15px;
+      font-weight: bold;
+      color: #00796b;
+    }
+
+    .dress-game {
+      margin: 50px auto;
+    }
+
+    .dress-zone {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+
+    .cloth {
+      width: 100px;
+      height: 100px;
+      background-color: #fff;
+      border: 2px dashed #999;
+      border-radius: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.2em;
+      cursor: grab;
+    }
+
+    #character {
+      width: 120px;
+      height: 200px;
+      background-color: #eeeeee;
+      border: 3px solid #ccc;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2em;
+    }
+
+    .drop-area {
+      margin-top: 10px;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🧳 الإحرام</h1>
+
+  <!-- مرحلة السؤال -->
+  <div class="question-box">
+    <h3>ما هي نية الحاج عند الإحرام؟</h3>
+    <div class="options">
+      <button onclick="checkAnswer(this, true)">أنوي الحج تقربًا إلى الله</button>
+      <button onclick="checkAnswer(this, false)">أنوي السفر والتنزّه</button>
+      <button onclick="checkAnswer(this, false)">أنوي شراء الهدايا</button>
+    </div>
+    <div class="message" id="answerMsg"></div>
+  </div>
+
+  <!-- مرحلة لبس الإحرام -->
+  <div class="dress-game">
+    <h3>📌 اسحب قطع الإحرام وضعها على الحاج الصغير!</h3>
+    <div class="dress-zone">
+      <div class="cloth" draggable="true" ondragstart="drag(event)" id="cloth1">ثوب 1</div>
+      <div class="cloth" draggable="true" ondragstart="drag(event)" id="cloth2">ثوب 2</div>
+      <div id="character" ondrop="drop(event)" ondragover="allowDrop(event)">
+        الحاج الصغير
+        <div class="drop-area" id="dropAreaMsg">ضع الثياب هنا</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // الإجابة على السؤال
+    function checkAnswer(btn, correct) {
+      const msg = document.getElementById("answerMsg");
+      if (correct) {
+        msg.textContent = "✔️ أحسنت! هذه هي النية الصحيحة.";
+        msg.style.color = "#00796b";
+      } else {
+        msg.textContent = "❌ هذه ليست النية الصحيحة. جرّب مرة أخرى!";
+        msg.style.color = "#d32f2f";
+      }
+    }
+
+    // لعبة اللبس
+    function allowDrop(ev) {
+      ev.preventDefault();
+    }
+
+    function drag(ev) {
+      ev.dataTransfer.setData("text", ev.target.id);
+    }
+
+    let clothsDropped = 0;
+    function drop(ev) {
+      ev.preventDefault();
+      const data = ev.dataTransfer.getData("text");
+      const cloth = document.getElementById(data);
+      if (cloth && !cloth.classList.contains("dropped")) {
+        ev.target.appendChild(cloth);
+        cloth.classList.add("dropped");
+        clothsDropped++;
+        document.getElementById("dropAreaMsg").textContent = `تم وضع ${clothsDropped} من 2`;
+        if (clothsDropped === 2) {
+          document.getElementById("dropAreaMsg").textContent = "🎉 اكتمل لبس الإحرام! أحسنت!";
+        }
+      }
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أكمل آيات سورة الأعلى</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+        
+        :root {
+            --primary-color: #2c5e50;
+            --secondary-color: #f8b400;
+            --accent-color: #e74c3c;
+            --light-color: #f9f9f9;
+            --dark-color: #333;
+        }
+        
+        body {
+            font-family: 'Amiri', serif;
+            background-color: #f5f5f0;
+            color: var(--dark-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .game-container {
+            width: 90%;
+            max-width: 800px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-size: 2rem;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .instructions {
+            background: #f0f7f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-right: 4px solid var(--secondary-color);
+        }
+        
+        .verse-container {
+            background: #f9f9f9;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            font-size: 1.4rem;
+            line-height: 2;
+            border: 2px solid #eee;
+        }
+        
+        .blank {
+            display: inline-block;
+            min-width: 150px;
+            height: 40px;
+            margin: 0 5px;
+            border-bottom: 2px dashed var(--accent-color);
+            position: relative;
+            vertical-align: middle;
+        }
+        
+        .blank-input {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: transparent;
+            text-align: center;
+            font-family: 'Amiri', serif;
+            font-size: 1.2rem;
+            outline: none;
+            color: var(--primary-color);
+        }
+        
+        .blank-input.correct {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        
+        .blank-input.incorrect {
+            color: #c62828;
+            text-decoration: line-through;
+        }
+        
+        .options-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .option-btn {
+            background: white;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Amiri', serif;
+            font-size: 1rem;
+            min-width: 100px;
+        }
+        
+        .option-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .option-btn.used {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn {
+            background: var(--secondary-color);
+            color: var(--dark-color);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-family: 'Amiri', serif;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .btn:hover {
+            background: #e6a800;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        
+        .btn-check {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-next {
+            background: var(--accent-color);
+            color: white;
+        }
+        
+        .btn-hint {
+            background: #9c27b0;
+            color: white;
+        }
+        
+        .result-message {
+            font-size: 1.3rem;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-right: 4px solid #4caf50;
+        }
+        
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            border-right: 4px solid #f44336;
+        }
+        
+        .hint-message {
+            background: #e3f2fd;
+            color: #1565c0;
+            border-right: 4px solid #2196f3;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .score-container {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .progress-container {
+            width: 100%;
+            background: #f0f0f0;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            height: 15px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, var(--secondary-color), var(--primary-color));
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+        
+        .completion-message {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 10px;
+            background: #f0f7f5;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>أكمل آيات سورة الأعلى</h1>
+        
+        <div class="instructions">
+            <p>أكمل الآيات الناقصة باختيار الكلمات المناسبة من القائمة</p>
+        </div>
+        
+        <div class="score-container" id="scoreContainer">النقاط: 0</div>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        
+        <div class="verse-container" id="verseContainer">
+            <!-- الآية سيتم إضافتها بواسطة الجافاسكريبت -->
+        </div>
+        
+        <div class="hint-message" id="hintMessage"></div>
+        
+        <div class="options-container" id="optionsContainer">
+            <!-- الخيارات سيتم إضافتها بواسطة الجافاسكريبت -->
+        </div>
+        
+        <button class="btn btn-check" id="checkBtn">تحقق</button>
+        <button class="btn btn-next" id="nextBtn" style="display: none;">التالي</button>
+        <button class="btn btn-hint" id="hintBtn">تلميح</button>
+        
+        <div class="result-message" id="resultMessage"></div>
+        
+        <div class="completion-message" id="completionMessage"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const verses = [
+                {
+                    verse: "سَبِّحِ اسْمَ رَبِّكَ ____",
+                    blanks: ["الأعلى"],
+                    options: ["الأعلى", "الأكبر", "الأعظم", "الأول"],
+                    explanation: "قال تعالى: 'سَبِّحِ اسْمَ رَبِّكَ الْأَعْلَى'"
+                },
+                {
+                    verse: "الَّذِي خَلَقَ ____",
+                    blanks: ["فسوى"],
+                    options: ["فسوى", "فهدى", "فأعطى", "فأبقى"],
+                    explanation: "قال تعالى: 'الَّذِي خَلَقَ فَسَوَّى'"
+                },
+                {
+                    verse: "وَالَّذِي قَدَّرَ ____",
+                    blanks: ["فهدى"],
+                    options: ["فهدى", "فسوى", "فأعطى", "فأبقى"],
+                    explanation: "قال تعالى: 'وَالَّذِي قَدَّرَ فَهَدَى'"
+                },
+                {
+                    verse: "وَالَّذِي أَخْرَجَ ____",
+                    blanks: ["المرعى"],
+                    options: ["المرعى", "الماء", "الضوء", "الخير"],
+                    explanation: "قال تعالى: 'وَالَّذِي أَخْرَجَ الْمَرْعَى'"
+                },
+                {
+                    verse: "فَجَعَلَهُ ____ أحوى",
+                    blanks: ["غثاء"],
+                    options: ["غثاء", "هشيما", "يابسا", "حطاما"],
+                    explanation: "قال تعالى: 'فَجَعَلَهُ غُثَاءً أَحْوَى'"
+                },
+                {
+                    verse: "سَنُقْرِئُكَ فلا ____",
+                    blanks: ["تنسى"],
+                    options: ["تنسى", "تخشى", "تجزع", "تحزن"],
+                    explanation: "قال تعالى: 'سَنُقْرِئُكَ فَلَا تَنْسَى'"
+                },
+                {
+                    verse: "وَنُيَسِّرُكَ لِلْ ____",
+                    blanks: ["يسرى"],
+                    options: ["يسرى", "عسرى", "خير", "بركة"],
+                    explanation: "قال تعالى: 'وَنُيَسِّرُكَ لِلْيُسْرَى'"
+                },
+                {
+                    verse: "فَذَكِّرْ إِن نَفَعَتِ ____",
+                    blanks: ["الذكرى"],
+                    options: ["الذكرى", "النصيحة", "الموعظة", "العبرة"],
+                    explanation: "قال تعالى: 'فَذَكِّرْ إِن نَفَعَتِ الذِّكْرَى'"
+                },
+                {
+                    verse: "قَدْ أَفْلَحَ مَنْ ____",
+                    blanks: ["تزكى"],
+                    options: ["تزكى", "تصدق", "صبر", "شكر"],
+                    explanation: "قال تعالى: 'قَدْ أَفْلَحَ مَنْ تَزَكَّى'"
+                },
+                {
+                    verse: "وَذَكَرَ اسْمَ رَبِّهِ ____",
+                    blanks: ["فصلى"],
+                    options: ["فصلى", "فدعا", "فشكر", "فحمد"],
+                    explanation: "قال تعالى: 'وَذَكَرَ اسْمَ رَبِّهِ فَصَلَّى'"
+                }
+            ];
+            
+            let currentVerseIndex = 0;
+            let score = 0;
+            let usedOptions = [];
+            let hintCount = 0;
+            
+            const verseContainer = document.getElementById('verseContainer');
+            const optionsContainer = document.getElementById('optionsContainer');
+            const checkBtn = document.getElementById('checkBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const hintBtn = document.getElementById('hintBtn');
+            const resultMessage = document.getElementById('resultMessage');
+            const hintMessage = document.getElementById('hintMessage');
+            const scoreContainer = document.getElementById('scoreContainer');
+            const progressBar = document.getElementById('progressBar');
+            const completionMessage = document.getElementById('completionMessage');
+            
+            // بدء اللعبة
+            startGame();
+            
+            function startGame() {
+                currentVerseIndex = 0;
+                score = 0;
+                updateScore();
+                showVerse();
+            }
+            
+            function showVerse() {
+                const verseData = verses[currentVerseIndex];
+                usedOptions = [];
+                hintCount = 0;
+                
+                // عرض الآية مع الفراغات
+                let verseHTML = verseData.verse;
+                verseData.blanks.forEach((blank, index) => {
+                    verseHTML = verseHTML.replace('____', `<span class="blank"><input type="text" class="blank-input" id="blank${index}" data-correct="${blank}"></span>`);
+                });
+                
+                verseContainer.innerHTML = verseHTML;
+                
+                // عرض الخيارات
+                optionsContainer.innerHTML = '';
+                const shuffledOptions = [...verseData.options].sort(() => Math.random() - 0.5);
+                
+                shuffledOptions.forEach(option => {
+                    const optionBtn = document.createElement('button');
+                    optionBtn.className = 'option-btn';
+                    optionBtn.textContent = option;
+                    optionBtn.dataset.option = option;
+                    
+                    optionBtn.addEventListener('click', function() {
+                        if (this.classList.contains('used')) return;
+                        
+                        const blankInputs = document.querySelectorAll('.blank-input');
+                        const emptyBlank = Array.from(blankInputs).find(input => !input.value);
+                        
+                        if (emptyBlank) {
+                            emptyBlank.value = option;
+                            this.classList.add('used');
+                            usedOptions.push(option);
+                        }
+                    });
+                    
+                    optionsContainer.appendChild(optionBtn);
+                });
+                
+                // إخفاء الأزرار
+                checkBtn.style.display = 'inline-block';
+                nextBtn.style.display = 'none';
+                resultMessage.style.display = 'none';
+                hintMessage.style.display = 'none';
+                
+                // تحديث شريط التقدم
+                progressBar.style.width = `${(currentVerseIndex / verses.length) * 100}%`;
+            }
+            
+            function checkAnswers() {
+                const verseData = verses[currentVerseIndex];
+                const blankInputs = document.querySelectorAll('.blank-input');
+                let allCorrect = true;
+                
+                blankInputs.forEach(input => {
+                    if (input.value.toLowerCase() === input.dataset.correct.toLowerCase()) {
+                        input.classList.add('correct');
+                        input.classList.remove('incorrect');
+                    } else {
+                        input.classList.add('incorrect');
+                        input.classList.remove('correct');
+                        allCorrect = false;
+                    }
+                });
+                
+                if (allCorrect) {
+                    score += 10 - (hintCount * 3); // خصم النقاط عند استخدام التلميحات
+                    if (score < 0) score = 0;
+                    
+                    updateScore();
+                    resultMessage.textContent = `أحسنت! الإجابة صحيحة. ${verseData.explanation}`;
+                    resultMessage.className = 'result-message success';
+                    resultMessage.style.display = 'block';
+                    
+                    // تعطيل الخيارات
+                    document.querySelectorAll('.option-btn').forEach(btn => {
+                        btn.disabled = true;
+                    });
+                    
+                    checkBtn.style.display = 'none';
+                    nextBtn.style.display = 'inline-block';
+                    
+                    // تأثير النجاح
+                    animateSuccess();
+                } else {
+                    resultMessage.textContent = 'هناك أخطاء، حاول مرة أخرى!';
+                    resultMessage.className = 'result-message error';
+                    resultMessage.style.display = 'block';
+                }
+            }
+            
+            function nextVerse() {
+                currentVerseIndex++;
+                
+                if (currentVerseIndex < verses.length) {
+                    showVerse();
+                } else {
+                    showCompletion();
+                }
+            }
+            
+            function showCompletion() {
+                verseContainer.style.display = 'none';
+                optionsContainer.style.display = 'none';
+                checkBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+                hintBtn.style.display = 'none';
+                resultMessage.style.display = 'none';
+                
+                completionMessage.textContent = `مبروك! لقد أكملت جميع الآيات. نقاطك النهائية: ${score} من ${verses.length * 10}`;
+                completionMessage.style.display = 'block';
+                
+                progressBar.style.width = '100%';
+                
+                // تأثيرات الإكمال
+                celebrateCompletion();
+            }
+            
+            function giveHint() {
+                if (hintCount >= 3) {
+                    hintMessage.textContent = 'لقد استخدمت جميع التلميحات المتاحة!';
+                    hintMessage.style.display = 'block';
+                    return;
+                }
+                
+                const blankInputs = document.querySelectorAll('.blank-input');
+                const emptyBlank = Array.from(blankInputs).find(input => !input.value);
+                
+                if (emptyBlank) {
+                    const correctAnswer = emptyBlank.dataset.correct;
+                    
+                    // البحث عن زر الخيار الصحيح
+                    const correctOption = document.querySelector(`.option-btn[data-option="${correctAnswer}"]`);
+                    
+                    if (correctOption && !correctOption.classList.contains('used')) {
+                        // تلوين الزر كتلميح
+                        correctOption.style.backgroundColor = '#ffeb3b';
+                        correctOption.style.color = '#333';
+                        correctOption.style.borderColor = '#ffc107';
+                        correctOption.style.transform = 'scale(1.1)';
+                        
+                        setTimeout(() => {
+                            correctOption.style.backgroundColor = '';
+                            correctOption.style.color = '';
+                            correctOption.style.borderColor = '';
+                            correctOption.style.transform = '';
+                        }, 2000);
+                        
+                        hintMessage.textContent = 'انظر إلى الخيار المضيء!';
+                        hintMessage.style.display = 'block';
+                        
+                        setTimeout(() => {
+                            hintMessage.style.display = 'none';
+                        }, 2000);
+                        
+                        hintCount++;
+                    }
+                } else {
+                    hintMessage.textContent = 'لا توجد فراغات فارغة!';
+                    hintMessage.style.display = 'block';
+                    
+                    setTimeout(() => {
+                        hintMessage.style.display = 'none';
+                    }, 2000);
+                }
+            }
+            
+            function updateScore() {
+                scoreContainer.textContent = `النقاط: ${score}`;
+            }
+            
+            function animateSuccess() {
+                verseContainer.style.transform = 'scale(1.02)';
+                verseContainer.style.boxShadow = '0 0 20px rgba(76, 175, 80, 0.3)';
+                verseContainer.style.transition = 'all 0.5s ease';
+                
+                setTimeout(() => {
+                    verseContainer.style.transform = '';
+                    verseContainer.style.boxShadow = '';
+                }, 500);
+            }
+            
+            function celebrateCompletion() {
+                const colors = ['#f8b400', '#2c5e50', '#e74c3c', '#4a8c7c'];
+                
+                for (let i = 0; i < 50; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.style.position = 'fixed';
+                    confetti.style.width = '10px';
+                    confetti.style.height = '10px';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.borderRadius = '50%';
+                    confetti.style.left = `${Math.random() * 100}%`;
+                    confetti.style.top = '-10px';
+                    confetti.style.zIndex = '1000';
+                    document.body.appendChild(confetti);
+                    
+                    const animationDuration = 2 + Math.random() * 3;
+                    
+                    confetti.style.transition = `all ${animationDuration}s ease-out`;
+                    
+                    setTimeout(() => {
+                        confetti.style.top = `${100 + Math.random() * 10}%`;
+                        confetti.style.left = `${parseFloat(confetti.style.left) + (Math.random() - 0.5) * 20}%`;
+                        confetti.style.opacity = '0';
+                    }, 10);
+                    
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, animationDuration * 1000);
+                }
+            }
+            
+            // أحداث الأزرار
+            checkBtn.addEventListener('click', checkAnswers);
+            nextBtn.addEventListener('click', nextVerse);
+            hintBtn.addEventListener('click', giveHint);
+        });
+    </script>
+</body>
+</html>

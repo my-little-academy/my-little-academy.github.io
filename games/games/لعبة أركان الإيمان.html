@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة أركان الإيمان للأطفال</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            font-size: 2.2rem;
+            background: linear-gradient(to right, #3498db, #9b59b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            padding: 10px;
+        }
+        
+        .intro {
+            background-color: rgba(255,255,255,0.8);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-size: 1.1rem;
+            color: #34495e;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            background: rgba(255,255,255,0.9);
+            border: 2px solid #e0e0e0;
+        }
+        
+        .pillars-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            min-height: 120px;
+            background: rgba(236, 240, 241, 0.5);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px dashed #bdc3c7;
+        }
+        
+        .pillar {
+            background: linear-gradient(145deg, #3498db, #2980b9);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            cursor: grab;
+            user-select: none;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            width: 180px;
+            text-align: center;
+            font-size: 1.1rem;
+            position: relative;
+            overflow: hidden;
+            border: none;
+        }
+        
+        .pillar:nth-child(2n) {
+            background: linear-gradient(145deg, #e74c3c, #c0392b);
+        }
+        
+        .pillar:nth-child(3n) {
+            background: linear-gradient(145deg, #2ecc71, #27ae60);
+        }
+        
+        .pillar:nth-child(4n) {
+            background: linear-gradient(145deg, #f39c12, #d35400);
+        }
+        
+        .pillar:nth-child(5n) {
+            background: linear-gradient(145deg, #9b59b6, #8e44ad);
+        }
+        
+        .pillar:nth-child(6n) {
+            background: linear-gradient(145deg, #1abc9c, #16a085);
+        }
+        
+        .pillar:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+        }
+        
+        .pillar:active {
+            transform: scale(0.98);
+        }
+        
+        .pillar.dragging {
+            opacity: 0.9;
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            z-index: 10;
+        }
+        
+        .slots-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            width: 100%;
+        }
+        
+        .slot {
+            background-color: #f8f9fa;
+            border: 3px dashed #adb5bd;
+            border-radius: 12px;
+            padding: 25px 15px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            color: #495057;
+            font-size: 1.1rem;
+            position: relative;
+        }
+        
+        .slot::before {
+            content: attr(data-slot-text);
+            position: absolute;
+            top: 5px;
+            left: 10px;
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        
+        .slot.highlight {
+            background-color: #e3f2fd;
+            border-color: #3498db;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .slot.correct {
+            background-color: #e8f5e9;
+            border-color: #2ecc71;
+            border-style: solid;
+            transform: scale(1.02);
+        }
+        
+        .slot.incorrect {
+            background-color: #ffebee;
+            border-color: #e74c3c;
+            animation: shake 0.5s;
+        }
+        
+        .feedback {
+            margin-top: 25px;
+            font-weight: bold;
+            min-height: 30px;
+            font-size: 1.2rem;
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: inline-block;
+        }
+        
+        .correct-feedback {
+            color: #27ae60;
+            background-color: rgba(46, 204, 113, 0.2);
+            animation: bounce 0.5s;
+        }
+        
+        .incorrect-feedback {
+            color: #e74c3c;
+            background-color: rgba(231, 76, 60, 0.2);
+        }
+        
+        .reset-btn {
+            background: linear-gradient(145deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            margin-top: 25px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            font-weight: bold;
+            border: 2px solid white;
+        }
+        
+        .reset-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+        
+        .reset-btn:active {
+            transform: translateY(1px);
+        }
+        
+        .completion-message {
+            background: linear-gradient(145deg, #2ecc71, #27ae60);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 1.3rem;
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
+            animation: celebration 2s;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes celebration {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            opacity: 0;
+            animation: confetti-fall 3s ease-in-out;
+            z-index: 1000;
+        }
+        
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+        
+        @media (max-width: 768px) {
+            .slots-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .pillar {
+                width: 140px;
+                padding: 12px;
+                font-size: 1rem;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎮 لعبة أركان الإيمان 🎮</h1>
+        <div class="intro">
+            <p>ساعدني في ترتيب أركان الإيمان الستة!<br>اسحب كل ركن وضعه في مكانه الصحيح</p>
+        </div>
+        
+        <div class="pillars-container" id="pillars">
+            <!-- سيتم ملؤها بالجافاسكريبت -->
+        </div>
+        
+        <div class="slots-container" id="slots">
+            <div class="slot" data-slot="1" data-slot-text="الركن الأول"></div>
+            <div class="slot" data-slot="2" data-slot-text="الركن الثاني"></div>
+            <div class="slot" data-slot="3" data-slot-text="الركن الثالث"></div>
+            <div class="slot" data-slot="4" data-slot-text="الركن الرابع"></div>
+            <div class="slot" data-slot="5" data-slot-text="الركن الخامس"></div>
+            <div class="slot" data-slot="6" data-slot-text="الركن السادس"></div>
+        </div>
+        
+        <div class="feedback" id="feedback"></div>
+        
+        <button class="reset-btn" id="resetBtn">🔄 إعادة اللعبة</button>
+    </div>
+
+    <audio id="correctSound" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3"></audio>
+    <audio id="wrongSound" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3"></audio>
+    <audio id="winSound" src="https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3"></audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // تعريف أركان الإيمان مع ألوانها
+            const pillarsOfFaith = [
+                { id: 1, text: "الإيمان بالله", color: "#3498db" },
+                { id: 2, text: "الإيمان بالملائكة", color: "#e74c3c" },
+                { id: 3, text: "الإيمان بالكتب السماوية", color: "#2ecc71" },
+                { id: 4, text: "الإيمان بالرسل", color: "#f39c12" },
+                { id: 5, text: "الإيمان باليوم الآخر", color: "#9b59b6" },
+                { id: 6, text: "الإيمان بالقدر خيره وشره", color: "#1abc9c" }
+            ];
+            
+            const pillarsContainer = document.getElementById('pillars');
+            const slots = document.querySelectorAll('.slot');
+            const feedback = document.getElementById('feedback');
+            const resetBtn = document.getElementById('resetBtn');
+            
+            // عناصر الصوت
+            const correctSound = document.getElementById('correctSound');
+            const wrongSound = document.getElementById('wrongSound');
+            const winSound = document.getElementById('winSound');
+            
+            let draggedPillar = null;
+            let correctAnswers = 0;
+            const totalPillars = pillarsOfFaith.length;
+            
+            // خلط الأركان عشوائياً عند البدء
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+            
+            // إنشاء أركان الإيمان بشكل عشوائي
+            function createPillars() {
+                pillarsContainer.innerHTML = '';
+                const shuffledPillars = shuffleArray([...pillarsOfFaith]);
+                
+                shuffledPillars.forEach(pillar => {
+                    const pillarElement = document.createElement('div');
+                    pillarElement.className = 'pillar';
+                    pillarElement.textContent = pillar.text;
+                    pillarElement.setAttribute('draggable', 'true');
+                    pillarElement.setAttribute('data-pillar', pillar.id);
+                    pillarElement.style.background = `linear-gradient(145deg, ${pillar.color}, ${darkenColor(pillar.color, 20)})`;
+                    
+                    pillarElement.addEventListener('dragstart', dragStart);
+                    pillarElement.addEventListener('dragend', dragEnd);
+                    
+                    pillarsContainer.appendChild(pillarElement);
+                });
+            }
+            
+            // تظليل اللون
+            function darkenColor(color, percent) {
+                const num = parseInt(color.replace("#", ""), 16);
+                const amt = Math.round(2.55 * percent);
+                const R = (num >> 16) - amt;
+                const G = (num >> 8 & 0x00FF) - amt;
+                const B = (num & 0x0000FF) - amt;
+                return "#" + (
+                    0x1000000 +
+                    (R < 0 ? 0 : R) * 0x10000 +
+                    (G < 0 ? 0 : G) * 0x100 +
+                    (B < 0 ? 0 : B)
+                ).toString(16).slice(1);
+            }
+            
+            // إنشاء تأثير كونفيتي
+            function createConfetti() {
+                const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4CAF50', '#8BC34A', '#CDDC39', '#FFEB3B', '#FFC107', '#FF9800', '#FF5722'];
+                
+                for (let i = 0; i < 100; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.width = Math.random() * 10 + 5 + 'px';
+                    confetti.style.height = Math.random() * 10 + 5 + 'px';
+                    confetti.style.animationDuration = Math.random() * 3 + 2 + 's';
+                    
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 3000);
+                }
+            }
+            
+            // أحداث السحب والإفلات
+            function dragStart() {
+                draggedPillar = this;
+                setTimeout(() => {
+                    this.classList.add('dragging');
+                }, 0);
+            }
+            
+            function dragEnd() {
+                this.classList.remove('dragging');
+            }
+            
+            function dragOver(e) {
+                e.preventDefault();
+            }
+            
+            function dragEnter(e) {
+                e.preventDefault();
+                this.classList.add('highlight');
+            }
+            
+            function dragLeave() {
+                this.classList.remove('highlight');
+            }
+            
+            function drop() {
+                this.classList.remove('highlight');
+                
+                if (draggedPillar && draggedPillar.classList.contains('pillar')) {
+                    const pillarId = draggedPillar.getAttribute('data-pillar');
+                    const slotId = this.getAttribute('data-slot');
+                    
+                    if (pillarId === slotId) {
+                        // إجابة صحيحة
+                        this.classList.add('correct');
+                        this.innerHTML = draggedPillar.textContent;
+                        this.style.background = draggedPillar.style.background;
+                        this.style.color = 'white';
+                        draggedPillar.style.visibility = 'hidden';
+                        correctAnswers++;
+                        
+                        // تشغيل صوت الإجابة الصحيحة
+                        correctSound.currentTime = 0;
+                        correctSound.play();
+                        
+                        feedback.textContent = 'أحسنت! إجابة صحيحة 👍';
+                        feedback.className = 'feedback correct-feedback';
+                        
+                        if (correctAnswers === totalPillars) {
+                            // اللعبة اكتملت
+                            feedback.textContent = '';
+                            const completionMsg = document.createElement('div');
+                            completionMsg.className = 'completion-message';
+                            completionMsg.textContent = '🎉 مبروك! لقد أكملت جميع أركان الإيمان بشكل صحيح! 🎉';
+                            document.querySelector('.game-container').appendChild(completionMsg);
+                            
+                            // تشغيل صوت الفوز وإظهار الكونفيتي
+                            winSound.play();
+                            createConfetti();
+                        }
+                    } else {
+                        // إجابة خاطئة
+                        this.classList.add('incorrect');
+                        
+                        // تشغيل صوت الخطأ
+                        wrongSound.currentTime = 0;
+                        wrongSound.play();
+                        
+                        feedback.textContent = 'ليس هذا هو المكان الصحيح، حاول مرة أخرى!';
+                        feedback.className = 'feedback incorrect-feedback';
+                        
+                        setTimeout(() => {
+                            this.classList.remove('incorrect');
+                        }, 2000);
+                    }
+                }
+            }
+            
+            // إعادة تعيين اللعبة
+            function resetGame() {
+                createPillars();
+                
+                slots.forEach(slot => {
+                    slot.className = 'slot';
+                    const slotId = slot.getAttribute('data-slot');
+                    slot.innerHTML = '';
+                    slot.setAttribute('data-slot-text', `الركن ${slotId}`);
+                    slot.style.background = '#f8f9fa';
+                    slot.style.color = '#495057';
+                });
+                
+                correctAnswers = 0;
+                feedback.textContent = '';
+                feedback.className = 'feedback';
+                
+                // إزالة رسالة الإكمال إذا كانت موجودة
+                const completionMsg = document.querySelector('.completion-message');
+                if (completionMsg) {
+                    completionMsg.remove();
+                }
+            }
+            
+            // تهيئة اللعبة
+            createPillars();
+            
+            // إضافة أحداث السحب والإفلات للفراغات
+            slots.forEach(slot => {
+                slot.addEventListener('dragover', dragOver);
+                slot.addEventListener('dragenter', dragEnter);
+                slot.addEventListener('dragleave', dragLeave);
+                slot.addEventListener('drop', drop);
+            });
+            
+            // حدث إعادة المحاولة
+            resetBtn.addEventListener('click', resetGame);
+        });
+    </script>
+</body>
+</html>

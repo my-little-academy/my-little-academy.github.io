@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>لعبة المستقيم العددي</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      direction: rtl;
+      background: #f0f9f7;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #00796b;
+    }
+
+    .number-line {
+      position: relative;
+      width: 90%;
+      height: 80px;
+      margin: 40px auto;
+      border-top: 4px solid #333;
+      background-color: #fff;
+    }
+
+    .tick {
+      position: absolute;
+      background-color: #333;
+    }
+
+    .tick.big {
+      height: 20px;
+      width: 2px;
+      top: -10px;
+    }
+
+    .tick.small {
+      height: 10px;
+      width: 1px;
+      top: -5px;
+    }
+
+    .label {
+      position: absolute;
+      top: 20px;
+      font-size: 14px;
+      color: #333;
+      transform: translateX(-50%);
+    }
+
+    .arrow {
+      position: absolute;
+      top: -45px;
+      width: 30px;
+      height: 30px;
+      pointer-events: none;
+      user-select: none;
+      transition: left 0.4s ease;
+    }
+
+    input[type="number"] {
+      padding: 8px;
+      font-size: 16px;
+      width: 120px;
+      margin: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #00796b;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>أين يشير السهم؟</h1>
+
+  <div class="number-line" id="line">
+    <!-- سهم SVG بدون خلفية -->
+    <svg class="arrow" id="arrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2V22M12 22L6 16M12 22L18 16" stroke="crimson" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <div>
+    <label>اكتب العدد الذي يشير إليه السهم:</label><br>
+    <input type="number" id="userAnswer">
+  </div>
+
+  <button onclick="checkAnswer()">تحقق</button>
+
+  <div class="result" id="result"></div>
+
+  <script>
+    const start = 6700;
+    const end = 7400;
+    const step = 10;
+    const totalSteps = (end - start) / step;
+    const container = document.getElementById("line");
+    const arrow = document.getElementById("arrow");
+
+    // توليد التدريجات
+    for (let i = 0; i <= totalSteps; i++) {
+      const value = start + i * step;
+      const left = (i / totalSteps) * 100;
+
+      const tick = document.createElement("div");
+      tick.className = "tick";
+      tick.style.left = `${left}%`;
+      tick.classList.add(value % 100 === 0 ? "big" : "small");
+      container.appendChild(tick);
+
+      if (value % 100 === 0) {
+        const label = document.createElement("div");
+        label.className = "label";
+        label.style.left = `${left}%`;
+        label.innerText = value;
+        container.appendChild(label);
+      }
+    }
+
+    // توليد عدد عشوائي جديد
+    let currentValue = 6840;
+    function generateNewValue() {
+      const values = [];
+      for (let i = start; i <= end; i += step) {
+        values.push(i);
+      }
+      currentValue = values[Math.floor(Math.random() * values.length)];
+      const currentStep = (currentValue - start) / step;
+      const left = (currentStep / totalSteps) * 100;
+      arrow.style.left = `${left}%`;
+    }
+
+    // التحقق من الجواب
+    function checkAnswer() {
+      const userValue = parseInt(document.getElementById("userAnswer").value);
+      const result = document.getElementById("result");
+
+      if (userValue === currentValue) {
+        result.innerText = "🎉 صحيح!";
+        result.style.color = "green";
+      } else {
+        result.innerText = `❌ خطأ. العدد الصحيح هو ${currentValue}`;
+        result.style.color = "red";
+      }
+
+      // بعد ثانيتين نعيد التحدي
+      setTimeout(() => {
+        document.getElementById("userAnswer").value = "";
+        result.innerText = "";
+        generateNewValue();
+      }, 2000);
+    }
+
+
+    // إطلاق أول سهم عند التحميل
+    generateNewValue();
+  </script>
+
+</body>
+</html>

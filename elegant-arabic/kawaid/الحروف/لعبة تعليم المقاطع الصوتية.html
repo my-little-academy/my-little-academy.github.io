@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة المقاطع الصوتية للأطفال</title>
+    <style>
+        /* تنسيقات عامة */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #ff6b6b;
+        }
+        
+        /* تنسيقات البطاقات */
+        .cards-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .card {
+            width: 150px;
+            height: 180px;
+            background-color: #74b9ff;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        }
+        
+        .card img {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+        }
+        
+        .card .sound {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            background-color: #0984e3;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        
+        .card .word {
+            font-size: 18px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        /* تنسيقات زر التشغيل */
+        .play-button {
+            background-color: #00b894;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        
+        .play-button:hover {
+            background-color: #009d7a;
+        }
+        
+        /* رسائل التغذية الراجعة */
+        .feedback {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            min-height: 30px;
+            color: #e84393;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>لعبة تعليم المقاطع الصوتية</h1>
+        <p>انقر على الصورة لسماع صوتها</p>
+        
+        <div class="cards-container">
+            <div class="card" data-sound="ba">
+                <div class="sound">ب</div>
+                <img src="https://cdn.pixabay.com/photo/2013/07/13/11/34/apple-157634_960_720.png" alt="تفاحة">
+                <div class="word">بَــ</div>
+            </div>
+            
+            <div class="card" data-sound="ta">
+                <div class="sound">ت</div>
+                <img src="https://cdn.pixabay.com/photo/2012/04/26/18/43/turtle-42793_960_720.png" alt="سلحفاة">
+                <div class="word">تـَــ</div>
+            </div>
+            
+            <div class="card" data-sound="tha">
+                <div class="sound">ث</div>
+                <img src="https://cdn.pixabay.com/photo/2013/07/13/11/36/wolf-158247_960_720.png" alt="ذئب">
+                <div class="word">ثـَــ</div>
+            </div>
+            
+            <div class="card" data-sound="ja">
+                <div class="sound">ج</div>
+                <img src="https://cdn.pixabay.com/photo/2013/07/13/11/36/giraffe-158241_960_720.png" alt="زرافة">
+                <div class="word">جَــ</div>
+            </div>
+            
+            <div class="card" data-sound="ha">
+                <div class="sound">ح</div>
+                <img src="https://cdn.pixabay.com/photo/2013/07/12/18/39/cow-153781_960_720.png" alt="بقرة">
+                <div class="word">حَــ</div>
+            </div>
+            
+            <div class="card" data-sound="kha">
+                <div class="sound">خ</div>
+                <img src="https://cdn.pixabay.com/photo/2013/07/13/11/34/sheep-157641_960_720.png" alt="خروف">
+                <div class="word">خَــ</div>
+            </div>
+        </div>
+        
+        <button class="play-button">تشغيل جميع الأصوات</button>
+        <div class="feedback"></div>
+    </div>
+
+    <script>
+        // الأصوات المقابلة لكل مقطع
+        const sounds = {
+            'ba': 'https://www.soundjay.com/buttons/sounds/button-09.mp3',
+            'ta': 'https://www.soundjay.com/buttons/sounds/button-10.mp3',
+            'tha': 'https://www.soundjay.com/buttons/sounds/button-21.mp3',
+            'ja': 'https://www.soundjay.com/buttons/sounds/button-23.mp3',
+            'ha': 'https://www.soundjay.com/buttons/sounds/button-30.mp3',
+            'kha': 'https://www.soundjay.com/buttons/sounds/button-40.mp3'
+        };
+        
+        // العناصر من الصفحة
+        const cards = document.querySelectorAll('.card');
+        const playButton = document.querySelector('.play-button');
+        const feedback = document.querySelector('.feedback');
+        
+        // تشغيل الصوت عند النقر على البطاقة
+        cards.forEach(card => {
+            card.addEventListener('click', function() {
+                const soundKey = this.getAttribute('data-sound');
+                const sound = new Audio(sounds[soundKey]);
+                sound.play();
+                
+                // عرض التغذية الراجعة
+                const word = this.querySelector('.word').textContent;
+                feedback.textContent = `صوت: ${word}`;
+                
+                // تأثير مرئي
+                this.style.backgroundColor = '#ff7675';
+                setTimeout(() => {
+                    this.style.backgroundColor = '#74b9ff';
+                }, 500);
+            });
+        });
+        
+        // تشغيل جميع الأصوات بالترتيب
+        playButton.addEventListener('click', function() {
+            feedback.textContent = 'استمع جيداً إلى جميع المقاطع';
+            
+            let delay = 0;
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    const soundKey = card.getAttribute('data-sound');
+                    const sound = new Audio(sounds[soundKey]);
+                    sound.play();
+                    
+                    // تأثير مرئي
+                    card.style.transform = 'scale(1.1)';
+                    card.style.backgroundColor = '#ff7675';
+                    
+                    setTimeout(() => {
+                        card.style.transform = 'scale(1)';
+                        card.style.backgroundColor = '#74b9ff';
+                    }, 1000);
+                    
+                }, delay);
+                
+                delay += 1500; // تأخير 1.5 ثانية بين كل صوت
+            });
+        });
+    </script>
+</body>
+</html>

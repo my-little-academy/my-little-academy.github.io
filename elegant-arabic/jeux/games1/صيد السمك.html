@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة صيد الكلمات</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #87CEEB, #1E90FF);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            text-align: center;
+        }
+        
+        .game-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .pond {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 70%;
+            background: #1E90FF;
+            border-top: 15px solid #0D5F9A;
+            overflow: hidden;
+        }
+        
+        .fish {
+            position: absolute;
+            width: 120px;
+            height: 60px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            filter: drop-shadow(0 0 5px rgba(0,0,0,0.3));
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 60"><path d="M100,30 Q120,0 100,10 Q80,30 100,50 Q120,60 100,30" fill="orange"/><circle cx="85" cy="25" r="3" fill="black"/><path d="M30,20 Q50,30 30,40 Q10,30 30,20" fill="orange"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        
+        .fish:hover {
+            transform: scale(1.1);
+        }
+        
+        .word-display {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 24px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+        
+        .score-display {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 18px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        
+        .controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #388E3C;
+            transform: translateY(-2px);
+        }
+        
+        .feedback {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            font-weight: bold;
+            color: #4CAF50;
+            text-shadow: 0 0 10px white;
+            opacity: 0;
+            transition: all 0.5s;
+            z-index: 100;
+        }
+        
+        .bubble {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float-up 5s infinite;
+        }
+        
+        @keyframes float-up {
+            0% { transform: translateY(0) scale(0.5); opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { transform: translateY(-100vh) scale(1.2); opacity: 0; }
+        }
+        
+        .fishing-rod {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 10px;
+            height: 200px;
+            background: #8B4513;
+            transform-origin: bottom center;
+            transform: translateX(-50%) rotate(-15deg);
+            z-index: 5;
+        }
+        
+        .fishing-line {
+            position: absolute;
+            bottom: 200px;
+            left: 50%;
+            width: 2px;
+            height: 300px;
+            background: repeating-linear-gradient(to bottom, transparent, transparent 10px, white 10px, white 20px);
+            transform-origin: top center;
+            transform: translateX(-50%) rotate(-15deg);
+            z-index: 4;
+        }
+        
+        .hook {
+            position: absolute;
+            bottom: -100px;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10,0 Q15,10 10,20" stroke="black" fill="none" stroke-width="2"/></svg>') no-repeat;
+            transform: translateX(-50%);
+            z-index: 3;
+        }
+        
+        .level-indicator {
+            position: absolute;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 16px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="score-display">النقاط: <span id="score">0</span></div>
+        <div class="level-indicator">المستوى: <span id="level">1</span></div>
+        
+        <div class="controls">
+            <button id="start-btn">بدء اللعبة</button>
+            <button id="reset-btn">إعادة ضبط</button>
+        </div>
+        
+        <div class="word-display" id="word-display">انقر على بدء اللعبة</div>
+        <div class="feedback" id="feedback"></div>
+        
+        <div class="fishing-rod"></div>
+        <div class="fishing-line"></div>
+        <div class="hook"></div>
+        
+        <div class="pond" id="pond">
+            <!-- الأسماك ستضاف هنا ديناميكياً -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const pond = document.getElementById('pond');
+            const wordDisplay = document.getElementById('word-display');
+            const scoreDisplay = document.getElementById('score');
+            const levelDisplay = document.getElementById('level');
+            const startBtn = document.getElementById('start-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const feedback = document.getElementById('feedback');
+            
+            let score = 0;
+            let level = 1;
+            let gameActive = false;
+            let currentWord = '';
+            let wordsPool = [];
+            let fishInterval;
+            let bubbleInterval;
+            
+            // مستويات الكلمات
+            const levels = [
+                ["قط", "باب", "شمس", "بحر", "دار", "عين", "يد", "فم"],
+                ["مدرسة", "تفاحة", "سيارة", "قطة", "كتاب", "قلم", "شجرة", "بابور"],
+                ["مكتبة", "برتقالة", "دراجة", "فيل", "زرافة", "طائرة", "سفينة", "مستشفى"]
+            ];
+            
+            // تهيئة اللعبة
+            initGame();
+            
+            function initGame() {
+                createBubbles();
+                startBtn.addEventListener('click', startGame);
+                resetBtn.addEventListener('click', resetGame);
+                
+                // عرض عناصر اللعبة مباشرة
+                document.querySelectorAll('.fishing-rod, .fishing-line, .hook').forEach(el => {
+                    el.style.display = 'block';
+                });
+            }
+            
+            function startGame() {
+                if (gameActive) return;
+                
+                gameActive = true;
+                score = 0;
+                level = 1;
+                updateScore();
+                updateLevel();
+                
+                wordsPool = [...levels[level - 1]];
+                wordDisplay.textContent = "!اصطد السمكة";
+                
+                // إزالة أي أسماك موجودة
+                document.querySelectorAll('.fish').forEach(fish => fish.remove());
+                
+                fishInterval = setInterval(createFish, 1500);
+                
+                startBtn.textContent = "جاري اللعب...";
+                startBtn.style.backgroundColor = "#FF9800";
+                
+                // تأكيد ظهور العناصر
+                const fish = document.createElement('div');
+                fish.className = 'fish';
+                fish.style.left = '50%';
+                fish.style.bottom = '50%';
+                fish.dataset.word = 'جربني';
+                fish.addEventListener('click', catchFish);
+                pond.appendChild(fish);
+                
+                setTimeout(() => fish.remove(), 3000);
+            }
+            
+            function resetGame() {
+                gameActive = false;
+                clearInterval(fishInterval);
+                
+                document.querySelectorAll('.fish').forEach(fish => fish.remove());
+                
+                wordDisplay.textContent = "انقر على بدء اللعبة";
+                startBtn.textContent = "بدء اللعبة";
+                startBtn.style.backgroundColor = "#4CAF50";
+                score = 0;
+                level = 1;
+                updateScore();
+                updateLevel();
+            }
+            
+            function createFish() {
+                if (!gameActive) return;
+                
+                const fish = document.createElement('div');
+                fish.className = 'fish';
+                
+                const randomIndex = Math.floor(Math.random() * wordsPool.length);
+                const word = wordsPool[randomIndex];
+                fish.dataset.word = word;
+                
+                const pondRect = pond.getBoundingClientRect();
+                const leftPos = Math.random() * (pondRect.width - 150);
+                const bottomPos = Math.random() * (pondRect.height - 80);
+                
+                fish.style.left = `${leftPos}px`;
+                fish.style.bottom = `${bottomPos}px`;
+                
+                const swimDirection = Math.random() > 0.5 ? 1 : -1;
+                fish.style.transform = `scaleX(${swimDirection})`;
+                
+                const swimAnimation = fish.animate(
+                    [
+                        { left: `${leftPos}px` },
+                        { left: `${leftPos + (swimDirection * 200)}px` }
+                    ],
+                    {
+                        duration: 3000 + Math.random() * 5000,
+                        iterations: 1
+                    }
+                );
+                
+                fish.addEventListener('click', catchFish);
+                pond.appendChild(fish);
+                
+                swimAnimation.onfinish = () => fish.remove();
+            }
+            
+            function catchFish(e) {
+                if (!gameActive) return;
+                
+                const fish = e.target;
+                const word = fish.dataset.word;
+                
+                wordDisplay.textContent = word;
+                currentWord = word;
+                
+                fish.getAnimations().forEach(anim => anim.cancel());
+                
+                fish.animate(
+                    [
+                        { bottom: fish.style.bottom, transform: fish.style.transform },
+                        { bottom: '100%', transform: `${fish.style.transform} rotate(360deg)` }
+                    ],
+                    { duration: 1000 }
+                ).onfinish = () => {
+                    fish.remove();
+                    checkWord(word);
+                };
+            }
+            
+            function checkWord(word) {
+                score += level * 10;
+                updateScore();
+                showFeedback('أحسنت!');
+                
+                if (score >= level * 100 && level < levels.length) {
+                    levelUp();
+                }
+            }
+            
+            function levelUp() {
+                level++;
+                updateLevel();
+                wordsPool = [...levels[level - 1]];
+                showFeedback(`المستوى ${level}!`);
+                
+                clearInterval(fishInterval);
+                fishInterval = setInterval(createFish, 2000 - (level * 300));
+            }
+            
+            function updateScore() {
+                scoreDisplay.textContent = score;
+            }
+            
+            function updateLevel() {
+                levelDisplay.textContent = level;
+            }
+            
+            function showFeedback(message) {
+                feedback.textContent = message;
+                feedback.style.opacity = 1;
+                feedback.style.color = ['#4CAF50', '#FFC107', '#2196F3'][Math.floor(Math.random() * 3)];
+                
+                feedback.animate(
+                    [
+                        { transform: 'translate(-50%, -50%) scale(0.5)', opacity: 0 },
+                        { transform: 'translate(-50%, -50%) scale(1.2)', opacity: 1 },
+                        { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 }
+                    ],
+                    { duration: 500 }
+                );
+                
+                setTimeout(() => feedback.style.opacity = 0, 2000);
+            }
+            
+            function createBubbles() {
+                bubbleInterval = setInterval(() => {
+                    const bubble = document.createElement('div');
+                    bubble.className = 'bubble';
+                    
+                    const size = 5 + Math.random() * 20;
+                    const left = Math.random() * 100;
+                    
+                    bubble.style.width = `${size}px`;
+                    bubble.style.height = `${size}px`;
+                    bubble.style.left = `${left}%`;
+                    bubble.style.bottom = '0';
+                    
+                    pond.appendChild(bubble);
+                    
+                    setTimeout(() => bubble.remove(), 5000);
+                }, 300);
+            }
+        });
+    </script>
+</body>
+</html>

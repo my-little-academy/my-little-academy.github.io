@@ -1,0 +1,103 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>لعبة المقاطع الصوتية</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            background-color: #fefae0;
+            color: #333;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .word-box {
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+        .buttons {
+            margin: 20px 0;
+        }
+        .buttons button {
+            font-size: 20px;
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #a3d5d3;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .buttons button:hover {
+            background-color: #76b5b2;
+        }
+        .result {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+        .highlight {
+            color: #2a9d8f;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="word-box" id="wordBox">كلمة</div>
+        <div class="buttons" id="choices"></div>
+        <div class="result" id="result"></div>
+        <button onclick="nextWord()">كلمة جديدة</button>
+    </div>
+
+    <script>
+        const words = [
+            { word: "مَدرَسَة", syllables: 3, split: "مَ - دْرَ - سَة" },
+            { word: "قَلَم", syllables: 2, split: "قَ - لَم" },
+            { word: "كِتاب", syllables: 2, split: "كِ - تاب" },
+            { word: "مِفْتاح", syllables: 2, split: "مِفْ -تاح" },
+            { word: "باب", syllables: 1, split: "باب" },
+            { word: "سَرير", syllables: 2, split: "سَ -رير" },
+            { word: "دَجاجَة", syllables: 3, split: "دَ - جا - جَة" },
+            { word: "تُفّاح", syllables: 2, split: "تُفْ - فاح" },
+            { word: "مِلعَقَة", syllables: 3, split: "مِلْ - عَ - قَة" },
+            { word: "سَفينة", syllables: 3, split: "سَ - في - نَة" }
+        ];
+
+        let currentWord = 0;
+
+        function renderWord() {
+            document.getElementById('result').innerText = '';
+            const wordData = words[currentWord];
+            document.getElementById('wordBox').innerText = wordData.word;
+
+            const choicesDiv = document.getElementById('choices');
+            choicesDiv.innerHTML = '';
+            for (let i = 1; i <= 4; i++) {
+                const btn = document.createElement('button');
+                btn.innerText = i;
+                btn.onclick = () => checkAnswer(i);
+                choicesDiv.appendChild(btn);
+            }
+        }
+
+        function checkAnswer(selected) {
+            const wordData = words[currentWord];
+            if (selected === wordData.syllables) {
+                document.getElementById('result').innerHTML = `✅ <span class="highlight">أحسنت!</span> الكلمة تُقطّع هكذا: <br><span class="highlight">${wordData.split}</span>`;
+            } else {
+                document.getElementById('result').innerHTML = `❌ <span class="highlight">حاول مرة أخرى!</span>`;
+            }
+        }
+
+        function nextWord() {
+            currentWord = (currentWord + 1) % words.length;
+            renderWord();
+        }
+
+        // Start with first word
+        renderWord();
+    </script>
+</body>
+</html>

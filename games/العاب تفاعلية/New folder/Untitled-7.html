@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8" />
+<title>لعبة قصة النور - واجهة جذابة</title>
+<style>
+  /* خلفية مبهجة بألوان دافئة وزخارف */
+  body {
+    background: linear-gradient(135deg, #fceabb, #f8b500);
+    font-family: 'Cairo', sans-serif;
+    text-align: center;
+    padding: 30px 15px;
+    color: #2d3436;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  /* عنوان كبير وملون */
+  h1 {
+    font-size: 3rem;
+    color: #6c5ce7;
+    margin-bottom: 10px;
+    text-shadow: 1px 1px 4px #5a379e;
+  }
+  /* صندوق القصة بخلفية ناعمة وظلال */
+  .story-box {
+    background: #fffbe6;
+    border-radius: 25px;
+    box-shadow: 0 10px 30px rgba(108, 92, 231, 0.3);
+    max-width: 650px;
+    margin: 20px auto 10px;
+    padding: 30px 25px;
+    font-size: 1.5rem;
+    line-height: 1.6;
+    min-height: 220px;
+    position: relative;
+    border: 3px solid #6c5ce7;
+  }
+  /* شكل صغير مثل النجمة أو الزهرة عند الزوايا */
+  .story-box::before {
+    content: '✨';
+    position: absolute;
+    top: 12px;
+    left: 15px;
+    font-size: 1.6rem;
+  }
+  .story-box::after {
+    content: '🌟';
+    position: absolute;
+    bottom: 12px;
+    right: 15px;
+    font-size: 1.6rem;
+  }
+  /* صندوق الأسئلة */
+  .question-box {
+    margin-top: 25px;
+  }
+  /* أزرار الخيارات كبيرة وملونة وممتعة */
+  .option {
+    display: block;
+    background: #a29bfe;
+    border-radius: 25px;
+    padding: 16px 30px;
+    margin: 15px auto;
+    max-width: 360px;
+    font-size: 1.3rem;
+    cursor: pointer;
+    border: none;
+    color: white;
+    box-shadow: 0 5px 15px rgba(162, 155, 254, 0.5);
+    transition: background-color 0.3s, transform 0.2s;
+  }
+  .option:hover {
+    background-color: #6c5ce7;
+    transform: scale(1.08);
+  }
+  .option.correct {
+    background-color: #00b894;
+    color: white;
+    cursor: default;
+    box-shadow: 0 5px 20px #00b894;
+  }
+  .option.incorrect {
+    background-color: #d63031;
+    cursor: default;
+    box-shadow: 0 5px 20px #d63031;
+  }
+  #next-btn {
+    background-color: #6c5ce7;
+    color: white;
+    padding: 16px 40px;
+    border: none;
+    border-radius: 30px;
+    font-size: 1.3rem;
+    margin-top: 30px;
+    cursor: pointer;
+    box-shadow: 0 7px 20px rgba(108, 92, 231, 0.7);
+    display: none;
+    transition: background-color 0.3s;
+  }
+  #next-btn:hover {
+    background-color: #341f97;
+  }
+  #result-message {
+    font-size: 1.5rem;
+    margin-top: 35px;
+    color: #00b894;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px #0a5027;
+  }
+</style>
+</head>
+<body>
+
+<h1>لعبة قصة النور</h1>
+
+<div class="story-box" id="story-text">
+  <!-- فقرة القصة تظهر هنا -->
+</div>
+
+<div class="question-box" id="question-box">
+  <!-- سؤال الفهم وخياراته -->
+</div>
+
+<button id="next-btn">التالي</button>
+
+<div id="result-message"></div>
+
+<script>
+  const storyData = [
+    {
+      text: "كان هناك طفل طيب يحب مساعدة الآخرين، وكان يحرص دائمًا على قول الحقيقة.",
+      question: "ماذا كان يحب هذا الطفل؟",
+      options: ["أن يساعد الآخرين", "أن يلعب فقط", "أن ينام كثيرًا"],
+      answer: 0
+    },
+    {
+      text: "في يوم من الأيام، رأى الطفل صديقه حزينًا بسبب مشكلة كبيرة، فقرر أن يكون صديقًا وفيًا ويساعده.",
+      question: "كيف كان الطفل مع صديقه؟",
+      options: ["صديق وفي يساعده", "يتجاهله", "يضحك عليه"],
+      answer: 0
+    },
+    {
+      text: "تعلم الطفل أن الصدق والإخلاص من أجمل الصفات التي تجعل الناس يحبونه ويحترمونه.",
+      question: "ما الصفات التي تعلمها الطفل؟",
+      options: ["الصدق والإخلاص", "الكذب والخيانة", "الكسل والتجاهل"],
+      answer: 0
+    }
+  ];
+
+  let currentIndex = 0;
+  let score = 0;
+
+  const storyText = document.getElementById('story-text');
+  const questionBox = document.getElementById('question-box');
+  const nextBtn = document.getElementById('next-btn');
+  const resultMessage = document.getElementById('result-message');
+
+  function showStoryPart(index) {
+    storyText.textContent = storyData[index].text;
+
+    let optionsHTML = '';
+    storyData[index].options.forEach((opt, i) => {
+      optionsHTML += `<button class="option" data-index="${i}">${opt}</button>`;
+    });
+    questionBox.innerHTML = optionsHTML;
+
+    nextBtn.style.display = 'none';
+    resultMessage.textContent = '';
+
+    document.querySelectorAll('.option').forEach(button => {
+      button.addEventListener('click', selectAnswer);
+    });
+  }
+
+  function selectAnswer(e) {
+    const selectedBtn = e.target;
+    const selectedIndex = parseInt(selectedBtn.dataset.index);
+    const correctIndex = storyData[currentIndex].answer;
+
+    document.querySelectorAll('.option').forEach(btn => {
+      btn.disabled = true;
+      if (parseInt(btn.dataset.index) === correctIndex) {
+        btn.classList.add('correct');
+      } else {
+        btn.classList.add('incorrect');
+      }
+    });
+
+    if (selectedIndex === correctIndex) {
+      score++;
+      resultMessage.textContent = "أحسنت! إجابة صحيحة 😊";
+      resultMessage.style.color = "#00b894";
+    } else {
+      resultMessage.textContent = "حاول مرة أخرى في المرة القادمة 😉";
+      resultMessage.style.color = "#d63031";
+    }
+
+    nextBtn.style.display = 'inline-block';
+  }
+
+  nextBtn.addEventListener('click', () => {
+    currentIndex++;
+    if (currentIndex < storyData.length) {
+      showStoryPart(currentIndex);
+    } else {
+      storyText.textContent = "انتهت القصة! شكراً للعبك.";
+      questionBox.innerHTML = "";
+      nextBtn.style.display = 'none';
+      resultMessage.textContent = `نتيجتك: ${score} من ${storyData.length} أسئلة صحيحة 🌟`;
+    }
+  });
+
+  showStoryPart(currentIndex);
+</script>
+
+</body>
+</html>

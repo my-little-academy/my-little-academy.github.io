@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اكتشف نمط الأعداد</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            color: #333;
+        }
+        
+        .game-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border: 5px solid #4CAF50;
+        }
+        
+        h1 {
+            color: #FF6B6B;
+            font-size: 2em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .game-description {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 1em;
+        }
+        
+        .sequence-container {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .number-sequence {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .number-box {
+            width: 60px;
+            height: 60px;
+            background-color: #FFD166;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .input-container {
+            margin: 20px 0;
+        }
+        
+        input {
+            width: 80px;
+            height: 50px;
+            font-size: 1.5em;
+            text-align: center;
+            border: 3px solid #4CAF50;
+            border-radius: 10px;
+            margin: 0 5px;
+        }
+        
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 5px;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .feedback {
+            font-size: 1.2em;
+            font-weight: bold;
+            min-height: 30px;
+            margin: 10px 0;
+        }
+        
+        .correct-feedback {
+            color: #06D6A0;
+            animation: pulse 0.5s;
+        }
+        
+        .wrong-feedback {
+            color: #EF476F;
+            animation: shake 0.5s;
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .info-box {
+            text-align: center;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            font-size: 1.5em;
+            color: #333;
+        }
+        
+        .stars {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin: 10px 0;
+        }
+        
+        .star {
+            font-size: 2em;
+            color: #FFD700;
+            opacity: 0.3;
+        }
+        
+        .star.active {
+            opacity: 1;
+        }
+        
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+            display: none;
+        }
+        
+        .firework {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            box-shadow: 0 0 10px 5px rgba(255, 215, 0, 0.7);
+            animation: explode 1s ease-out forwards;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        @keyframes explode {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(20); opacity: 0; }
+        }
+        
+        @media (max-width: 600px) {
+            .number-box {
+                width: 40px;
+                height: 40px;
+                font-size: 1em;
+            }
+            
+            input {
+                width: 60px;
+                height: 40px;
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>اكتشف نمط الأعداد</h1>
+        <p class="game-description">أكمل تسلسل الأعداد بالكتابة ثم اكتشف مقدار العد</p>
+        
+        <div class="sequence-container">
+            <h3>تسلسل الأعداد:</h3>
+            <div class="number-sequence" id="number-sequence">
+                <!-- الأعداد ستظهر هنا -->
+            </div>
+        </div>
+        
+        <div class="input-container">
+            <h3>ما هو العدد التالي؟</h3>
+            <input type="number" id="number-input" min="0">
+            <button id="submit-btn">تحقق</button>
+        </div>
+        
+        <div class="feedback" id="feedback"></div>
+        
+        <div class="game-info">
+            <div class="info-box">
+                <div class="info-label">المحاولات</div>
+                <div class="info-value" id="attempts">0</div>
+            </div>
+            <div class="info-box">
+                <div class="info-label">النقاط</div>
+                <div class="info-value" id="score">0</div>
+            </div>
+            <div class="info-box">
+                <div class="info-label">الأنماط المكتشفة</div>
+                <div class="info-value" id="patterns">0</div>
+            </div>
+        </div>
+        
+        <div class="stars" id="stars-container">
+            <div class="star">★</div>
+            <div class="star">★</div>
+            <div class="star">★</div>
+            <div class="star">★</div>
+            <div class="star">★</div>
+        </div>
+        
+        <div class="controls">
+            <button id="next-btn" disabled>تحدي جديد</button>
+            <button id="discover-btn" disabled>اكتشف مقدار العد</button>
+            <button id="hint-btn">مساعدة</button>
+        </div>
+        
+        <div class="celebration" id="celebration"></div>
+    </div>
+    
+    <audio id="correct-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3"></audio>
+    <audio id="wrong-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3"></audio>
+    <audio id="win-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"></audio>
+    
+    <script>
+        // عناصر DOM
+        const numberSequence = document.getElementById('number-sequence');
+        const numberInput = document.getElementById('number-input');
+        const submitBtn = document.getElementById('submit-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const discoverBtn = document.getElementById('discover-btn');
+        const hintBtn = document.getElementById('hint-btn');
+        const feedback = document.getElementById('feedback');
+        const scoreDisplay = document.getElementById('score');
+        const attemptsDisplay = document.getElementById('attempts');
+        const patternsDisplay = document.getElementById('patterns');
+        const starsContainer = document.getElementById('stars-container');
+        const celebration = document.getElementById('celebration');
+        const correctSound = document.getElementById('correct-sound');
+        const wrongSound = document.getElementById('wrong-sound');
+        const winSound = document.getElementById('win-sound');
+        
+        // متغيرات اللعبة
+        let currentSequence = [];
+        let stepSize = 0;
+        let nextNumber = 0;
+        let score = 0;
+        let attempts = 0;
+        let patternsDiscovered = 0;
+        let stars = 0;
+        let gameActive = false;
+        let sequenceLength = 5;
+        let currentPosition = 0;
+        
+        // أنماط العد الممكنة
+        const possibleSteps = [1, 2, 5, 10, 20, 50, 100, 1000];
+        
+        // بدء لعبة جديدة
+        function startNewGame() {
+            // اختيار نمط عشوائي
+            stepSize = possibleSteps[Math.floor(Math.random() * possibleSteps.length)];
+            
+            // تحديد نقطة البداية
+            let startNumber = Math.floor(Math.random() * 100) * stepSize;
+            
+            // إنشاء التسلسل
+            currentSequence = [];
+            for (let i = 0; i < sequenceLength; i++) {
+                currentSequence.push(startNumber + (i * stepSize));
+            }
+            
+            nextNumber = startNumber + (sequenceLength * stepSize);
+            currentPosition = 0;
+            
+            // عرض التسلسل (مع إخفاء بعض الأعداد)
+            displaySequence();
+            
+            // تفعيل/تعطيل الأزرار
+            submitBtn.disabled = false;
+            nextBtn.disabled = true;
+            discoverBtn.disabled = true;
+            numberInput.disabled = false;
+            numberInput.value = '';
+            numberInput.focus();
+            
+            feedback.textContent = '';
+            gameActive = true;
+        }
+        
+        // عرض التسلسل
+        function displaySequence() {
+            numberSequence.innerHTML = '';
+            
+            for (let i = 0; i < currentSequence.length; i++) {
+                const numberBox = document.createElement('div');
+                numberBox.className = 'number-box';
+                
+                // إظهار 3 أعداد وإخفاء الباقي
+                if (i < 3 || !gameActive) {
+                    numberBox.textContent = currentSequence[i];
+                } else {
+                    numberBox.textContent = '؟';
+                    numberBox.style.backgroundColor = '#e9ecef';
+                }
+                
+                numberSequence.appendChild(numberBox);
+            }
+        }
+        
+        // التحقق من الإجابة
+        function checkAnswer() {
+            if (!gameActive) return;
+            
+            const userAnswer = parseInt(numberInput.value);
+            attempts++;
+            attemptsDisplay.textContent = attempts;
+            
+            if (userAnswer === nextNumber) {
+                // إجابة صحيحة
+                correctSound.play();
+                feedback.textContent = 'أحسنت! الإجابة صحيحة';
+                feedback.className = 'feedback correct-feedback';
+                
+                score += 10;
+                scoreDisplay.textContent = score;
+                
+                // إضافة نجمة
+                stars++;
+                if (stars > 5) stars = 5;
+                updateStars();
+                
+                // تفعيل أزرار التحدي الجديد واكتشاف النمط
+                nextBtn.disabled = false;
+                discoverBtn.disabled = false;
+                submitBtn.disabled = true;
+                numberInput.disabled = true;
+                
+                gameActive = false;
+            } else {
+                // إجابة خاطئة
+                wrongSound.play();
+                feedback.textContent = 'خطأ! حاول مرة أخرى';
+                feedback.className = 'feedback wrong-feedback';
+                
+                // إظهار المزيد من الأعداد في التسلسل للمساعدة
+                if (sequenceLength < 7) {
+                    sequenceLength++;
+                    displaySequence();
+                }
+            }
+        }
+        
+        // اكتشاف مقدار العد
+        function discoverStep() {
+            const answer = prompt('ما هو مقدار العد الذي اكتشفته؟');
+            
+            if (answer && parseInt(answer) === stepSize) {
+                correctSound.play();
+                feedback.textContent = `ممتاز! لقد اكتشفت أن مقدار العد هو ${stepSize}`;
+                patternsDiscovered++;
+                patternsDisplay.textContent = patternsDiscovered;
+                
+                // احتفال
+                if (patternsDiscovered % 3 === 0) {
+                    celebrate();
+                }
+            } else {
+                wrongSound.play();
+                feedback.textContent = `ليس صحيحًا. مقدار العد هو ${stepSize}`;
+            }
+            
+            // عرض التسلسل كاملاً
+            displayFullSequence();
+        }
+        
+        // عرض التسلسل كاملاً
+        function displayFullSequence() {
+            numberSequence.innerHTML = '';
+            
+            for (let i = 0; i < currentSequence.length; i++) {
+                const numberBox = document.createElement('div');
+                numberBox.className = 'number-box';
+                numberBox.textContent = currentSequence[i];
+                numberSequence.appendChild(numberBox);
+            }
+            
+            // إضافة العدد التالي
+            const nextBox = document.createElement('div');
+            nextBox.className = 'number-box';
+            nextBox.style.backgroundColor = '#06D6A0';
+            nextBox.style.color = 'white';
+            nextBox.textContent = nextNumber;
+            numberSequence.appendChild(nextBox);
+        }
+        
+        // تحديث عرض النجوم
+        function updateStars() {
+            const starElements = document.querySelectorAll('.star');
+            starElements.forEach((star, index) => {
+                if (index < stars) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+        
+        // عرض تلميح
+        function showHint() {
+            if (!gameActive) return;
+            
+            const hint = nextNumber - currentSequence[currentSequence.length - 1];
+            feedback.textContent = `تلميح: الفرق بين العددين الأخيرين هو ${hint}`;
+            feedback.className = 'feedback';
+        }
+        
+        // عرض احتفال
+        function celebrate() {
+            celebration.style.display = 'block';
+            winSound.play();
+            
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const firework = document.createElement('div');
+                    firework.className = 'firework';
+                    firework.style.left = `${Math.random() * 100}%`;
+                    firework.style.top = `${Math.random() * 100}%`;
+                    firework.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                    celebration.appendChild(firework);
+                    
+                    setTimeout(() => {
+                        firework.remove();
+                    }, 1000);
+                }, i * 100);
+            }
+            
+            setTimeout(() => {
+                celebration.style.display = 'none';
+                celebration.innerHTML = '';
+            }, 5000);
+        }
+        
+        // استماع للأحداث
+        submitBtn.addEventListener('click', checkAnswer);
+        nextBtn.addEventListener('click', startNewGame);
+        discoverBtn.addEventListener('click', discoverStep);
+        hintBtn.addEventListener('click', showHint);
+        
+        numberInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+        
+        // بدء اللعبة عند تحميل الصفحة
+        window.addEventListener('load', startNewGame);
+    </script>
+</body>
+</html>

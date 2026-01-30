@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اكتشف العدد على المستقيم العددي</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #e74c3c;
+            --light-bg: #f8f9fa;
+            --dark-text: #2c3e50;
+        }
+        
+        body {
+            font-family: 'Tajawal', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            color: var(--dark-text);
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 90%;
+            max-width: 800px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            color: var(--secondary-color);
+            margin-bottom: 30px;
+            font-size: 2.2rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .level-selector {
+            background: var(--light-bg);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: inline-block;
+        }
+        
+        select, input, button {
+            font-family: 'Tajawal', sans-serif;
+            border: 2px solid #dfe6e9;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        select {
+            background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat;
+            background-position: left 10px center;
+            padding-right: 10px;
+            padding-left: 30px;
+        }
+        
+        .ruler-container {
+            position: relative;
+            height: 140px;
+            margin: 40px 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+            padding: 20px 0;
+            border: 1px solid #eee;
+        }
+        
+        .ruler-track {
+            position: absolute;
+            top: 50%;
+            left: 5%;
+            width: 90%;
+            height: 6px;
+            background: linear-gradient(90deg, #bdc3c7, #ecf0f1);
+            border-radius: 3px;
+            transform: translateY(-50%);
+        }
+        
+        .ruler {
+            position: relative;
+            height: 100%;
+        }
+        
+        .tick {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 2px;
+            background: #7f8c8d;
+        }
+        
+        .tick.big {
+            height: 30px;
+            background: var(--primary-color);
+            width: 3px;
+            z-index: 2;
+        }
+        
+        .tick.small {
+            height: 15px;
+            z-index: 1;
+        }
+        
+        .tick-label {
+            position: absolute;
+            top: calc(50% + 25px);
+            transform: translateX(-50%);
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--dark-text);
+        }
+        
+        .arrow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 24px;
+            height: 24px;
+            transform: translate(-50%, -100%);
+            transition: left 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            z-index: 3;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2));
+        }
+        
+        .arrow svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .input-container {
+            background: var(--light-bg);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 30px 0;
+        }
+        
+        input {
+            width: 120px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border: 2px solid var(--primary-color);
+            margin-left: 10px;
+        }
+        
+        button {
+            background: var(--primary-color);
+            color: white;
+            font-weight: bold;
+            padding: 12px 25px;
+            margin: 0 5px;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        #check-btn {
+            background: var(--secondary-color);
+        }
+        
+        .message {
+            margin: 20px auto;
+            padding: 15px;
+            max-width: 80%;
+            border-radius: 8px;
+            font-weight: bold;
+            opacity: 0;
+            transition: all 0.3s;
+        }
+        
+        .message.show {
+            opacity: 1;
+        }
+        
+        .success {
+            background: #2ecc71;
+            color: white;
+        }
+        
+        .error {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .score-container {
+            font-size: 1.2rem;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        
+        .timer {
+            display: inline-block;
+            padding: 8px 20px;
+            background: #fdeaea;
+            border-radius: 20px;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translate(-50%, -100%); }
+            50% { transform: translate(-50%, -115%); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translate(-50%, -100%) rotate(0deg); }
+            25% { transform: translate(-50%, -100%) rotate(-5deg); }
+            75% { transform: translate(-50%, -100%) rotate(5deg); }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>اكتشف العدد على المستقيم العددي</h1>
+        
+        <div class="level-selector">
+            <label for="level">اختر مستوى الصعوبة:</label>
+            <select id="level">
+                <option value="easy">مبتدئ (0 - 100)</option>
+                <option value="medium">متوسط (100 - 1000)</option>
+                <option value="hard">متقدم (1000 - 10000)</option>
+            </select>
+        </div>
+        
+        <div class="ruler-container">
+            <div class="ruler-track"></div>
+            <div class="ruler">
+                <div id="ticks-container"></div>
+                <div class="arrow" id="arrow">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 4L20 12L12 20L4 12L12 4Z" fill="#e74c3c"/>
+                        <path d="M12 8L16 12L12 16L8 12L12 8Z" fill="#fff"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        
+        <div class="input-container">
+            <p>ما هو العدد الذي يشير إليه السهم؟</p>
+            <input type="number" id="user-answer" placeholder="أدخل الرقم">
+            <div id="message" class="message"></div>
+        </div>
+        
+        <div>
+            <button id="check-btn">تحقق</button>
+            <button id="hint-btn">مساعدة</button>
+        </div>
+        
+        <div class="score-container">
+            النقاط: <span id="score">0</span>
+        </div>
+        
+        <div class="timer">
+            الوقت المتبقي: <span id="time">60</span> ثانية
+        </div>
+    </div>
+
+    <script>
+        // العناصر الأساسية
+        const ticksContainer = document.getElementById('ticks-container');
+        const arrow = document.getElementById('arrow');
+        const userAnswer = document.getElementById('user-answer');
+        const checkBtn = document.getElementById('check-btn');
+        const hintBtn = document.getElementById('hint-btn');
+        const message = document.getElementById('message');
+        const scoreElement = document.getElementById('score');
+        const timeElement = document.getElementById('time');
+        const levelSelector = document.getElementById('level');
+        
+        // المتغيرات العامة
+        let minValue = 0;
+        let maxValue = 100;
+        let currentPosition = 0;
+        let currentValue = 0;
+        let score = 0;
+        let timeLeft = 60;
+        let timer;
+        
+        // تهيئة اللعبة
+        function initGame() {
+            // تحديد النطاق حسب المستوى المختار
+            const level = levelSelector.value;
+            switch(level) {
+                case 'easy':
+                    minValue = 0;
+                    maxValue = 100;
+                    break;
+                case 'medium':
+                    minValue = 100;
+                    maxValue = 1000;
+                    break;
+                case 'hard':
+                    minValue = 1000;
+                    maxValue = 10000;
+                    break;
+            }
+            
+            // إعادة تعيين النقاط والوقت
+            score = 0;
+            timeLeft = 60;
+            scoreElement.textContent = score;
+            timeElement.textContent = timeLeft;
+            
+            // رسم المستقيم العددي
+            drawNumberLine();
+            
+            // تعيين موضع عشوائي للسهم
+            setRandomPosition();
+            
+            // بدء المؤقت
+            clearInterval(timer);
+            timer = setInterval(updateTimer, 1000);
+        }
+        
+        // رسم المستقيم العددي
+        function drawNumberLine() {
+            ticksContainer.innerHTML = '';
+            
+            const containerWidth = document.querySelector('.ruler').offsetWidth;
+            const range = maxValue - minValue;
+            
+            // إضافة التدريجات الكبيرة (كل 100)
+            for (let i = minValue; i <= maxValue; i += 100) {
+                const position = ((i - minValue) / range) * 100;
+                addTick(position, i, 'big');
+            }
+            
+            // إضافة التدريجات الصغيرة (كل 10)
+            for (let i = minValue; i <= maxValue; i += 10) {
+                if (i % 100 !== 0) { // تجنب تكرار التدريجات الكبيرة
+                    const position = ((i - minValue) / range) * 100;
+                    addTick(position, i, 'small');
+                }
+            }
+        }
+        
+        // إضافة تدريجة إلى المستقيم
+        function addTick(position, value, size) {
+            const tick = document.createElement('div');
+            tick.className = `tick ${size}`;
+            tick.style.left = `${position}%`;
+            
+            ticksContainer.appendChild(tick);
+            
+            if (size === 'big') {
+                const label = document.createElement('div');
+                label.className = 'tick-label';
+                label.textContent = value;
+                label.style.left = `${position}%`;
+                ticksContainer.appendChild(label);
+            }
+        }
+        
+        // تعيين موضع عشوائي للسهم
+        function setRandomPosition() {
+            const range = maxValue - minValue;
+            const step = 10; // أصغر خطوة هي 10
+            
+            // اختيار قيمة عشوائية مضاعفة للـ 10 ضمن النطاق
+            const randomValue = minValue + Math.round(Math.random() * (range / step)) * step;
+            
+            // حساب الموضع بالنسبة المئوية
+            const position = ((randomValue - minValue) / range) * 100;
+            
+            // تحديث الموضع والقيمة الحالية
+            currentPosition = position;
+            currentValue = randomValue;
+            
+            // تحريك السهم مع تأثير
+            arrow.style.left = `${position}%`;
+            arrow.style.animation = 'bounce 0.5s';
+            
+            // إزالة أي رسائل سابقة
+            message.textContent = '';
+            message.className = 'message';
+            
+            // تفريغ حقل الإدخال
+            userAnswer.value = '';
+            userAnswer.focus();
+        }
+        
+        // التحقق من الإجابة
+        function checkAnswer() {
+            const userValue = parseInt(userAnswer.value);
+            
+            if (isNaN(userValue)) {
+                showMessage('الرجاء إدخال عدد صحيح', 'error');
+                return;
+            }
+            
+            if (userValue === currentValue) {
+                // الإجابة صحيحة
+                score += 10;
+                scoreElement.textContent = score;
+                showMessage('إجابة صحيحة! أحسنت!', 'success');
+                
+                // تأثير نجاح
+                arrow.style.animation = 'bounce 0.5s';
+                
+                // الانتقال إلى السؤال التالي بعد تأخير
+                setTimeout(setRandomPosition, 1500);
+            } else {
+                // الإجابة خاطئة
+                showMessage(`إجابة خاطئة! العدد الصحيح هو ${currentValue}`, 'error');
+                
+                // تأثير خطأ
+                arrow.style.animation = 'shake 0.5s';
+            }
+        }
+        
+        // عرض رسالة للمستخدم
+        function showMessage(text, type) {
+            message.textContent = text;
+            message.className = `message ${type} show`;
+        }
+        
+        // عرض تلميح
+        function showHint() {
+            const range = maxValue - minValue;
+            const step = (currentValue - minValue) / range;
+            
+            let hint = '';
+            if (step < 0.25) {
+                hint = `العدد بين ${minValue} و ${minValue + Math.floor(range/4)}`;
+            } else if (step < 0.5) {
+                hint = `العدد بين ${minValue + Math.floor(range/4)} و ${minValue + Math.floor(range/2)}`;
+            } else if (step < 0.75) {
+                hint = `العدد بين ${minValue + Math.floor(range/2)} و ${minValue + Math.floor(range*3/4)}`;
+            } else {
+                hint = `العدد بين ${minValue + Math.floor(range*3/4)} و ${maxValue}`;
+            }
+            
+            showMessage(hint, 'error');
+        }
+        
+        // تحديث المؤقت
+        function updateTimer() {
+            timeLeft--;
+            timeElement.textContent = timeLeft;
+            
+            if (timeLeft <= 10) {
+                timeElement.style.color = '#ff0000';
+            }
+            
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                showMessage(`انتهى الوقت! نتيجتك النهائية: ${score} نقطة`, 'error');
+                checkBtn.disabled = true;
+                hintBtn.disabled = true;
+            }
+        }
+        
+        // استماع للأحداث
+        checkBtn.addEventListener('click', checkAnswer);
+        hintBtn.addEventListener('click', showHint);
+        userAnswer.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+        levelSelector.addEventListener('change', initGame);
+        
+        // بدء اللعبة
+        initGame();
+    </script>
+</body>
+</html>

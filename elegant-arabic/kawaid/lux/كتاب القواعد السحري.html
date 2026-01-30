@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>كتاب القواعد السحري: رحلة فصيح</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #6a8aff; /* Vibrant Blue */
+            --secondary-yellow: #ffec8b; /* Soft Yellow */
+            --light-bg: #e0f2f7; /* Light Sky Blue */
+            --dark-text: #2c3e50; /* Dark Grey Blue */
+            --highlight-red: #e74c3c; /* Bright Red for highlights */
+            --success-green: #28a745; /* Green for correct answers */
+            --button-primary: #007bff;
+            --button-secondary: #6c757d;
+            --button-accent: #FF5722; /* Orange for special actions */
+            --card-background: #ffffff;
+            --card-border: #aaddff; /* Light blue border */
+        }
+
+        body {
+            font-family: 'Amiri', serif;
+            background: linear-gradient(to bottom right, var(--light-bg), #d1edff);
+            color: var(--dark-text);
+            line-height: 1.8;
+            margin: 0;
+            padding: 20px;
+            direction: rtl;
+            text-align: right;
+            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .page-container {
+            max-width: 950px;
+            width: 95%;
+            background-color: var(--card-background);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+            border-radius: 25px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            border: 5px solid var(--card-border);
+            animation: fadeIn 1s ease-out;
+            display: none; /* Hidden by default */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1, h2, h3 {
+            font-family: 'Cairo', sans-serif;
+            color: var(--dark-text);
+            text-align: center;
+            margin-bottom: 25px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        }
+
+        h1 { font-size: 2.8em; color: var(--primary-blue); }
+        h2 { font-size: 2.2em; color: var(--primary-blue); padding-bottom: 10px; border-bottom: 2px dashed var(--secondary-yellow); }
+        h3 {
+            font-size: 1.8em;
+            color: #ff9100;
+            margin-top: 30px;
+            position: relative;
+            display: inline-block;
+            padding: 0 15px;
+        }
+        h3::before, h3::after { content: '✨'; position: absolute; font-size: 0.8em; top: 50%; transform: translateY(-50%); }
+        h3::before { left: -10px; }
+        h3::after { right: -10px; }
+
+        p {
+            font-size: 1.15em;
+            line-height: 1.7;
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .story-section {
+            background-color: var(--card-background); /* White background for story sections */
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid var(--card-border);
+            margin-bottom: 20px;
+        }
+
+        .interactive-section {
+            background-color: var(--secondary-yellow);
+            padding: 25px;
+            border-radius: 15px;
+            border: 3px dashed #ffb74d;
+            margin-top: 30px;
+            text-align: center;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        /* --- Interactive Elements Styles --- */
+        .item-grid {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+
+        .interactive-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background-color: var(--card-background);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            width: 150px;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .interactive-item:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .interactive-item img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid var(--primary-blue);
+            object-fit: cover;
+            transition: border-color 0.3s ease;
+        }
+        .interactive-item:hover img { border-color: #ff9100; }
+        .item-name {
+            font-family: 'Cairo', sans-serif;
+            font-weight: bold;
+            color: var(--primary-blue);
+            margin-top: 15px;
+            font-size: 1.4em;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            position: absolute;
+            bottom: -5px;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 5px 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            white-space: nowrap;
+        }
+        .item-name.show { opacity: 1; transform: translateY(0); }
+
+        .interactive-sentence-box {
+            background-color: #c8e6c9; /* Light green for verb sentences */
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+            font-size: 1.2em;
+            border: 2px dashed #81c784;
+        }
+        .interactive-sentence-box:hover {
+            background-color: #a5d6a7 !important;
+            transform: scale(1.01);
+        }
+        .highlight-word {
+            color: var(--highlight-red) !important;
+            font-weight: bold;
+            transition: color 0.3s ease;
+            font-size: 1.1em; /* Slightly larger for highlight */
+        }
+
+        .choice-button {
+            font-family: 'Cairo', sans-serif;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            background-color: #673ab7; /* Deep Purple */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        }
+        .choice-button:hover {
+            background-color: #512da8;
+            transform: translateY(-2px);
+        }
+
+        .feedback-message {
+            text-align: center;
+            margin-top: 25px;
+            font-weight: bold;
+            font-size: 1.25em;
+            min-height: 2em; /* Prevent layout shift */
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+        .feedback-message.correct { color: var(--success-green); transform: scale(1.05); }
+        .feedback-message.incorrect { color: var(--highlight-red); transform: scale(1.05); }
+
+        /* --- Navigation Buttons --- */
+        .navigation-buttons {
+            text-align: center;
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .nav-button {
+            font-family: 'Cairo', sans-serif;
+            padding: 15px 30px;
+            font-size: 1.4em;
+            background-color: var(--button-primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .nav-button:hover {
+            background-color: var(--button-hover-dark);
+            transform: translateY(-3px);
+        }
+        .nav-button.prev {
+            background-color: var(--button-secondary);
+        }
+        .nav-button.prev:hover {
+            background-color: #5a6268;
+        }
+        .nav-button.restart {
+            background-color: var(--button-accent);
+        }
+        .nav-button.restart:hover {
+            background-color: #e64a19;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-container intro-page" style="display: block; text-align: center; background-color: #e0f2f7; padding: 50px; border-radius: 20px; box-shadow: 0 0 25px rgba(0, 0, 0, 0.15);">
+        <h1>✨ كتاب القواعد السحري ✨</h1>
+        <h2>مرحباً أيها المغامر الصغير!</h2>
+        <p style="font-size: 1.3em;">هل أنت مستعد لرحلة مدهشة إلى <strong>عالم الكلام السعيد</strong>؟</p>
+        <p style="font-size: 1.2em; margin-bottom: 40px;">اضغط على الزر لفتح <strong>كتاب القواعد السحري</strong> والانطلاق في المغامرة!</p>
+        <button class="nav-button" style="background-color: var(--success-green); font-size: 1.6em; padding: 20px 40px;" onclick="startJourney()">
+            افتح الكتاب السحري! 🚀
+        </button>
+    </div>
+
+    <div class="page-container" id="page-0">
+        <h2 style="background: none; border: none; font-size: 2.5em; color: #2c3e50;">مقدمة: مدينة الكلام السعيد</h2>
+        <div class="story-section">
+            <p>في قديم الزمان، وفي أرض بعيدة خلف الجبال الزرقاء، كانت هناك مدينة صغيرة ساحرة تُدعى <strong>"مدينة الكلام السعيد"</strong>. لم تكن هذه المدينة عادية أبدًا، فكل شيء فيها كان يتكلم: الأشجار تهمس، الزهور تغني، حتى النجوم في الليل تتلألأ بكلمات مضيئة! لكن سكان المدينة، الذين كانوا كلهم من <strong>الحروف</strong> و<strong>الكلمات</strong>، كانوا يعيشون في فوضى كبيرة. لم يكن أحد يعرف كيف يتحدث بطريقة صحيحة، فكانت الجمل كلها متناثرة وغير مفهومة.</p>
+            <p>كان هناك فتى صغير اسمه <strong>فصيح</strong>، يمتاز بذكاء وروح مغامرة. أحب فصيح مدينته كثيرًا، لكنه كان يحزن لرؤية الفوضى في الكلام. في يوم من الأيام، سمع فصيح عن أسطورة قديمة تقول إن هناك <strong>كنزًا لغويًا</strong> مدفونًا في قلب المدينة، وهذا الكنز هو مفتاح تنظيم الكلام وجعله جميلًا ومفهومًا.</p>
+            <p>قرر فصيح أن ينطلق في مغامرة للبحث عن هذا الكنز. في طريقه، التقى بشخصية عجيبة: سلحفاة حكيمة اسمها <strong>"مدام حركة"</strong>. كانت مدام حركة بطيئة في المشي، لكنها كانت سريعة البديهة ومليئة بالمعرفة. عندما علم فصيح أنها تعرف الكثير عن الكنز اللغوي، طلب منها المساعدة.</p>
+            <p>قالت مدام حركة بابتسامة: "الكنز الذي تبحث عنه يا فصيح، ليس ذهبًا ولا مجوهرات، بل هو <strong>قواعد اللغة</strong>! لكي تجدها، عليك أن تتعلم كيف تتحدث الأشياء عن نفسها، وكيف تتصرف، وكيف تصف نفسها."</p>
+        </div>
+        <div class="navigation-buttons">
+            <button class="nav-button" onclick="nextPage()">
+                انطلق في الرحلة: الاسم البطل!
+                <img src="https://via.placeholder.com/20/FFFFFF?text=->" alt="التالي" style="vertical-align: middle; margin-right: 8px;">
+            </button>
+        </div>
+    </div>
+
+    <div class="page-container" id="page-1">
+        <h2>🌳 محطة الاسم البطل!</h2>
+        <div class="story-section" style="background-color: #fffacd; border-color: #ffd700;">
+            <h3>أول كنز وجدناه هو: 🏆 الاسم البطل 🏆</h3>
+            <p>يا فصيح، انظر حولك في هذه الحديقة الجميلة! كل شيء هنا له اسم خاص به. <strong>الاسم</strong> هو البطل الذي يحدّثنا عن <strong>شخص</strong>، أو <strong>حيوان</strong>، أو <strong>شيء</strong>، أو <strong>مكان</strong> نتكلم عنه. هو كنزنا الأول والمهم!</p>
+            <p> هيا نلعب لعبة صغيرة! اضغط على الصور التالية، واكتشف اسم كل شيء وتعلم عنه:</p>
+
+            <div class="interactive-section">
+                <div class="item-grid">
+                    <div class="interactive-item" onclick="showName('شجرة', 'هذه شجرة! 🌲 الشجرة اسم لشيء جميل وكبير نراه في الطبيعة.', 'tree_sound.mp3')">
+                        <img src="https://via.placeholder.com/120/A2D2FF/FFFFFF?text=شجرة" alt="شجرة">
+                        <p id="name-شجرة" class="item-name">شجرة</p>
+                    </div>
+                    <div class="interactive-item" onclick="showName('قطة', 'هذه قطة! 🐾 القطة اسم لحيوان أليف ومحبوب.', 'cat_sound.mp3')">
+                        <img src="https://via.placeholder.com/120/FFB3C6/FFFFFF?text=قطة" alt="قطة">
+                        <p id="name-قطة" class="item-name">قطة</p>
+                    </div>
+                    <div class="interactive-item" onclick="showName('كتاب', 'هذا كتاب! 📚 الكتاب اسم لشيء مليء بالمعلومات والقصص الممتعة.', 'book_sound.mp3')">
+                        <img src="https://via.placeholder.com/120/D0F0C0/FFFFFF?text=كتاب" alt="كتاب">
+                        <p id="name-كتاب" class="item-name">كتاب</p>
+                    </div>
+                </div>
+                <p id="name-info" class="feedback-message"></p>
+            </div>
+        </div>
+        <div class="navigation-buttons">
+            <button class="nav-button prev" onclick="prevPage()">
+                <img src="https://via.placeholder.com/20/FFFFFF?text=<-" alt="سابق" style="vertical-align: middle; margin-left: 8px;">
+                العودة للصفحة السابقة
+            </button>
+            <button class="nav-button" onclick="nextPage()">
+                المحطة التالية: الفعل المغامر!
+                <img src="https://via.placeholder.com/20/FFFFFF?text=->" alt="التالي" style="vertical-align: middle; margin-right: 8px;">
+            </button>
+        </div>
+    </div>
+
+    <div class="page-container" id="page-2">
+        <h2>🏃 محطة الفعل المغامر!</h2>
+        <div class="story-section" style="background-color: #e0f7fa; border-color: #80deea;">
+            <h3>الكنز الثاني: 🤸 الفعل المغامر 🤸</h3>
+            <p>هنا يا فصيح، نتعرف على <strong>الفعل</strong>! <strong>الفعل</strong> هو المغامر في الجملة، يخبرنا عن <strong>الحركة</strong> أو <strong>الحدث</strong> الذي يقوم به <strong>الاسم</strong>. ماذا تفعل هذه الأشياء؟</p>
+            <p>اضغط على الجملة وشاهد الكلمة التي تدل على الحركة!</p>
+
+            <div class="interactive-section">
+                <div class="interactive-sentence-box" onclick="highlightWord('تتدحرج', 'الكرة تتدحرج.', 'تدحرج_sound.mp3')">
+                    الكرة <span id="word-تتدحرج" class="highlight-target">تتدحرج</span>.
+                </div>
+                <div class="interactive-sentence-box" onclick="highlightWord('يطير', 'العصفور يطير.', 'طيران_sound.mp3')">
+                    العصفور <span id="word-يطير" class="highlight-target">يطير</span>.
+                </div>
+                <div class="interactive-sentence-box" onclick="highlightWord('يلعب', 'الطفل يلعب.', 'لعب_sound.mp3')">
+                    الطفل <span id="word-يلعب" class="highlight-target">يلعب</span>.
+                </div>
+                <p id="action-info" class="feedback-message"></p>
+            </div>
+        </div>
+        <div class="navigation-buttons">
+            <button class="nav-button prev" onclick="prevPage()">
+                <img src="https://via.placeholder.com/20/FFFFFF?text=<-" alt="سابق" style="vertical-align: middle; margin-left: 8px;">
+                العودة للصفحة السابقة
+            </button>
+            <button class="nav-button" onclick="nextPage()">
+                المحطة التالية: الحرف الرابط!
+                <img src="https://via.placeholder.com/20/FFFFFF?text=->" alt="التالي" style="vertical-align: middle; margin-right: 8px;">
+            </button>
+        </div>
+    </div>
+
+    <div class="page-container" id="page-3">
+        <h2>🔗 محطة الحرف الرابط!</h2>
+        <div class="story-section" style="background-color: #ffe0b2; border-color: #ffab40;">
+            <h3>الكنز الثالث: 🖇️ الحرف الرابط 🖇️</h3>
+            <p>هذه هي <strong>الحروف</strong> يا فصيح! هي ليست أسماء ولا أفعال، لكنها كلمات صغيرة <strong>تربط</strong> بين أجزاء الجملة، وتجعل المعنى أوضح. فمثلاً، لا يمكن أن نقول 'الكرة الطاولة'، بل نقول 'الكرة <strong>على</strong> الطاولة'.</p>
+            <p>اختر الحرف المناسب لإكمال الجملة بشكل صحيح:</p>
+
+            <div class="interactive-section">
+                <div style="margin-bottom: 25px;">
+                    <p style="font-size: 1.25em;">القطة تجلس ____ الشجرة.</p>
+                    <button class="choice-button" onclick="checkChoice('تحت', 'الحرف تحت جعل الجملة واضحة: القطة تجلس تحت الشجرة.', 'choice_correct.mp3', 'link-feedback')">تحت</button>
+                    <button class="choice-button" onclick="checkChoice('من', 'الحرف من هنا لا يناسب المعنى. حاول مرة أخرى!', 'choice_wrong.mp3', 'link-feedback')">من</button>
+                </div>
+                <div>
+                    <p style="font-size: 1.25em;">ذهبتُ ____ المدرسة.</p>
+                    <button class="choice-button" onclick="checkChoice('على', 'الحرف على لا يناسب المعنى. حاول مرة أخرى!', 'choice_wrong.mp3', 'link-feedback')">على</button>
+                    <button class="choice-button" onclick="checkChoice('إلى', 'الحرف إلى جعل الجملة واضحة: ذهبتُ إلى المدرسة.', 'choice_correct.mp3', 'link-feedback')">إلى</button>
+                </div>
+                <p id="link-feedback" class="feedback-message"></p>
+            </div>
+        </div>
+        <div class="navigation-buttons">
+            <button class="nav-button prev" onclick="prevPage()">
+                <img src="https://via.placeholder.com/20/FFFFFF?text=<-" alt="سابق" style="vertical-align: middle; margin-left: 8px;">
+                العودة للصفحة السابقة
+            </button>
+            <button class="nav-button" onclick="nextPage()">
+                المحطة التالية: الصفة الوصفية!
+                <img src="https://via.placeholder.com/20/FFFFFF?text=->" alt="التالي" style="vertical-align: middle; margin-right: 8px;">
+            </button>
+        </div>
+    </div>
+
+    <div class="page-container" id="page-4">
+        <h2>🎨 محطة الصفة الوصفية!</h2>
+        <div class="story-section" style="background-color: #d1c4e9; border-color: #9575cd;">
+            <h3>الكنز الرابع: 🌈 الصفة الوصفية 🌈</h3>
+            <p>هنا نجد <strong>الصفة</strong> يا فصيح! <strong>الصفة</strong> هي التي تصف <strong>الاسم</strong>، وتخبرنا كيف هو. هل الزهرة جميلة؟ هل السماء واسعة؟</p>
+            <p>اختر الصفة المناسبة التي تصف الاسم في الجملة:</p>
+
+            <div class="interactive-section">
+                <div style="margin-bottom: 25px;">
+                    <p style="font-size: 1.25em;">الوردة ____.</p>
+                    <button class="choice-button" onclick="checkChoice('جميلة', 'جميلة صفة رائعة للوردة!', 'choice_correct.mp3', 'adjective-feedback')">جميلة</button>
+                    <button class="choice-button" onclick="checkChoice('تأكل', 'تأكل فعل، وليست صفة. حاول مرة أخرى!', 'choice_wrong.mp3', 'adjective-feedback')">تأكل</button>
+                </div>
+                <div>
+                    <p style="font-size: 1.25em;">الولد ____.</p>
+                    <button class="choice-button" onclick="checkChoice('طويل', 'طويل صفة ممتازة للولد!', 'choice_correct.mp3', 'adjective-feedback')">طويل</button>
+                    <button class="choice-button" onclick="checkChoice('يشرب', 'يشرب فعل، وليست صفة. حاول مرة أخرى!', 'choice_wrong.mp3', 'adjective-feedback')">يشرب</button>
+                </div>
+                <p id="adjective-feedback" class="feedback-message"></p>
+            </div>
+        </div>
+        <div class="navigation-buttons">
+            <button class="nav-button prev" onclick="prevPage()">
+                <img src="https://via.placeholder.com/20/FFFFFF?text=<-" alt="سابق" style="vertical-align: middle; margin-left: 8px;">
+                العودة للصفحة السابقة
+            </button>
+            <button class="nav-button" onclick="nextPage()">
+                انتقل إلى نهاية المغامرة!
+                <img src="https://via.placeholder.com/20/FFFFFF?text=->" alt="التالي" style="vertical-align: middle; margin-right: 8px;">
+            </button>
+        </div>
+    </div>
+
+    <div class="page-container" id="page-5">
+        <h2>🌟 نهاية المغامرة وبداية النظام!</h2>
+        <div class="story-section" style="background-color: #e8f5e9; border-color: #a5d6a7;">
+            <h3>لقد اكتملت مغامرتك!</h3>
+            <p>بعد أن تعلم فصيح كل هذه القواعد، عاد إلى مدينة الكلام السعيد متحمسًا. بدأ يشرح لسكان المدينة كيف يضعون الأسماء والأفعال والحروف والصفات في أماكنها الصحيحة. شيئًا فشيئًا، بدأت الفوضى تختفي، وأصبحت الكلمات تترتب في جمل جميلة وواضحة. أصبحت الأشجار تهمس بجمل مفيدة، والزهور تغني أغاني مفهومة، وأصبحت مدينة الكلام السعيد هي أجمل مدينة في العالم.</p>
+            <p>تعلم فصيح وكل أهل المدينة أن <strong>قواعد اللغة</strong> ليست مجرد قواعد مملة، بل هي <strong>سحر</strong> يجعل الكلام جميلاً ومفهومًا، وهي <strong>كنز</strong> يساعدنا على التعبير عن أفكارنا ومشاعرنا بوضوح وجمال.</p>
+            <h3>تهانينا أيها المغامر الصغير! لقد أصبحت الآن سيد الكلمات! 🎉</h3>
+        </div>
+        <div class="navigation-buttons">
+            <button class="nav-button prev" onclick="prevPage()">
+                <img src="https://via.placeholder.com/20/FFFFFF?text=<-" alt="سابق" style="vertical-align: middle; margin-left: 8px;">
+                العودة للصفحة السابقة
+            </button>
+            <button class="nav-button restart" onclick="restartJourney()">
+                ابدأ رحلة جديدة! 🔄
+            </button>
+        </div>
+    </div>
+
+    <audio id="generalClickSound" src="sounds/click.mp3"></audio>
+    <audio id="revealSound" src="sounds/magic_reveal.mp3"></audio>
+    <audio id="correctSound" src="sounds/correct.mp3"></audio>
+    <audio id="wrongSound" src="sounds/wrong.mp3"></audio>
+    <audio id="tree_sound" src="sounds/tree.mp3"></audio>
+    <audio id="cat_sound" src="sounds/cat.mp3"></audio>
+    <audio id="book_sound" src="sounds/book.mp3"></audio>
+    <audio id="تدحرج_sound" src="sounds/roll.mp3"></audio>
+    <audio id="طيران_sound" src="sounds/fly.mp3"></audio>
+    <audio id="لعب_sound" src="sounds/play.mp3"></audio>
+    <script>
+        let currentPageIndex = -1; // -1 for the intro page
+        const pages = []; // Will be populated with actual page elements
+
+        // Function to show a specific page
+        function showPage(index) {
+            pages.forEach((page, i) => {
+                page.style.display = (i === index) ? 'block' : 'none';
+                if (i === index) {
+                    page.style.animation = 'fadeIn 1s ease-out'; // Re-apply animation on display
+                }
+            });
+            currentPageIndex = index;
+            window.scrollTo(0, 0); // Scroll to top of the page on navigation
+        }
+
+        // Initialize: Populate pages array and show intro
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.page-container').forEach((page, i) => {
+                // Skip the intro page when populating the 'pages' array for navigation
+                if (!page.classList.contains('intro-page')) {
+                    pages.push(page);
+                }
+            });
+            showPage(-1); // Hide all story pages
+            document.querySelector('.intro-page').style.display = 'block'; // Show only the intro
+        });
+
+        // Start the journey from intro to first story page
+        function startJourney() {
+            document.querySelector('.intro-page').style.display = 'none';
+            playGeneralClickSound();
+            setTimeout(() => showPage(0), 200); // Small delay for click sound
+        }
+
+        // Navigate to the next page
+        function nextPage() {
+            if (currentPageIndex < pages.length - 1) {
+                playGeneralClickSound();
+                setTimeout(() => showPage(currentPageIndex + 1), 200);
+            }
+        }
+
+        // Navigate to the previous page
+        function prevPage() {
+            if (currentPageIndex > 0) {
+                playGeneralClickSound();
+                setTimeout(() => showPage(currentPageIndex - 1), 200);
+            } else if (currentPageIndex === 0) { // If on the first story page, go back to intro
+                playGeneralClickSound();
+                document.querySelector('.intro-page').style.display = 'block';
+                setTimeout(() => showPage(-1), 200); // Hide all story pages
+            }
+        }
+
+        // Restart the whole journey
+        function restartJourney() {
+            playGeneralClickSound();
+            currentPageIndex = -1;
+            location.reload(); // Simple reload for a full restart
+        }
+
+        // --- Interactive Functions ---
+
+        // General sound functions
+        function playSound(audioId) {
+            const soundElement = document.getElementById(audioId);
+            if (soundElement) {
+                soundElement.currentTime = 0; // Rewind to start
+                soundElement.play().catch(e => console.log(`Audio play failed for ${audioId}:`, e));
+            }
+        }
+        function playGeneralClickSound() { playSound('generalClickSound'); }
+        function playCorrectSound() { playSound('correctSound'); }
+        function playWrongSound() { playSound('wrongSound'); }
+        function playRevealSound() { playSound('revealSound'); }
+
+
+        // For "Name Hero" page
+        function showName(itemName, infoText, itemSoundId) {
+            playGeneralClickSound();
+
+            // Hide all item names and reset info display
+            document.querySelectorAll('.item-name').forEach(nameEl => nameEl.classList.remove('show'));
+            const infoDisplay = document.getElementById('name-info');
+            infoDisplay.classList.remove('show-effect', 'correct', 'incorrect');
+            infoDisplay.innerText = ''; // Clear previous text
+
+            // Show the specific item name
+            const nameElement = document.getElementById('name-' + itemName);
+            if (nameElement) {
+                nameElement.classList.add('show');
+            }
+
+            // Update info text and apply success effect
+            setTimeout(() => {
+                infoDisplay.innerText = infoText;
+                infoDisplay.classList.add('show-effect', 'correct');
+                playRevealSound();
+            }, 300);
+
+            // Play specific sound for the item
+            const specificItemSound = document.getElementById(itemSoundId.replace('.mp3', ''));
+            if (specificItemSound) {
+                specificItemSound.currentTime = 0;
+                specificItemSound.play().catch(e => console.log("Item audio play failed:", e));
+            }
+        }
+
+        // For "Verb Adventurer" page
+        function highlightWord(wordToHighlight, fullSentence, verbSoundId) {
+            playGeneralClickSound();
+
+            // Remove highlight from all spans first
+            document.querySelectorAll('.highlight-target').forEach(span => {
+                span.classList.remove('highlight-word');
+            });
+            // Reset feedback
+            const actionInfo = document.getElementById('action-info');
+            actionInfo.classList.remove('correct', 'incorrect');
+            actionInfo.innerText = '';
+
+            // Add highlight to the specific word
+            const wordElement = document.getElementById('word-' + wordToHighlight);
+            if (wordElement) {
+                wordElement.classList.add('highlight-word');
+            }
+
+            // Update feedback and play sound
+            setTimeout(() => {
+                actionInfo.innerText = `أحسنت! كلمة "${wordToHighlight}" هي الفعل هنا!`;
+                actionInfo.classList.add('correct');
+                playCorrectSound();
+                const verbSound = document.getElementById(verbSoundId.replace('.mp3', ''));
+                if (verbSound) {
+                    verbSound.currentTime = 0;
+                    verbSound.play().catch(e => console.log("Verb audio play failed:", e));
+                }
+            }, 300);
+        }
+
+        // For "Linking Preposition" and "Descriptive Adjective" pages
+        function checkChoice(selectedAnswer, feedbackText, soundType, feedbackElementId) {
+            playGeneralClickSound();
+            const feedbackElement = document.getElementById(feedbackElementId);
+
+            // Clear previous feedback
+            feedbackElement.classList.remove('correct', 'incorrect');
+            feedbackElement.innerText = '';
+
+            setTimeout(() => {
+                feedbackElement.innerText = feedbackText;
+                if (soundType === 'choice_correct.mp3') {
+                    feedbackElement.classList.add('correct');
+                    playCorrectSound();
+                } else {
+                    feedbackElement.classList.add('incorrect');
+                    playWrongSound();
+                }
+            }, 300);
+        }
+
+        // Preload generic sounds (replace with actual paths)
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('generalClickSound').src = 'https://www.soundjay.com/buttons/button-2.mp3';
+            document.getElementById('revealSound').src = 'https://www.soundjay.com/misc/magic-chime-01.mp3';
+            document.getElementById('correctSound').src = 'https://www.soundjay.com/misc/success-sound-effect.mp3';
+            document.getElementById('wrongSound').src = 'https://www.soundjay.com/misc/fail-buzzer-01.mp3';
+
+            // Placeholder for specific content sounds (YOU NEED TO ADD ACTUAL FILES HERE)
+            // Example for tree sound:
+            // document.getElementById('tree_sound').src = 'path/to/your/tree_rustle_sound.mp3';
+            // document.getElementById('cat_sound').src = 'path/to/your/cat_meow_sound.mp3';
+            // document.getElementById('book_sound').src = 'path/to/your/book_page_turn_sound.mp3';
+            // document.getElementById('تدحرج_sound').src = 'path/to/your/rolling_sound.mp3';
+            // document.getElementById('طيران_sound').src = 'path/to/your/flying_sound.mp3';
+            // document.getElementById('لعب_sound').src = 'path/to/your/playing_sound.mp3';
+        });
+    </script>
+</body>
+</html>

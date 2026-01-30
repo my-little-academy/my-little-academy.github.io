@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الجمع الممتعة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap" rel="stylesheet">
+    <style>
+        /* --- أكواد CSS هنا --- */
+        body {
+            font-family: 'Cairo', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(to right, #87CEEB, #ADD8E6); /* ألوان سماوية فاتحة */
+            color: #333;
+            direction: rtl; /* لدعم اللغة العربية من اليمين لليسار */
+            text-align: right;
+        }
+
+        .game-container {
+            background-color: #FFFACD; /* لون بيج فاتح جذاب */
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #FF69B4; /* وردي زاهي */
+            font-size: 2.5em;
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #4CAF50; /* أخضر مبهج */
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+
+        .level-selection button,
+        .action-button {
+            background-color: #FFD700; /* ذهبي لامع */
+            color: #8B4513; /* بني غامق جذاب */
+            border: none;
+            padding: 15px 25px;
+            margin: 10px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .level-selection button:hover,
+        .action-button:hover {
+            background-color: #FFC107; /* ذهبي أغمق قليلاً عند التحويم */
+            transform: translateY(-3px);
+        }
+
+        .level-button {
+            min-width: 180px; /* لضمان حجم متناسق للأزرار */
+        }
+
+        .game-area {
+            margin-top: 30px;
+            border: 3px dashed #FFA07A; /* خطوط متقطعة برتقالية جذابة */
+            padding: 20px;
+            border-radius: 15px;
+            background-color: #FFEBCD; /* لون خوخي فاتح */
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            font-size: 1.1em; /* تم تعديل هذا السطر لتقليل الحجم */
+            color: #4682B4; /* أزرق فولاذي */
+            margin-bottom: 20px;
+            background-color: #E0FFFF; /* لون أزرق فاتح جداً */
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .problem-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 3em;
+            font-weight: bold;
+            color: #8A2BE2; /* بنفسجي أزرق جذاب */
+            margin-bottom: 20px;
+            position: relative; /* لتحديد موقع + */
+        }
+
+        .problem-display .number {
+            margin: -10px 0; /* لتقريب الأرقام من بعضها */
+            min-width: 150px; /* لضمان عرض كافٍ للأرقام الكبيرة */
+            text-align: center;
+        }
+
+        .problem-display .operator {
+            position: absolute;
+            left: 20px; /* ضع + على اليسار */
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5em; /* تصغير حجم + */
+        }
+
+        hr {
+            border: 2px solid #D2691E; /* خط بني داكن */
+            width: 80%;
+            margin: 15px 0;
+        }
+
+        .answer-input-container {
+            display: flex;
+            justify-content: center; /* لتوسيط حقول الإجابة */
+            margin-top: 15px;
+        }
+
+        .answer-input {
+            width: 60px;
+            height: 60px;
+            font-size: 2em;
+            text-align: center;
+            margin: 0 5px;
+            border: 3px solid #6A5ACD; /* لون بنفسجي مزرق */
+            border-radius: 10px;
+            outline: none;
+            transition: border-color 0.3s ease;
+            color: #333;
+        }
+
+        .answer-input:focus {
+            border-color: #FF4500; /* لون برتقالي محمر عند التركيز */
+        }
+
+        .feedback {
+            margin-top: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+            min-height: 40px; /* لضمان عدم اهتزاز التخطيط */
+        }
+
+        .feedback.correct {
+            color: #32CD32; /* أخضر ليموني */
+        }
+
+        .feedback.incorrect {
+            color: #FF0000; /* أحمر ناري */
+        }
+
+        .explanation-area {
+            background-color: #F0F8FF; /* أزرق فاتح جداً */
+            border: 2px solid #6495ED; /* أزرق كورن فلاور */
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .explanation-area h3 {
+            color: #483D8B; /* بنفسجي داكن */
+            margin-bottom: 10px;
+        }
+
+        .explanation-area p {
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .help-section {
+            margin-top: 30px;
+            width: 100%;
+        }
+
+        .help-button {
+            background-color: #9370DB; /* بنفسجي متوسط */
+            color: white;
+            font-size: 1.2em;
+        }
+
+        .help-content {
+            background-color: #F8F8FF; /* لون أزرق فاتح جداً */
+            border: 2px solid #B0C4DE; /* لون أزرق رمادي فاتح */
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 15px;
+            text-align: right;
+        }
+
+        .help-content h3 {
+            color: #6A5ACD; /* بنفسجي أزرق */
+            margin-bottom: 15px;
+        }
+
+        .help-content p {
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 10px;
+        }
+
+        .help-content pre {
+            background-color: #E6E6FA; /* بنفسجي فاتح جداً */
+            padding: 10px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            overflow-x: auto;
+            font-size: 0.9em;
+            text-align: left; /* للحفاظ على تنسيق الكود */
+            direction: ltr; /* لتغيير اتجاه الكود */
+        }
+
+        .help-content ol {
+            padding-right: 25px; /* مسافة للترقيم */
+            color: #555;
+        }
+
+        .help-content ol li {
+            margin-bottom: 8px;
+        }
+
+        /* For smaller screens */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            .level-selection button {
+                font-size: 1em;
+                padding: 12px 20px;
+                margin: 8px;
+            }
+            .problem-display {
+                font-size: 2.5em;
+            }
+            .answer-input {
+                width: 50px;
+                height: 50px;
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>لعبة الجمع الممتعة</h1>
+
+        <div class="level-selection">
+            <h2>اختر مستوى الصعوبة:</h2>
+            <button id="easyBtn" class="level-button">مبتدئ (جمع بدون احتفاظ)</button>
+            <button id="mediumBtn" class="level-button">متوسط (احتفاظ بسيط)</button>
+            <button id="hardBtn" class="level-button">متقدم (احتفاظ متعدد)</button>
+        </div>
+
+        <div class="game-area" style="display: none;">
+            <div class="score-board">
+                <span>النقاط: <span id="score">0</span></span>
+                <span>النجوم: <span id="stars">0</span> ⭐</span>
+            </div>
+
+            <div class="problem-display">
+                <p class="number" id="num1"></p>
+                <p class="operator">+</p>
+                <p class="number" id="num2"></p>
+                <hr>
+                <div class="answer-input-container">
+                    </div>
+                <button id="checkAnswerBtn" class="action-button">تحقق من الإجابة</button>
+                <button id="nextProblemBtn" class="action-button" style="display: none;">المسألة التالية</button>
+            </div>
+
+            <div class="feedback" id="feedback"></div>
+            <button id="showExplanationBtn" class="action-button" style="display: none;">شرح الحل</button>
+
+            <div class="explanation-area" id="explanationArea" style="display: none;">
+                <h3>شرح الحل:</h3>
+                <div id="explanationContent"></div>
+            </div>
+        </div>
+
+        <div class="help-section" id="helpSection">
+            <button id="showHelpBtn" class="action-button help-button">دليل المساعدة</button>
+            <div class="help-content" style="display: none;">
+                <h3>دليل المساعدة: فهم الجمع مع الاحتفاظ</h3>
+                <p>الجمع مع الاحتفاظ قد يبدو صعبًا في البداية، لكنه في الحقيقة سهل جدًا وممتع!</p>
+                <p>تخيل أن لديك 7 أقلام وتضيف إليها 5 أقلام أخرى. إذا جمعتها معًا، سيصبح المجموع 12 قلمًا.</p>
+                <p>عندما نكتب 12، فإن الرقم 2 يكون في خانة الآحاد (يمثل قلميْن)، والرقم 1 يكون في خانة العشرات (يمثل 10 أقلام).</p>
+                <p>عند الجمع العمودي، نبدأ دائمًا من اليمين (خانة الآحاد). إذا كان مجموع الأرقام في خانة الآحاد 10 أو أكثر، فإننا "نحتفظ" بالعشرات وننقلها إلى خانة العشرات في الصف التالي.</p>
+                <p><strong>مثال:</strong></p>
+                <pre>
+   2  7
++  1  5
+-----
+                </pre>
+                <ol>
+                    <li><strong>اجمع الآحاد:</strong> 7 + 5 = 12.</li>
+                    <li><strong>احتفظ:</strong> اكتب 2 في خانة الآحاد تحت الخط، واحتفظ بالـ 1 (وهي تمثل عشرة واحدة) في الأعلى فوق خانة العشرات.</li>
+                    <li><strong>اجمع العشرات:</strong> الآن اجمع الأرقام في خانة العشرات، ولا تنسَ الرقم الذي احتفظت به: 1 (الذي احتفظنا به) + 2 + 1 = 4.</li>
+                    <li><strong>الناتج:</strong> 42.</li>
+                </ol>
+                <button id="hideHelpBtn" class="action-button">إخفاء المساعدة</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- أكواد JavaScript هنا ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const easyBtn = document.getElementById('easyBtn');
+            const mediumBtn = document.getElementById('mediumBtn');
+            const hardBtn = document.getElementById('hardBtn');
+            const levelSelection = document.querySelector('.level-selection');
+            const gameArea = document.querySelector('.game-area');
+            const num1Display = document.getElementById('num1');
+            const num2Display = document.getElementById('num2');
+            const answerInputContainer = document.querySelector('.answer-input-container');
+            const checkAnswerBtn = document.getElementById('checkAnswerBtn');
+            const nextProblemBtn = document.getElementById('nextProblemBtn');
+            const feedbackDisplay = document.getElementById('feedback');
+            const scoreDisplay = document.getElementById('score');
+            const starsDisplay = document.getElementById('stars');
+            const showExplanationBtn = document.getElementById('showExplanationBtn');
+            const explanationArea = document.getElementById('explanationArea');
+            const explanationContent = document.getElementById('explanationContent');
+            const showHelpBtn = document.getElementById('showHelpBtn');
+            const hideHelpBtn = document.getElementById('hideHelpBtn');
+            const helpContent = document.querySelector('.help-content');
+
+            let currentLevel = 'easy';
+            let currentNum1, currentNum2, correctAnswer;
+            let score = 0;
+            let stars = 0;
+            let problemDigits = 2; // Default for easy (tens place)
+
+            // --- وظائف اللعبة الأساسية ---
+
+            function generateProblem() {
+                feedbackDisplay.textContent = '';
+                explanationArea.style.display = 'none';
+                showExplanationBtn.style.display = 'none';
+                nextProblemBtn.style.display = 'none';
+                checkAnswerBtn.style.display = 'inline-block';
+
+                let maxVal;
+                let minVal = 10; // Minimum value to ensure two-digit numbers for visual alignment
+
+                if (currentLevel === 'easy') {
+                    maxVal = 40; // Numbers that typically don't require carrying for two digits
+                    problemDigits = 2;
+                    // Ensure no carrying for easy level
+                    do {
+                        currentNum1 = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
+                        currentNum2 = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
+                    } while ((currentNum1 % 10) + (currentNum2 % 10) >= 10); // Check for carrying in units
+                } else if (currentLevel === 'medium') {
+                    maxVal = 99; // Up to two digits, simple carrying
+                    problemDigits = 2;
+                    do { // Ensure at least one carry for medium
+                        currentNum1 = Math.floor(Math.random() * (maxVal - 10 + 1)) + 10;
+                        currentNum2 = Math.floor(Math.random() * (maxVal - 10 + 1)) + 10;
+                    } while ((currentNum1 % 10) + (currentNum2 % 10) < 10);
+                } else if (currentLevel === 'hard') {
+                    maxVal = 999; // Up to three digits, multiple carrying
+                    minVal = 100;
+                    problemDigits = 3;
+                    currentNum1 = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
+                    currentNum2 = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
+                }
+
+                correctAnswer = currentNum1 + currentNum2;
+
+                num1Display.textContent = currentNum1;
+                num2Display.textContent = currentNum2;
+
+                createAnswerInputs();
+            }
+
+            function createAnswerInputs() {
+                answerInputContainer.innerHTML = '';
+                const answerString = String(correctAnswer);
+                const maxLen = Math.max(String(currentNum1).length, String(currentNum2).length, answerString.length);
+
+                // Create inputs from right to left (units, tens, hundreds...)
+                for (let i = 0; i < maxLen; i++) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.min = '0';
+                    input.max = '9';
+                    input.maxLength = '1';
+                    input.classList.add('answer-input');
+                    input.dataset.digitIndex = maxLen - 1 - i; // Index from left (0 for leftmost digit)
+                    answerInputContainer.prepend(input); // Add to the beginning to maintain right-to-left order visually
+                    
+                    // Add event listener for auto-tabbing
+                    input.addEventListener('input', function() {
+                        if (this.value.length >= this.maxLength) {
+                            const nextInput = this.nextElementSibling;
+                            if (nextInput) {
+                                nextInput.focus();
+                            } else {
+                                // If it's the last input, focus on check button
+                                checkAnswerBtn.focus();
+                            }
+                        }
+                        // Clear any non-digit input
+                        this.value = this.value.replace(/\D/g, '');
+                    });
+                }
+                answerInputContainer.querySelector('.answer-input').focus(); // Focus on the first input (rightmost)
+            }
+
+            function checkAnswer() {
+                let userAnswer = '';
+                const inputs = Array.from(answerInputContainer.querySelectorAll('.answer-input')).reverse(); // Read from right to left
+                inputs.forEach(input => {
+                    userAnswer += input.value || ''; // Get value, handle empty input
+                });
+
+                if (userAnswer === '') {
+                    feedbackDisplay.textContent = 'الرجاء إدخال إجابتك أولاً!';
+                    feedbackDisplay.className = 'feedback incorrect';
+                    return;
+                }
+
+                userAnswer = parseInt(userAnswer, 10);
+
+                if (userAnswer === correctAnswer) {
+                    feedbackDisplay.textContent = 'أحسنت! إجابة صحيحة! ✨';
+                    feedbackDisplay.className = 'feedback correct';
+                    score += 10;
+                    stars++;
+                    updateScoreBoard();
+                    nextProblemBtn.style.display = 'inline-block';
+                    checkAnswerBtn.style.display = 'none';
+                } else {
+                    feedbackDisplay.textContent = 'حاول مرة أخرى. أنت قريب! 🤔';
+                    feedbackDisplay.className = 'feedback incorrect';
+                    showExplanationBtn.style.display = 'inline-block';
+                }
+            }
+
+            function updateScoreBoard() {
+                scoreDisplay.textContent = score;
+                starsDisplay.textContent = stars;
+            }
+
+            function showExplanation() {
+                explanationArea.style.display = 'block';
+                explanationContent.innerHTML = ''; // Clear previous explanation
+
+                const num1Arr = String(currentNum1).split('').map(Number);
+                const num2Arr = String(currentNum2).split('').map(Number);
+                const resultArr = [];
+                const carries = new Array(Math.max(num1Arr.length, num2Arr.length) + 1).fill(0); // +1 for potential carry to new digit
+
+                // Pad with zeros for vertical alignment
+                const maxLength = Math.max(num1Arr.length, num2Arr.length);
+                const paddedNum1 = Array(maxLength - num1Arr.length).fill(0).concat(num1Arr);
+                const paddedNum2 = Array(maxLength - num2Arr.length).fill(0).concat(num2Arr);
+
+                let explanationHtml = `
+                    <p>لنحل المسألة خطوة بخطوة:</p>
+                    <pre style="text-align: center;">
+                    ${paddedNum1.join(' ')}
+                  + ${paddedNum2.join(' ')}
+                  -----
+                    </pre>
+                `;
+
+                for (let i = maxLength - 1; i >= 0; i--) {
+                    const digit1 = paddedNum1[i];
+                    const digit2 = paddedNum2[i];
+                    const currentCarry = carries[i + 1] || 0; // Carry from the previous column to the right
+
+                    let sum = digit1 + digit2 + currentCarry;
+                    let resultDigit = sum % 10;
+                    let nextCarry = Math.floor(sum / 10);
+
+                    resultArr.unshift(resultDigit); // Add to the beginning for correct order
+
+                    explanationHtml += `<p><strong>خطوة ${maxLength - i}: خانة ${getPlaceName(maxLength - i)}</strong></p>`;
+                    explanationHtml += `<p>اجمع الأرقام في هذه الخانة: ${digit1} + ${digit2} ${currentCarry > 0 ? `+ ${currentCarry} (الاحتفاظ السابق)` : ''} = ${sum}</p>`;
+
+                    if (sum >= 10) {
+                        explanationHtml += `<p>الناتج ${sum}، وهو أكبر من 9. نكتب ${resultDigit} في هذه الخانة، و<strong>نحتفظ بالرقم ${nextCarry}</strong> إلى خانة ${getPlaceName(maxLength - i + 1)}.</p>`;
+                    } else {
+                        explanationHtml += `<p>الناتج ${sum}. نكتب ${resultDigit} في هذه الخانة.</p>`;
+                    }
+                    carries[i] = nextCarry; // Store carry for the next iteration (to the left)
+                }
+
+                // Handle final carry if any
+                if (carries[0] > 0) {
+                    resultArr.unshift(carries[0]);
+                    explanationHtml += `<p><strong>الخطوة الأخيرة:</strong> هناك احتفاظ نهائي من آخر عملية جمع هو ${carries[0]}. نضعه في أقصى اليسار.</p>`;
+                }
+
+                explanationHtml += `<p><strong>إذن، الإجابة النهائية هي: ${correctAnswer}</strong></p>`;
+                explanationContent.innerHTML = explanationHtml;
+            }
+
+            function getPlaceName(index) {
+                switch (index) {
+                    case 1: return 'الآحاد';
+                    case 2: return 'العشرات';
+                    case 3: return 'المئات';
+                    case 4: return 'الآلاف';
+                    default: return 'الخانات الأعلى';
+                }
+            }
+
+
+            // --- معالجات الأحداث ---
+
+            easyBtn.addEventListener('click', () => {
+                currentLevel = 'easy';
+                levelSelection.style.display = 'none';
+                gameArea.style.display = 'block';
+                score = 0;
+                stars = 0;
+                updateScoreBoard();
+                generateProblem();
+            });
+
+            mediumBtn.addEventListener('click', () => {
+                currentLevel = 'medium';
+                levelSelection.style.display = 'none';
+                gameArea.style.display = 'block';
+                score = 0;
+                stars = 0;
+                updateScoreBoard();
+                generateProblem();
+            });
+
+            hardBtn.addEventListener('click', () => {
+                currentLevel = 'hard';
+                levelSelection.style.display = 'none';
+                gameArea.style.display = 'block';
+                score = 0;
+                stars = 0;
+                updateScoreBoard();
+                generateProblem();
+            });
+
+            checkAnswerBtn.addEventListener('click', checkAnswer);
+
+            nextProblemBtn.addEventListener('click', generateProblem);
+
+            showExplanationBtn.addEventListener('click', showExplanation);
+
+            showHelpBtn.addEventListener('click', () => {
+                helpContent.style.display = 'block';
+                showHelpBtn.style.display = 'none';
+            });
+
+            hideHelpBtn.addEventListener('click', () => {
+                helpContent.style.display = 'none';
+                showHelpBtn.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>
