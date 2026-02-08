@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صالح عليه السلام - نبي ثمود</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;700;900&family=Reem+Kufi:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --desert-sand: #E4A672;
+            --rock-brown: #8B4513;
+            --camel-tan: #C19A6B;
+            --sky-azure: #87CEEB;
+            --mountain-gray: #696969;
+            --thunder-red: #DC2626;
+            --earth-orange: #D97706;
+            --night-deep: #1E293B;
+            --oasis-green: #059669;
+            --light-beige: #F5DEB3;
+            --stone-dark: #4B5563;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(180deg, var(--sky-azure) 0%, var(--desert-sand) 30%, var(--rock-brown) 100%);
+            color: var(--light-beige);
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* رمال متحركة */
+        .desert-wind {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .sand-particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--desert-sand);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: sandDrift linear infinite;
+        }
+
+        @keyframes sandDrift {
+            0% {
+                transform: translateX(0) translateY(0);
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateX(100px) translateY(-200px);
+                opacity: 0;
+            }
+        }
+
+        /* جبال في الخلفية */
+        .mountains {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 300px;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.15;
+        }
+
+        .mountain {
+            position: absolute;
+            bottom: 0;
+            width: 0;
+            height: 0;
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-bottom: 250px solid var(--mountain-gray);
+        }
+
+        /* الحاوية الرئيسية */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* العنوان الرئيسي */
+        .hero {
+            text-align: center;
+            padding: 80px 20px 60px;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '🐪';
+            position: absolute;
+            font-size: 15rem;
+            opacity: 0.08;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .main-title {
+            font-family: 'Reem Kufi', sans-serif;
+            font-size: clamp(4rem, 10vw, 8rem);
+            background: linear-gradient(135deg, var(--earth-orange), var(--desert-sand), var(--camel-tan));
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 25px;
+            position: relative;
+            animation: desertShimmer 4s ease-in-out infinite;
+            filter: drop-shadow(0 5px 30px rgba(228, 166, 114, 0.6));
+        }
+
+        @keyframes desertShimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .subtitle {
+            font-family: 'Amiri', serif;
+            font-size: clamp(1.8rem, 4.5vw, 3rem);
+            color: var(--earth-orange);
+            font-weight: 700;
+            margin-bottom: 35px;
+            text-shadow: 0 4px 15px rgba(217, 119, 6, 0.5);
+            opacity: 0;
+            animation: fadeInUp 1.5s ease-out 0.5s forwards;
+        }
+
+        @keyframes fadeInUp {
+            to { opacity: 1; }
+        }
+
+        /* شارات */
+        .prophet-badges {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+            margin-top: 35px;
+        }
+
+        .badge {
+            background: linear-gradient(135deg, rgba(217, 119, 6, 0.3), rgba(139, 69, 19, 0.3));
+            backdrop-filter: blur(15px);
+            padding: 18px 35px;
+            border-radius: 50px;
+            border: 3px solid var(--earth-orange);
+            font-weight: 700;
+            font-size: 1.2rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(217, 119, 6, 0.4);
+        }
+
+        .badge:hover {
+            transform: translateY(-8px) scale(1.08);
+            background: linear-gradient(135deg, rgba(217, 119, 6, 0.5), rgba(139, 69, 19, 0.5));
+            box-shadow: 0 15px 40px rgba(217, 119, 6, 0.6);
+        }
+
+        /* آيات قرآنية */
+        .quran-verse {
+            background: linear-gradient(135deg, rgba(139, 69, 19, 0.4), rgba(30, 41, 59, 0.4));
+            border: 4px solid var(--rock-brown);
+            border-radius: 35px;
+            padding: 50px;
+            margin: 60px 0;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(139, 69, 19, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .quran-verse::before,
+        .quran-verse::after {
+            font-family: 'Amiri', serif;
+            font-size: 5rem;
+            color: var(--earth-orange);
+            position: absolute;
+            opacity: 0.8;
+        }
+
+        .quran-verse::before {
+            content: '﴿';
+            top: 20px;
+            right: 35px;
+        }
+
+        .quran-verse::after {
+            content: '﴾';
+            bottom: 20px;
+            left: 35px;
+        }
+
+        .verse-text {
+            font-family: 'Amiri', serif;
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            line-height: 2.8;
+            color: var(--light-beige);
+            font-weight: 700;
+            margin: 25px 0;
+        }
+
+        .verse-reference {
+            display: block;
+            margin-top: 30px;
+            font-size: 1.5rem;
+            color: var(--earth-orange);
+            font-weight: 700;
+        }
+
+        /* عنوان القسم */
+        .section-title {
+            font-family: 'Reem Kufi', sans-serif;
+            font-size: clamp(2.8rem, 7vw, 4.5rem);
+            text-align: center;
+            color: var(--earth-orange);
+            margin: 80px 0 50px;
+            text-shadow: 0 5px 25px rgba(217, 119, 6, 0.6);
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 200px;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--earth-orange), transparent);
+            margin: 20px auto;
+        }
+
+        /* بطاقات القصة */
+        .story-grid {
+            display: grid;
+            gap: 50px;
+            margin: 60px 0;
+        }
+
+        .story-card {
+            background: linear-gradient(135deg, rgba(217, 119, 6, 0.12), rgba(139, 69, 19, 0.15));
+            backdrop-filter: blur(20px);
+            border-radius: 35px;
+            padding: 50px;
+            border: 3px solid rgba(217, 119, 6, 0.3);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            transform: translateY(50px);
+            animation: cardRise 0.8s ease-out forwards;
+        }
+
+        .story-card:nth-child(1) { animation-delay: 0.1s; }
+        .story-card:nth-child(2) { animation-delay: 0.2s; }
+        .story-card:nth-child(3) { animation-delay: 0.3s; }
+        .story-card:nth-child(4) { animation-delay: 0.4s; }
+        .story-card:nth-child(5) { animation-delay: 0.5s; }
+        .story-card:nth-child(6) { animation-delay: 0.6s; }
+        .story-card:nth-child(7) { animation-delay: 0.7s; }
+
+        @keyframes cardRise {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .story-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(217, 119, 6, 0.2) 0%, transparent 70%);
+            animation: glowRotate 12s linear infinite;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .story-card:hover::before {
+            opacity: 1;
+        }
+
+        @keyframes glowRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .story-card:hover {
+            transform: translateY(-20px) scale(1.02);
+            border-color: var(--earth-orange);
+            box-shadow: 0 30px 70px rgba(217, 119, 6, 0.5);
+        }
+
+        .card-icon {
+            font-size: 6rem;
+            margin-bottom: 30px;
+            display: inline-block;
+            filter: drop-shadow(0 10px 25px rgba(217, 119, 6, 0.6));
+            animation: iconSway 3.5s ease-in-out infinite;
+        }
+
+        @keyframes iconSway {
+            0%, 100% { transform: rotate(-5deg) scale(1); }
+            50% { transform: rotate(5deg) scale(1.1); }
+        }
+
+        .card-title {
+            font-family: 'Reem Kufi', sans-serif;
+            font-size: 2.8rem;
+            color: var(--earth-orange);
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+
+        .card-text {
+            font-size: 1.35rem;
+            line-height: 2.3;
+            color: var(--light-beige);
+            text-align: justify;
+        }
+
+        .card-text strong {
+            color: var(--desert-sand);
+            font-weight: 700;
+        }
+
+        /* صندوق المعلومات */
+        .info-box {
+            background: linear-gradient(135deg, rgba(5, 150, 105, 0.2), rgba(139, 69, 19, 0.3));
+            border-right: 6px solid var(--oasis-green);
+            padding: 35px;
+            margin: 35px 0;
+            border-radius: 25px;
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+
+        .info-box::before {
+            content: '🏛️';
+            position: absolute;
+            top: -15px;
+            right: 25px;
+            font-size: 3.5rem;
+            background: var(--night-deep);
+            padding: 18px;
+            border-radius: 50%;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .info-box h3 {
+            color: var(--oasis-green);
+            font-size: 2rem;
+            margin-bottom: 20px;
+            margin-top: 25px;
+            font-weight: 700;
+        }
+
+        .info-box p {
+            font-size: 1.3rem;
+            line-height: 2.1;
+        }
+
+        /* رسم الناقة */
+        .camel-illustration {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            height: 400px;
+            margin: 80px auto;
+            background: linear-gradient(180deg, var(--sky-azure) 0%, var(--desert-sand) 100%);
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4);
+        }
+
+        .desert-floor {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 30%;
+            background: linear-gradient(180deg, var(--desert-sand), var(--rock-brown));
+        }
+
+        .camel {
+            position: absolute;
+            bottom: 30%;
+            right: 20%;
+            font-size: 8rem;
+            animation: camelWalk 5s ease-in-out infinite;
+            filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.3));
+        }
+
+        @keyframes camelWalk {
+            0%, 100% { 
+                transform: translateX(0) translateY(0);
+            }
+            25% {
+                transform: translateX(-30px) translateY(-5px);
+            }
+            50% { 
+                transform: translateX(-60px) translateY(0);
+            }
+            75% {
+                transform: translateX(-30px) translateY(-5px);
+            }
+        }
+
+        .well {
+            position: absolute;
+            bottom: 30%;
+            left: 25%;
+            width: 80px;
+            height: 60px;
+            background: linear-gradient(180deg, var(--stone-dark), #1a1a1a);
+            border-radius: 50%;
+            box-shadow: inset 0 10px 30px rgba(0, 0, 0, 0.8);
+        }
+
+        .sun {
+            position: absolute;
+            top: 15%;
+            left: 15%;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #FFD700, #FFA500);
+            border-radius: 50%;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.8);
+            animation: sunPulse 4s ease-in-out infinite;
+        }
+
+        @keyframes sunPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* نحت الصخور */
+        .rock-carving {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 500px;
+            margin: 80px auto;
+            background: linear-gradient(135deg, var(--mountain-gray), var(--rock-brown));
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6);
+            position: relative;
+        }
+
+        .rock-face {
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500"><rect fill="%23696969" width="800" height="500"/><path d="M100,100 L200,100 L200,250 L100,250 Z" fill="%23555" opacity="0.5"/><path d="M300,150 L450,150 L450,280 L300,280 Z" fill="%23555" opacity="0.5"/><path d="M500,120 L650,120 L650,300 L500,300 Z" fill="%23555" opacity="0.5"/></svg>');
+            background-size: cover;
+        }
+
+        .carving-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Reem Kufi', sans-serif;
+            font-size: 3rem;
+            color: var(--desert-sand);
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            opacity: 0.7;
+        }
+
+        /* الدروس المستفادة */
+        .lessons-section {
+            background: linear-gradient(135deg, rgba(5, 150, 105, 0.2), rgba(217, 119, 6, 0.2));
+            border-radius: 40px;
+            padding: 60px;
+            margin: 80px 0;
+            border: 4px solid var(--oasis-green);
+        }
+
+        .lessons-section h2 {
+            font-family: 'Reem Kufi', sans-serif;
+            font-size: 3.8rem;
+            color: var(--oasis-green);
+            text-align: center;
+            margin-bottom: 50px;
+            text-shadow: 0 5px 20px rgba(5, 150, 105, 0.5);
+        }
+
+        .lessons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+        }
+
+        .lesson-card {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 30px;
+            border-radius: 25px;
+            border-right: 5px solid var(--oasis-green);
+            transition: all 0.3s;
+        }
+
+        .lesson-card:hover {
+            transform: translateX(-12px);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 15px 40px rgba(5, 150, 105, 0.3);
+        }
+
+        .lesson-card::before {
+            content: '🌟';
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 15px;
+        }
+
+        .lesson-card strong {
+            display: block;
+            font-size: 1.6rem;
+            color: var(--oasis-green);
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .lesson-card p {
+            font-size: 1.25rem;
+            line-height: 2;
+        }
+
+        /* زر تفاعلي */
+        .interactive-button {
+            display: block;
+            margin: 70px auto;
+            padding: 30px 80px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--night-deep);
+            background: linear-gradient(135deg, var(--earth-orange), var(--desert-sand));
+            background-size: 200% 200%;
+            border: none;
+            border-radius: 70px;
+            cursor: pointer;
+            transition: all 0.5s;
+            box-shadow: 0 20px 50px rgba(217, 119, 6, 0.6);
+            animation: buttonShimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes buttonShimmer {
+            0%, 100% { 
+                box-shadow: 0 20px 50px rgba(217, 119, 6, 0.6);
+                background-position: 0% 50%;
+            }
+            50% { 
+                box-shadow: 0 30px 70px rgba(217, 119, 6, 0.9);
+                background-position: 100% 50%;
+            }
+        }
+
+        .interactive-button:hover {
+            transform: scale(1.15) rotate(-2deg);
+        }
+
+        .interactive-button:active {
+            transform: scale(0.95);
+        }
+
+        /* الخاتمة */
+        .footer {
+            text-align: center;
+            padding: 90px 40px;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(217, 119, 6, 0.2));
+            border-radius: 50px;
+            margin-top: 90px;
+            backdrop-filter: blur(15px);
+            border: 3px solid var(--earth-orange);
+        }
+
+        .footer h2 {
+            font-family: 'Reem Kufi', sans-serif;
+            font-size: 3.5rem;
+            color: var(--earth-orange);
+            margin-bottom: 35px;
+        }
+
+        .footer p {
+            font-size: 1.6rem;
+            margin: 25px 0;
+            line-height: 2.4;
+        }
+
+        /* استجابة */
+        @media (max-width: 768px) {
+            .camel {
+                font-size: 5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- الرمال المتحركة -->
+    <div class="desert-wind" id="desertWind"></div>
+    
+    <!-- الجبال -->
+    <div class="mountains">
+        <div class="mountain" style="left: 5%;"></div>
+        <div class="mountain" style="left: 30%; opacity: 0.2;"></div>
+        <div class="mountain" style="left: 60%;"></div>
+        <div class="mountain" style="right: 5%; opacity: 0.18;"></div>
+    </div>
+
+    <div class="container">
+        <!-- العنوان الرئيسي -->
+        <div class="hero">
+            <h1 class="main-title">صالح عليه السلام</h1>
+            <p class="subtitle">نبي ثمود ومعجزة الناقة</p>
+            <div class="prophet-badges">
+                <div class="badge">🐪 معجزة الناقة</div>
+                <div class="badge">🏔️ نبي ثمود</div>
+                <div class="badge">⚡ الصيحة المدمرة</div>
+                <div class="badge">🏛️ نحاتو الجبال</div>
+            </div>
+        </div>
+
+        <!-- آية افتتاحية -->
+        <div class="quran-verse">
+            <p class="verse-text">
+                وَإِلَىٰ ثَمُودَ أَخَاهُمْ صَالِحًا ۗ قَالَ يَا قَوْمِ اعْبُدُوا اللَّهَ مَا لَكُم مِّنْ إِلَٰهٍ غَيْرُهُ
+            </p>
+            <span class="verse-reference">سورة الأعراف - الآية 73</span>
+        </div>
+
+        <!-- القصة -->
+        <h2 class="section-title">قصة صالح مع قوم ثمود</h2>
+
+        <div class="story-grid">
+            <!-- قوم ثمود -->
+            <div class="story-card">
+                <div class="card-icon">🏛️</div>
+                <h3 class="card-title">قوم ثمود المتجبرون</h3>
+                <p class="card-text">
+                    كان قوم <strong>ثمود</strong> من العرب العاربة، يسكنون في منطقة <strong>الحجر</strong> بين الحجاز والشام (شمال غرب السعودية حاليًا - مدائن صالح). جاؤوا بعد قوم عاد، وكانوا أقوياء أشداء. آتاهم الله <strong>قوة عظيمة وحضارة متقدمة</strong>: كانوا <strong>ينحتون البيوت من الجبال</strong>! بنوا قصورًا فخمة في السهول، ونحتوا بيوتًا محصنة في الصخور، وكانت لهم <strong>جنات وعيون</strong>. لكنهم طغوا وكفروا، وعبدوا الأصنام من دون الله.
+                </p>
+                <div class="info-box">
+                    <h3>مدائن صالح - موقع أثري عالمي</h3>
+                    <p>
+                        تقع <strong>مدائن صالح (الحجر)</strong> في محافظة العُلا بالسعودية. هي أول موقع سعودي يُدرج في قائمة التراث العالمي لليونسكو (2008). يوجد فيها أكثر من <strong>130 مقبرة ضخمة منحوتة في الصخور</strong> بواجهات معمارية مذهلة، يصل ارتفاع بعضها إلى 20 مترًا! هذه الآثار شاهد على قوة ثمود ونهايتهم المأساوية. النبي ﷺ نهى عن دخول ديارهم إلا باكين معتبرين.
+                    </p>
+                </div>
+            </div>
+
+            <!-- دعوة صالح -->
+            <div class="story-card">
+                <div class="card-icon">📢</div>
+                <h3 class="card-title">دعوة صالح للتوحيد</h3>
+                <p class="card-text">
+                    بعث الله فيهم <strong>صالحًا</strong> عليه السلام، وكان منهم - من أشرافهم وأعقلهم. دعاهم إلى عبادة الله وحده وترك الأصنام. ذكّرهم بنعم الله عليهم: <strong>"وَاذْكُرُوا إِذْ جَعَلَكُمْ خُلَفَاءَ مِن بَعْدِ عَادٍ وَبَوَّأَكُمْ فِي الْأَرْضِ تَتَّخِذُونَ مِن سُهُولِهَا قُصُورًا وَتَنْحِتُونَ الْجِبَالَ بُيُوتًا"</strong>. حذرهم من مصير قوم عاد الذين أُهلكوا قبلهم بالريح، لكن أكثرهم كفروا واستكبروا.
+                </p>
+            </div>
+
+            <!-- طلب الآية -->
+            <div class="story-card">
+                <div class="card-icon">🤔</div>
+                <h3 class="card-title">التحدي: أرنا آية!</h3>
+                <p class="card-text">
+                    قال له المستكبرون من قومه: إن كنت صادقًا فأتنا <strong>بآية من الله</strong> (معجزة تثبت نبوتك)! طلبوا منه أن يُخرج لهم من صخرة معينة أشاروا إليها <strong>ناقة حامل</strong>، وحددوا أوصافها بدقة. ظنوا أن هذا مستحيل، وأنهم بذلك سيُفحمونه. لكن صالحًا توكل على الله ودعاه، فاستجاب الله لدعائه!
+                </p>
+            </div>
+
+            <!-- معجزة الناقة -->
+            <div class="story-card">
+                <div class="card-icon">🐪</div>
+                <h3 class="card-title">المعجزة: ناقة من الصخر!</h3>
+                <p class="card-text">
+                    في معجزة عظيمة، <strong>انشقت الصخرة وخرجت منها ناقة عظيمة حامل</strong> كما طلبوا! كانت ناقة ضخمة جميلة، ثم ولدت فصيلاً. هذا أمر خارق للعادة تمامًا - حيوان حي يخرج من جبل صخري! رأى القوم المعجزة بأعينهم، فآمن بعضهم، لكن أكثرهم استمروا على الكفر والعناد. شرط الله عليهم شرطًا: <strong>"هَٰذِهِ نَاقَةُ اللَّهِ لَكُمْ آيَةً ۖ فَذَرُوهَا تَأْكُلْ فِي أَرْضِ اللَّهِ وَلَا تَمَسُّوهَا بِسُوءٍ فَيَأْخُذَكُمْ عَذَابٌ أَلِيمٌ"</strong>.
+                </p>
+            </div>
+
+            <!-- حياة مع الناقة -->
+            <div class="story-card">
+                <div class="card-icon">💧</div>
+                <h3 class="card-title">شروط خاصة للناقة</h3>
+                <p class="card-text">
+                    جعل الله للناقة حقًا في الماء: <strong>لها يوم ولهم يوم</strong>. في يومها، تشرب هي من البئر وتكفي القوم لبنها (كانت تُدر لبنًا يكفي الجميع!)، وفي يومهم يشربون هم من الماء. هذا ترتيب إلهي واختبار لهم: هل سيطيعون أم سيعصون؟ مرت فترة وهم على هذا الحال، لكن الكفار كانوا يضيقون بالناقة ويتذمرون، خاصة الأغنياء والمتجبرون منهم.
+                </p>
+            </div>
+
+            <!-- المؤامرة -->
+            <div class="story-card">
+                <div class="card-icon">🗡️</div>
+                <h3 class="card-title">المؤامرة الشيطانية</h3>
+                <p class="card-text">
+                    اتفق <strong>تسعة رهط</strong> (تسعة رجال) من أشرار القوم على قتل الناقة. كانت هناك امرأتان من كبراء القوم حرّضتا رجلين شجاعين على ذلك ووعدتاهما بالزواج. قال المجرمون: نقتل الناقة ونستريح منها، فإن صدق صالح وجاءنا العذاب نقتله وأهله قبل أن يصيبنا! <strong>فعقروا الناقة</strong> (ذبحوها وقتلوها)، وهمّوا بقتل فصيلها، لكنه هرب إلى الجبل وصعد صخرة عالية و<strong>رغا ثلاثًا</strong> (صاح) كأنه يستغيث!
+                </p>
+            </div>
+
+            <!-- العذاب -->
+            <div class="story-card">
+                <div class="card-icon">⚡</div>
+                <h3 class="card-title">العذاب الشديد</h3>
+                <p class="card-text">
+                    لما علم صالح بالجريمة، حزن حزنًا شديدًا وقال لهم: <strong>"تَمَتَّعُوا فِي دَارِكُمْ ثَلَاثَةَ أَيَّامٍ ۖ ذَٰلِكَ وَعْدٌ غَيْرُ مَكْذُوبٍ"</strong> (لكم ثلاثة أيام ثم يأتي العذاب!). أعطاهم الله مهلة ثلاثة أيام ليتوبوا، لكنهم لم يتوبوا بل همّوا بقتل صالح! في <strong>اليوم الأول اصفرت وجوههم</strong>، وفي <strong>اليوم الثاني احمرت</strong>، وفي <strong>اليوم الثالث اسودّت</strong>. ثم في فجر اليوم الرابع، جاءهم <strong>الصيحة</strong> (صوت عظيم مُهلك) و<strong>الرجفة</strong> (زلزال شديد)، فأصبحوا في ديارهم <strong>جاثمين</strong> (موتى جميعًا)! نجا الله صالحًا والمؤمنين معه.
+                </p>
+                <div class="info-box">
+                    <h3>العذاب المزدوج</h3>
+                    <p>
+                        عُذّب قوم ثمود بعذابين: <strong>الصيحة</strong> (صوت مدمر كالصاعقة يُميت من يسمعه) و<strong>الرجفة</strong> (زلزال عنيف). قال تعالى: "فَأَخَذَتْهُمُ الرَّجْفَةُ" و "فَأَخَذَتْهُمُ الصَّيْحَةُ". الجمع بين العذابين يدل على شدة جرمهم. آثارهم الباقية تشهد على عظمة حضارتهم وسوء عاقبتهم.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- رسم الناقة -->
+        <div class="camel-illustration">
+            <div class="sun"></div>
+            <div class="desert-floor"></div>
+            <div class="camel">🐪</div>
+            <div class="well"></div>
+        </div>
+
+        <!-- نحت الصخور -->
+        <div class="rock-carving">
+            <div class="rock-face"></div>
+            <div class="carving-text">
+                مساكن ثمود المنحوتة<br>
+                في الجبال
+            </div>
+        </div>
+
+        <!-- آية العبرة -->
+        <div class="quran-verse">
+            <p class="verse-text">
+                فَتِلْكَ بُيُوتُهُمْ خَاوِيَةً بِمَا ظَلَمُوا ۗ إِنَّ فِي ذَٰلِكَ لَآيَةً لِّقَوْمٍ يَعْلَمُونَ
+            </p>
+            <span class="verse-reference">سورة النمل - الآية 52</span>
+            <p style="margin-top: 30px; font-size: 1.4rem;">
+                بيوتهم خاوية خالية بسبب ظلمهم، فيها عبرة عظيمة لمن يتفكر!
+            </p>
+        </div>
+
+        <!-- الدروس المستفادة -->
+        <section class="lessons-section">
+            <h2>الدروس العظيمة من قصة صالح</h2>
+            <div class="lessons-grid">
+                <div class="lesson-card">
+                    <strong>لا قوة بدون إيمان</strong>
+                    <p>كانت ثمود قوية حضاريًا، لكن القوة المادية بلا إيمان تؤدي للهلاك. العزة الحقيقية بطاعة الله.</p>
+                </div>
+
+                <div class="lesson-card">
+                    <strong>المعجزات لا تكفي للعنيد</strong>
+                    <p>رأوا الناقة تخرج من الصخر، لكن أكثرهم لم يؤمن. القلب المتكبر لا ينفعه برهان.</p>
+                </div>
+
+                <div class="lesson-card">
+                    <strong>احترام آيات الله</strong>
+                    <p>الناقة كانت آية من الله، فقتلها كفر وتحدٍ. يجب احترام كل ما عظّمه الله.</p>
+                </div>
+
+                <div class="lesson-card">
+                    <strong>الظلم الجماعي</strong>
+                    <p>قتلها تسعة، لكن هلك الجميع لأنهم رضوا بالجريمة. السكوت عن المنكر مشاركة فيه.</p>
+                </div>
+
+                <div class="lesson-card">
+                    <strong>فرصة التوبة</strong>
+                    <p>أمهلهم الله ثلاثة أيام، لكنهم لم يتوبوا. الله يمهل ولا يهمل، فبادر بالتوبة.</p>
+                </div>
+
+                <div class="lesson-card">
+                    <strong>عاقبة الطغيان</strong>
+                    <p>طغوا بقوتهم وحضارتهم فأهلكهم الله. الطغيان طريق الدمار مهما كانت القوة.</p>
+                </div>
+
+                <div class="lesson-card">
+                    <strong>الاعتبار بالآثار</strong>
+                    <p>أمرنا الله بالمرور على ديارهم والاعتبار. التاريخ معلم، فتعلم من أخطاء الماضين.</p>
+                </div>
+
+                <div class="lesson-card">
+                    <strong>خطر التأثر بالأشرار</strong>
+                    <p>الأشرار التسعة أفسدوا المجتمع كله. احذر من صحبة الفاسدين فإنهم يُهلكون.</p>
+                </div>
+
+                <div class="lesson-card">
+                    <strong>الحضارة ليست مقياس النجاح</strong>
+                    <p>بنوا حضارة عظيمة لكنهم فشلوا أخلاقيًا. النجاح الحقيقي في الأخلاق والإيمان.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- زر تفاعلي -->
+        <button class="interactive-button" onclick="showSalihMessage()">
+            🐪 رسالة من صحراء ثمود 🐪
+        </button>
+
+        <!-- الخاتمة -->
+        <footer class="footer">
+            <h2>عبرة في الصحراء</h2>
+            <p>
+                قصة صالح عليه السلام <strong>درس خالد</strong> عن خطر الطغيان والكبر رغم القوة والحضارة.
+            </p>
+            <p>
+                <strong>الناقة</strong> كانت معجزة حسية واضحة، خرجت من صخرة صماء. لكن الكبر والعناد منعا الكفار من الإيمان.
+            </p>
+            <p>
+                اليوم، آثار ثمود في <strong>مدائن صالح</strong> شاهدة على عظمتهم وهلاكهم. البيوت المنحوتة في الجبال تروي قصة قوم طغوا فأُهلكوا.
+            </p>
+            <p style="font-size: 2.3rem; margin-top: 40px; color: var(--earth-orange);">
+                🏔️ القوة الحقيقية في الإيمان والتواضع لله 🏔️
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // إنشاء الرمال المتحركة
+        function createDesertWind() {
+            const container = document.getElementById('desertWind');
+            
+            setInterval(() => {
+                const particle = document.createElement('div');
+                particle.className = 'sand-particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.bottom = Math.random() * 50 + 'px';
+                particle.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                container.appendChild(particle);
+
+                setTimeout(() => {
+                    particle.remove();
+                }, 5000);
+            }, 300);
+        }
+
+        // رسالة تفاعلية
+        function showSalihMessage() {
+            const messages = [
+                '🐪 لا تطغَ بقوتك فالله أقوى! 🐪',
+                '🏔️ الحضارة بلا أخلاق خراب ودمار! 🏔️',
+                '⚡ احترم آيات الله وعظّم شعائره! ⚡',
+                '📢 لا تسكت عن المنكر فتهلك مع الهالكين! 📢',
+                '💎 التواضع لله طريق العزة الحقيقية! 💎',
+                '🌟 تب قبل فوات الأوان فالله يمهل ولا يهمل! 🌟'
+            ];
+
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) scale(0);
+                background: linear-gradient(135deg, var(--earth-orange), var(--desert-sand));
+                color: var(--night-deep);
+                padding: 60px 90px;
+                border-radius: 45px;
+                font-size: 2.5rem;
+                font-weight: 900;
+                text-align: center;
+                z-index: 1000;
+                box-shadow: 0 35px 100px rgba(217, 119, 6, 0.9);
+                animation: messageReveal 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+                border: 6px solid var(--rock-brown);
+            `;
+            messageDiv.textContent = randomMessage;
+            document.body.appendChild(messageDiv);
+
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes messageReveal {
+                    to { transform: translate(-50%, -50%) scale(1); }
+                }
+            `;
+            document.head.appendChild(style);
+
+            setTimeout(() => {
+                messageDiv.style.animation = 'messageReveal 0.5s ease-in reverse';
+                setTimeout(() => {
+                    document.body.removeChild(messageDiv);
+                }, 500);
+            }, 4500);
+        }
+
+        // تشغيل الرمال المتحركة
+        createDesertWind();
+
+        // تأثير التمرير
+        const observerOptions = {
+            threshold: 0.15,
+            rootMargin: '0px 0px -80px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.story-card').forEach(card => {
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>

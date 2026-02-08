@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مملكة النحو الكاملة 🏰</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            animation: fadeIn 1s ease-in;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .player-stats {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-item h3 {
+            color: #667eea;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .knight-rank {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .provinces-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .province-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .province-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .province-card.completed {
+            border: 3px solid #4CAF50;
+        }
+
+        .province-card.locked {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .province-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .province-icon {
+            font-size: 3em;
+        }
+
+        .province-title {
+            flex: 1;
+            margin: 0 15px;
+        }
+
+        .province-title h2 {
+            color: #333;
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .province-progress {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .badge {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            background: #ddd;
+        }
+
+        .badge.earned {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            animation: pulse 2s infinite;
+        }
+
+        .province-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .start-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .quiz-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .quiz-modal.active {
+            display: flex;
+        }
+
+        .quiz-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: #ff4757;
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .question-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .question-number {
+            color: #667eea;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 1.5em;
+            color: #333;
+            font-weight: bold;
+            line-height: 1.6;
+        }
+
+        .answers-grid {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .answer-btn {
+            background: #f5f5f5;
+            border: 3px solid transparent;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: right;
+        }
+
+        .answer-btn:hover {
+            background: #e8e8e8;
+            transform: translateX(-5px);
+        }
+
+        .answer-btn.selected {
+            border-color: #667eea;
+            background: #eef2ff;
+        }
+
+        .answer-btn.correct {
+            border-color: #4CAF50;
+            background: #e8f5e9;
+        }
+
+        .answer-btn.wrong {
+            border-color: #ff4757;
+            background: #ffebee;
+        }
+
+        .submit-answer-btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .submit-answer-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .submit-answer-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 1.1em;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        .feedback.correct {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 2px solid #4CAF50;
+        }
+
+        .feedback.wrong {
+            background: #ffebee;
+            color: #c62828;
+            border: 2px solid #ff4757;
+        }
+
+        .next-question-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .completion-screen {
+            text-align: center;
+        }
+
+        .completion-screen h2 {
+            color: #4CAF50;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .score-display {
+            font-size: 3em;
+            color: #667eea;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .new-badge {
+            font-size: 5em;
+            margin: 20px 0;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .badges-collection {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .badges-collection h2 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .badges-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 20px;
+            text-align: center;
+        }
+
+        .badge-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge-item .badge {
+            width: 80px;
+            height: 80px;
+            font-size: 2em;
+        }
+
+        .badge-name {
+            font-size: 0.9em;
+            color: #666;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .provinces-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quiz-content {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏰 مملكة النحو الكاملة 🏰</h1>
+            <p>اجمع جميع النياشين وكن فارس النحو الشجاع!</p>
+        </div>
+
+        <div class="player-stats">
+            <div class="stat-item">
+                <h3>النياشين المكتسبة</h3>
+                <div class="stat-value" id="totalBadges">0/8</div>
+            </div>
+            <div class="stat-item">
+                <h3>النقاط الكلية</h3>
+                <div class="stat-value" id="totalScore">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="knight-rank" id="knightRank">مبتدئ النحو</div>
+            </div>
+        </div>
+
+        <div class="provinces-grid" id="provincesGrid"></div>
+
+        <div class="badges-collection">
+            <h2>🏅 مجموعة النياشين 🏅</h2>
+            <div class="badges-grid" id="badgesGrid"></div>
+        </div>
+    </div>
+
+    <div class="quiz-modal" id="quizModal">
+        <div class="quiz-content">
+            <button class="close-btn" onclick="closeQuiz()">×</button>
+            <div id="quizContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        const provinces = [
+            {
+                id: 1,
+                name: "مقاطعة الأسماء",
+                icon: "📝",
+                badge: "🏅",
+                description: "تعلم أنواع الأسماء وإعرابها",
+                questions: [
+                    {
+                        question: "ما إعراب كلمة 'محمدٌ' في جملة: 'محمدٌ طالبٌ مجتهدٌ'؟",
+                        answers: ["مبتدأ مرفوع", "فاعل مرفوع", "خبر مرفوع", "مفعول به منصوب"],
+                        correct: 0
+                    },
+                    {
+                        question: "أي من الكلمات التالية اسم نكرة؟",
+                        answers: ["محمد", "كتاب", "المدرسة", "فاطمة"],
+                        correct: 1
+                    },
+                    {
+                        question: "ما نوع الاسم 'القاهرة'؟",
+                        answers: ["اسم علم", "اسم نكرة", "اسم فعل", "اسم إشارة"],
+                        correct: 0
+                    },
+                    {
+                        question: "ما علامة رفع 'المعلمون' في جملة: 'المعلمون نشيطون'؟",
+                        answers: ["الضمة", "الواو", "الألف", "الكسرة"],
+                        correct: 1
+                    },
+                    {
+                        question: "أي من الكلمات التالية اسم مؤنث؟",
+                        answers: ["طالب", "كتاب", "مدرسة", "قلم"],
+                        correct: 2
+                    }
+                ]
+            },
+            {
+                id: 2,
+                name: "مقاطعة الأفعال",
+                icon: "⚔️",
+                badge: "🎖️",
+                description: "استكشف أنواع الأفعال وأزمنتها",
+                questions: [
+                    {
+                        question: "ما نوع الفعل 'كتب'؟",
+                        answers: ["فعل ماضٍ", "فعل مضارع", "فعل أمر", "فعل ناسخ"],
+                        correct: 0
+                    },
+                    {
+                        question: "أي من الأفعال التالية فعل أمر؟",
+                        answers: ["يدرس", "درس", "ادرس", "سيدرس"],
+                        correct: 2
+                    },
+                    {
+                        question: "ما علامة رفع الفعل 'يكتبون'؟",
+                        answers: ["الضمة", "ثبوت النون", "الواو", "السكون"],
+                        correct: 1
+                    },
+                    {
+                        question: "أي فعل من الأفعال الخمسة؟",
+                        answers: ["يكتب", "كتب", "يكتبان", "اكتب"],
+                        correct: 2
+                    },
+                    {
+                        question: "ما نوع الفعل 'كان' في 'كان الطقس جميلاً'؟",
+                        answers: ["فعل ماضٍ عادي", "فعل ناسخ", "فعل أمر", "فعل مضارع"],
+                        correct: 1
+                    }
+                ]
+            },
+            {
+                id: 3,
+                name: "مقاطعة الحروف",
+                icon: "✨",
+                badge: "💫",
+                description: "تعرف على حروف الجر والعطف والنصب",
+                questions: [
+                    {
+                        question: "أي من التالي حرف جر؟",
+                        answers: ["و", "من", "لن", "هل"],
+                        correct: 1
+                    },
+                    {
+                        question: "ما عمل حرف 'إن'؟",
+                        answers: ["يرفع المبتدأ", "ينصب المبتدأ ويرفع الخبر", "لا يعمل شيئاً", "يجزم الفعل"],
+                        correct: 1
+                    },
+                    {
+                        question: "أي حرف يفيد العطف والترتيب والتعقيب؟",
+                        answers: ["و", "ثم", "ف", "أو"],
+                        correct: 2
+                    },
+                    {
+                        question: "ما الحرف الذي ينصب الفعل المضارع؟",
+                        answers: ["قد", "لن", "سوف", "السين"],
+                        correct: 1
+                    },
+                    {
+                        question: "أي من حروف الجر يفيد التبعيض؟",
+                        answers: ["على", "في", "من", "إلى"],
+                        correct: 2
+                    }
+                ]
+            },
+            {
+                id: 4,
+                name: "مقاطعة الجمل",
+                icon: "🏛️",
+                badge: "🔱",
+                description: "افهم تركيب الجملة الاسمية والفعلية",
+                questions: [
+                    {
+                        question: "ما نوع الجملة 'السماء صافية'؟",
+                        answers: ["جملة فعلية", "جملة اسمية", "شبه جملة", "جملة شرطية"],
+                        correct: 1
+                    },
+                    {
+                        question: "ما ركنا الجملة الفعلية؟",
+                        answers: ["مبتدأ وخبر", "فعل وفاعل", "فعل ومفعول", "اسم وفعل"],
+                        correct: 1
+                    },
+                    {
+                        question: "في جملة 'الطالب يدرس الدرس' - ما موقع 'يدرس الدرس'؟",
+                        answers: ["خبر", "فعل", "فاعل", "مفعول به"],
+                        correct: 0
+                    },
+                    {
+                        question: "ما إعراب 'جميلة' في 'الحديقة جميلة'؟",
+                        answers: ["مبتدأ", "خبر مرفوع", "فاعل", "صفة"],
+                        correct: 1
+                    },
+                    {
+                        question: "أي من الجمل التالية جملة فعلية؟",
+                        answers: ["الكتاب مفيد", "قرأ أحمد", "النجوم لامعة", "هذا جميل"],
+                        correct: 1
+                    }
+                ]
+            },
+            {
+                id: 5,
+                name: "مقاطعة الإعراب",
+                icon: "🎯",
+                badge: "⭐",
+                description: "أتقن علامات الإعراب والبناء",
+                questions: [
+                    {
+                        question: "ما علامة جر الاسم المفرد؟",
+                        answers: ["الفتحة", "الضمة", "الكسرة", "السكون"],
+                        correct: 2
+                    },
+                    {
+                        question: "ما علامة نصب جمع المؤنث السالم؟",
+                        answers: ["الفتحة", "الكسرة", "الياء", "الألف"],
+                        correct: 1
+                    },
+                    {
+                        question: "ما حركة الفعل الماضي 'كتبَ'؟",
+                        answers: ["مبني على الضم", "مبني على الفتح", "مبني على السكون", "معرب مرفوع"],
+                        correct: 1
+                    },
+                    {
+                        question: "ما علامة رفع المثنى؟",
+                        answers: ["الواو", "الألف", "النون", "الضمة"],
+                        correct: 1
+                    },
+                    {
+                        question: "أي من الكلمات مبنية؟",
+                        answers: ["الطالب", "هذا", "كتاب", "معلمة"],
+                        correct: 1
+                    }
+                ]
+            },
+            {
+                id: 6,
+                name: "مقاطعة التوابع",
+                icon: "🌟",
+                badge: "💎",
+                description: "تعلم النعت والعطف والبدل والتوكيد",
+                questions: [
+                    {
+                        question: "ما إعراب 'الجميل' في 'قرأت الكتاب الجميل'؟",
+                        answers: ["خبر", "نعت", "مفعول به", "بدل"],
+                        correct: 1
+                    },
+                    {
+                        question: "ما الحرف المستخدم في العطف 'جاء محمد و علي'؟",
+                        answers: ["الواو", "الفاء", "ثم", "أو"],
+                        correct: 0
+                    },
+                    {
+                        question: "أي من التالي توكيد لفظي؟",
+                        answers: ["الكتاب نفسه", "جاء جاء محمد", "المعلم المجتهد", "القلم الأزرق"],
+                        correct: 1
+                    },
+                    {
+                        question: "النعت يتبع المنعوت في:",
+                        answers: ["الإعراب فقط", "الإعراب والعدد", "الإعراب والتعريف والتنكير والعدد", "التعريف فقط"],
+                        correct: 2
+                    },
+                    {
+                        question: "ما نوع البدل في 'قرأت الكتاب نصفه'؟",
+                        answers: ["بدل كل من كل", "بدل بعض من كل", "بدل اشتمال", "بدل مطابق"],
+                        correct: 1
+                    }
+                ]
+            },
+            {
+                id: 7,
+                name: "مقاطعة الأساليب",
+                icon: "🎭",
+                badge: "👑",
+                description: "اكتشف أساليب النداء والاستفهام والنفي",
+                questions: [
+                    {
+                        question: "ما أداة النداء في 'يا محمد'؟",
+                        answers: ["الياء", "يا", "أيا", "الهمزة"],
+                        correct: 1
+                    },
+                    {
+                        question: "أي من أدوات الاستفهام تستخدم للعاقل؟",
+                        answers: ["ما", "من", "أين", "متى"],
+                        correct: 1
+                    },
+                    {
+                        question: "ما أداة النفي في 'لم يحضر الطالب'؟",
+                        answers: ["لا", "لن", "لم", "ما"],
+                        correct: 2
+                    },
+                    {
+                        question: "ما نوع الأسلوب 'ما أجمل السماء!'؟",
+                        answers: ["استفهام", "تعجب", "نداء", "نفي"],
+                        correct: 1
+                    },
+                    {
+                        question: "أي أداة تفيد الاستفهام عن المكان؟",
+                        answers: ["متى", "كيف", "أين", "من"],
+                        correct: 2
+                    }
+                ]
+            },
+            {
+                id: 8,
+                name: "مقاطعة الصرف",
+                icon: "🔮",
+                badge: "🏆",
+                description: "فهم الميزان الصرفي والمشتقات",
+                questions: [
+                    {
+                        question: "ما وزن كلمة 'كتاب'؟",
+                        answers: ["فَعَل", "فِعَال", "فَعْل", "مَفْعَل"],
+                        correct: 1
+                    },
+                    {
+                        question: "ما نوع 'مكتب' من المشتقات؟",
+                        answers: ["اسم فاعل", "اسم مفعول", "اسم مكان", "صفة مشبهة"],
+                        correct: 2
+                    },
+                    {
+                        question: "ما الجذر اللغوي لكلمة 'استخرج'؟",
+                        answers: ["س خ ر", "خ ر ج", "س ت خ", "ر ج خ"],
+                        correct: 1
+                    },
+                    {
+                        question: "أي من الكلمات اسم فاعل؟",
+                        answers: ["مكتوب", "كاتب", "مكتب", "كتابة"],
+                        correct: 1
+                    },
+                    {
+                        question: "ما وزن 'معلم' (من علَّم)؟",
+                        answers: ["فاعل", "مُفَعِّل", "مَفْعُول", "فَعِيل"],
+                        correct: 1
+                    }
+                ]
+            }
+        ];
+
+        let playerData = {
+            totalScore: 0,
+            badgesEarned: 0,
+            completedProvinces: [],
+            rank: "مبتدئ النحو"
+        };
+
+        let currentProvince = null;
+        let currentQuestionIndex = 0;
+        let currentScore = 0;
+        let selectedAnswer = null;
+
+        function initGame() {
+            loadPlayerData();
+            renderProvinces();
+            renderBadges();
+            updateStats();
+        }
+
+        function loadPlayerData() {
+            const saved = localStorage.getItem('grammarKingdomData');
+            if (saved) {
+                playerData = JSON.parse(saved);
+            }
+        }
+
+        function savePlayerData() {
+            localStorage.setItem('grammarKingdomData', JSON.stringify(playerData));
+        }
+
+        function renderProvinces() {
+            const grid = document.getElementById('provincesGrid');
+            grid.innerHTML = '';
+
+            provinces.forEach(province => {
+                const isCompleted = playerData.completedProvinces.includes(province.id);
+                const card = document.createElement('div');
+                card.className = `province-card ${isCompleted ? 'completed' : ''}`;
+                
+                card.innerHTML = `
+                    <div class="province-header">
+                        <div class="province-icon">${province.icon}</div>
+                        <div class="province-title">
+                            <h2>${province.name}</h2>
+                            <div class="province-progress">${isCompleted ? 'مكتملة ✓' : 'لم تبدأ'}</div>
+                        </div>
+                        <div class="badge ${isCompleted ? 'earned' : ''}">${province.badge}</div>
+                    </div>
+                    <div class="province-description">${province.description}</div>
+                    <button class="start-btn" onclick="startProvince(${province.id})" ${isCompleted ? '' : ''}>
+                        ${isCompleted ? 'إعادة المحاولة' : 'ابدأ التحدي'}
+                    </button>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+
+        function renderBadges() {
+            const grid = document.getElementById('badgesGrid');
+            grid.innerHTML = '';
+
+            provinces.forEach(province => {
+                const isEarned = playerData.completedProvinces.includes(province.id);
+                const badgeItem = document.createElement('div');
+                badgeItem.className = 'badge-item';
+                
+                badgeItem.innerHTML = `
+                    <div class="badge ${isEarned ? 'earned' : ''}">${province.badge}</div>
+                    <div class="badge-name">${province.name.replace('مقاطعة ', '')}</div>
+                `;
+                
+                grid.appendChild(badgeItem);
+            });
+        }
+
+        function updateStats() {
+            document.getElementById('totalBadges').textContent = `${playerData.badgesEarned}/8`;
+            document.getElementById('totalScore').textContent = playerData.totalScore;
+            document.getElementById('knightRank').textContent = playerData.rank;
+        }
+
+        function updateRank() {
+            if (playerData.badgesEarned >= 8) {
+                playerData.rank = "فارس النحو الأعظم 🏇👑";
+            } else if (playerData.badgesEarned >= 6) {
+                playerData.rank = "فارس النحو 🏇";
+            } else if (playerData.badgesEarned >= 4) {
+                playerData.rank = "محارب النحو ⚔️";
+            } else if (playerData.badgesEarned >= 2) {
+                playerData.rank = "متدرب النحو 🛡️";
+            } else {
+                playerData.rank = "مبتدئ النحو 📖";
+            }
+        }
+
+        function startProvince(provinceId) {
+            currentProvince = provinces.find(p => p.id === provinceId);
+            currentQuestionIndex = 0;
+            currentScore = 0;
+            selectedAnswer = null;
+            
+            document.getElementById('quizModal').classList.add('active');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = currentProvince.questions[currentQuestionIndex];
+            const container = document.getElementById('quizContainer');
+            
+            container.innerHTML = `
+                <div class="question-header">
+                    <div class="question-number">السؤال ${currentQuestionIndex + 1} من ${currentProvince.questions.length}</div>
+                    <h2 class="question-text">${question.question}</h2>
+                </div>
+                <div class="answers-grid" id="answersGrid"></div>
+                <button class="submit-answer-btn" id="submitBtn" onclick="checkAnswer()" disabled>تأكيد الإجابة</button>
+                <div class="feedback" id="feedback"></div>
+            `;
+
+            const answersGrid = document.getElementById('answersGrid');
+            question.answers.forEach((answer, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.textContent = answer;
+                btn.onclick = () => selectAnswer(index);
+                answersGrid.appendChild(btn);
+            });
+        }
+
+        function selectAnswer(index) {
+            selectedAnswer = index;
+            
+            document.querySelectorAll('.answer-btn').forEach((btn, i) => {
+                btn.classList.remove('selected');
+                if (i === index) {
+                    btn.classList.add('selected');
+                }
+            });
+            
+            document.getElementById('submitBtn').disabled = false;
+        }
+
+        function checkAnswer() {
+            const question = currentProvince.questions[currentQuestionIndex];
+            const feedback = document.getElementById('feedback');
+            const submitBtn = document.getElementById('submitBtn');
+            const answerBtns = document.querySelectorAll('.answer-btn');
+            
+            submitBtn.disabled = true;
+            answerBtns.forEach(btn => btn.disabled = true);
+            
+            if (selectedAnswer === question.correct) {
+                feedback.className = 'feedback correct show';
+                feedback.innerHTML = '🎉 إجابة صحيحة! أحسنت!';
+                answerBtns[selectedAnswer].classList.add('correct');
+                currentScore += 20;
+            } else {
+                feedback.className = 'feedback wrong show';
+                feedback.innerHTML = '❌ إجابة خاطئة. الإجابة الصحيحة هي: ' + question.answers[question.correct];
+                answerBtns[selectedAnswer].classList.add('wrong');
+                answerBtns[question.correct].classList.add('correct');
+            }
+            
+            if (currentQuestionIndex < currentProvince.questions.length - 1) {
+                const nextBtn = document.createElement('button');
+                nextBtn.className = 'next-question-btn';
+                nextBtn.textContent = 'السؤال التالي ←';
+                nextBtn.onclick = nextQuestion;
+                feedback.appendChild(nextBtn);
+            } else {
+                const nextBtn = document.createElement('button');
+                nextBtn.className = 'next-question-btn';
+                nextBtn.textContent = 'عرض النتائج';
+                nextBtn.onclick = showResults;
+                feedback.appendChild(nextBtn);
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            selectedAnswer = null;
+            showQuestion();
+        }
+
+        function showResults() {
+            const container = document.getElementById('quizContainer');
+            const percentage = (currentScore / 100) * 100;
+            const passed = percentage >= 60;
+            
+            let message = '';
+            let badgeEarned = false;
+            
+            if (passed && !playerData.completedProvinces.includes(currentProvince.id)) {
+                playerData.completedProvinces.push(currentProvince.id);
+                playerData.badgesEarned++;
+                playerData.totalScore += currentScore;
+                badgeEarned = true;
+                updateRank();
+                savePlayerData();
+            }
+            
+            if (passed) {
+                message = badgeEarned ? 'رائع! لقد حصلت على نيشان جديد!' : 'ممتاز! لقد أتممت هذه المقاطعة من قبل';
+            } else {
+                message = 'حاول مرة أخرى! تحتاج 60% للنجاح';
+            }
+            
+            container.innerHTML = `
+                <div class="completion-screen">
+                    <h2>${passed ? '🎊 تهانينا! 🎊' : '💪 استمر في المحاولة'}</h2>
+                    <div class="score-display">${percentage}%</div>
+                    <p style="font-size: 1.2em; margin: 20px 0;">${message}</p>
+                    ${badgeEarned ? `<div class="new-badge">${currentProvince.badge}</div>` : ''}
+                    <p style="color: #666; margin: 20px 0;">النقاط المكتسبة: ${currentScore}/100</p>
+                    <button class="next-question-btn" onclick="closeQuiz(); renderProvinces(); renderBadges(); updateStats();">
+                        العودة إلى المملكة
+                    </button>
+                </div>
+            `;
+        }
+
+        function closeQuiz() {
+            document.getElementById('quizModal').classList.remove('active');
+        }
+
+        window.onload = initGame;
+    </script>
+</body>
+</html>

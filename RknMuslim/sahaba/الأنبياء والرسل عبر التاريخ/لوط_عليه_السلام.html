@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوط عليه السلام - نبي العفة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;700;900&family=Rakkas&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --warning-red: #DC2626;
+            --fire-orange: #EA580C;
+            --stone-gray: #6B7280;
+            --sky-blue: #0EA5E9;
+            --earth-brown: #78350F;
+            --night-dark: #1F2937;
+            --light-cream: #FEF3C7;
+            --angel-white: #FFFFFF;
+            --city-purple: #7C3AED;
+            --desert-sand: #D4A574;
+            --truth-green: #059669;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(180deg, var(--night-dark) 0%, var(--stone-gray) 50%, var(--earth-brown) 100%);
+            color: var(--light-cream);
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* حجارة متساقطة */
+        .falling-stones {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .stone {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: var(--stone-gray);
+            border-radius: 40%;
+            opacity: 0;
+            animation: stoneFall 6s linear infinite;
+        }
+
+        @keyframes stoneFall {
+            0% {
+                opacity: 0;
+                transform: translateY(-100px) rotate(0deg);
+            }
+            10% {
+                opacity: 0.8;
+            }
+            90% {
+                opacity: 0.8;
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+
+        /* الحاوية الرئيسية */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* العنوان الرئيسي */
+        .hero {
+            text-align: center;
+            padding: 80px 20px 60px;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '🏛️';
+            position: absolute;
+            font-size: 15rem;
+            opacity: 0.05;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .main-title {
+            font-family: 'Rakkas', cursive;
+            font-size: clamp(4rem, 10vw, 8rem);
+            background: linear-gradient(135deg, var(--light-cream), var(--desert-sand), var(--warning-red));
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 25px;
+            position: relative;
+            animation: titleWave 4s ease-in-out infinite;
+            filter: drop-shadow(0 5px 30px rgba(220, 38, 38, 0.5));
+        }
+
+        @keyframes titleWave {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .subtitle {
+            font-family: 'Amiri', serif;
+            font-size: clamp(1.8rem, 4.5vw, 3rem);
+            color: var(--desert-sand);
+            font-weight: 700;
+            margin-bottom: 35px;
+            text-shadow: 0 4px 15px rgba(212, 165, 116, 0.5);
+            opacity: 0;
+            animation: fadeIn 1.5s ease-out 0.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* شارات */
+        .prophet-badges {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+            margin-top: 35px;
+        }
+
+        .badge {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.3), rgba(31, 41, 55, 0.3));
+            backdrop-filter: blur(15px);
+            padding: 18px 35px;
+            border-radius: 50px;
+            border: 3px solid var(--warning-red);
+            font-weight: 700;
+            font-size: 1.2rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
+        }
+
+        .badge:hover {
+            transform: translateY(-8px) scale(1.08);
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.5), rgba(31, 41, 55, 0.5));
+            box-shadow: 0 15px 40px rgba(220, 38, 38, 0.6);
+        }
+
+        /* آيات قرآنية */
+        .quran-verse {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.3), rgba(31, 41, 55, 0.3));
+            border: 4px solid var(--city-purple);
+            border-radius: 35px;
+            padding: 50px;
+            margin: 60px 0;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(124, 58, 237, 0.4);
+            backdrop-filter: blur(10px);
+        }
+
+        .quran-verse::before,
+        .quran-verse::after {
+            font-family: 'Amiri', serif;
+            font-size: 5rem;
+            color: var(--desert-sand);
+            position: absolute;
+            opacity: 0.8;
+        }
+
+        .quran-verse::before {
+            content: '﴿';
+            top: 20px;
+            right: 35px;
+        }
+
+        .quran-verse::after {
+            content: '﴾';
+            bottom: 20px;
+            left: 35px;
+        }
+
+        .verse-text {
+            font-family: 'Amiri', serif;
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            line-height: 2.8;
+            color: var(--light-cream);
+            font-weight: 700;
+            margin: 25px 0;
+        }
+
+        .verse-reference {
+            display: block;
+            margin-top: 30px;
+            font-size: 1.5rem;
+            color: var(--desert-sand);
+            font-weight: 700;
+        }
+
+        /* عنوان القسم */
+        .section-title {
+            font-family: 'Rakkas', cursive;
+            font-size: clamp(2.8rem, 7vw, 4.5rem);
+            text-align: center;
+            color: var(--warning-red);
+            margin: 80px 0 50px;
+            text-shadow: 0 5px 25px rgba(220, 38, 38, 0.6);
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 200px;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--warning-red), transparent);
+            margin: 20px auto;
+        }
+
+        /* بطاقات الأحداث */
+        .story-grid {
+            display: grid;
+            gap: 50px;
+            margin: 60px 0;
+        }
+
+        .story-card {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.1), rgba(31, 41, 55, 0.2));
+            backdrop-filter: blur(20px);
+            border-radius: 35px;
+            padding: 50px;
+            border: 3px solid rgba(220, 38, 38, 0.3);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            transform: translateY(50px);
+            animation: cardSlideIn 0.8s ease-out forwards;
+        }
+
+        .story-card:nth-child(1) { animation-delay: 0.1s; }
+        .story-card:nth-child(2) { animation-delay: 0.2s; }
+        .story-card:nth-child(3) { animation-delay: 0.3s; }
+        .story-card:nth-child(4) { animation-delay: 0.4s; }
+        .story-card:nth-child(5) { animation-delay: 0.5s; }
+        .story-card:nth-child(6) { animation-delay: 0.6s; }
+        .story-card:nth-child(7) { animation-delay: 0.7s; }
+
+        @keyframes cardSlideIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .story-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(220, 38, 38, 0.2) 0%, transparent 70%);
+            animation: cardRotate 15s linear infinite;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .story-card:hover::before {
+            opacity: 1;
+        }
+
+        @keyframes cardRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .story-card:hover {
+            transform: translateY(-20px) scale(1.02);
+            border-color: var(--warning-red);
+            box-shadow: 0 30px 70px rgba(220, 38, 38, 0.5);
+        }
+
+        .card-icon {
+            font-size: 6rem;
+            margin-bottom: 30px;
+            display: inline-block;
+            filter: drop-shadow(0 10px 25px rgba(220, 38, 38, 0.6));
+            animation: iconBounce 3s ease-in-out infinite;
+        }
+
+        @keyframes iconBounce {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(-15px) rotate(5deg); }
+        }
+
+        .card-title {
+            font-family: 'Rakkas', cursive;
+            font-size: 2.8rem;
+            color: var(--warning-red);
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+
+        .card-text {
+            font-size: 1.35rem;
+            line-height: 2.3;
+            color: var(--light-cream);
+            text-align: justify;
+        }
+
+        .card-text strong {
+            color: var(--desert-sand);
+            font-weight: 700;
+        }
+
+        /* صندوق المعلومات */
+        .info-box {
+            background: linear-gradient(135deg, rgba(5, 150, 105, 0.2), rgba(31, 41, 55, 0.3));
+            border-right: 6px solid var(--truth-green);
+            padding: 35px;
+            margin: 35px 0;
+            border-radius: 25px;
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+
+        .info-box::before {
+            content: '📍';
+            position: absolute;
+            top: -15px;
+            right: 25px;
+            font-size: 3.5rem;
+            background: var(--night-dark);
+            padding: 18px;
+            border-radius: 50%;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .info-box h3 {
+            color: var(--truth-green);
+            font-size: 2rem;
+            margin-bottom: 20px;
+            margin-top: 25px;
+            font-weight: 700;
+        }
+
+        .info-box p {
+            font-size: 1.3rem;
+            line-height: 2.1;
+        }
+
+        /* رسم المدينة المقلوبة */
+        .destruction-illustration {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 500px;
+            margin: 80px auto;
+            background: linear-gradient(180deg, var(--sky-blue) 0%, var(--earth-brown) 100%);
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6);
+        }
+
+        .city {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            height: 200px;
+            animation: cityFlip 3s ease-in-out infinite;
+        }
+
+        @keyframes cityFlip {
+            0%, 100% { transform: translateX(-50%) rotate(0deg); }
+            50% { transform: translateX(-50%) rotate(180deg); }
+        }
+
+        .building {
+            position: absolute;
+            bottom: 0;
+            width: 60px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--stone-gray), var(--night-dark));
+            border-radius: 5px 5px 0 0;
+        }
+
+        .building:nth-child(1) { left: 50px; height: 100px; }
+        .building:nth-child(2) { left: 130px; height: 140px; }
+        .building:nth-child(3) { left: 210px; height: 90px; }
+        .building:nth-child(4) { left: 290px; height: 130px; }
+
+        .stones-rain {
+            position: absolute;
+            top: 20%;
+            left: 0;
+            width: 100%;
+            height: 80%;
+        }
+
+        .falling-stone-big {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: var(--warning-red);
+            border-radius: 40%;
+            animation: bigStoneFall 2s linear infinite;
+        }
+
+        .falling-stone-big:nth-child(1) { left: 20%; animation-delay: 0s; }
+        .falling-stone-big:nth-child(2) { left: 40%; animation-delay: 0.5s; }
+        .falling-stone-big:nth-child(3) { left: 60%; animation-delay: 1s; }
+        .falling-stone-big:nth-child(4) { left: 80%; animation-delay: 1.5s; }
+
+        @keyframes bigStoneFall {
+            from {
+                transform: translateY(-50px) rotate(0deg);
+                opacity: 1;
+            }
+            to {
+                transform: translateY(400px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* الملائكة */
+        .angels-section {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(14, 165, 233, 0.1));
+            border-radius: 40px;
+            padding: 60px;
+            margin: 80px 0;
+            border: 4px solid var(--sky-blue);
+        }
+
+        .angels-section h2 {
+            font-family: 'Rakkas', cursive;
+            font-size: 3.8rem;
+            color: var(--sky-blue);
+            text-align: center;
+            margin-bottom: 40px;
+            text-shadow: 0 5px 20px rgba(14, 165, 233, 0.5);
+        }
+
+        .angels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 35px;
+            margin-top: 40px;
+        }
+
+        .angel-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 35px;
+            border-radius: 25px;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.4s;
+        }
+
+        .angel-card:hover {
+            transform: translateY(-15px);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--sky-blue);
+            box-shadow: 0 25px 60px rgba(14, 165, 233, 0.4);
+        }
+
+        .angel-card .icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .angel-card h3 {
+            font-family: 'Rakkas', cursive;
+            font-size: 2rem;
+            color: var(--sky-blue);
+            margin-bottom: 15px;
+        }
+
+        /* الدروس المستفادة */
+        .lessons-section {
+            background: linear-gradient(135deg, rgba(5, 150, 105, 0.2), rgba(220, 38, 38, 0.2));
+            border-radius: 40px;
+            padding: 60px;
+            margin: 80px 0;
+            border: 4px solid var(--truth-green);
+        }
+
+        .lessons-section h2 {
+            font-family: 'Rakkas', cursive;
+            font-size: 3.8rem;
+            color: var(--truth-green);
+            text-align: center;
+            margin-bottom: 50px;
+            text-shadow: 0 5px 20px rgba(5, 150, 105, 0.5);
+        }
+
+        .lessons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+        }
+
+        .lesson-card {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 30px;
+            border-radius: 25px;
+            border-right: 5px solid var(--truth-green);
+            transition: all 0.3s;
+        }
+
+        .lesson-card:hover {
+            transform: translateX(-12px);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 15px 40px rgba(5, 150, 105, 0.3);
+        }
+
+        .lesson-card::before {
+            content: '⚠️';
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 15px;
+        }
+
+        .lesson-card strong {
+            display: block;
+            font-size: 1.6rem;
+            color: var(--truth-green);
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .lesson-card p {
+            font-size: 1.25rem;
+            line-height: 2;
+        }
+
+        /* زر تفاعلي */
+        .interactive-button {
+            display: block;
+            margin: 70px auto;
+            padding: 30px 80px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--angel-white);
+            background: linear-gradient(135deg, var(--warning-red), var(--fire-orange));
+            background-size: 200% 200%;
+            border: none;
+            border-radius: 70px;
+            cursor: pointer;
+            transition: all 0.5s;
+            box-shadow: 0 20px 50px rgba(220, 38, 38, 0.6);
+            animation: buttonPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes buttonPulse {
+            0%, 100% { box-shadow: 0 20px 50px rgba(220, 38, 38, 0.6); }
+            50% { box-shadow: 0 30px 70px rgba(220, 38, 38, 0.9); }
+        }
+
+        .interactive-button:hover {
+            transform: scale(1.15) rotate(-2deg);
+        }
+
+        .interactive-button:active {
+            transform: scale(0.95);
+        }
+
+        /* الخاتمة */
+        .footer {
+            text-align: center;
+            padding: 90px 40px;
+            background: linear-gradient(135deg, rgba(31, 41, 55, 0.6), rgba(220, 38, 38, 0.2));
+            border-radius: 50px;
+            margin-top: 90px;
+            backdrop-filter: blur(15px);
+            border: 3px solid var(--warning-red);
+        }
+
+        .footer h2 {
+            font-family: 'Rakkas', cursive;
+            font-size: 3.5rem;
+            color: var(--warning-red);
+            margin-bottom: 35px;
+        }
+
+        .footer p {
+            font-size: 1.6rem;
+            margin: 25px 0;
+            line-height: 2.4;
+        }
+
+        /* استجابة */
+        @media (max-width: 768px) {
+            .city {
+                width: 300px;
+            }
+
+            .building {
+                width: 45px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- الحجارة المتساقطة -->
+    <div class="falling-stones" id="fallingStones"></div>
+
+    <div class="container">
+        <!-- العنوان الرئيسي -->
+        <div class="hero">
+            <h1 class="main-title">لوط عليه السلام</h1>
+            <p class="subtitle">نبي العفة والطهارة</p>
+            <div class="prophet-badges">
+                <div class="badge">📢 داعية للعفة</div>
+                <div class="badge">🏛️ نبي سدوم</div>
+                <div class="badge">⚠️ محذر من الفاحشة</div>
+                <div class="badge">👼 محمي بالملائكة</div>
+            </div>
+        </div>
+
+        <!-- آية افتتاحية -->
+        <div class="quran-verse">
+            <p class="verse-text">
+                وَلُوطًا إِذْ قَالَ لِقَوْمِهِ أَتَأْتُونَ الْفَاحِشَةَ مَا سَبَقَكُم بِهَا مِنْ أَحَدٍ مِّنَ الْعَالَمِينَ
+            </p>
+            <span class="verse-reference">سورة الأعراف - الآية 80</span>
+        </div>
+
+        <!-- القصة -->
+        <h2 class="section-title">قصة لوط مع قومه الفاسدين</h2>
+
+        <div class="story-grid">
+            <!-- النسب والبعثة -->
+            <div class="story-card">
+                <div class="card-icon">👨‍👦</div>
+                <h3 class="card-title">النسب والبعثة</h3>
+                <p class="card-text">
+                    لوط عليه السلام هو ابن أخي <strong>إبراهيم الخليل</strong> عليه السلام. آمن بإبراهيم وهاجر معه من <strong>العراق</strong> إلى <strong>الشام</strong>. ثم أرسله الله نبيًا إلى قوم يسكنون في منطقة <strong>سدوم وعمورة</strong> بالقرب من <strong>البحر الميت</strong> (الأردن وفلسطين حاليًا). كان هؤلاء القوم من أفسد الأقوام على وجه الأرض!
+                </p>
+                <div class="info-box">
+                    <h3>الموقع الجغرافي والتاريخي</h3>
+                    <p>
+                        عاش قوم لوط في <strong>وادي الأردن</strong> بالقرب من البحر الميت، في مدن <strong>سدوم، عمورة، أدمة، وصبوييم</strong> حوالي <strong>1900 ق.م</strong>. كانت هذه المنطقة خصبة وغنية، لكن أهلها انحرفوا أخلاقيًا. اليوم، البحر الميت هو أخفض نقطة على الأرض (-430م تحت سطح البحر)، ويُعتقد أنه موقع العذاب الإلهي.
+                    </p>
+                </div>
+            </div>
+
+            <!-- الفاحشة الكبرى -->
+            <div class="story-card">
+                <div class="card-icon">🚫</div>
+                <h3 class="card-title">الفاحشة التي لم يسبقهم بها أحد</h3>
+                <p class="card-text">
+                    ابتدع قوم لوط فاحشة لم يفعلها أحد قبلهم في تاريخ البشرية: <strong>إتيان الرجال شهوة من دون النساء</strong> (اللواط - الشذوذ الجنسي). كانوا يفعلونها <strong>علانية في أنديتهم</strong> دون حياء! لم يكتفوا بذلك، بل كانوا يقطعون الطريق على المسافرين ويعتدون عليهم، ويرمون الناس بالحجارة، ويفعلون كل منكر. أصبحت مجتمعاتهم غارقة في الفساد الأخلاقي الشامل.
+                </p>
+            </div>
+
+            <!-- الدعوة والإنذار -->
+            <div class="story-card">
+                <div class="card-icon">📣</div>
+                <h3 class="card-title">دعوة لوط وإنذاراته</h3>
+                <p class="card-text">
+                    دعاهم لوط إلى ترك هذه الفاحشة والعودة إلى <strong>الفطرة السليمة</strong>. قال لهم: <strong>"أَتَأْتُونَ الذُّكْرَانَ مِنَ الْعَالَمِينَ ۝ وَتَذَرُونَ مَا خَلَقَ لَكُمْ رَبُّكُم مِّنْ أَزْوَاجِكُم"</strong> (لماذا تأتون الرجال وتتركون النساء اللاتي خلقهن الله لكم؟). حذرهم من <strong>عقاب الله</strong>، لكنهم سخروا منه واستكبروا. بل وصل بهم الأمر إلى تهديده بالطرد!
+                </p>
+            </div>
+
+            <!-- استكبار القوم -->
+            <div class="story-card">
+                <div class="card-icon">😤</div>
+                <h3 class="card-title">الاستكبار والتهديد</h3>
+                <p class="card-text">
+                    بدلاً من أن يتوبوا، ردوا عليه بكل وقاحة: <strong>"أَخْرِجُوا آلَ لُوطٍ مِّن قَرْيَتِكُمْ ۖ إِنَّهُمْ أُنَاسٌ يَتَطَهَّرُونَ"</strong>! اتهموه بأنه <strong>يتطهر</strong> (كأن الطهارة عيب)! استمروا في فسادهم وجعلوا الفاحشة <strong>قانونًا ومنهجًا</strong> في مجتمعهم. لم يؤمن معه إلا <strong>أهل بيته</strong> فقط، وحتى زوجته كانت على كفر وخيانة (خيانة في الدين لا الشرف).
+                </p>
+            </div>
+
+            <!-- الملائكة تزور لوط -->
+            <div class="story-card">
+                <div class="card-icon">👼</div>
+                <h3 class="card-title">زيارة الملائكة</h3>
+                <p class="card-text">
+                    أرسل الله <strong>ملائكة</strong> في صورة شبان وسيمين لإهلاك القوم. مروا أولاً على <strong>إبراهيم</strong> وبشروه بإسحاق، ثم ذهبوا إلى لوط. دخلوا عليه ضيوفًا، <strong>فضاق بهم ذرعًا</strong> (حزن وخاف عليهم من قومه). قال: <strong>"هَٰذَا يَوْمٌ عَصِيبٌ"</strong>. حاول أن يُخفي أمرهم، لكن زوجته الخائنة <strong>أخبرت القوم</strong> بوجود ضيوف جميلين عند لوط!
+                </p>
+            </div>
+
+            <!-- محاولة الاعتداء -->
+            <div class="story-card">
+                <div class="card-icon">🚪</div>
+                <h3 class="card-title">الموقف المرعب</h3>
+                <p class="card-text">
+                    جاء القوم <strong>مسرعين</strong> يريدون الاعتداء على ضيوف لوط! حاصروا بيته وطالبوه بإخراج الضيوف لهم. وقف لوط أمام الباب يدافع عن ضيوفه ويتوسل إليهم: <strong>"هَٰؤُلَاءِ بَنَاتِي هُنَّ أَطْهَرُ لَكُمْ"</strong> (تزوجوا النساء، هذا أطهر لكم!). لكنهم ردوا بوقاحة: <strong>"لَقَدْ عَلِمْتَ مَا لَنَا فِي بَنَاتِكَ مِنْ حَقٍّ"</strong>. شعر لوط بالعجز وقال: <strong>"لَوْ أَنَّ لِي بِكُمْ قُوَّةً أَوْ آوِي إِلَىٰ رُكْنٍ شَدِيدٍ"</strong> (لو كانت لي قوة لدافعت عنهم!).
+                </p>
+            </div>
+
+            <!-- العذاب الإلهي -->
+            <div class="story-card">
+                <div class="card-icon">⚡</div>
+                <h3 class="card-title">العذاب العظيم</h3>
+                <p class="card-text">
+                    عندها كشفت الملائكة عن هويتها وقالت للوط: <strong>"إِنَّا رُسُلُ رَبِّكَ لَن يَصِلُوا إِلَيْكَ"</strong>. ضربوا القوم بالعمى فصاروا <strong>يتخبطون</strong>! أمروا لوطًا أن يخرج بأهله المؤمنين <strong>ليلاً</strong> ولا يلتفت أحد منهم، إلا زوجته (تركوها لأنها خائنة). عند الفجر، جاء العذاب الرهيب: <strong>جعل الله عاليها سافلها</strong> (قلب المدن رأسًا على عقب)، ثم <strong>أمطر عليهم حجارة من سجيل</strong> (طين متحجر ملتهب) منضود مسومة عند ربك! دُمرت المدن تمامًا وأهلكوا جميعًا!
+                </p>
+                <div class="info-box">
+                    <h3>الإعجاز الجيولوجي</h3>
+                    <p>
+                        الدراسات الجيولوجية تُظهر أن منطقة البحر الميت تعرضت لـ<strong>انفجار بركاني وزلزال عنيف</strong> انهارت معه الأرض، مما يطابق وصف القرآن للعذاب. المنطقة اليوم خالية من الحياة، والبحر الميت من <strong>أكثر البحار ملوحة</strong> ولا تعيش فيه الأسماك. كما وُجدت آثار <strong>كبريت نقي</strong> في المنطقة، مما يدل على حريق عظيم!
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- رسم العذاب -->
+        <div class="destruction-illustration">
+            <div class="stones-rain">
+                <div class="falling-stone-big"></div>
+                <div class="falling-stone-big"></div>
+                <div class="falling-stone-big"></div>
+                <div class="falling-stone-big"></div>
+            </div>
+            <div class="city">
+                <div class="building"></div>
+                <div class="building"></div>
+                <div class="building"></div>
+                <div class="building"></div>
+            </div>
+        </div>
+
+        <!-- قسم الملائكة -->
+        <section class="angels-section">
+            <h2>دور الملائكة في القصة</h2>
+            <div class="angels-grid">
+                <div class="angel-card">
+                    <span class="icon">👼</span>
+                    <h3>البشارة لإبراهيم</h3>
+                    <p>بشروا إبراهيم بإسحاق أولاً، فجادلهم في إنقاذ قوم لوط، لكنهم قالوا: الأمر قُضي</p>
+                </div>
+
+                <div class="angel-card">
+                    <span class="icon">🛡️</span>
+                    <h3>حماية لوط</h3>
+                    <p>دافعوا عن لوط وضيوفه، وضربوا القوم بالعمى حتى لم يستطيعوا الوصول للباب</p>
+                </div>
+
+                <div class="angel-card">
+                    <span class="icon">⚠️</span>
+                    <h3>الإنذار النهائي</h3>
+                    <p>أمروا لوطًا بالخروج ليلاً مع المؤمنين، وحذروه من الالتفات أو التأخير</p>
+                </div>
+
+                <div class="angel-card">
+                    <span class="icon">⚡</span>
+                    <h3>تنفيذ العذاب</h3>
+                    <p>نفذوا أمر الله بتدمير القرى الظالمة وإهلاك أهلها بالحجارة الملتهبة</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- آية العبرة -->
+        <div class="quran-verse">
+            <p class="verse-text">
+                وَلَقَد تَّرَكْنَا مِنْهَا آيَةً بَيِّنَةً لِّقَوْمٍ يَعْقِلُونَ
+            </p>
+            <span class="verse-reference">سورة العنكبوت - الآية 35</span>
+            <p style="margin-top: 30px; font-size: 1.4rem;">
+                تركنا من آثار عذابهم <strong>آية واضحة</strong> (البحر الميت والمنطقة المدمرة) لمن يتفكر ويعتبر!
+            </p>
+        </div>
+
+        <!-- الدروس المستفادة -->
+        <section class="lessons-section">
+            <h2>الدروس العظيمة من قصة لوط</h2>
+            <div class="lessons-grid">
+                <div class="lesson-card">
+                    <strong>حرمة الشذوذ</strong>
+                    <p>الشذوذ الجنسي فاحشة عظيمة، لم يُعذّب قوم كما عُذّب قوم لوط. هو انحراف عن الفطرة ومخالفة لسنن الكون.</p>
+                </div>
+
+                <div class="lesson-card">
+                    <strong>خطر الفساد المجتمعي</strong>
+                    <p>عندما يصبح المنكر علنيًا ومقبولاً اجتماعيًا، يستحق المجتمع العقاب الإلهي. الفساد العام يهلك الأمم.</p>
+                </div>
+
+                <div class="lesson-card">
+                    <strong>الأمر بالمعروف</strong>
+                    <p>لوط لم يسكت على المنكر رغم قلة أنصاره. الساكت عن الحق شيطان أخرس، والواجب الإنكار ولو بالقلب.</p>
+                </div>
+
+                <div class="lesson-card">
+                    <strong>حرمة الضيف</strong>
+                    <p>دافع لوط عن ضيوفه حتى في أصعب الظروف. إكرام الضيف وحمايته من مكارم الأخلاق.</p>
+                </div>
+
+                <div class="lesson-card">
+                    <strong>خطر الصحبة الفاسدة</strong>
+                    <p>زوجة لوط كانت مع المؤمنين لكنها خانت بموالاة الكفار. المرء على دين خليله، فليحذر من يخالل.</p>
+                </div>
+
+                <div class="lesson-card">
+                    <strong>عدل الله المطلق</strong>
+                    <p>الله لا يظلم أحدًا، أهلك الظالمين وأنجى المؤمنين. العدل الإلهي لا يخطئ أبدًا.</p>
+                </div>
+
+                <div class="lesson-card">
+                    <strong>سنة الله في الأمم</strong>
+                    <p>كل أمة تغرق في الفساد الأخلاقي تهلك. التاريخ يعيد نفسه، وسنن الله لا تتبدل.</p>
+                </div>
+
+                <div class="lesson-card">
+                    <strong>أهمية العفة</strong>
+                    <p>العفة والطهارة من أعظم الأخلاق. المجتمع الطاهر مجتمع قوي محمي من غضب الله.</p>
+                </div>
+
+                <div class="lesson-card">
+                    <strong>الاعتبار بالآثار</strong>
+                    <p>آثار قوم لوط باقية للعبرة. زيارة مواقع العذاب تذكير بقدرة الله وعقابه للظالمين.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- زر تفاعلي -->
+        <button class="interactive-button" onclick="showLotMessage()">
+            ⚠️ رسالة تحذيرية مهمة ⚠️
+        </button>
+
+        <!-- الخاتمة -->
+        <footer class="footer">
+            <h2>عبرة خالدة للأجيال</h2>
+            <p>
+                قصة لوط عليه السلام <strong>تحذير إلهي</strong> لكل الأمم من الانحراف الأخلاقي والفساد المجتمعي.
+            </p>
+            <p>
+                ما فعله قوم لوط كان <strong>أول مرة في التاريخ</strong>، ولذلك كان عقابهم شديدًا لم يُعاقب به قوم آخر: قلب المدن، الحجارة الملتهبة، الخسف، والدمار الشامل.
+            </p>
+            <p>
+                اليوم، عندما نرى انتشار هذه الفاحشة وتقنينها في بعض المجتمعات، نتذكر عذاب قوم لوط ونحذر من غضب الله.
+            </p>
+            <p style="font-size: 2.3rem; margin-top: 40px; color: var(--warning-red);">
+                ⚠️ العفة طريق النجاة، والفساد طريق الهلاك ⚠️
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // إنشاء الحجارة المتساقطة
+        function createFallingStones() {
+            const container = document.getElementById('fallingStones');
+            
+            setInterval(() => {
+                const stone = document.createElement('div');
+                stone.className = 'stone';
+                stone.style.left = Math.random() * 100 + '%';
+                stone.style.animationDuration = (Math.random() * 4 + 4) + 's';
+                stone.style.animationDelay = Math.random() * 2 + 's';
+                container.appendChild(stone);
+
+                setTimeout(() => {
+                    stone.remove();
+                }, 8000);
+            }, 1000);
+        }
+
+        // رسالة تفاعلية
+        function showLotMessage() {
+            const messages = [
+                '⚠️ العفة والطهارة طريق الفلاح! ⚠️',
+                '🚫 الفواحش طريق الهلاك والدمار! 🚫',
+                '💪 كن قويًا في رفض المنكر! 💪',
+                '📢 لا تسكت عن الباطل مهما كثر أهله! 📢',
+                '🛡️ احفظ نفسك ومجتمعك من الفساد! 🛡️',
+                '⭐ التزم بالفطرة السليمة التي خلقك الله عليها! ⭐'
+            ];
+
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) scale(0);
+                background: linear-gradient(135deg, var(--warning-red), var(--fire-orange));
+                color: var(--angel-white);
+                padding: 60px 90px;
+                border-radius: 45px;
+                font-size: 2.5rem;
+                font-weight: 900;
+                text-align: center;
+                z-index: 1000;
+                box-shadow: 0 35px 100px rgba(220, 38, 38, 0.9);
+                animation: messageShow 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+                border: 6px solid var(--angel-white);
+            `;
+            messageDiv.textContent = randomMessage;
+            document.body.appendChild(messageDiv);
+
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes messageShow {
+                    to { transform: translate(-50%, -50%) scale(1); }
+                }
+            `;
+            document.head.appendChild(style);
+
+            setTimeout(() => {
+                messageDiv.style.animation = 'messageShow 0.5s ease-in reverse';
+                setTimeout(() => {
+                    document.body.removeChild(messageDiv);
+                }, 500);
+            }, 4500);
+        }
+
+        // تشغيل الحجارة المتساقطة
+        createFallingStones();
+
+        // تأثير التمرير
+        const observerOptions = {
+            threshold: 0.15,
+            rootMargin: '0px 0px -80px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.story-card').forEach(card => {
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>
