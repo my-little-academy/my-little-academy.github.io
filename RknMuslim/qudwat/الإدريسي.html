@@ -1,0 +1,1638 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الإدريسي - أشهر جغرافيي الإسلام وصاحب خريطة العالم</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --map-blue: #1E40AF;
+            --parchment-gold: #D97706;
+            --exploration-green: #047857;
+            --compass-red: #DC2626;
+            --ink-black: #1C1917;
+            --sea-teal: #0D9488;
+            --land-beige: #FDE68A;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #0C4A6E, #1E3A8A);
+            color: var(--land-beige);
+            overflow-x: hidden;
+        }
+
+        /* خلفية خرائطية متحركة */
+        .map-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(30, 64, 175, 0.2), transparent),
+                radial-gradient(circle at 80% 70%, rgba(13, 148, 136, 0.15), transparent),
+                linear-gradient(to bottom, #0C4A6E 0%, #1E3A8A 100%);
+        }
+
+        /* أنماط خرائطية */
+        .map-patterns {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 20px, var(--parchment-gold) 20px, var(--parchment-gold) 22px),
+                repeating-linear-gradient(90deg, transparent, transparent 20px, var(--parchment-gold) 20px, var(--parchment-gold) 22px);
+            background-size: 40px 40px;
+        }
+
+        /* خرائط متحركة */
+        .floating-maps {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .map-fragment {
+            position: absolute;
+            opacity: 0.1;
+            border: 2px solid var(--parchment-gold);
+            border-radius: 10px;
+            animation: mapFloat 25s infinite linear;
+        }
+
+        @keyframes mapFloat {
+            0% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+            100% { transform: translateY(0) rotate(360deg); }
+        }
+
+        /* بوصلة متحركة */
+        .compass {
+            position: fixed;
+            width: 100px;
+            height: 100px;
+            right: 5%;
+            top: 20%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .compass-inner {
+            width: 100%;
+            height: 100%;
+            border: 3px solid var(--parchment-gold);
+            border-radius: 50%;
+            position: relative;
+            animation: compassSpin 30s infinite linear;
+        }
+
+        .compass-direction {
+            position: absolute;
+            font-size: 1.5em;
+            color: var(--compass-red);
+            font-weight: bold;
+        }
+
+        @keyframes compassSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* شريط التقدم */
+        .progress-track {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--parchment-gold), var(--exploration-green));
+            width: 0%;
+            transition: width 0.6s ease;
+            box-shadow: 0 0 15px var(--parchment-gold);
+        }
+
+        /* رأس الصفحة البطولي */
+        .hero-section {
+            position: relative;
+            padding: 80px 20px;
+            text-align: center;
+            background: linear-gradient(180deg, rgba(30, 64, 175, 0.2), transparent);
+            overflow: hidden;
+        }
+
+        .hero-globe {
+            width: 220px;
+            height: 220px;
+            margin: 0 auto 30px;
+            background: linear-gradient(135deg, var(--parchment-gold) 0%, var(--sea-teal) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 7em;
+            box-shadow: 
+                0 25px 70px rgba(217, 119, 6, 0.5),
+                inset 0 0 50px rgba(255, 255, 255, 0.3);
+            animation: globeFloat 4s infinite ease-in-out;
+            position: relative;
+        }
+
+        .hero-globe::before {
+            content: '';
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(circle, transparent 30%, rgba(217, 119, 6, 0.1) 70%);
+            animation: globeGlow 3s infinite ease-in-out;
+        }
+
+        @keyframes globeFloat {
+            0%, 100% { 
+                transform: translateY(0) rotate(0deg);
+                box-shadow: 0 25px 70px rgba(217, 119, 6, 0.5);
+            }
+            50% { 
+                transform: translateY(-15px) rotate(5deg);
+                box-shadow: 0 35px 90px rgba(217, 119, 6, 0.7);
+            }
+        }
+
+        @keyframes globeGlow {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.1); }
+        }
+
+        .hero-name {
+            font-family: 'Amiri', serif;
+            font-size: 4.5em;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--parchment-gold), var(--exploration-green), var(--parchment-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            text-shadow: 0 8px 25px rgba(217, 119, 6, 0.6);
+            letter-spacing: 2px;
+        }
+
+        .hero-epithet {
+            font-size: 1.8em;
+            color: var(--sea-teal);
+            margin-bottom: 25px;
+            font-style: italic;
+        }
+
+        .achievement-badges {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            text-align: center;
+            padding: 20px 30px;
+            background: linear-gradient(135deg, rgba(217, 119, 6, 0.15), rgba(4, 120, 87, 0.15));
+            border: 3px solid var(--parchment-gold);
+            border-radius: 20px;
+            min-width: 140px;
+            transition: all 0.4s;
+        }
+
+        .badge:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(217, 119, 6, 0.4);
+        }
+
+        .badge-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: var(--parchment-gold);
+            display: block;
+        }
+
+        .badge-label {
+            font-size: 1em;
+            color: var(--sea-teal);
+            margin-top: 5px;
+        }
+
+        /* نظام التبويبات */
+        .content-wrapper {
+            max-width: 1300px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+
+        .tabs-navigation {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 40px;
+            overflow-x: auto;
+            padding-bottom: 15px;
+        }
+
+        .tab-button {
+            padding: 18px 35px;
+            background: linear-gradient(135deg, rgba(217, 119, 6, 0.1), rgba(4, 120, 87, 0.1));
+            border: 3px solid var(--parchment-gold);
+            border-radius: 15px;
+            color: var(--sea-teal);
+            font-size: 1.15em;
+            cursor: pointer;
+            transition: all 0.4s;
+            white-space: nowrap;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 700;
+        }
+
+        .tab-button:hover {
+            background: linear-gradient(135deg, rgba(217, 119, 6, 0.25), rgba(4, 120, 87, 0.25));
+            transform: translateY(-5px);
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, var(--parchment-gold), var(--exploration-green));
+            color: var(--ink-black);
+            box-shadow: 0 12px 35px rgba(217, 119, 6, 0.6);
+        }
+
+        .tab-panel {
+            display: none;
+            animation: panelFadeIn 0.7s ease;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        @keyframes panelFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* بطاقات المحتوى */
+        .content-card {
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.85), rgba(12, 74, 110, 0.85));
+            border: 3px solid var(--parchment-gold);
+            border-radius: 25px;
+            padding: 45px;
+            margin-bottom: 35px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+        }
+
+        .card-heading {
+            font-family: 'Amiri', serif;
+            font-size: 2.8em;
+            color: var(--parchment-gold);
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .card-icon {
+            font-size: 1.3em;
+        }
+
+        .card-text {
+            font-size: 1.25em;
+            line-height: 2.2;
+            color: var(--land-beige);
+            margin-bottom: 25px;
+        }
+
+        .highlight-quote {
+            background: linear-gradient(135deg, rgba(217, 119, 6, 0.2), rgba(4, 120, 87, 0.2));
+            border-right: 6px solid var(--parchment-gold);
+            padding: 25px;
+            margin: 25px 0;
+            font-size: 1.3em;
+            font-style: italic;
+            border-radius: 10px;
+        }
+
+        /* الجدول الزمني */
+        .timeline-container {
+            position: relative;
+            padding: 30px 0;
+        }
+
+        .timeline-event {
+            position: relative;
+            padding-right: 60px;
+            margin-bottom: 35px;
+            border-right: 4px solid var(--parchment-gold);
+        }
+
+        .timeline-marker {
+            position: absolute;
+            right: -15px;
+            top: 0;
+            width: 26px;
+            height: 26px;
+            background: var(--parchment-gold);
+            border-radius: 50%;
+            box-shadow: 0 0 25px var(--parchment-gold);
+            animation: markerPulse 2.5s infinite;
+        }
+
+        @keyframes markerPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.4); }
+        }
+
+        .timeline-date {
+            font-size: 1.7em;
+            font-weight: bold;
+            color: var(--parchment-gold);
+            margin-bottom: 12px;
+        }
+
+        .timeline-description {
+            font-size: 1.2em;
+            line-height: 2;
+            color: var(--sea-teal);
+        }
+
+        /* خريطة تفاعلية */
+        .map-container {
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.9), rgba(12, 74, 110, 0.9));
+            border: 3px solid var(--parchment-gold);
+            border-radius: 20px;
+            margin: 30px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .world-map {
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 40%, var(--sea-teal), var(--map-blue) 60%);
+            position: relative;
+        }
+
+        .continent {
+            position: absolute;
+            background: var(--land-beige);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .continent:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px var(--parchment-gold);
+        }
+
+        .continent-info {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: var(--land-beige);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 0.9em;
+            display: none;
+            z-index: 10;
+            min-width: 200px;
+        }
+
+        /* نظام الاختبارات */
+        .quiz-box {
+            background: linear-gradient(135deg, rgba(55, 65, 81, 0.95), rgba(31, 41, 55, 0.95));
+            border: 4px solid var(--parchment-gold);
+            border-radius: 30px;
+            padding: 45px;
+            margin-bottom: 35px;
+        }
+
+        .quiz-question {
+            font-size: 1.7em;
+            color: var(--parchment-gold);
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+
+        .answer-options {
+            display: grid;
+            gap: 18px;
+        }
+
+        .answer-option {
+            padding: 22px 30px;
+            background: linear-gradient(135deg, rgba(217, 119, 6, 0.1), rgba(4, 120, 87, 0.1));
+            border: 3px solid var(--parchment-gold);
+            border-radius: 18px;
+            cursor: pointer;
+            transition: all 0.4s;
+            font-size: 1.2em;
+        }
+
+        .answer-option:hover {
+            background: linear-gradient(135deg, rgba(217, 119, 6, 0.25), rgba(4, 120, 87, 0.25));
+            transform: translateX(-12px);
+        }
+
+        .answer-option.correct {
+            background: var(--exploration-green);
+            border-color: var(--exploration-green);
+            animation: correctShake 0.6s;
+        }
+
+        .answer-option.incorrect {
+            background: var(--compass-red);
+            border-color: var(--compass-red);
+            animation: incorrectShake 0.6s;
+        }
+
+        @keyframes correctShake {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        @keyframes incorrectShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-12px); }
+            75% { transform: translateX(12px); }
+        }
+
+        .quiz-feedback {
+            margin-top: 25px;
+            padding: 25px;
+            border-radius: 18px;
+            font-size: 1.2em;
+            display: none;
+        }
+
+        .quiz-feedback.show {
+            display: block;
+            animation: feedbackSlide 0.6s;
+        }
+
+        @keyframes feedbackSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-25px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .quiz-feedback.correct {
+            background: rgba(4, 120, 87, 0.4);
+            border: 3px solid var(--exploration-green);
+        }
+
+        .quiz-feedback.incorrect {
+            background: rgba(220, 38, 38, 0.4);
+            border: 3px solid var(--compass-red);
+        }
+
+        /* منطقة الألعاب */
+        .game-area {
+            background: linear-gradient(135deg, rgba(45, 55, 72, 0.95), rgba(25, 35, 52, 0.95));
+            border: 4px solid var(--parchment-gold);
+            border-radius: 30px;
+            padding: 45px;
+            margin-bottom: 35px;
+        }
+
+        .game-header {
+            font-size: 2.3em;
+            color: var(--parchment-gold);
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        /* لعبة المطابقة */
+        .matching-game {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .match-column {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .match-item {
+            padding: 22px;
+            background: linear-gradient(135deg, rgba(217, 119, 6, 0.15), rgba(4, 120, 87, 0.15));
+            border: 3px solid var(--parchment-gold);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.4s;
+            text-align: center;
+            font-size: 1.2em;
+        }
+
+        .match-item:hover {
+            background: linear-gradient(135deg, rgba(217, 119, 6, 0.35), rgba(4, 120, 87, 0.35));
+            transform: scale(1.08);
+        }
+
+        .match-item.selected {
+            background: var(--exploration-green);
+            border-color: var(--exploration-green);
+            color: var(--ink-black);
+        }
+
+        .match-item.matched {
+            background: var(--sea-teal);
+            border-color: var(--sea-teal);
+            cursor: default;
+            opacity: 0.7;
+        }
+
+        /* لعبة الترتيب */
+        .sequence-game {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .sequence-items {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .sequence-item {
+            padding: 20px 25px;
+            background: linear-gradient(135deg, rgba(217, 119, 6, 0.15), rgba(4, 120, 87, 0.15));
+            border: 3px solid var(--parchment-gold);
+            border-radius: 15px;
+            cursor: move;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s;
+        }
+
+        .sequence-item:hover {
+            background: linear-gradient(135deg, rgba(217, 119, 6, 0.3), rgba(4, 120, 87, 0.3));
+        }
+
+        .sequence-item.dragging {
+            opacity: 0.5;
+        }
+
+        .drag-handle {
+            font-size: 1.5em;
+            cursor: grab;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
+        /* أزرار العمل */
+        .action-button {
+            padding: 18px 45px;
+            background: linear-gradient(135deg, var(--parchment-gold), var(--exploration-green));
+            border: none;
+            border-radius: 15px;
+            color: var(--ink-black);
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.4s;
+            font-family: 'Tajawal', sans-serif;
+            box-shadow: 0 12px 30px rgba(217, 119, 6, 0.5);
+        }
+
+        .action-button:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 18px 45px rgba(217, 119, 6, 0.7);
+        }
+
+        .action-button:active {
+            transform: translateY(-3px);
+        }
+
+        .game-stats {
+            text-align: center;
+            font-size: 1.6em;
+            color: var(--parchment-gold);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        /* شهادة الإنجاز */
+        .certificate-container {
+            background: linear-gradient(135deg, rgba(217, 119, 6, 0.25), rgba(4, 120, 87, 0.25));
+            border: 6px solid var(--parchment-gold);
+            border-radius: 25px;
+            padding: 60px;
+            text-align: center;
+            margin: 50px auto;
+            max-width: 800px;
+            display: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .certificate-container::before,
+        .certificate-container::after {
+            content: '🗺️';
+            position: absolute;
+            font-size: 8em;
+            opacity: 0.1;
+        }
+
+        .certificate-container::before {
+            top: -20px;
+            left: -20px;
+        }
+
+        .certificate-container::after {
+            bottom: -20px;
+            right: -20px;
+        }
+
+        .certificate-container.show {
+            display: block;
+            animation: certificateReveal 1.2s ease;
+        }
+
+        @keyframes certificateReveal {
+            from {
+                opacity: 0;
+                transform: scale(0.7) rotate(-8deg);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        .certificate-emblem {
+            font-size: 6em;
+            margin: 25px 0;
+        }
+
+        .certificate-heading {
+            font-family: 'Amiri', serif;
+            font-size: 3.5em;
+            color: var(--parchment-gold);
+            margin-bottom: 25px;
+        }
+
+        .certificate-body {
+            font-size: 1.4em;
+            line-height: 2.2;
+            margin-bottom: 35px;
+        }
+
+        /* استجابة للأجهزة */
+        @media (max-width: 768px) {
+            .hero-name {
+                font-size: 3em;
+            }
+
+            .hero-epithet {
+                font-size: 1.3em;
+            }
+
+            .card-heading {
+                font-size: 2em;
+            }
+
+            .matching-game {
+                grid-template-columns: 1fr;
+            }
+
+            .achievement-badges {
+                gap: 25px;
+            }
+
+            .tabs-navigation {
+                flex-wrap: wrap;
+            }
+
+            .compass {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- الخلفية الخرائطية -->
+    <div class="map-bg"></div>
+    <div class="map-patterns"></div>
+    <div class="floating-maps">
+        <div class="map-fragment" style="width: 80px; height: 60px; top: 10%; left: 10%; animation-delay: 0s;"></div>
+        <div class="map-fragment" style="width: 60px; height: 80px; top: 30%; right: 20%; animation-delay: 5s;"></div>
+        <div class="map-fragment" style="width: 90px; height: 70px; top: 60%; left: 15%; animation-delay: 10s;"></div>
+        <div class="map-fragment" style="width: 70px; height: 50px; top: 40%; right: 10%; animation-delay: 15s;"></div>
+    </div>
+    <div class="compass">
+        <div class="compass-inner">
+            <div class="compass-direction" style="top: 0; left: 50%; transform: translateX(-50%);">N</div>
+            <div class="compass-direction" style="bottom: 0; left: 50%; transform: translateX(-50%);">S</div>
+            <div class="compass-direction" style="top: 50%; right: 0; transform: translateY(-50%);">E</div>
+            <div class="compass-direction" style="top: 50%; left: 0; transform: translateY(-50%);">W</div>
+        </div>
+    </div>
+
+    <!-- شريط التقدم -->
+    <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <!-- القسم البطولي -->
+    <section class="hero-section">
+        <div class="hero-globe">🌍</div>
+        <h1 class="hero-name">الإدريسي</h1>
+        <p class="hero-epithet">رائد الجغرافيا الإسلامية وصاحب أشمل خريطة للعالم</p>
+        
+        <div class="achievement-badges">
+            <div class="badge">
+                <span class="badge-value" id="totalScore">0</span>
+                <span class="badge-label">النقاط الكلية</span>
+            </div>
+            <div class="badge">
+                <span class="badge-value" id="lessonsCount">0</span>
+                <span class="badge-label">دروس مكتملة</span>
+            </div>
+            <div class="badge">
+                <span class="badge-value" id="achievementsTotal">0</span>
+                <span class="badge-label">الإنجازات</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="content-wrapper">
+        <nav class="tabs-navigation">
+            <button class="tab-button active" onclick="activateTab('saga')">📜 الملحمة</button>
+            <button class="tab-button" onclick="activateTab('map')">🗺️ الخريطة</button>
+            <button class="tab-button" onclick="activateTab('travels')">🚢 الرحلات</button>
+            <button class="tab-button" onclick="activateTab('lessons')">📚 الدروس</button>
+            <button class="tab-button" onclick="activateTab('quiz')">❓ الاختبار</button>
+            <button class="tab-button" onclick="activateTab('games')">🎮 الألعاب</button>
+            <button class="tab-button" onclick="activateTab('certificate')">🏆 الشهادة</button>
+        </nav>
+
+        <!-- تبويب الملحمة -->
+        <div id="saga" class="tab-panel active">
+            <div class="content-card">
+                <h2 class="card-heading">
+                    <span class="card-icon">🌍</span>
+                    من سبتة إلى باليرمو: رحلة الجغرافي العظيم
+                </h2>
+                <p class="card-text">
+                    ولد أبو عبد الله محمد بن محمد الإدريسي عام 1100م في سبتة بالمغرب، وتنحدر أسرته من الأدارسة العلويين. نشأ في بيئة علمية ثرية، حيث درس في قرطبة وإشبيلية قبل أن يبدأ رحلاته الاستكشافية.
+                </p>
+                <p class="card-text">
+                    سافر الإدريسي عبر معظم أرجاء العالم الإسلامي، وزار أوروبا وآسيا وأفريقيا، ودرس الجغرافيا والفلك والطب والفلسفة. استدعاه الملك روجر الثاني ملك صقلية إلى بلاطه في باليرمو، حيث قضى 15 عاماً في تأليف أشهر أعماله.
+                </p>
+            </div>
+
+            <div class="content-card">
+                <h2 class="card-heading">
+                    <span class="card-icon">📜</span>
+                    العمل في بلاط روجر الثاني: مشروع القرن
+                </h2>
+                <div class="timeline-container">
+                    <div class="timeline-event">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-date">1100م</div>
+                        <p class="timeline-description">
+                            ولادة الإدريسي في سبتة بالمغرب
+                        </p>
+                    </div>
+                    <div class="timeline-event">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-date">1115-1138م</div>
+                        <p class="timeline-description">
+                            رحلاته العلمية عبر العالم الإسلامي وأوروبا
+                        </p>
+                    </div>
+                    <div class="timeline-event">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-date">1138م</div>
+                        <p class="timeline-description">
+                            دعوة الملك روجر الثاني له للعمل في بلاط صقلية
+                        </p>
+                    </div>
+                    <div class="timeline-event">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-date">1154م</div>
+                        <p class="timeline-description">
+                            إكمال كتاب "نزهة المشتاق في اختراق الآفاق" وإنهاء خريطة العالم
+                        </p>
+                    </div>
+                    <div class="timeline-event">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-date">1165م</div>
+                        <p class="timeline-description">
+                            وفاته في صقلية بعد إنجاز أعظم مشروع جغرافي في العصور الوسطى
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <h2 class="card-heading">
+                    <span class="card-icon">📚</span>
+                    الإنجازات العلمية الخالدة
+                </h2>
+                <p class="card-text">
+                    قدم الإدريسي إسهامات غير مسبوقة في مجالات متعددة:
+                </p>
+                <p class="card-text">
+                    🗺️ <strong>خريطة العالم:</strong> خريطة دقيقة للعالم المعروف وقتها، متقدمة بقرون على خرائط أوروبا<br>
+                    📖 <strong>كتاب "نزهة المشتاق":</strong> موسوعة جغرافية شاملة في 70 فصلاً<br>
+                    🌐 <strong>تقسيم المناخات:</strong> قسم العالم إلى 7 أقاليم و10 أقسام لكل إقليم<br>
+                    📏 <strong>القياسات الفلكية:</strong> استخدام الفلك في تحديد المواقع الجغرافية<br>
+                    💎 <strong>وصف البلاد:</strong> وصف دقيق لمدن العالم وثرواتها وطرقها
+                </p>
+                <div class="highlight-quote">
+                    "الأرض كروية ككروية البيضة، والماء لاصق بها... والهواء يحيط بها من جميع جهاتها" - الإدريسي يصف كروية الأرض قبل كولومبوس بثلاثة قرون
+                </div>
+            </div>
+
+            <div class="content-card">
+                <h2 class="card-heading">
+                    <span class="card-icon">⚖️</span>
+                    منهجية البحث الجغرافي عند الإدريسي
+                </h2>
+                <p class="card-text">
+                    اعتمد الإدريسي منهجية علمية دقيقة في أبحاثه:
+                </p>
+                <p class="card-text">
+                    1️⃣ <strong>الرحلات الميدانية:</strong> السفر بنفسه إلى معظم المناطق التي وصفها<br>
+                    2️⃣ <strong>مقابلة الشهود:</strong> استجواب التجار والرحالة والبحارة<br>
+                    3️⃣ <strong>التحقق العلمي:</strong> مقارنة الروايات والتحقق من دقتها<br>
+                    4️⃣ <strong>القياسات الفلكية:</strong> استخدام النجوم في تحديد الاتجاهات<br>
+                    5️⃣ <strong>الرسم الدقيق:</strong> دقة متناهية في رسم الخرائط والتفاصيل
+                </p>
+            </div>
+        </div>
+
+        <!-- تبويب الخريطة -->
+        <div id="map" class="tab-panel">
+            <div class="content-card">
+                <h2 class="card-heading">
+                    <span class="card-icon">🗺️</span>
+                    خريطة العالم للإدريسي: أعجوبة العصور الوسطى
+                </h2>
+                <div class="map-container">
+                    <div class="world-map" id="worldMap"></div>
+                </div>
+                <p class="card-text">
+                    صُنعت خريطة الإدريسي من الفضة الخالصة بوزن 150 كيلوغراماً، وكانت دائرة قطرها 1.5 متر. قسمت الخريطة العالم إلى 7 أقاليم مناخية (من خط الاستواء إلى القطبين)، وكل إقليم إلى 10 أقسام طولية.
+                </p>
+            </div>
+
+            <div class="content-card">
+                <h2 class="card-heading">
+                    <span class="card-icon">✨</span>
+                    مميزات خريطة الإدريسي الفريدة
+                </h2>
+                <p class="card-text">
+                    تفوقت خريطة الإدريسي على كل ما سبقها:
+                </p>
+                <p class="card-text">
+                    🎯 <strong>الدقة المذهلة:</strong> مواقع المدن والأنهار والجبال بدقة غير مسبوقة<br>
+                    🧭 <strong>الاتجاهات الصحيحة:</strong> وضع الجنوب في الأعلى وفق التقاليد الإسلامية<br>
+                    📐 <strong>المقاييس الرياضية:</strong> استخدام الإحداثيات والدرجات<br>
+                    🏔️ <strong>التضاريس:</strong> رسم الجبال والأنهار والبحار بدقة<br>
+                    🏙️ <strong>المدن:</strong> تحديد مواقع أكثر من 2000 مدينة
+                </p>
+            </div>
+
+            <div class="content-card">
+                <h2 class="card-heading">
+                    <span class="card-icon">🌐</span>
+                    اكتشافات جغرافية سبقت عصرها
+                </h2>
+                <p class="card-text">
+                    تضمنت خريطة الإدريسي اكتشافات مذهلة:
+                </p>
+                <p class="card-text">
+                    🔍 <strong>مصادر النيل:</strong> وصف دقيق لمنابع النيل في أفريقيا<br>
+                    🏝️ <strong>الجزر البريطانية:</strong> رسم دقيق لبريطانيا وأيرلندا<br>
+                    🗻 <strong>جبال الأنديز:</strong> ذكر لسلسلة جبال في أمريكا الجنوبية<br>
+                    🌊 <strong>تيارات المحيطات:</strong> وصف تيارات المحيط الأطلسي<br>
+                    🏜️ <strong>الصحراء الكبرى:</strong] وصف تفصيلي للصحراء وواحاتها
+                </p>
+            </div>
+        </div>
+
+        <!-- تبويب الرحلات -->
+        <div id="travels" class="tab-panel">
+            <div class="content-card">
+                <h2 class="card-heading">
+                    <span class="card-icon">🚢</span>
+                    رحلات الاستكشاف والبحث
+                </h2>
+                <p class="card-text">
+                    سافر الإدريسي إلى معظم أرجاء العالم المعروف في عصره:
+                </p>
+                <p class="card-text">
+                    🏜️ <strong>شمال أفريقيا:</strong> من المغرب إلى مصر، وزار جميع مدن الساحل<br>
+                    ⛰️ <strong>أوروبا:</strong> زار إسبانيا وإيطاليا وفرنسا وبريطانيا<br>
+                    🏔️ <strong>آسيا الصغرى:</strong> تجول في الأناضول وبلاد الشام<br>
+                    🏝️ <strong>الجزر:</strong> زار صقلية وكريت وقبرص وجزر البحر المتوسط<br>
+                    🐫 <strong>الصحراء:</strong] رحلات في الصحراء الكبرى مع قوافل التجار
+                </p>
+            </div>
+
+            <div class="content-card">
+                <h2 class="card-heading">
+                    <span class="card-icon">📝</span>
+                    وصف المدن والبلدان
+                </h2>
+                <p class="card-text">
+                    قدم الإدريسي أوصافاً دقيقة للمدن التي زارها:
+                </p>
+                <div class="highlight-quote">
+                    "قرطبة مدينة عظيمة، كثيرة المياه، عذبة الهواء، طيبة الثرى... وفيها من البساتين والجنات ما يجل عن الحصر" - وصف الإدريسي لقرطبة
+                </div>
+                <p class="card-text">
+                    🏛️ <strong>العمارة:</strong> وصف المباني والقلاع والأسواق<br>
+                    💧 <strong>الموارد المائية:</strong> ذكر الأنهار والآبار والعيون<br>
+                    🌾 <strong>الزراعة:</strong> وصف المحاصيل والأشجار والثمار<br>
+                    🛣️ <strong>الطرق:</strong> تحديد المسافات بين المدن وحالة الطرق<br>
+                    💎 <strong>الثروات:</strong> ذكر المعادن والأحجار الكريمة والتجارة
+                </p>
+            </div>
+
+            <div class="content-card">
+                <h2 class="card-heading">
+                    <span class="card-icon">🤝</span>
+                    التعاون مع الملك روجر الثاني
+                </h2>
+                <p class="card-text">
+                    كان تعاون الإدريسي مع الملك روجر الثاني نموذجاً للتعاون العلمي بين الثقافات:
+                </p>
+                <p class="card-text">
+                    👑 <strong>الدعم الملكي:</strong> وفر روجر الثاني كل الإمكانيات للبحث<br>
+                    🧪 <strong>الفريق العلمي:</strong> شكل فريقاً من العلماء والمترجمين<br>
+                    📚 <strong>المكتبة:</strong> وفر مكتبة ضخمة باللغات المختلفة<br>
+                    🗺️ <strong>ورشة العمل:</strong> أنشأ ورشة متكاملة لرسم الخرائط<br>
+                    💰 <strong>التكلفة:</strong> بلغت تكلفة المشروع ثروة طائلة
+                </p>
+            </div>
+        </div>
+
+        <!-- تبويب الدروس -->
+        <div id="lessons" class="tab-panel">
+            <div class="content-card">
+                <h2 class="card-heading">
+                    <span class="card-icon">📖</span>
+                    الدرس الأول: أهمية البحث الميداني
+                </h2>
+                <p class="card-text">
+                    علمنا الإدريسي أن المعرفة الحقيقية لا تأتي من الكتب فقط، بل من التجربة المباشرة. لم يكتف بقراءة كتب الجغرافيا، بل سافر بنفسه إلى معظم الأماكن التي وصفها.
+                </p>
+                <p class="card-text">
+                    "العلم بالشيء فرع عن تصوره" - منهج الإدريسي في ضرورة المعاينة الشخصية.
+                </p>
+                <button class="action-button" onclick="finishLesson(1)">✅ أكملت هذا الدرس</button>
+            </div>
+
+            <div class="content-card">
+                <h2 class="card-heading">
+                    <span class="card-icon">🧭</span>
+                    الدرس الثاني: الدقة والمنهجية العلمية
+                </h2>
+                <p class="card-text">
+                    كان الإدريسي مثالاً للدقة العلمية والمنهجية:
+                </p>
+                <p class="card-text">
+                    🎯 <strong>التحقق:</strong> لا يقبل أي معلومة دون تدقيق<br>
+                    📏 <strong>القياس:</strong> استخدام أدوات القياس الفلكية والرياضية<br>
+                    🔄 <strong>المقارنة:</strong> مقارنة المعلومات من مصادر مختلفة<br>
+                    📊 <strong>التنظيم:</strong> تقسيم المعلومات بطريقة منهجية<br>
+                    ✏️ <strong>التوثيق:</strong> تسجيل كل معلومة بدقة ووضوح
+                </p>
+                <button class="action-button" onclick="finishLesson(2)">✅ أكملت هذا الدرس</button>
+            </div>
+
+            <div class="content-card">
+                <h2 class="card-heading">
+                    <span class="card-icon">🤝</span>
+                    الدرس الثالث: التعاون بين الثقافات
+                </h2>
+                <p class="card-text">
+                    مشروع الإدريسي نموذج رائع للتعاون العلمي بين الحضارات:
+                </p>
+                <p class="card-text">
+                    1️⃣ <strong>العلم لا وطن له:</strong> المعرفة تنتقل بين الشعوب<br>
+                    2️⃣ <strong>الثقافات تثري بعضها:</strong> الحضارة الإسلامية والمسيحية تعاونتا<br>
+                    3️⃣ <strong>الدعم المادي:</strong> أهمية تمويل البحث العلمي<br>
+                    4️⃣ <strong>الفريق المتكامل:</strong> العمل الجماعي ينتج أفضل النتائج<br>
+                    5️⃣ <strong>الترجمة:</strong> نقل المعرفة بين اللغات المختلفة
+                </p>
+                <button class="action-button" onclick="finishLesson(3)">✅ أكملت هذا الدرس</button>
+            </div>
+
+            <div class="content-card">
+                <h2 class="card-heading">
+                    <span class="card-icon">🌍</span>
+                    الدرس الرابع: الرؤية الشاملة للعالم
+                </h2>
+                <p class="card-text">
+                    كان نظر الإدريسي للعالم نظرة شاملة متكاملة:
+                </p>
+                <p class="card-text">
+                    🗺️ <strong>الجغرافيا الشاملة:</strong> دراسة الأرض كلها كوحدة واحدة<br>
+                    ⚖️ <strong>التوازن:</strong] الاهتمام بجميع القارات والدول<br>
+                    📚 <strong>المعرفة المتكاملة:</strong> جمع بين الجغرافيا والفلك والتاريخ<br>
+                    👥 <strong>الإنسانية:</strong> اهتمام بالإنسان وثقافاته في كل مكان<br>
+                    🔮 <strong>الرؤية المستقبلية:</strong> عمله خدم الأجيال اللاحقة لقرون
+                </p>
+                <button class="action-button" onclick="finishLesson(4)">✅ أكملت هذا الدرس</button>
+            </div>
+        </div>
+
+        <!-- تبويب الاختبار -->
+        <div id="quiz" class="tab-panel">
+            <div class="quiz-box">
+                <h3 class="quiz-question">السؤال 1: من هو الملك الذي دعا الإدريسي للعمل في بلاطه ودعم مشروعه الجغرافي؟</h3>
+                <div class="answer-options">
+                    <div class="answer-option" onclick="verifyAnswer(this, false, 1)">الملك ألفونسو السادس</div>
+                    <div class="answer-option" onclick="verifyAnswer(this, true, 1)">الملك روجر الثاني ملك صقلية</div>
+                    <div class="answer-option" onclick="verifyAnswer(this, false, 1)">السلطان صلاح الدين الأيوبي</div>
+                    <div class="answer-option" onclick="verifyAnswer(this, false, 1)>الملك لويس التاسع</div>
+                </div>
+                <div class="quiz-feedback" id="feedback1"></div>
+            </div>
+
+            <div class="quiz-box">
+                <h3 class="quiz-question">السؤال 2: من أي مادة صُنعت خريطة العالم الشهيرة للإدريسي؟</h3>
+                <div class="answer-options">
+                    <div class="answer-option" onclick="verifyAnswer(this, false, 2)">من الذهب</div>
+                    <div class="answer-option" onclick="verifyAnswer(this, true, 2)">من الفضة</div>
+                    <div class="answer-option" onclick="verifyAnswer(this, false, 2)">من البرونز</div>
+                    <div class="answer-option" onclick="verifyAnswer(this, false, 2)">من الرق (الجلد)</div>
+                </div>
+                <div class="quiz-feedback" id="feedback2"></div>
+            </div>
+
+            <div class="quiz-box">
+                <h3 class="quiz-question">السؤال 3: كم كان قطر خريطة الإدريسي الفضة؟</h3>
+                <div class="answer-options">
+                    <div class="answer-option" onclick="verifyAnswer(this, false, 3)">نصف متر</div>
+                    <div class="answer-option" onclick="verifyAnswer(this, false, 3)">متر واحد</div>
+                    <div class="answer-option" onclick="verifyAnswer(this, true, 3)">متر ونصف المتر</div>
+                    <div class="answer-option" onclick="verifyAnswer(this, false, 3)">متران</div>
+                </div>
+                <div class="quiz-feedback" id="feedback3"></div>
+            </div>
+
+            <div class="quiz-box">
+                <h3 class="quiz-question">السؤال 4: ما اسم الكتاب الشهير للإدريسي الذي وصف فيه العالم؟</h3>
+                <div class="answer-options">
+                    <div class="answer-option" onclick="verifyAnswer(this, true, 4)">نزهة المشتاق في اختراق الآفاق</div>
+                    <div class="answer-option" onclick="verifyAnswer(this, false, 4)">مروج الذهب</div>
+                    <div class="answer-option" onclick="verifyAnswer(this, false, 4)">المناظر</div>
+                    <div class="answer-option" onclick="verifyAnswer(this, false, 4)">القانون في الطب</div>
+                </div>
+                <div class="quiz-feedback" id="feedback4"></div>
+            </div>
+
+            <div class="quiz-box">
+                <h3 class="quiz-question">السؤال 5: إلى كم إقليماً قسم الإدريسي العالم في خريطته؟</h3>
+                <div class="answer-options">
+                    <div class="answer-option" onclick="verifyAnswer(this, false, 5)">3 أقاليم</div>
+                    <div class="answer-option" onclick="verifyAnswer(this, false, 5)">5 أقاليم</div>
+                    <div class="answer-option" onclick="verifyAnswer(this, true, 5)">7 أقاليم</div>
+                    <div class="answer-option" onclick="verifyAnswer(this, false, 5)">10 أقاليم</div>
+                </div>
+                <div class="quiz-feedback" id="feedback5"></div>
+            </div>
+        </div>
+
+        <!-- تبويب الألعاب -->
+        <div id="games" class="tab-panel">
+            <!-- لعبة المطابقة -->
+            <div class="game-area">
+                <h2 class="game-header">🎯 لعبة المطابقة - وصل المدن بوصفها</h2>
+                <p style="text-align: center; margin-bottom: 25px; font-size: 1.2em;">اختر مدينة من كل عمود لمطابقتها بوصفها</p>
+                <div class="game-stats">
+                    <div>✅ المطابقات: <span id="matchingScore">0</span>/6</div>
+                </div>
+                <button class="action-button" onclick="restartMatching()" style="display: block; margin: 0 auto 25px;">🔄 إعادة اللعبة</button>
+                <div class="matching-game" id="matchingGame"></div>
+            </div>
+
+            <!-- لعبة الترتيب -->
+            <div class="game-area">
+                <h2 class="game-header">📅 لعبة الترتيب - رتب مراحل إنشاء الخريطة</h2>
+                <p style="text-align: center; margin-bottom: 25px; font-size: 1.2em;">اسحب المراحل لترتيبها حسب منهج الإدريسي في رسم الخريطة</p>
+                <button class="action-button" onclick="checkSequence()" style="display: block; margin: 0 auto 25px;">✓ تحقق من الترتيب</button>
+                <button class="action-button" onclick="restartSequence()" style="display: block; margin: 0 auto 25px;">🔄 إعادة اللعبة</button>
+                <div class="sequence-game">
+                    <div class="sequence-items" id="sequenceItems"></div>
+                </div>
+                <div class="quiz-feedback" id="sequenceFeedback"></div>
+            </div>
+        </div>
+
+        <!-- تبويب الشهادة -->
+        <div id="certificate" class="tab-panel">
+            <div class="certificate-container" id="certificateDisplay">
+                <div class="certificate-emblem">🗺️</div>
+                <h2 class="certificate-heading">شهادة الرحالة الجغرافي</h2>
+                <p class="certificate-body">
+                    نشهد بأن الطالب/ة النجيب/ة قد أتم/ت بامتياز<br>
+                    البرنامج التعليمي الشامل عن<br>
+                    <strong style="font-size: 1.4em; color: var(--parchment-gold);">الإدريسي - رائد الجغرافيا</strong>
+                </p>
+                <p class="certificate-body">
+                    وقد أبدى/ت تميزاً في استيعاب علوم الجغرافيا والخرائط<br>
+                    واستحق/ت لقب "الجغرافي الصغير"
+                </p>
+                <div style="margin-top: 35px; font-size: 1.3em; color: var(--parchment-gold);">
+                    بتاريخ: <span id="certificateDate"></span>
+                </div>
+                <div class="certificate-emblem" style="margin-top: 25px;">🧭</div>
+            </div>
+            
+            <div class="content-card" style="text-align: center;">
+                <h3 style="color: var(--parchment-gold); font-size: 2.2em; margin-bottom: 25px;">🌟 شروط الحصول على الشهادة</h3>
+                <p style="font-size: 1.3em; margin-bottom: 20px; line-height: 2;">
+                    ✅ إكمال جميع الدروس الأربعة<br>
+                    ✅ الإجابة الصحيحة على جميع أسئلة الاختبار<br>
+                    ✅ إتمام لعبة المطابقة بنجاح<br>
+                    ✅ ترتيب المراحل بشكل صحيح
+                </p>
+                <div style="margin-top: 35px; padding: 25px; background: linear-gradient(135deg, rgba(217, 119, 6, 0.15), rgba(4, 120, 87, 0.15)); border-radius: 20px;">
+                    <h4 style="color: var(--parchment-gold); margin-bottom: 20px; font-size: 1.5em;">تقدمك الحالي:</h4>
+                    <p style="font-size: 1.2em; line-height: 2;">
+                        📚 الدروس: <span id="certLessons">0</span>/4<br>
+                        ❓ الاختبار: <span id="certQuiz">0</span>/5<br>
+                        🎮 الألعاب: <span id="certGames">0</span>/2
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // نظام التتبع
+        let userStats = {
+            totalScore: 0,
+            lessonsCompleted: 0,
+            quizCorrectAnswers: 0,
+            gamesCompleted: 0,
+            achievements: 0
+        };
+
+        // تحديث العرض
+        function refreshDisplay() {
+            const totalTasks = 4 + 5 + 2;
+            const completedTasks = userStats.lessonsCompleted + userStats.quizCorrectAnswers + userStats.gamesCompleted;
+            const progressPercentage = (completedTasks / totalTasks) * 100;
+            
+            document.getElementById('progressFill').style.width = progressPercentage + '%';
+            document.getElementById('totalScore').textContent = userStats.totalScore;
+            document.getElementById('lessonsCount').textContent = userStats.lessonsCompleted;
+            document.getElementById('achievementsTotal').textContent = userStats.achievements;
+            
+            document.getElementById('certLessons').textContent = userStats.lessonsCompleted;
+            document.getElementById('certQuiz').textContent = userStats.quizCorrectAnswers;
+            document.getElementById('certGames').textContent = userStats.gamesCompleted;
+            
+            evaluateCertificate();
+        }
+
+        // تبديل التبويبات
+        function activateTab(tabName) {
+            const panels = document.querySelectorAll('.tab-panel');
+            const buttons = document.querySelectorAll('.tab-button');
+            
+            panels.forEach(p => p.classList.remove('active'));
+            buttons.forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            // إذا كان تبويب الخريطة، نرسم الخريطة
+            if (tabName === 'map') {
+                drawWorldMap();
+            }
+        }
+
+        // إنهاء الدروس
+        function finishLesson(num) {
+            if (userStats.lessonsCompleted < 4) {
+                userStats.lessonsCompleted++;
+                userStats.totalScore += 50;
+                
+                if (userStats.lessonsCompleted === 1) {
+                    userStats.achievements++;
+                    displayAchievement("🌟 إنجاز: بدأت رحلة التعلم الجغرافي!");
+                } else if (userStats.lessonsCompleted === 4) {
+                    userStats.achievements++;
+                    displayAchievement("📚 إنجاز: أكملت كل الدروس الجغرافية!");
+                }
+                
+                refreshDisplay();
+                event.target.textContent = "✅ تم الإكمال!";
+                event.target.disabled = true;
+                event.target.style.opacity = "0.6";
+            }
+        }
+
+        // نظام الاختبار
+        let answeredSet = new Set();
+
+        function verifyAnswer(elem, correct, num) {
+            if (answeredSet.has(num)) return;
+            
+            const allOptions = elem.parentElement.children;
+            const feedbackBox = document.getElementById('feedback' + num);
+            
+            for (let option of allOptions) {
+                option.style.pointerEvents = 'none';
+            }
+            
+            if (correct) {
+                elem.classList.add('correct');
+                feedbackBox.className = 'quiz-feedback correct show';
+                feedbackBox.textContent = '✅ ممتاز! إجابة صحيحة!';
+                userStats.totalScore += 20;
+                userStats.quizCorrectAnswers++;
+                
+                if (userStats.quizCorrectAnswers === 5) {
+                    userStats.achievements++;
+                    setTimeout(() => displayAchievement("🎓 إنجاز: أجبت على كل الأسئلة الجغرافية!"), 600);
+                }
+            } else {
+                elem.classList.add('incorrect');
+                feedbackBox.className = 'quiz-feedback incorrect show';
+                feedbackBox.textContent = '❌ إجابة خاطئة. راجع الدروس وحاول مجدداً!';
+            }
+            
+            answeredSet.add(num);
+            refreshDisplay();
+        }
+
+        // رسم خريطة العالم
+        function drawWorldMap() {
+            const map = document.getElementById('worldMap');
+            map.innerHTML = '';
+            
+            const continents = [
+                { id: 1, name: 'أفريقيا', top: '40%', left: '40%', width: '25%', height: '45%', description: 'أفريقيا: أكبر قارة بعد آسيا، وصف الإدريسي منابع النيل والصحراء الكبرى' },
+                { id: 2, name: 'أوروبا', top: '20%', left: '35%', width: '30%', height: '25%', description: 'أوروبا: وصف الإدريسي إسبانيا وإيطاليا وفرنسا وبريطانيا بدقة' },
+                { id: 3, name: 'آسيا', top: '25%', left: '65%', width: '35%', height: '40%', description: 'آسيا: أكبر قارات العالم، وصف الإدريسي بلاد الشام والأناضول' },
+                { id: 4, name: 'شبه الجزيرة العربية', top: '45%', left: '55%', width: '20%', height: '25%', description: 'شبه الجزيرة العربية: مهد الإسلام، وصفها الإدريسي بتفصيل' }
+            ];
+            
+            continents.forEach(continent => {
+                const continentEl = document.createElement('div');
+                continentEl.className = 'continent';
+                continentEl.style.top = continent.top;
+                continentEl.style.left = continent.left;
+                continentEl.style.width = continent.width;
+                continentEl.style.height = continent.height;
+                continentEl.dataset.name = continent.name;
+                continentEl.dataset.description = continent.description;
+                
+                const infoEl = document.createElement('div');
+                infoEl.className = 'continent-info';
+                infoEl.id = 'info-' + continent.id;
+                infoEl.innerHTML = `<h4>${continent.name}</h4><p>${continent.description}</p>`;
+                
+                continentEl.addEventListener('mouseenter', function(e) {
+                    const rect = this.getBoundingClientRect();
+                    infoEl.style.display = 'block';
+                    infoEl.style.top = (rect.top + window.scrollY - 150) + 'px';
+                    infoEl.style.left = (rect.left + window.scrollX) + 'px';
+                });
+                
+                continentEl.addEventListener('mouseleave', function() {
+                    infoEl.style.display = 'none';
+                });
+                
+                map.appendChild(continentEl);
+                document.body.appendChild(infoEl);
+            });
+        }
+
+        // لعبة المطابقة
+        const matchingPairs = {
+            'قرطبة': 'مدينة عظيمة كثيرة المياه والبساتين',
+            'النيل': 'أطول أنهار العالم، وصف منابعه',
+            'روجر الثاني': 'ملك صقلية الذي دعم الإدريسي',
+            'الفضة': 'مادة خريطة العالم للإدريسي',
+            '7 أقاليم': 'عدد الأقاليم في تقسيم الإدريسي',
+            'نزهة المشتاق': 'كتاب الإدريسي الشهير'
+        };
+
+        let selectedPairs = [];
+        let matchedCount = 0;
+
+        function initMatching() {
+            const container = document.getElementById('matchingGame');
+            const leftItems = Object.keys(matchingPairs);
+            const rightItems = Object.values(matchingPairs).sort(() => Math.random() - 0.5);
+            
+            container.innerHTML = `
+                <div class="match-column" id="leftCol"></div>
+                <div class="match-column" id="rightCol"></div>
+            `;
+            
+            leftItems.forEach(word => {
+                const elem = document.createElement('div');
+                elem.className = 'match-item';
+                elem.textContent = word;
+                elem.dataset.word = word;
+                elem.dataset.side = 'left';
+                elem.onclick = () => selectMatch(elem);
+                document.getElementById('leftCol').appendChild(elem);
+            });
+            
+            rightItems.forEach(word => {
+                const elem = document.createElement('div');
+                elem.className = 'match-item';
+                elem.textContent = word;
+                elem.dataset.word = word;
+                elem.dataset.side = 'right';
+                elem.onclick = () => selectMatch(elem);
+                document.getElementById('rightCol').appendChild(elem);
+            });
+        }
+
+        function selectMatch(elem) {
+            if (elem.classList.contains('matched')) return;
+            
+            if (selectedPairs.some(p => p.dataset.side === elem.dataset.side)) {
+                selectedPairs.forEach(p => p.classList.remove('selected'));
+                selectedPairs = [];
+            }
+            
+            elem.classList.add('selected');
+            selectedPairs.push(elem);
+            
+            if (selectedPairs.length === 2) {
+                verifyMatch();
+            }
+        }
+
+        function verifyMatch() {
+            const [first, second] = selectedPairs;
+            const leftWord = first.dataset.side === 'left' ? first.dataset.word : second.dataset.word;
+            const rightWord = first.dataset.side === 'right' ? first.dataset.word : second.dataset.word;
+            
+            if (matchingPairs[leftWord] === rightWord) {
+                first.classList.add('matched');
+                second.classList.add('matched');
+                first.classList.remove('selected');
+                second.classList.remove('selected');
+                matchedCount++;
+                document.getElementById('matchingScore').textContent = matchedCount;
+                
+                if (matchedCount === 6) {
+                    userStats.totalScore += 100;
+                    userStats.gamesCompleted = Math.max(userStats.gamesCompleted, 1);
+                    userStats.achievements++;
+                    setTimeout(() => {
+                        displayAchievement("🎯 إنجاز: أكملت لعبة المطابقة الجغرافية!");
+                        refreshDisplay();
+                    }, 600);
+                }
+            } else {
+                setTimeout(() => {
+                    first.classList.remove('selected');
+                    second.classList.remove('selected');
+                }, 600);
+            }
+            
+            selectedPairs = [];
+        }
+
+        function restartMatching() {
+            matchedCount = 0;
+            selectedPairs = [];
+            document.getElementById('matchingScore').textContent = '0';
+            initMatching();
+        }
+
+        // لعبة الترتيب
+        const sequenceEvents = [
+            { id: 1, text: 'الرحلات الميدانية والاستكشاف', order: 1 },
+            { id: 2, text: 'جمع المعلومات من الرحالة والتجار', order: 2 },
+            { id: 3, text: 'التحقق والمقارنة بين المصادر', order: 3 },
+            { id: 4, text: 'تقسيم العالم إلى أقاليم ومناطق', order: 4 },
+            { id: 5, text: 'رسم الخريطة على لوحة الفضة', order: 5 }
+        ];
+
+        let draggedItem = null;
+
+        function initSequence() {
+            const container = document.getElementById('sequenceItems');
+            const shuffled = [...sequenceEvents].sort(() => Math.random() - 0.5);
+            
+            container.innerHTML = '';
+            shuffled.forEach(event => {
+                const elem = document.createElement('div');
+                elem.className = 'sequence-item';
+                elem.draggable = true;
+                elem.dataset.order = event.order;
+                elem.innerHTML = `
+                    <span class="drag-handle">☰</span>
+                    <span>${event.text}</span>
+                `;
+                
+                elem.addEventListener('dragstart', handleDragStart);
+                elem.addEventListener('dragover', handleDragOver);
+                elem.addEventListener('drop', handleDrop);
+                elem.addEventListener('dragend', handleDragEnd);
+                
+                container.appendChild(elem);
+            });
+        }
+
+        function handleDragStart(e) {
+            draggedItem = this;
+            this.classList.add('dragging');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            if (this !== draggedItem) {
+                const container = document.getElementById('sequenceItems');
+                const items = [...container.children];
+                const draggedIndex = items.indexOf(draggedItem);
+                const targetIndex = items.indexOf(this);
+                
+                if (draggedIndex < targetIndex) {
+                    this.parentNode.insertBefore(draggedItem, this.nextSibling);
+                } else {
+                    this.parentNode.insertBefore(draggedItem, this);
+                }
+            }
+        }
+
+        function handleDragEnd() {
+            this.classList.remove('dragging');
+        }
+
+        function checkSequence() {
+            const items = document.querySelectorAll('.sequence-item');
+            let isCorrect = true;
+            
+            items.forEach((item, index) => {
+                if (parseInt(item.dataset.order) !== index + 1) {
+                    isCorrect = false;
+                }
+            });
+            
+            const feedback = document.getElementById('sequenceFeedback');
+            
+            if (isCorrect) {
+                feedback.className = 'quiz-feedback correct show';
+                feedback.textContent = '✅ ممتاز! الترتيب صحيح تماماً!';
+                
+                if (userStats.gamesCompleted < 2) {
+                    userStats.totalScore += 100;
+                    userStats.gamesCompleted = 2;
+                    userStats.achievements++;
+                    setTimeout(() => {
+                        displayAchievement("📅 إنجاز: رتبت مراحل رسم الخريطة بشكل صحيح!");
+                        refreshDisplay();
+                    }, 600);
+                }
+            } else {
+                feedback.className = 'quiz-feedback incorrect show';
+                feedback.textContent = '❌ الترتيب غير صحيح. حاول مرة أخرى!';
+            }
+        }
+
+        function restartSequence() {
+            document.getElementById('sequenceFeedback').classList.remove('show');
+            initSequence();
+        }
+
+        // عرض الإنجازات
+        function displayAchievement(msg) {
+            const notif = document.createElement('div');
+            notif.style.cssText = `
+                position: fixed;
+                top: 120px;
+                right: 25px;
+                background: linear-gradient(135deg, var(--parchment-gold), var(--exploration-green));
+                color: var(--ink-black);
+                padding: 22px 35px;
+                border-radius: 18px;
+                font-size: 1.3em;
+                font-weight: bold;
+                box-shadow: 0 12px 35px rgba(217, 119, 6, 0.7);
+                z-index: 2000;
+                animation: notifSlide 0.6s ease;
+            `;
+            notif.textContent = msg;
+            document.body.appendChild(notif);
+            
+            setTimeout(() => {
+                notif.style.animation = 'notifExit 0.6s ease';
+                setTimeout(() => notif.remove(), 600);
+            }, 3500);
+        }
+
+        // تقييم الشهادة
+        function evaluateCertificate() {
+            if (userStats.lessonsCompleted === 4 && 
+                userStats.quizCorrectAnswers === 5 && 
+                userStats.gamesCompleted === 2) {
+                
+                const cert = document.getElementById('certificateDisplay');
+                cert.classList.add('show');
+                
+                const now = new Date();
+                const dateString = now.getDate() + '/' + (now.getMonth() + 1) + '/' + now.getFullYear();
+                document.getElementById('certificateDate').textContent = dateString;
+                
+                if (userStats.achievements < 10) {
+                    userStats.achievements++;
+                    displayAchievement("🏆 مبارك! حصلت على الشهادة الجغرافية!");
+                }
+            }
+        }
+
+        // الأنيميشن
+        const animations = document.createElement('style');
+        animations.textContent = `
+            @keyframes notifSlide {
+                from {
+                    transform: translateX(450px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes notifExit {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(450px);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(animations);
+
+        // التهيئة
+        window.onload = function() {
+            initMatching();
+            initSequence();
+            refreshDisplay();
+        };
+    </script>
+</body>
+</html>

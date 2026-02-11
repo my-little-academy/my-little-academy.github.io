@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رحلة الحاج الصغير 🕋</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 900px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .kaaba-icon {
+            font-size: 3em;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.3);
+            height: 30px;
+            border-radius: 15px;
+            margin-top: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+            height: 100%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .game-content {
+            padding: 30px;
+        }
+
+        .start-screen, .step-screen, .completion-screen {
+            text-align: center;
+        }
+
+        .start-screen h2 {
+            color: #2a5298;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .start-screen p {
+            color: #555;
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .step-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .step-number {
+            display: inline-block;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            line-height: 50px;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .step-title {
+            font-size: 1.8em;
+            color: #2a5298;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .step-description {
+            font-size: 1.1em;
+            color: #444;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        .step-icon {
+            font-size: 4em;
+            margin: 20px 0;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .quiz-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .quiz-question {
+            font-size: 1.2em;
+            color: #2a5298;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .quiz-options {
+            display: grid;
+            gap: 10px;
+        }
+
+        .quiz-option {
+            background: #f0f0f0;
+            border: 3px solid transparent;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: right;
+            font-size: 1.1em;
+        }
+
+        .quiz-option:hover {
+            background: #e0e0e0;
+            transform: translateX(-5px);
+        }
+
+        .quiz-option.correct {
+            background: #90EE90;
+            border-color: #28a745;
+            animation: correctAnswer 0.5s;
+        }
+
+        .quiz-option.wrong {
+            background: #FFB6C1;
+            border-color: #dc3545;
+            animation: shake 0.5s;
+        }
+
+        @keyframes correctAnswer {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .feedback.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .feedback.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .completion-screen {
+            padding: 40px;
+        }
+
+        .completion-screen h2 {
+            color: #2a5298;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .trophy {
+            font-size: 6em;
+            animation: rotate 3s infinite;
+        }
+
+        @keyframes rotate {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+
+        .stars {
+            font-size: 3em;
+            margin: 20px 0;
+        }
+
+        .star {
+            display: inline-block;
+            animation: twinkle 1s infinite alternate;
+        }
+
+        .star:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .star:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes twinkle {
+            from { opacity: 0.5; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .score-summary {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            font-size: 1.1em;
+        }
+
+        .score-item:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 1.3em;
+            color: #2a5298;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .info-box {
+            background: #fff3cd;
+            border-right: 5px solid #ffc107;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: right;
+        }
+
+        .info-box strong {
+            color: #856404;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+            
+            .step-title {
+                font-size: 1.4em;
+            }
+            
+            .btn {
+                padding: 12px 30px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <div class="kaaba-icon">🕋</div>
+            <h1>رحلة الحاج الصغير</h1>
+            <p>تعلم مناسك الحج خطوة بخطوة</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar" style="width: 0%">
+                    <span id="progressText">0%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-content">
+            <!-- شاشة البداية -->
+            <div id="startScreen" class="start-screen">
+                <h2>مرحباً بك في رحلة الحج المباركة! 🌙</h2>
+                <p>
+                    هل أنت مستعد لتتعلم كيف يؤدي المسلمون مناسك الحج؟<br>
+                    في هذه اللعبة التعليمية، ستتعلم جميع خطوات الحج من البداية حتى النهاية.<br>
+                    ستجيب على أسئلة في نهاية كل مرحلة لتثبت ما تعلمته!
+                </p>
+                <div class="info-box">
+                    <strong>💡 معلومة:</strong>
+                    الحج هو الركن الخامس من أركان الإسلام، ويؤديه المسلمون مرة واحدة في العمر على الأقل إذا استطاعوا.
+                </div>
+                <button class="btn" onclick="startJourney()">ابدأ الرحلة 🚀</button>
+            </div>
+
+            <!-- شاشة الخطوات -->
+            <div id="stepScreen" class="step-screen hidden">
+                <div class="step-card">
+                    <div class="step-number" id="stepNumber">1</div>
+                    <div class="step-icon" id="stepIcon">🌙</div>
+                    <h2 class="step-title" id="stepTitle"></h2>
+                    <p class="step-description" id="stepDescription"></p>
+                    
+                    <div class="quiz-section">
+                        <div class="quiz-question" id="quizQuestion"></div>
+                        <div class="quiz-options" id="quizOptions"></div>
+                        <div id="feedback" class="feedback hidden"></div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn" id="nextBtn" onclick="nextStep()" style="display: none;">
+                        الخطوة التالية ⬅️
+                    </button>
+                </div>
+            </div>
+
+            <!-- شاشة الإكمال -->
+            <div id="completionScreen" class="completion-screen hidden">
+                <div class="trophy">🏆</div>
+                <h2>مبروك! أتممت رحلة الحج 🎉</h2>
+                <div class="stars">
+                    <span class="star">⭐</span>
+                    <span class="star">⭐</span>
+                    <span class="star">⭐</span>
+                </div>
+                <p style="font-size: 1.3em; color: #555; margin: 20px 0;">
+                    لقد أتممت جميع مناسك الحج بنجاح!<br>
+                    الآن أصبحت تعرف كيف يؤدي الحجاج هذه الفريضة العظيمة.
+                </p>
+                
+                <div class="score-summary">
+                    <div class="score-item">
+                        <span>عدد الخطوات المكتملة:</span>
+                        <span id="completedSteps">0</span>
+                    </div>
+                    <div class="score-item">
+                        <span>الإجابات الصحيحة:</span>
+                        <span id="correctAnswers">0</span>
+                    </div>
+                    <div class="score-item">
+                        <span>النتيجة النهائية:</span>
+                        <span id="finalScore">0%</span>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <strong>🤲 دعاء:</strong>
+                    اللهم تقبل منا حجنا وأعمالنا الصالحة
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn" onclick="restartGame()">ابدأ من جديد 🔄</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const hajjSteps = [
+            {
+                number: 1,
+                icon: "🌙",
+                title: "الإحرام",
+                description: "الإحرام هو أول خطوة في رحلة الحج. يبدأ الحاج بالنية والتلبية عند الميقات (المكان المحدد). يرتدي الرجال ملابس الإحرام البيضاء (إزار ورداء)، وترتدي النساء ملابس محتشمة. يقول الحاج: 'لبيك اللهم لبيك، لبيك لا شريك لك لبيك'.",
+                question: "ماذا يرتدي الرجل عند الإحرام؟",
+                options: [
+                    "ثوب أبيض مخيط",
+                    "إزار ورداء أبيض غير مخيط",
+                    "ملابس عادية",
+                    "عباءة سوداء"
+                ],
+                correct: 1
+            },
+            {
+                number: 2,
+                icon: "🕋",
+                title: "الطواف - طواف القدوم",
+                description: "عند الوصول إلى مكة المكرمة، يبدأ الحاج بالطواف حول الكعبة المشرفة سبعة أشواط، يبدأ من الحجر الأسود ويجعل الكعبة عن يساره. يُسمى طواف القدوم، وهو سنة للقادم من خارج مكة. يدعو الحاج أثناء الطواف بما شاء من الدعاء.",
+                question: "كم عدد أشواط الطواف حول الكعبة؟",
+                options: [
+                    "خمسة أشواط",
+                    "ستة أشواط",
+                    "سبعة أشواط",
+                    "ثمانية أشواط"
+                ],
+                correct: 2
+            },
+            {
+                number: 3,
+                icon: "🚶",
+                title: "السعي بين الصفا والمروة",
+                description: "بعد الطواف، يذهب الحاج للسعي بين جبلي الصفا والمروة سبعة أشواط، يبدأ من الصفا وينتهي بالمروة. هذا تذكير بسعي أمنا هاجر عليها السلام بحثاً عن الماء لابنها إسماعيل عليه السلام، حتى أنبع الله لهما بئر زمزم.",
+                question: "أين يبدأ السعي؟",
+                options: [
+                    "من المروة",
+                    "من الكعبة",
+                    "من الصفا",
+                    "من منى"
+                ],
+                correct: 2
+            },
+            {
+                number: 4,
+                icon: "⛺",
+                title: "يوم التروية - المبيت بمنى",
+                description: "في اليوم الثامن من ذي الحجة (يوم التروية)، يتوجه الحجاج إلى منى ويبيتون فيها. يصلون فيها الظهر والعصر والمغرب والعشاء وفجر اليوم التالي. يستعدون لأعظم يوم في الحج وهو يوم عرفة.",
+                question: "في أي يوم من ذي الحجة يذهب الحجاج إلى منى؟",
+                options: [
+                    "اليوم السابع",
+                    "اليوم الثامن (يوم التروية)",
+                    "اليوم التاسع",
+                    "اليوم العاشر"
+                ],
+                correct: 1
+            },
+            {
+                number: 5,
+                icon: "🏔️",
+                title: "الوقوف بعرفة - ركن الحج الأعظم",
+                description: "في اليوم التاسع من ذي الحجة، يتوجه الحجاج إلى جبل عرفة. الوقوف بعرفة هو ركن الحج الأعظم، قال النبي ﷺ: 'الحج عرفة'. يقف الحجاج في عرفة من زوال الشمس حتى غروبها، يدعون الله ويستغفرونه. هذا أعظم يوم في السنة.",
+                question: "ما هو ركن الحج الأعظم؟",
+                options: [
+                    "الطواف",
+                    "السعي",
+                    "الوقوف بعرفة",
+                    "رمي الجمرات"
+                ],
+                correct: 2
+            },
+            {
+                number: 6,
+                icon: "🌃",
+                title: "المبيت بمزدلفة",
+                description: "بعد غروب شمس يوم عرفة، يتوجه الحجاج إلى مزدلفة ويبيتون فيها. يصلون فيها المغرب والعشاء جمعاً. يجمعون الحصى لرمي الجمرات في الأيام القادمة. يدعون الله ويستغفرونه، ويصلون الفجر ثم يتوجهون إلى منى.",
+                question: "ماذا يجمع الحجاج في مزدلفة؟",
+                options: [
+                    "الماء",
+                    "الحصى",
+                    "التمر",
+                    "الحطب"
+                ],
+                correct: 1
+            },
+            {
+                number: 7,
+                icon: "🎯",
+                title: "رمي جمرة العقبة - يوم النحر",
+                description: "في اليوم العاشر من ذي الحجة (يوم النحر - عيد الأضحى)، يرمي الحجاج جمرة العقبة الكبرى بسبع حصيات، يكبّر مع كل حصاة. هذا تذكير برمي إبراهيم عليه السلام للشيطان عندما حاول إغواءه عن ذبح ابنه.",
+                question: "كم عدد الحصيات التي يرمي بها الحاج جمرة العقبة؟",
+                options: [
+                    "خمس حصيات",
+                    "ست حصيات",
+                    "سبع حصيات",
+                    "تسع حصيات"
+                ],
+                correct: 2
+            },
+            {
+                number: 8,
+                icon: "🐑",
+                title: "الهدي (الأضحية)",
+                description: "بعد رمي جمرة العقبة، يذبح الحاج هديه (أضحيته) إن كان متمتعاً أو قارناً. يوزع اللحم على الفقراء والمساكين. هذا تذكير بفداء إسماعيل عليه السلام بالكبش العظيم. من لم يجد الهدي يصوم عشرة أيام.",
+                question: "على من يوزع لحم الهدي؟",
+                options: [
+                    "على الأغنياء فقط",
+                    "على الفقراء والمساكين",
+                    "يحتفظ به كله",
+                    "يرميه"
+                ],
+                correct: 1
+            },
+            {
+                number: 9,
+                icon: "✂️",
+                title: "الحلق أو التقصير",
+                description: "بعد ذبح الهدي، يحلق الرجل شعر رأسه أو يقصره، والحلق أفضل. أما المرأة فتقصر من شعرها قدر أنملة. بهذا يتحلل الحاج التحلل الأصغر، فيحل له كل شيء إلا النساء حتى يطوف طواف الإفاضة.",
+                question: "ماذا تفعل المرأة عند التحلل؟",
+                options: [
+                    "تحلق شعرها كله",
+                    "تقصر من شعرها قدر أنملة",
+                    "لا تفعل شيئاً",
+                    "تحلق نصف شعرها"
+                ],
+                correct: 1
+            },
+            {
+                number: 10,
+                icon: "🕋",
+                title: "طواف الإفاضة",
+                description: "يتوجه الحاج إلى مكة لأداء طواف الإفاضة (طواف الحج) وهو ركن من أركان الحج. يطوف سبعة أشواط حول الكعبة المشرفة. بعد هذا الطواف يتحلل الحاج التحلل الأكبر فيحل له كل شيء حتى النساء. يمكن تأجيله إلى أيام التشريق.",
+                question: "ما اسم الطواف الذي هو ركن من أركان الحج؟",
+                options: [
+                    "طواف القدوم",
+                    "طواف الوداع",
+                    "طواف الإفاضة",
+                    "طواف التطوع"
+                ],
+                correct: 2
+            },
+            {
+                number: 11,
+                icon: "🎯",
+                title: "رمي الجمرات الثلاث - أيام التشريق",
+                description: "في أيام التشريق (11، 12، 13 من ذي الحجة)، يرمي الحاج الجمرات الثلاث بعد زوال الشمس: الصغرى ثم الوسطى ثم الكبرى (العقبة)، كل واحدة بسبع حصيات. يجوز التعجل في يومين (11، 12) أو التأخر لثلاثة أيام.",
+                question: "كم عدد الجمرات التي يرميها الحاج في أيام التشريق؟",
+                options: [
+                    "جمرة واحدة",
+                    "جمرتين",
+                    "ثلاث جمرات",
+                    "أربع جمرات"
+                ],
+                correct: 2
+            },
+            {
+                number: 12,
+                icon: "👋",
+                title: "طواف الوداع",
+                description: "عند انتهاء أعمال الحج والعزم على السفر، يودع الحاج البيت الحرام بطواف الوداع سبعة أشواط. هذا آخر عهده بالكعبة المشرفة. الحائض والنفساء تُعفى من طواف الوداع. بهذا تكتمل مناسك الحج، تقبل الله من الحجاج.",
+                question: "ما آخر نسك من مناسك الحج؟",
+                options: [
+                    "السعي",
+                    "طواف الوداع",
+                    "رمي الجمرات",
+                    "الحلق"
+                ],
+                correct: 1
+            }
+        ];
+
+        let currentStep = 0;
+        let score = 0;
+        let answeredCorrectly = false;
+
+        function startJourney() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('stepScreen').classList.remove('hidden');
+            showStep(0);
+        }
+
+        function showStep(index) {
+            if (index >= hajjSteps.length) {
+                showCompletion();
+                return;
+            }
+
+            const step = hajjSteps[index];
+            currentStep = index;
+            answeredCorrectly = false;
+
+            document.getElementById('stepNumber').textContent = step.number;
+            document.getElementById('stepIcon').textContent = step.icon;
+            document.getElementById('stepTitle').textContent = step.title;
+            document.getElementById('stepDescription').textContent = step.description;
+            document.getElementById('quizQuestion').textContent = step.question;
+
+            const optionsContainer = document.getElementById('quizOptions');
+            optionsContainer.innerHTML = '';
+
+            step.options.forEach((option, i) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'quiz-option';
+                optionDiv.textContent = option;
+                optionDiv.onclick = () => checkAnswer(i, step.correct);
+                optionsContainer.appendChild(optionDiv);
+            });
+
+            document.getElementById('feedback').classList.add('hidden');
+            document.getElementById('nextBtn').style.display = 'none';
+
+            updateProgress();
+        }
+
+        function checkAnswer(selected, correct) {
+            if (answeredCorrectly) return;
+
+            const options = document.querySelectorAll('.quiz-option');
+            const feedback = document.getElementById('feedback');
+
+            options.forEach(option => {
+                option.style.pointerEvents = 'none';
+            });
+
+            if (selected === correct) {
+                options[selected].classList.add('correct');
+                feedback.textContent = '🎉 إجابة صحيحة! أحسنت!';
+                feedback.className = 'feedback success';
+                feedback.classList.remove('hidden');
+                score++;
+                answeredCorrectly = true;
+                document.getElementById('nextBtn').style.display = 'inline-block';
+            } else {
+                options[selected].classList.add('wrong');
+                options[correct].classList.add('correct');
+                feedback.textContent = '❌ إجابة خاطئة. الإجابة الصحيحة محددة باللون الأخضر.';
+                feedback.className = 'feedback error';
+                feedback.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    options.forEach(option => {
+                        option.style.pointerEvents = 'auto';
+                        option.classList.remove('wrong');
+                    });
+                    feedback.classList.add('hidden');
+                }, 2000);
+            }
+        }
+
+        function nextStep() {
+            currentStep++;
+            showStep(currentStep);
+        }
+
+        function updateProgress() {
+            const progress = ((currentStep + 1) / hajjSteps.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressText').textContent = Math.round(progress) + '%';
+        }
+
+        function showCompletion() {
+            document.getElementById('stepScreen').classList.add('hidden');
+            document.getElementById('completionScreen').classList.remove('hidden');
+            
+            const percentage = Math.round((score / hajjSteps.length) * 100);
+            
+            document.getElementById('completedSteps').textContent = hajjSteps.length;
+            document.getElementById('correctAnswers').textContent = score + ' من ' + hajjSteps.length;
+            document.getElementById('finalScore').textContent = percentage + '%';
+
+            updateProgress();
+        }
+
+        function restartGame() {
+            currentStep = 0;
+            score = 0;
+            document.getElementById('completionScreen').classList.add('hidden');
+            document.getElementById('startScreen').classList.remove('hidden');
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('progressText').textContent = '0%';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ألعاب محاكاة الحج التفاعلية 🕋</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .header h1 {
+            color: #2a5298;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .game-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .game-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .game-title {
+            font-size: 1.5em;
+            color: #2a5298;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .game-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .play-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .game-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .game-modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 800px;
+            width: 100%;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: #ff4444;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            background: #cc0000;
+            transform: rotate(90deg);
+        }
+
+        /* لعبة الطواف */
+        .tawaf-game {
+            text-align: center;
+        }
+
+        .kaaba-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 30px auto;
+        }
+
+        .kaaba {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #2c3e50, #000000);
+            border: 3px solid #FFD700;
+            border-radius: 10px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .kaaba::before {
+            content: '🕋';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3em;
+        }
+
+        .pilgrim {
+            width: 30px;
+            height: 30px;
+            background: #667eea;
+            border-radius: 50%;
+            position: absolute;
+            transition: all 0.3s;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+        }
+
+        .tawaf-path {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 250px;
+            height: 250px;
+            border: 3px dashed #FFD700;
+            border-radius: 50%;
+            opacity: 0.5;
+        }
+
+        .round-counter {
+            font-size: 2em;
+            color: #2a5298;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        /* لعبة السعي */
+        .saee-game {
+            text-align: center;
+        }
+
+        .saee-path {
+            position: relative;
+            width: 100%;
+            height: 150px;
+            background: linear-gradient(to bottom, #f5deb3 0%, #daa520 100%);
+            border-radius: 20px;
+            margin: 30px 0;
+            overflow: hidden;
+        }
+
+        .mountain {
+            position: absolute;
+            bottom: 0;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #8b4513, #654321);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 10px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .safa {
+            right: 20px;
+        }
+
+        .marwa {
+            left: 20px;
+        }
+
+        .saee-pilgrim {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 2em;
+            transition: all 1s ease-in-out;
+        }
+
+        .path-line {
+            position: absolute;
+            top: 50%;
+            left: 10%;
+            right: 10%;
+            height: 4px;
+            background: repeating-linear-gradient(
+                90deg,
+                #FFD700 0px,
+                #FFD700 20px,
+                transparent 20px,
+                transparent 40px
+            );
+        }
+
+        /* لعبة رمي الجمرات */
+        .jamarat-game {
+            text-align: center;
+        }
+
+        .jamarat-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .jamra {
+            width: 100px;
+            height: 120px;
+            background: linear-gradient(135deg, #8b4513, #654321);
+            border-radius: 10px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .jamra::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 40px;
+            background: #654321;
+            border-radius: 50% 50% 0 0;
+        }
+
+        .jamra:hover {
+            transform: scale(1.1);
+        }
+
+        .jamra-label {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #2a5298;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .pebbles-container {
+            margin: 20px 0;
+        }
+
+        .pebble {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #888;
+            border-radius: 50%;
+            margin: 5px;
+            cursor: grab;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .pebble:active {
+            cursor: grabbing;
+            transform: scale(0.8);
+        }
+
+        .pebble.thrown {
+            animation: throwPebble 0.5s;
+            opacity: 0.3;
+        }
+
+        @keyframes throwPebble {
+            0% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-50px) scale(0.5); }
+            100% { transform: translateY(0) scale(0.1); }
+        }
+
+        .score-display {
+            font-size: 1.5em;
+            color: #2a5298;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        /* لعبة الإحرام */
+        .ihram-game {
+            text-align: center;
+        }
+
+        .clothing-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .clothing-item {
+            background: #f5f5f5;
+            border: 3px solid transparent;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .clothing-item:hover {
+            transform: scale(1.05);
+        }
+
+        .clothing-item.selected {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+
+        .clothing-item.wrong {
+            border-color: #dc3545;
+            background: #f8d7da;
+            animation: shake 0.5s;
+        }
+
+        .clothing-icon {
+            font-size: 4em;
+            margin-bottom: 10px;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* لعبة المبيت */
+        .mabeet-game {
+            text-align: center;
+        }
+
+        .tent-area {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .tent {
+            font-size: 3em;
+            cursor: pointer;
+            transition: all 0.3s;
+            filter: grayscale(100%);
+        }
+
+        .tent:hover {
+            transform: scale(1.2);
+        }
+
+        .tent.lit {
+            filter: grayscale(0%);
+            animation: glow 1s infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 5px #FFD700; }
+            to { text-shadow: 0 0 20px #FFD700, 0 0 30px #FFA500; }
+        }
+
+        .timer {
+            font-size: 2em;
+            color: #2a5298;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        /* لعبة الدعاء */
+        .dua-game {
+            text-align: center;
+        }
+
+        .dua-cards {
+            display: grid;
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .dua-card {
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+        }
+
+        .dua-card:hover {
+            transform: translateX(-5px);
+        }
+
+        .dua-card.correct {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #d4edda, #90EE90);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .game-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .game-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .game-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-size: 1.2em;
+            font-weight: bold;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: slideIn 0.5s;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .instructions {
+            background: #fff3cd;
+            border-right: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: right;
+        }
+
+        .instructions strong {
+            color: #856404;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <h1>🕋 ألعاب محاكاة الحج التفاعلية 🎮</h1>
+            <p>تعلم مناسك الحج من خلال الألعاب التفاعلية الممتعة</p>
+        </div>
+
+        <div class="games-grid">
+            <!-- لعبة الطواف -->
+            <div class="game-card" onclick="openGame('tawaf')">
+                <span class="game-icon">🕋</span>
+                <h3 class="game-title">محاكي الطواف</h3>
+                <p class="game-description">ساعد الحاج على إتمام سبعة أشواط حول الكعبة المشرفة</p>
+                <button class="play-btn">العب الآن</button>
+            </div>
+
+            <!-- لعبة السعي -->
+            <div class="game-card" onclick="openGame('saee')">
+                <span class="game-icon">🏃</span>
+                <h3 class="game-title">محاكي السعي</h3>
+                <p class="game-description">اسعَ بين الصفا والمروة سبعة أشواط كما فعلت أمنا هاجر</p>
+                <button class="play-btn">العب الآن</button>
+            </div>
+
+            <!-- لعبة رمي الجمرات -->
+            <div class="game-card" onclick="openGame('jamarat')">
+                <span class="game-icon">🎯</span>
+                <h3 class="game-title">محاكي رمي الجمرات</h3>
+                <p class="game-description">ارمِ الحصى على الجمرات الثلاث بدقة</p>
+                <button class="play-btn">العب الآن</button>
+            </div>
+
+            <!-- لعبة الإحرام -->
+            <div class="game-card" onclick="openGame('ihram')">
+                <span class="game-icon">👕</span>
+                <h3 class="game-title">اختر ملابس الإحرام</h3>
+                <p class="game-description">تعلم كيف يرتدي الحاج ملابس الإحرام الصحيحة</p>
+                <button class="play-btn">العب الآن</button>
+            </div>
+
+            <!-- لعبة المبيت -->
+            <div class="game-card" onclick="openGame('mabeet')">
+                <span class="game-icon">⛺</span>
+                <h3 class="game-title">المبيت في المشاعر</h3>
+                <p class="game-description">رتب خيام الحجاج في منى ومزدلفة وعرفة</p>
+                <button class="play-btn">العب الآن</button>
+            </div>
+
+            <!-- لعبة الأدعية -->
+            <div class="game-card" onclick="openGame('dua')">
+                <span class="game-icon">🤲</span>
+                <h3 class="game-title">أدعية الحج</h3>
+                <p class="game-description">تعلم أدعية وأذكار الحج المهمة</p>
+                <button class="play-btn">العب الآن</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- لعبة الطواف -->
+    <div id="tawafModal" class="game-modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeGame('tawaf')">✕</button>
+            <div class="tawaf-game">
+                <h2>🕋 محاكي الطواف حول الكعبة</h2>
+                <div class="instructions">
+                    <strong>📋 التعليمات:</strong>
+                    اضغط على الحاج لتحريكه حول الكعبة. أكمل 7 أشواط!
+                </div>
+                <div class="round-counter">الشوط: <span id="tawafRound">0</span> / 7</div>
+                <div class="kaaba-container">
+                    <div class="tawaf-path"></div>
+                    <div class="kaaba"></div>
+                    <div class="pilgrim" id="tawafPilgrim" onclick="movePilgrim()">🧍</div>
+                </div>
+                <div class="success-message" id="tawafSuccess">
+                    🎉 ما شاء الله! أتممت الطواف بنجاح! 🎉
+                </div>
+                <button class="game-btn" onclick="resetTawaf()">إعادة اللعبة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- لعبة السعي -->
+    <div id="saeeModal" class="game-modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeGame('saee')">✕</button>
+            <div class="saee-game">
+                <h2>🏃 محاكي السعي بين الصفا والمروة</h2>
+                <div class="instructions">
+                    <strong>📋 التعليمات:</strong>
+                    اضغط على زر "ابدأ السعي" لتحريك الحاج من الصفا إلى المروة. أكمل 7 أشواط!
+                </div>
+                <div class="round-counter">الشوط: <span id="saeeRound">0</span> / 7</div>
+                <div class="saee-path">
+                    <div class="path-line"></div>
+                    <div class="mountain safa">الصفا</div>
+                    <div class="mountain marwa">المروة</div>
+                    <div class="saee-pilgrim" id="saeePilgrim">🧍</div>
+                </div>
+                <div class="success-message" id="saeeSuccess">
+                    🎉 أحسنت! أتممت السعي بين الصفا والمروة! 🎉
+                </div>
+                <button class="game-btn" onclick="startSaee()" id="saeeBtn">ابدأ السعي</button>
+                <button class="game-btn" onclick="resetSaee()">إعادة اللعبة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- لعبة رمي الجمرات -->
+    <div id="jamaratModal" class="game-modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeGame('jamarat')">✕</button>
+            <div class="jamarat-game">
+                <h2>🎯 محاكي رمي الجمرات</h2>
+                <div class="instructions">
+                    <strong>📋 التعليمات:</strong>
+                    اسحب الحصى وأفلتها على الجمرات. ارمِ 7 حصيات على كل جمرة!
+                </div>
+                <div class="score-display">
+                    الحصى المتبقية: <span id="pebblesCount">21</span> / 21
+                </div>
+                <div class="jamarat-container">
+                    <div class="jamra" data-jamra="small" onclick="throwAtJamra('small')">
+                        <div class="jamra-label">الجمرة الصغرى<br><span id="smallCount">0/7</span></div>
+                    </div>
+                    <div class="jamra" data-jamra="medium" onclick="throwAtJamra('medium')">
+                        <div class="jamra-label">الجمرة الوسطى<br><span id="mediumCount">0/7</span></div>
+                    </div>
+                    <div class="jamra" data-jamra="large" onclick="throwAtJamra('large')">
+                        <div class="jamra-label">جمرة العقبة<br><span id="largeCount">0/7</span></div>
+                    </div>
+                </div>
+                <div class="pebbles-container" id="pebblesContainer">
+                    <!-- ستُضاف الحصى ديناميكياً -->
+                </div>
+                <div class="success-message" id="jamaratSuccess">
+                    🎉 ممتاز! أتممت رمي الجمرات بنجاح! 🎉
+                </div>
+                <button class="game-btn" onclick="resetJamarat()">إعادة اللعبة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- لعبة الإحرام -->
+    <div id="ihramModal" class="game-modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeGame('ihram')">✕</button>
+            <div class="ihram-game">
+                <h2>👕 اختر ملابس الإحرام الصحيحة</h2>
+                <div class="instructions">
+                    <strong>📋 التعليمات:</strong>
+                    اختر الملابس الصحيحة للرجل في الإحرام (إزار ورداء أبيض غير مخيط)
+                </div>
+                <div class="clothing-options">
+                    <div class="clothing-item" onclick="selectClothing(this, false)">
+                        <div class="clothing-icon">👔</div>
+                        <div>قميص مخيط</div>
+                    </div>
+                    <div class="clothing-item" onclick="selectClothing(this, true)">
+                        <div class="clothing-icon">🤍</div>
+                        <div>إزار أبيض</div>
+                    </div>
+                    <div class="clothing-item" onclick="selectClothing(this, false)">
+                        <div class="clothing-icon">👖</div>
+                        <div>بنطال</div>
+                    </div>
+                    <div class="clothing-item" onclick="selectClothing(this, true)">
+                        <div class="clothing-icon">🤍</div>
+                        <div>رداء أبيض</div>
+                    </div>
+                    <div class="clothing-item" onclick="selectClothing(this, false)">
+                        <div class="clothing-icon">🧥</div>
+                        <div>معطف</div>
+                    </div>
+                    <div class="clothing-item" onclick="selectClothing(this, false)">
+                        <div class="clothing-icon">🎩</div>
+                        <div>قبعة مخيطة</div>
+                    </div>
+                </div>
+                <div class="score-display">الاختيارات الصحيحة: <span id="ihramScore">0</span> / 2</div>
+                <div class="success-message" id="ihramSuccess">
+                    🎉 أحسنت! اخترت ملابس الإحرام الصحيحة! 🎉
+                </div>
+                <button class="game-btn" onclick="resetIhram()">إعادة اللعبة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- لعبة المبيت -->
+    <div id="mabeetModal" class="game-modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeGame('mabeet')">✕</button>
+            <div class="mabeet-game">
+                <h2>⛺ المبيت في المشاعر المقدسة</h2>
+                <div class="instructions">
+                    <strong>📋 التعليمات:</strong>
+                    أنِر جميع الخيام بالضغط عليها لإكمال المبيت في منى!
+                </div>
+                <div class="timer">الوقت: <span id="mabeetTimer">0</span> ثانية</div>
+                <div class="tent-area" id="tentArea">
+                    <!-- ستُضاف الخيام ديناميكياً -->
+                </div>
+                <div class="success-message" id="mabeetSuccess">
+                    🎉 رائع! أتممت المبيت بنجاح! 🎉
+                </div>
+                <button class="game-btn" onclick="resetMabeet()">إعادة اللعبة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- لعبة الأدعية -->
+    <div id="duaModal" class="game-modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeGame('dua')">✕</button>
+            <div class="dua-game">
+                <h2>🤲 أدعية وأذكار الحج</h2>
+                <div class="instructions">
+                    <strong>📋 التعليمات:</strong>
+                    اختر التلبية الصحيحة التي يقولها الحاج
+                </div>
+                <div class="dua-cards">
+                    <div class="dua-card" onclick="selectDua(this, false)">
+                        <p style="font-size: 1.2em; text-align: right;">الحمد لله رب العالمين</p>
+                    </div>
+                    <div class="dua-card" onclick="selectDua(this, true)">
+                        <p style="font-size: 1.2em; text-align: right;">لبيك اللهم لبيك، لبيك لا شريك لك لبيك</p>
+                    </div>
+                    <div class="dua-card" onclick="selectDua(this, false)">
+                        <p style="font-size: 1.2em; text-align: right;">سبحان الله وبحمده</p>
+                    </div>
+                    <div class="dua-card" onclick="selectDua(this, false)">
+                        <p style="font-size: 1.2em; text-align: right;">لا إله إلا الله وحده</p>
+                    </div>
+                </div>
+                <div class="success-message" id="duaSuccess">
+                    🎉 ممتاز! اخترت التلبية الصحيحة! 🎉<br>
+                    <p style="margin-top: 10px;">التلبية الكاملة: لبيك اللهم لبيك، لبيك لا شريك لك لبيك، إن الحمد والنعمة لك والملك، لا شريك لك</p>
+                </div>
+                <button class="game-btn" onclick="resetDua()">إعادة اللعبة</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // متغيرات لعبة الطواف
+        let tawafRounds = 0;
+        let pilgrimAngle = 0;
+
+        function openGame(gameName) {
+            document.getElementById(gameName + 'Modal').classList.add('active');
+            if (gameName === 'jamarat') {
+                initJamarat();
+            } else if (gameName === 'mabeet') {
+                initMabeet();
+            }
+        }
+
+        function closeGame(gameName) {
+            document.getElementById(gameName + 'Modal').classList.remove('active');
+        }
+
+        // لعبة الطواف
+        function movePilgrim() {
+            if (tawafRounds >= 7) return;
+            
+            const pilgrim = document.getElementById('tawafPilgrim');
+            pilgrimAngle += 51.43; // 360/7 = 51.43 degrees per click
+            
+            const radius = 115;
+            const centerX = 150;
+            const centerY = 150;
+            
+            const x = centerX + radius * Math.cos(pilgrimAngle * Math.PI / 180);
+            const y = centerY + radius * Math.sin(pilgrimAngle * Math.PI / 180);
+            
+            pilgrim.style.left = x + 'px';
+            pilgrim.style.top = y + 'px';
+            
+            if (pilgrimAngle >= 360 * (tawafRounds + 1)) {
+                tawafRounds++;
+                document.getElementById('tawafRound').textContent = tawafRounds;
+                
+                if (tawafRounds === 7) {
+                    document.getElementById('tawafSuccess').classList.add('show');
+                }
+            }
+        }
+
+        function resetTawaf() {
+            tawafRounds = 0;
+            pilgrimAngle = 0;
+            document.getElementById('tawafRound').textContent = '0';
+            document.getElementById('tawafSuccess').classList.remove('show');
+            const pilgrim = document.getElementById('tawafPilgrim');
+            pilgrim.style.left = '';
+            pilgrim.style.top = '';
+        }
+
+        // لعبة السعي
+        let saeeRounds = 0;
+        let saeeDirection = 'toMarwa';
+
+        function startSaee() {
+            if (saeeRounds >= 7) return;
+            
+            const pilgrim = document.getElementById('saeePilgrim');
+            const btn = document.getElementById('saeeBtn');
+            btn.disabled = true;
+            
+            if (saeeDirection === 'toMarwa') {
+                pilgrim.style.right = '20px';
+                saeeDirection = 'toSafa';
+            } else {
+                pilgrim.style.right = 'calc(100% - 50px)';
+                saeeDirection = 'toMarwa';
+                saeeRounds++;
+                document.getElementById('saeeRound').textContent = saeeRounds;
+                
+                if (saeeRounds === 7) {
+                    setTimeout(() => {
+                        document.getElementById('saeeSuccess').classList.add('show');
+                    }, 1000);
+                }
+            }
+            
+            setTimeout(() => {
+                btn.disabled = false;
+            }, 1000);
+        }
+
+        function resetSaee() {
+            saeeRounds = 0;
+            saeeDirection = 'toMarwa';
+            document.getElementById('saeeRound').textContent = '0';
+            document.getElementById('saeeSuccess').classList.remove('show');
+            document.getElementById('saeePilgrim').style.right = '20px';
+            document.getElementById('saeeBtn').disabled = false;
+        }
+
+        // لعبة رمي الجمرات
+        let jamaratScores = { small: 0, medium: 0, large: 0 };
+        let totalPebbles = 21;
+
+        function initJamarat() {
+            const container = document.getElementById('pebblesContainer');
+            container.innerHTML = '';
+            for (let i = 0; i < 21; i++) {
+                const pebble = document.createElement('div');
+                pebble.className = 'pebble';
+                pebble.textContent = '⚫';
+                container.appendChild(pebble);
+            }
+            jamaratScores = { small: 0, medium: 0, large: 0 };
+            totalPebbles = 21;
+            updateJamaratDisplay();
+        }
+
+        function throwAtJamra(jamraType) {
+            if (totalPebbles <= 0 || jamaratScores[jamraType] >= 7) return;
+            
+            jamaratScores[jamraType]++;
+            totalPebbles--;
+            
+            const pebbles = document.querySelectorAll('.pebble:not(.thrown)');
+            if (pebbles.length > 0) {
+                pebbles[0].classList.add('thrown');
+            }
+            
+            updateJamaratDisplay();
+            
+            if (totalPebbles === 0) {
+                setTimeout(() => {
+                    document.getElementById('jamaratSuccess').classList.add('show');
+                }, 500);
+            }
+        }
+
+        function updateJamaratDisplay() {
+            document.getElementById('pebblesCount').textContent = totalPebbles;
+            document.getElementById('smallCount').textContent = jamaratScores.small + '/7';
+            document.getElementById('mediumCount').textContent = jamaratScores.medium + '/7';
+            document.getElementById('largeCount').textContent = jamaratScores.large + '/7';
+        }
+
+        function resetJamarat() {
+            document.getElementById('jamaratSuccess').classList.remove('show');
+            initJamarat();
+        }
+
+        // لعبة الإحرام
+        let ihramScore = 0;
+
+        function selectClothing(element, isCorrect) {
+            if (element.classList.contains('selected') || element.classList.contains('wrong')) {
+                return;
+            }
+            
+            if (isCorrect) {
+                element.classList.add('selected');
+                ihramScore++;
+                document.getElementById('ihramScore').textContent = ihramScore;
+                
+                if (ihramScore === 2) {
+                    setTimeout(() => {
+                        document.getElementById('ihramSuccess').classList.add('show');
+                    }, 500);
+                }
+            } else {
+                element.classList.add('wrong');
+                setTimeout(() => {
+                    element.classList.remove('wrong');
+                }, 1000);
+            }
+        }
+
+        function resetIhram() {
+            ihramScore = 0;
+            document.getElementById('ihramScore').textContent = '0';
+            document.getElementById('ihramSuccess').classList.remove('show');
+            document.querySelectorAll('.clothing-item').forEach(item => {
+                item.classList.remove('selected', 'wrong');
+            });
+        }
+
+        // لعبة المبيت
+        let litTents = 0;
+        let mabeetTime = 0;
+        let mabeetInterval;
+
+        function initMabeet() {
+            const tentArea = document.getElementById('tentArea');
+            tentArea.innerHTML = '';
+            for (let i = 0; i < 12; i++) {
+                const tent = document.createElement('div');
+                tent.className = 'tent';
+                tent.textContent = '⛺';
+                tent.onclick = function() { lightTent(this); };
+                tentArea.appendChild(tent);
+            }
+            litTents = 0;
+            mabeetTime = 0;
+            document.getElementById('mabeetTimer').textContent = '0';
+            
+            if (mabeetInterval) clearInterval(mabeetInterval);
+            mabeetInterval = setInterval(() => {
+                mabeetTime++;
+                document.getElementById('mabeetTimer').textContent = mabeetTime;
+            }, 1000);
+        }
+
+        function lightTent(tent) {
+            if (tent.classList.contains('lit')) return;
+            
+            tent.classList.add('lit');
+            litTents++;
+            
+            if (litTents === 12) {
+                clearInterval(mabeetInterval);
+                setTimeout(() => {
+                    document.getElementById('mabeetSuccess').classList.add('show');
+                }, 500);
+            }
+        }
+
+        function resetMabeet() {
+            document.getElementById('mabeetSuccess').classList.remove('show');
+            initMabeet();
+        }
+
+        // لعبة الأدعية
+        function selectDua(element, isCorrect) {
+            document.querySelectorAll('.dua-card').forEach(card => {
+                card.style.pointerEvents = 'none';
+            });
+            
+            if (isCorrect) {
+                element.classList.add('correct');
+                setTimeout(() => {
+                    document.getElementById('duaSuccess').classList.add('show');
+                }, 500);
+            } else {
+                element.classList.add('wrong');
+                setTimeout(() => {
+                    element.classList.remove('wrong');
+                    document.querySelectorAll('.dua-card').forEach(card => {
+                        card.style.pointerEvents = 'auto';
+                    });
+                }, 1000);
+            }
+        }
+
+        function resetDua() {
+            document.getElementById('duaSuccess').classList.remove('show');
+            document.querySelectorAll('.dua-card').forEach(card => {
+                card.classList.remove('correct', 'wrong');
+                card.style.pointerEvents = 'auto';
+            });
+        }
+
+        // إغلاق النافذة عند الضغط خارجها
+        window.onclick = function(event) {
+            if (event.target.classList.contains('game-modal')) {
+                event.target.classList.remove('active');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -169,8 +169,6 @@
             flex-direction: column;
             justify-content: center;
             text-align: center;
-            text-decoration: none;
-            color: inherit;
         }
 
         .lesson-card::before {
@@ -300,6 +298,193 @@
             border: 6px solid var(--section3);
         }
 
+        /* Lesson Details Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 40px;
+            width: 90%;
+            max-width: 1000px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.8);
+            transition: transform 0.4s ease;
+            position: relative;
+            box-shadow: 0 30px 100px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            padding: 40px;
+            border-radius: 40px 40px 0 0;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modal-header[data-section="1"] {
+            background: linear-gradient(135deg, var(--section1), #3b82f6);
+        }
+
+        .modal-header[data-section="2"] {
+            background: linear-gradient(135deg, var(--section2), #34d399);
+        }
+
+        .modal-header[data-section="3"] {
+            background: linear-gradient(135deg, var(--section3), #a78bfa);
+        }
+
+        .modal-icon {
+            font-size: 6em;
+            margin-bottom: 30px;
+            display: inline-block;
+            animation: modal-icon-float 3s ease-in-out infinite;
+        }
+
+        @keyframes modal-icon-float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid white;
+        }
+
+        .modal-close:hover {
+            transform: rotate(90deg);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .modal-content {
+            padding: 50px;
+        }
+
+        .modal-content h3 {
+            font-size: 3.5em;
+            color: #1e3a8a;
+            margin-bottom: 30px;
+            font-weight: 900;
+            text-align: center;
+        }
+
+        .modal-content .description {
+            font-size: 1.8em;
+            line-height: 2.2;
+            color: #4b5563;
+            margin-bottom: 40px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .values-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .value-item {
+            background: #f8fafc;
+            padding: 30px;
+            border-radius: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 4px solid transparent;
+        }
+
+        .value-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .value-item[data-section="1"] { border-color: var(--section1); }
+        .value-item[data-section="2"] { border-color: var(--section2); }
+        .value-item[data-section="3"] { border-color: var(--section3); }
+
+        .value-item h4 {
+            font-size: 2em;
+            color: #1e3a8a;
+            margin-bottom: 20px;
+            font-weight: 900;
+        }
+
+        .value-item p {
+            font-size: 1.5em;
+            color: #6b7280;
+            line-height: 1.8;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 50px;
+            flex-wrap: wrap;
+        }
+
+        .modal-btn {
+            padding: 25px 50px;
+            font-size: 1.8em;
+            font-weight: 900;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-width: 250px;
+            justify-content: center;
+        }
+
+        .modal-btn.lesson-btn {
+            background: linear-gradient(135deg, var(--gold), #f59e0b);
+            color: white;
+            box-shadow: 0 10px 30px rgba(251, 191, 36, 0.3);
+        }
+
+        .modal-btn.lesson-btn:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 20px 50px rgba(251, 191, 36, 0.4);
+        }
+
         /* Footer */
         .footer {
             text-align: center;
@@ -367,6 +552,9 @@
             .lesson-card { min-height: 250px; padding: 30px; }
             .lessons-grid { grid-template-columns: 1fr; }
             .section-tab { min-width: 100%; }
+            .modal { width: 95%; }
+            .modal-content { padding: 30px; }
+            .values-list { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -410,45 +598,7 @@
         </div>
 
         <div class="lessons-grid active" id="lessons-1">
-            <!-- الدرس 1 -->
-            <a href="lesson-1.html" class="lesson-card" data-section="1" data-lesson-id="1" onclick="markLessonAsViewed(1)">
-                <div class="lesson-number">1</div>
-                <div class="lesson-icon">🤲</div>
-                <h3>الصدق مع الله</h3>
-                <p>الصدق في القول والعمل مع الله تعالى</p>
-            </a>
-            
-            <!-- الدرس 2 -->
-            <a href="lesson-2.html" class="lesson-card" data-section="1" data-lesson-id="2" onclick="markLessonAsViewed(2)">
-                <div class="lesson-number">2</div>
-                <div class="lesson-icon">💖</div>
-                <h3>الإخلاص</h3>
-                <p>إفراد الله بالعبادة والطاعة</p>
-            </a>
-            
-            <!-- الدرس 3 -->
-            <a href="lesson-3.html" class="lesson-card" data-section="1" data-lesson-id="3" onclick="markLessonAsViewed(3)">
-                <div class="lesson-number">3</div>
-                <div class="lesson-icon">🎯</div>
-                <h3>التوكل</h3>
-                <p>الاعتماد على الله مع الأخذ بالأسباب</p>
-            </a>
-            
-            <!-- الدرس 4 -->
-            <a href="lesson-4.html" class="lesson-card" data-section="1" data-lesson-id="4" onclick="markLessonAsViewed(4)">
-                <div class="lesson-number">4</div>
-                <div class="lesson-icon">😌</div>
-                <h3>الرضا بالقضاء والقدر</h3>
-                <p>قبول ما يأتيك من الله بالصبر والحمد</p>
-            </a>
-            
-            <!-- الدرس 5 -->
-            <a href="lesson-5.html" class="lesson-card" data-section="1" data-lesson-id="5" onclick="markLessonAsViewed(5)">
-                <div class="lesson-number">5</div>
-                <div class="lesson-icon">💝</div>
-                <h3>التوبة والاستغفار</h3>
-                <p>العودة إلى الله والاستغفار من الذنوب</p>
-            </a>
+            <!-- Cards will be generated by JavaScript -->
         </div>
 
         <!-- Section 2: With People -->
@@ -458,85 +608,7 @@
         </div>
 
         <div class="lessons-grid" id="lessons-2" style="display: none;">
-            <!-- الدرس 6 -->
-            <a href="lesson-6.html" class="lesson-card" data-section="2" data-lesson-id="6" onclick="markLessonAsViewed(6)">
-                <div class="lesson-number">1</div>
-                <div class="lesson-icon">🗣️</div>
-                <h3>الصدق في الحديث</h3>
-                <p>الصدق في الكلام مع الناس</p>
-            </a>
-            
-            <!-- الدرس 7 -->
-            <a href="lesson-7.html" class="lesson-card" data-section="2" data-lesson-id="7" onclick="markLessonAsViewed(7)">
-                <div class="lesson-number">2</div>
-                <div class="lesson-icon">📦</div>
-                <h3>الأمانة</h3>
-                <p>حفظ الودائع والأمانات</p>
-            </a>
-            
-            <!-- الدرس 8 -->
-            <a href="lesson-8.html" class="lesson-card" data-section="2" data-lesson-id="8" onclick="markLessonAsViewed(8)">
-                <div class="lesson-number">3</div>
-                <div class="lesson-icon">🕊️</div>
-                <h3> الحلم والصبر</h3>
-                <p>تحمل أذى الناس وعدم الانفعال</p>
-            </a>
-            
-            <!-- الدرس 9 -->
-            <a href="lesson-9.html" class="lesson-card" data-section="2" data-lesson-id="9" onclick="markLessonAsViewed(9)">
-                <div class="lesson-number">4</div>
-                <div class="lesson-icon">🤍</div>
-                <h3>العفو والصفح</h3>
-                <p>التسامح والعفو عن المسيء</p>
-            </a>
-            
-            <!-- الدرس 10 -->
-            <a href="lesson-10.html" class="lesson-card" data-section="2" data-lesson-id="10" onclick="markLessonAsViewed(10)">
-                <div class="lesson-number">5</div>
-                <div class="lesson-icon">🚫</div>
-                <h3>السلامة من الأذى</h3>
-                <p>كف اللسان والجوارح عن إيذاء الآخرين</p>
-            </a>
-            
-            <!-- الدرس 11 -->
-            <a href="lesson-11.html" class="lesson-card" data-section="2" data-lesson-id="11" onclick="markLessonAsViewed(11)">
-                <div class="lesson-number">6</div>
-                <div class="lesson-icon">😊</div>
-                <h3>طلاقة الوجه</h3>
-                <p>الابتسامة والاستقبال الطيب للناس</p>
-            </a>
-            
-            <!-- الدرس 12 -->
-            <a href="lesson-12.html" class="lesson-card" data-section="2" data-lesson-id="12" onclick="markLessonAsViewed(12)">
-                <div class="lesson-number">7</div>
-                <div class="lesson-icon">🏠</div>
-                <h3>إكرام الضيف وحسن الجوار</h3>
-                <p>حسن التعامل مع الضيوف والجيران</p>
-            </a>
-            
-            <!-- الدرس 13 -->
-            <a href="lesson-13.html" class="lesson-card" data-section="2" data-lesson-id="13" onclick="markLessonAsViewed(13)">
-                <div class="lesson-number">8</div>
-                <div class="lesson-icon">🌳</div>
-                <h3>صلة الرحم</h3>
-                <p>المحافظة على العلاقات الأسرية</p>
-            </a>
-            
-            <!-- الدرس 14 -->
-            <a href="lesson-14.html" class="lesson-card" data-section="2" data-lesson-id="14" onclick="markLessonAsViewed(14)">
-                <div class="lesson-number">9</div>
-                <div class="lesson-icon">🤲</div>
-                <h3>الرفق والرحمة</h3>
-                <p>الرفق بالصغير والرحمة بالكبير</p>
-            </a>
-            
-            <!-- الدرس 15 -->
-            <a href="lesson-15.html" class="lesson-card" data-section="2" data-lesson-id="15" onclick="markLessonAsViewed(15)">
-                <div class="lesson-number">10</div>
-                <div class="lesson-icon">🙇</div>
-                <h3>التواضع</h3>
-                <p>التواضع وعدم الكبر</p>
-            </a>
+            <!-- Cards will be generated by JavaScript -->
         </div>
 
         <!-- Section 3: With Self -->
@@ -546,47 +618,68 @@
         </div>
 
         <div class="lessons-grid" id="lessons-3" style="display: none;">
-            <!-- الدرس 16 -->
-            <a href="lesson-16.html" class="lesson-card" data-section="3" data-lesson-id="16" onclick="markLessonAsViewed(16)">
-                <div class="lesson-number">1</div>
-                <div class="lesson-icon">😳</div>
-                <h3>الحياء</h3>
-                <p>الحياء من الله ومن الناس</p>
-            </a>
-            
-            <!-- الدرس 17 -->
-            <a href="lesson-17.html" class="lesson-card" data-section="3" data-lesson-id="17" onclick="markLessonAsViewed(17)">
-                <div class="lesson-number">2</div>
-                <div class="lesson-icon">👁️</div>
-                <h3>غض البصر</h3>
-                <p>حفظ العين عن النظر إلى المحرمات</p>
-            </a>
-            
-            <!-- الدرس 18 -->
-            <a href="lesson-18.html" class="lesson-card" data-section="3" data-lesson-id="18" onclick="markLessonAsViewed(18)">
-                <div class="lesson-number">3</div>
-                <div class="lesson-icon">🌸</div>
-                <h3>العفة</h3>
-                <p>العفة والطهارة في النفس والجسد</p>
-            </a>
-            
-            <!-- الدرس 19 -->
-            <a href="lesson-19.html" class="lesson-card" data-section="3" data-lesson-id="19" onclick="markLessonAsViewed(19)">
-                <div class="lesson-number">4</div>
-                <div class="lesson-icon">⏳</div>
-                <h3>الأناة والتروي</h3>
-                <p>التأني وعدم التسرع في الأمور</p>
-            </a>
+            <!-- Cards will be generated by JavaScript -->
         </div>
     </div>
 
     <!-- Footer -->
     <footer class="footer">
         <h2>🌟 ابدأ رحلتك في تعلم القيم</h2>
-        <p>اضغط على أي بطاقة للانتقال إلى الدرس التفاعلي الكامل</p>
+        <p>اضغط على أي بطاقة لمعرفة المزيد عن القيمة الإسلامية وتعلمها بطريقة تفاعلية</p>
     </footer>
 
+    <!-- Lesson Details Modal -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal" id="modal">
+            <div class="modal-header" id="modal-header">
+                <div class="modal-close" id="modal-close">✕</div>
+                <div class="modal-icon" id="modal-icon"></div>
+                <h3 id="modal-title"></h3>
+            </div>
+            <div class="modal-content">
+                <p class="description" id="modal-description"></p>
+                
+                <div class="values-list" id="modal-values"></div>
+                
+                <div class="modal-buttons">
+                    <button class="modal-btn lesson-btn" id="open-lesson-btn">
+                        <span>🎮 ابدأ الدرس التفاعلي</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Lessons Data
+        const lessons = {
+            1: [ // مع الله تعالى
+                { id: 1, icon: "🤲", title: "الصدق مع الله", description: "الصدق في القول والعمل مع الله تعالى", values: ["قول الحق دائماً", "العمل بما يرضي الله", "عدم النفاق"] },
+                { id: 2, icon: "💖", title: "الإخلاص", description: "إفراد الله بالعبادة والطاعة", values: ["النية الخالصة لله", "التجرد من الرياء", "ابتغاء وجه الله"] },
+                { id: 3, icon: "🎯", title: "التوكل", description: "الاعتماد على الله مع الأخذ بالأسباب", values: ["الثقة بالله", "الأخذ بالأسباب", "الرضا بالنتيجة"] },
+                { id: 4, icon: "😌", title: "الرضا بالقضاء والقدر", description: "قبول ما يأتيك من الله بالصبر والحمد", values: ["الصبر على البلاء", "الشكر على النعماء", "التسليم لأمر الله"] },
+                { id: 5, icon: "💝", title: "التوبة والاستغفار", description: "العودة إلى الله والاستغفار من الذنوب", values: ["الندم على الخطيئة", "الإقلاع عن المعصية", "العزم على عدم العودة"] }
+            ],
+            2: [ // مع الناس
+                { id: 6, icon: "🗣️", title: "الصدق في الحديث", description: "الصدق في الكلام مع الناس", values: ["قول الصدق دائماً", "عدم الكذب", "الوفاء بالوعد"] },
+                { id: 7, icon: "📦", title: "الأمانة", description: "حفظ الودائع والأمانات", values: ["حفظ الحقوق", "رد الأمانات", "الوفاء بالعهد"] },
+                { id: 8, icon: "🕊️", title: "الحلم والصبر", description: "تحمل أذى الناس وعدم الانفعال", values: ["ضبط النفس", "الصبر على الأذى", "التحلي بالحلم"] },
+                { id: 9, icon: "🤍", title: "العفو والصفح", description: "التسامح والعفو عن المسيء", values: ["العفو عند المقدرة", "الصفح الجميل", "التجاوز عن الزلات"] },
+                { id: 10, icon: "🚫", title: "السلامة من الأذى", description: "كف اللسان والجوارح عن إيذاء الآخرين", values: ["عدم الاعتداء", "حفظ اللسان", "احترام الآخرين"] },
+                { id: 11, icon: "😊", title: "طلاقة الوجه", description: "الابتسامة والاستقبال الطيب للناس", values: ["البشاشة", "حسن الاستقبال", "الكلمة الطيبة"] },
+                { id: 12, icon: "🏠", title: "إكرام الضيف وحسن الجوار", description: "حسن التعامل مع الضيوف والجيران", values: ["إكرام الضيف", "حسن الجوار", "التعاون مع الجيران"] },
+                { id: 13, icon: "🌳", title: "صلة الرحم", description: "المحافظة على العلاقات الأسرية", values: ["زيارة الأقارب", "الاهتمام بهم", "المساعدة عند الحاجة"] },
+                { id: 14, icon: "🤲", title: "الرفق والرحمة", description: "الرفق بالصغير والرحمة بالكبير", values: ["اللين في التعامل", "الرحمة بالضعفاء", "التعاطف مع الآخرين"] },
+                { id: 15, icon: "🙇", title: "التواضع", description: "التواضع وعدم الكبر", values: ["التواضع للجميع", "عدم التكبر", "احترام الكبير"] }
+            ],
+            3: [ // مع النفس
+                { id: 16, icon: "😳", title: "الحياء", description: "الحياء من الله ومن الناس", values: ["الحياء من الله", "الحياء من الناس", "الحياء من النفس"] },
+                { id: 17, icon: "👁️", title: "غض البصر", description: "حفظ العين عن النظر إلى المحرمات", values: ["خفض البصر", "صون العين", "النظر إلى الحلال"] },
+                { id: 18, icon: "🌸", title: "العفة", description: "العفة والطهارة في النفس والجسد", values: ["العفة في الملبس", "العفة في الكلام", "العفة في السلوك"] },
+                { id: 19, icon: "⏳", title: "الأناة والتروي", description: "التأني وعدم التسرع في الأمور", values: ["التفكير قبل التصرف", "التأني في القرار", "عدم العجلة"] }
+            ]
+        };
+
         // Create floating symbols
         function createFloatingSymbols() {
             const symbols = ['ﷲ', 'ﷺ', '✿', '❀', '✦', '★', '☆', '☪️', '🕌', '📿', '🌙', '⭐'];
@@ -602,6 +695,29 @@
                 symbol.style.fontSize = `${1 + Math.random() * 3}em`;
                 container.appendChild(symbol);
             }
+        }
+
+        // Generate lesson cards
+        function generateLessonCards() {
+            Object.keys(lessons).forEach(sectionId => {
+                const grid = document.getElementById(`lessons-${sectionId}`);
+                lessons[sectionId].forEach((lesson, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'lesson-card';
+                    card.dataset.section = sectionId;
+                    card.dataset.lessonId = lesson.id;
+                    
+                    card.innerHTML = `
+                        <div class="lesson-number">${index + 1}</div>
+                        <div class="lesson-icon">${lesson.icon}</div>
+                        <h3>${lesson.title}</h3>
+                        <p>${lesson.description}</p>
+                    `;
+                    
+                    card.addEventListener('click', () => openLessonModal(lesson, sectionId));
+                    grid.appendChild(card);
+                });
+            });
         }
 
         // Section navigation
@@ -620,8 +736,74 @@
                 
                 document.getElementById(`section-${sectionId}`).style.display = 'block';
                 document.getElementById(`lessons-${sectionId}`).style.display = 'grid';
+                
+                // Update progress
+                updateProgress();
             });
         });
+
+        // Open lesson modal
+        function openLessonModal(lesson, sectionId) {
+            const modal = document.getElementById('modal-overlay');
+            const modalHeader = document.getElementById('modal-header');
+            const modalIcon = document.getElementById('modal-icon');
+            const modalTitle = document.getElementById('modal-title');
+            const modalDescription = document.getElementById('modal-description');
+            const modalValues = document.getElementById('modal-values');
+            
+            // Set modal data
+            modalHeader.dataset.section = sectionId;
+            modalIcon.textContent = lesson.icon;
+            modalTitle.textContent = lesson.title;
+            modalDescription.textContent = lesson.description;
+            
+            // Generate values list
+            modalValues.innerHTML = '';
+            lesson.values.forEach(value => {
+                const valueItem = document.createElement('div');
+                valueItem.className = 'value-item';
+                valueItem.dataset.section = sectionId;
+                valueItem.innerHTML = `
+                    <h4>${value}</h4>
+                    <p>من تطبيقات ${lesson.title}</p>
+                `;
+                modalValues.appendChild(valueItem);
+            });
+            
+            // Set lesson button action
+            document.getElementById('open-lesson-btn').onclick = () => {
+                openFullLesson(lesson.id);
+            };
+            
+            // Show modal
+            modal.classList.add('active');
+            
+            // Mark as viewed
+            markLessonAsViewed(lesson.id);
+            updateProgress();
+        }
+
+        // Close modal
+        document.getElementById('modal-close').addEventListener('click', () => {
+            document.getElementById('modal-overlay').classList.remove('active');
+        });
+
+        document.getElementById('modal-overlay').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('modal-overlay')) {
+                document.getElementById('modal-overlay').classList.remove('active');
+            }
+        });
+
+        // Open full lesson (placeholder - would open the actual lesson page)
+        function openFullLesson(lessonId) {
+            alert(`سيتم فتح الدرس التفاعلي لرقم ${lessonId}\n\nفي النسخة الكاملة، سيتم فتح صفحة الدرس الكاملة مع الألعاب والأنشطة!`);
+            
+            // In real implementation, this would open the lesson page:
+            // window.open(`lesson-${lessonId}.html`, '_blank');
+            
+            // Close modal
+            document.getElementById('modal-overlay').classList.remove('active');
+        }
 
         // Track viewed lessons
         let viewedLessons = new Set();
@@ -629,7 +811,6 @@
         function markLessonAsViewed(lessonId) {
             viewedLessons.add(lessonId);
             localStorage.setItem('viewedLessons', JSON.stringify([...viewedLessons]));
-            updateProgress();
         }
 
         // Update progress
@@ -653,6 +834,7 @@
         // Initialize
         function init() {
             createFloatingSymbols();
+            generateLessonCards();
             loadViewedLessons();
             
             // Show first section by default
