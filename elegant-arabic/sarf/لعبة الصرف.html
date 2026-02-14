@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚖️ ميزان الكلمات - لعبة الصرف التفاعلية</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&family=Tajawal:wght@300;400;700;900&family=Amiri:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Tajawal', 'Cairo', 'Amiri', sans-serif;
+            background: radial-gradient(ellipse at bottom, #0a3a0a, #052005);
+            min-height: 100vh;
+            padding: 30px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .game-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(50,205,50,0.1) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(50,205,50,0.1) 0%, transparent 40%),
+                radial-gradient(circle at 40% 50%, rgba(255,215,0,0.1) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* ===== شريط التنقل ===== */
+        .game-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 80px;
+            padding: 15px 30px;
+            margin-bottom: 40px;
+            border: 3px solid #32cd32;
+            box-shadow: 0 15px 0 #1a3f1a;
+        }
+
+        .nav-btn {
+            background: rgba(50,205,50,0.2);
+            color: white;
+            text-decoration: none;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            border: 2px solid #32cd32;
+        }
+
+        .nav-btn:hover {
+            background: #32cd32;
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(50,205,50,0.5);
+        }
+
+        .imperial-btn {
+            background: linear-gradient(45deg, #d4af37, #ffd700);
+            color: #1a0f07;
+            text-decoration: none;
+            padding: 12px 35px;
+            border-radius: 50px;
+            font-size: 22px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            border: 3px solid white;
+            box-shadow: 0 8px 0 #6b3f1a;
+        }
+
+        .imperial-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 13px 0 #6b3f1a;
+            background: linear-gradient(45deg, #ffd700, #ffa500);
+        }
+
+        /* ===== رأس اللعبة ===== */
+        .game-header {
+            background: linear-gradient(145deg, rgba(50,205,50,0.2), rgba(0,100,0,0.3));
+            backdrop-filter: blur(10px);
+            border: 5px solid #32cd32;
+            border-radius: 80px;
+            padding: 50px;
+            margin-bottom: 50px;
+            box-shadow: 0 20px 0 #1a3f1a, 0 0 100px rgba(50,205,50,0.4);
+            display: flex;
+            align-items: center;
+            gap: 50px;
+            flex-wrap: wrap;
+        }
+
+        .game-icon {
+            font-size: 120px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 50%;
+            padding: 25px;
+            border: 5px solid #ffd700;
+            animation: scaleFloat 4s infinite;
+            box-shadow: 0 0 50px rgba(255,215,0,0.5);
+        }
+
+        @keyframes scaleFloat {
+            0%, 100% { transform: scale(1) rotate(-5deg); }
+            50% { transform: scale(1.1) rotate(5deg); }
+        }
+
+        .game-title-area {
+            flex: 1;
+        }
+
+        .game-badge {
+            display: inline-block;
+            background: linear-gradient(45deg, #32cd32, #1e7e1e);
+            color: white;
+            padding: 12px 35px;
+            border-radius: 60px;
+            font-size: 26px;
+            margin-bottom: 20px;
+            border: 3px solid white;
+            box-shadow: 0 6px 0 #1a3f1a;
+        }
+
+        .game-title {
+            font-size: 70px;
+            font-weight: 900;
+            color: white;
+            text-shadow: 4px 4px 0 #1a3f1a, 6px 6px 0 #000, 8px 8px 0 rgba(50,205,50,0.5);
+            margin-bottom: 20px;
+            line-height: 1.3;
+        }
+
+        .game-subtitle {
+            font-size: 32px;
+            color: #ffd700;
+            font-weight: bold;
+            text-shadow: 2px 2px 0 #1a3f1a;
+            background: rgba(0,0,0,0.5);
+            padding: 15px 30px;
+            border-radius: 60px;
+            display: inline-block;
+        }
+
+        /* ===== لوحة المعلومات ===== */
+        .info-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            border: 3px solid #32cd32;
+            border-radius: 60px;
+            padding: 25px 40px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .score-box {
+            background: rgba(0,0,0,0.8);
+            border: 4px solid #ffd700;
+            border-radius: 60px;
+            padding: 15px 35px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .score-text {
+            font-size: 36px;
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .level-box {
+            background: rgba(50,205,50,0.2);
+            border: 4px solid #32cd32;
+            border-radius: 60px;
+            padding: 15px 35px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .level-text {
+            font-size: 36px;
+            color: #98fb98;
+            font-weight: bold;
+        }
+
+        .timer-box {
+            background: rgba(255,105,180,0.2);
+            border: 4px solid #ff69b4;
+            border-radius: 60px;
+            padding: 15px 35px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .timer-text {
+            font-size: 36px;
+            color: #ffb6c1;
+            font-weight: bold;
+        }
+
+        /* ===== ساحة الميزان ===== */
+        .scale-arena {
+            background: linear-gradient(145deg, rgba(50,205,50,0.2), rgba(0,100,0,0.2));
+            border: 6px solid #ffd700;
+            border-radius: 100px;
+            padding: 60px;
+            margin: 50px 0;
+            box-shadow: 0 25px 0 #1a3f1a, inset 0 0 50px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .scale-title {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ffd700;
+            color: #1a3f1a;
+            padding: 15px 50px;
+            border-radius: 60px;
+            font-size: 40px;
+            font-weight: bold;
+            border: 5px solid white;
+            box-shadow: 0 12px 0 #b8860b;
+            white-space: nowrap;
+        }
+
+        .scale-visual {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .scale-pan {
+            background: linear-gradient(145deg, #8b4513, #5d3a1a);
+            border: 8px solid #deb887;
+            border-radius: 40px 40px 20px 20px;
+            padding: 40px;
+            text-align: center;
+            flex: 1;
+            min-width: 300px;
+            box-shadow: 0 20px 0 #3a2a1a;
+        }
+
+        .pan-label {
+            font-size: 32px;
+            color: #ffd700;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .word-display {
+            font-size: 70px;
+            font-weight: 900;
+            color: white;
+            font-family: 'Amiri', serif;
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 40px;
+            border: 4px solid #ffd700;
+            direction: ltr;
+        }
+
+        .weight-display {
+            font-size: 50px;
+            font-weight: 900;
+            color: #ffd700;
+            margin-top: 20px;
+            background: rgba(0,0,0,0.5);
+            padding: 15px;
+            border-radius: 40px;
+            border: 3px solid #ffd700;
+        }
+
+        .scale-center {
+            font-size: 80px;
+            color: #ffd700;
+            text-shadow: 0 0 30px gold;
+            animation: scaleBalance 3s infinite;
+        }
+
+        @keyframes scaleBalance {
+            0%, 100% { transform: rotate(-10deg); }
+            50% { transform: rotate(10deg); }
+        }
+
+        /* ===== خيارات الوزن ===== */
+        .weight-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin: 60px 0;
+        }
+
+        .weight-card {
+            background: linear-gradient(145deg, #2a4a6a, #1a2f4f);
+            border: 5px solid #32cd32;
+            border-radius: 60px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s;
+            box-shadow: 0 15px 0 #0f1a2a;
+        }
+
+        .weight-card:hover {
+            transform: translateY(-15px) scale(1.05);
+            box-shadow: 0 25px 0 #0f1a2a;
+            border-color: #ffd700;
+            background: linear-gradient(145deg, #3a6a8a, #2a4f6a);
+        }
+
+        .weight-card.selected {
+            border: 8px solid #ffd700;
+            background: linear-gradient(145deg, #4a8aaa, #3a6f8a);
+            box-shadow: 0 15px 0 #0f1a2a, 0 0 80px rgba(255,215,0,0.6);
+        }
+
+        .weight-card.correct {
+            background: linear-gradient(145deg, #28a745, #1e7e34);
+            border-color: white;
+        }
+
+        .weight-card.wrong {
+            background: linear-gradient(145deg, #dc3545, #b02a37);
+            border-color: white;
+        }
+
+        .weight-symbol {
+            font-size: 70px;
+            font-weight: 900;
+            color: #ffd700;
+            margin-bottom: 20px;
+        }
+
+        .weight-name {
+            font-size: 48px;
+            font-weight: 900;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .weight-example {
+            font-size: 36px;
+            color: #98fb98;
+            margin-bottom: 10px;
+        }
+
+        .weight-desc {
+            font-size: 24px;
+            color: rgba(255,255,255,0.9);
+        }
+
+        /* ===== تحليل الكلمة ===== */
+        .analysis-box {
+            background: rgba(0,0,0,0.7);
+            border: 4px solid #32cd32;
+            border-radius: 60px;
+            padding: 40px;
+            margin: 40px 0;
+        }
+
+        .analysis-title {
+            font-size: 40px;
+            color: #ffd700;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .analysis-item {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid #32cd32;
+            border-radius: 40px;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .analysis-label {
+            font-size: 28px;
+            color: #98fb98;
+            margin-bottom: 15px;
+        }
+
+        .analysis-value {
+            font-size: 40px;
+            font-weight: 900;
+            color: white;
+            font-family: 'Amiri', serif;
+        }
+
+        /* ===== شريط التقدم ===== */
+        .progress-section {
+            margin: 40px 0;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .progress-text {
+            font-size: 28px;
+            color: white;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 50px;
+            overflow: hidden;
+            border: 3px solid #ffd700;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #32cd32, #ffd700);
+            width: 0%;
+            transition: width 0.5s;
+            border-radius: 50px;
+        }
+
+        /* ===== التغذية الراجعة ===== */
+        .feedback-area {
+            background: rgba(0,0,0,0.8);
+            border: 4px solid #32cd32;
+            border-radius: 60px;
+            padding: 35px;
+            margin: 40px 0;
+            text-align: center;
+        }
+
+        .feedback-text {
+            font-size: 36px;
+            color: white;
+            line-height: 1.6;
+        }
+
+        .feedback-hint {
+            font-size: 32px;
+            color: #ffd700;
+            margin-top: 20px;
+        }
+
+        /* ===== أزرار التحكم ===== */
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 60px 0;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: linear-gradient(45deg, #32cd32, #1e7e1e);
+            border: none;
+            color: white;
+            padding: 25px 60px;
+            border-radius: 80px;
+            font-size: 36px;
+            font-weight: bold;
+            border: 6px solid white;
+            box-shadow: 0 15px 0 #1a3f1a;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 23px 0 #1a3f1a;
+            background: linear-gradient(45deg, #3ed53e, #2a9a2a);
+        }
+
+        .control-btn.secondary {
+            background: linear-gradient(45deg, #d4af37, #ffd700);
+            color: #1a0f07;
+            box-shadow: 0 15px 0 #6b3f1a;
+        }
+
+        .control-btn:disabled {
+            opacity: 0.5;
+            transform: translateY(0);
+            box-shadow: 0 15px 0 #1a3f1a;
+            pointer-events: none;
+        }
+
+        /* ===== جدول الأوزان ===== */
+        .weights-table {
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            border: 4px solid #32cd32;
+            border-radius: 70px;
+            padding: 50px;
+            margin: 60px 0;
+        }
+
+        .table-title {
+            font-size: 48px;
+            color: #ffd700;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .table-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .table-header {
+            background: #32cd32;
+            color: white;
+            padding: 20px;
+            border-radius: 40px;
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            border: 3px solid white;
+        }
+
+        .table-cell {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            padding: 20px;
+            border-radius: 40px;
+            font-size: 28px;
+            text-align: center;
+            border: 2px solid #32cd32;
+        }
+
+        .table-highlight {
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        /* ===== رسالة النصر ===== */
+        .victory-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: linear-gradient(145deg, rgba(50,205,50,0.95), rgba(0,100,0,0.95));
+            backdrop-filter: blur(10px);
+            border: 10px solid #ffd700;
+            border-radius: 80px;
+            padding: 80px;
+            text-align: center;
+            z-index: 1000;
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 40px 0 #1a3f1a, 0 0 200px rgba(255,215,0,0.8);
+        }
+
+        .victory-message.show {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .victory-title {
+            font-size: 80px;
+            font-weight: 900;
+            color: #ffd700;
+            text-shadow: 5px 5px 0 #1a3f1a;
+            margin-bottom: 30px;
+        }
+
+        .victory-stats {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin: 40px 0;
+        }
+
+        .victory-stat {
+            text-align: center;
+        }
+
+        .victory-stat-value {
+            font-size: 60px;
+            font-weight: 900;
+            color: white;
+        }
+
+        .victory-stat-label {
+            font-size: 28px;
+            color: #ffd700;
+        }
+
+        @media (max-width: 1200px) {
+            .table-grid { grid-template-columns: repeat(2, 1fr); }
+            .analysis-grid { grid-template-columns: repeat(2, 1fr); }
+            .weight-options { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .game-title { font-size: 50px; }
+            .word-display { font-size: 50px; }
+            .weight-name { font-size: 36px; }
+            .table-grid { grid-template-columns: 1fr; }
+            .analysis-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-bg"></div>
+
+<div class="container">
+
+    <!-- ===== شريط التنقل ===== -->
+    <div class="game-nav">
+        <div class="nav-links">
+            <a href="index.html" class="nav-btn">
+                <span>🏰</span> الإمبراطورية
+            </a>
+            <a href="kingdom_sarf.html" class="nav-btn">
+                <span>⚙️</span> مملكة الصرف
+            </a>
+            <a href="games_city.html" class="nav-btn">
+                <span>🎮</span> مدينة الألعاب
+            </a>
+        </div>
+        <a href="games_city.html" class="imperial-btn">
+            <span>🎮</span> العودة للمدينة
+        </a>
+    </div>
+
+    <!-- ===== رأس اللعبة ===== -->
+    <div class="game-header">
+        <div class="game-icon">⚖️📏</div>
+        <div class="game-title-area">
+            <span class="game-badge">⚙️ لعبة الصرف</span>
+            <h1 class="game-title">ميزان الكلمات</h1>
+            <div class="game-subtitle">زن الكلمات على الميزان الصرفي - فَعَلَ يَفْعَلُ</div>
+        </div>
+    </div>
+
+    <!-- ===== لوحة المعلومات ===== -->
+    <div class="info-panel">
+        <div class="score-box">
+            <span style="font-size: 40px; color: #ffd700;">🏆</span>
+            <span class="score-text" id="scoreDisplay">0</span>
+        </div>
+        <div class="level-box">
+            <span style="font-size: 40px; color: #98fb98;">⭐</span>
+            <span class="level-text" id="levelDisplay">المستوى 1</span>
+        </div>
+        <div class="timer-box">
+            <span style="font-size: 40px; color: #ffb6c1;">⏳</span>
+            <span class="timer-text" id="timerDisplay">00:00</span>
+        </div>
+    </div>
+
+    <!-- ===== ساحة الميزان ===== -->
+    <div class="scale-arena">
+        <div class="scale-title">⚖️ الميزان الصرفي ⚖️</div>
+        
+        <div class="scale-visual">
+            <div class="scale-pan">
+                <div class="pan-label">🔤 الكلمة</div>
+                <div class="word-display" id="wordDisplay">كَاتِبٌ</div>
+            </div>
+            
+            <div class="scale-center">⚖️</div>
+            
+            <div class="scale-pan">
+                <div class="pan-label">📏 وزنها</div>
+                <div class="weight-display" id="weightDisplay">؟؟؟</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== تحليل الكلمة ===== -->
+    <div class="analysis-box" id="analysisBox">
+        <div class="analysis-title">
+            <span>🔍</span> تحليل الكلمة على الميزان الصرفي
+        </div>
+        <div class="analysis-grid">
+            <div class="analysis-item">
+                <div class="analysis-label">فَاءُ الْكَلِمَةِ</div>
+                <div class="analysis-value" id="faDisplay">ك</div>
+            </div>
+            <div class="analysis-item">
+                <div class="analysis-label">عَيْنُ الْكَلِمَةِ</div>
+                <div class="analysis-value" id="ainDisplay">ت</div>
+            </div>
+            <div class="analysis-item">
+                <div class="analysis-label">لَامُ الْكَلِمَةِ</div>
+                <div class="analysis-value" id="lamDisplay">ب</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== خيارات الوزن ===== -->
+    <h2 style="font-size: 48px; color: #ffd700; text-align: center; margin: 40px 0;">اختر وزن الكلمة على الميزان الصرفي</h2>
+    
+    <div class="weight-options" id="weightOptions">
+        <!-- سيتم إضافة الخيارات ديناميكياً -->
+    </div>
+
+    <!-- ===== التغذية الراجعة ===== -->
+    <div class="feedback-area" id="feedbackArea">
+        <div class="feedback-text" id="feedbackText">⚖️ زن الكلمة على الميزان الصرفي</div>
+        <div class="feedback-hint" id="hintText">💡 فكر في الحروف الأصلية للكلمة</div>
+    </div>
+
+    <!-- ===== شريط التقدم ===== -->
+    <div class="progress-section">
+        <div class="progress-info">
+            <span class="progress-text">التقدم في اللعبة</span>
+            <span class="progress-text" id="progressCount">1/10</span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 10%;"></div>
+        </div>
+    </div>
+
+    <!-- ===== أزرار التحكم ===== -->
+    <div class="control-buttons">
+        <button class="control-btn" onclick="nextWord()" id="nextBtn">
+            <span>⬅️</span> الكلمة التالية
+        </button>
+        <button class="control-btn secondary" onclick="resetGame()">
+            <span>🔄</span> إعادة اللعبة
+        </button>
+        <button class="control-btn secondary" onclick="showHint()" id="hintBtn">
+            <span>💡</span> تلميح
+        </button>
+    </div>
+
+    <!-- ===== جدول الأوزان الصرفية ===== -->
+    <div class="weights-table">
+        <div class="table-title">📋 أوزان الكلمات على الميزان الصرفي</div>
+        <div class="table-grid">
+            <div class="table-header">نوع الكلمة</div>
+            <div class="table-header">مثال</div>
+            <div class="table-header">وزنها</div>
+            
+            <div class="table-cell">فعل ثلاثي مجرد</div>
+            <div class="table-cell"><span class="table-highlight">كَتَبَ</span></div>
+            <div class="table-cell">فَعَلَ</div>
+            
+            <div class="table-cell">اسم فاعل</div>
+            <div class="table-cell"><span class="table-highlight">كَاتِبٌ</span></div>
+            <div class="table-cell">فَاعِلٌ</div>
+            
+            <div class="table-cell">اسم مفعول</div>
+            <div class="table-cell"><span class="table-highlight">مَكْتُوبٌ</span></div>
+            <div class="table-cell">مَفْعُولٌ</div>
+            
+            <div class="table-cell">فعل مزيد بحرف</div>
+            <div class="table-cell"><span class="table-highlight">أَكْرَمَ</span></div>
+            <div class="table-cell">أَفْعَلَ</div>
+            
+            <div class="table-cell">فعل مزيد بحرفين</div>
+            <div class="table-cell"><span class="table-highlight">انْطَلَقَ</span></div>
+            <div class="table-cell">انْفَعَلَ</div>
+            
+            <div class="table-cell">فعل مزيد بثلاثة</div>
+            <div class="table-cell"><span class="table-highlight">اسْتَغْفَرَ</span></div>
+            <div class="table-cell">اسْتَفْعَلَ</div>
+            
+            <div class="table-cell">اسم مكان</div>
+            <div class="table-cell"><span class="table-highlight">مَسْجِدٌ</span></div>
+            <div class="table-cell">مَفْعِلٌ</div>
+            
+            <div class="table-cell">اسم آلة</div>
+            <div class="table-cell"><span class="table-highlight">مِفْتَاحٌ</span></div>
+            <div class="table-cell">مِفْعَالٌ</div>
+            
+            <div class="table-cell">صيغة مبالغة</div>
+            <div class="table-cell"><span class="table-highlight">كَتَّابٌ</span></div>
+            <div class="table-cell">فَعَّالٌ</div>
+        </div>
+    </div>
+
+    <!-- ===== رسالة النصر ===== -->
+    <div class="victory-message" id="victoryMessage">
+        <div class="victory-title">🎉 انتصرت! 🎉</div>
+        <div style="font-size: 100px; margin: 30px 0;">🏆⚖️🏆</div>
+        <div style="font-size: 48px; color: white; margin-bottom: 30px;">
+            لقد أتقنت وزن الكلمات على الميزان الصرفي!
+        </div>
+        <div class="victory-stats">
+            <div class="victory-stat">
+                <div class="victory-stat-value" id="victoryScore">100</div>
+                <div class="victory-stat-label">النقاط</div>
+            </div>
+            <div class="victory-stat">
+                <div class="victory-stat-value" id="victoryTime">00:00</div>
+                <div class="victory-stat-label">الزمن</div>
+            </div>
+            <div class="victory-stat">
+                <div class="victory-stat-value" id="victoryAccuracy">100%</div>
+                <div class="victory-stat-label">الدقة</div>
+            </div>
+        </div>
+        <button class="control-btn" onclick="resetGame()" style="margin-top: 40px; background: linear-gradient(45deg, #ffd700, #ffa500); color: #1a0f07;">
+            <span>🔄</span> العب مرة أخرى
+        </button>
+    </div>
+
+</div>
+
+<script>
+    // =============================================
+    // قائمة الكلمات وأوزانها
+    // =============================================
+    const wordsData = [
+        {
+            word: 'كَاتِبٌ',
+            fa: 'ك',
+            ain: 'ت',
+            lam: 'ب',
+            correct: 'فَاعِلٌ',
+            options: ['فَاعِلٌ', 'مَفْعُولٌ', 'فَعَلَ', 'أَفْعَلَ'],
+            hint: 'اسم فاعل من كتب',
+            analysis: 'ك = ف، ا = زيادة، ت = ع، ب = ل',
+            level: 1
+        },
+        {
+            word: 'مَكْتُوبٌ',
+            fa: 'ك',
+            ain: 'ت',
+            lam: 'ب',
+            correct: 'مَفْعُولٌ',
+            options: ['فَاعِلٌ', 'مَفْعُولٌ', 'فَعَلَ', 'انْفَعَلَ'],
+            hint: 'اسم مفعول من كتب',
+            analysis: 'م = زيادة، ك = ف، ت = ع، و = زيادة، ب = ل',
+            level: 1
+        },
+        {
+            word: 'دَخَلَ',
+            fa: 'د',
+            ain: 'خ',
+            lam: 'ل',
+            correct: 'فَعَلَ',
+            options: ['فَعَلَ', 'فَاعِلٌ', 'مَفْعُولٌ', 'أَفْعَلَ'],
+            hint: 'فعل ثلاثي مجرد',
+            analysis: 'د = ف، خ = ع، ل = ل',
+            level: 1
+        },
+        {
+            word: 'أَكْرَمَ',
+            fa: 'ك',
+            ain: 'ر',
+            lam: 'م',
+            correct: 'أَفْعَلَ',
+            options: ['فَعَلَ', 'أَفْعَلَ', 'فَاعِلٌ', 'اسْتَفْعَلَ'],
+            hint: 'فعل رباعي مزيد بهمزة',
+            analysis: 'أ = زيادة، ك = ف، ر = ع، م = ل',
+            level: 2
+        },
+        {
+            word: 'انْطَلَقَ',
+            fa: 'ط',
+            ain: 'ل',
+            lam: 'ق',
+            correct: 'انْفَعَلَ',
+            options: ['فَعَلَ', 'انْفَعَلَ', 'أَفْعَلَ', 'اسْتَفْعَلَ'],
+            hint: 'فعل خماسي مزيد بحرفين',
+            analysis: 'ا = زيادة، ن = زيادة، ط = ف، ل = ع، ق = ل',
+            level: 2
+        },
+        {
+            word: 'اسْتَغْفَرَ',
+            fa: 'غ',
+            ain: 'ف',
+            lam: 'ر',
+            correct: 'اسْتَفْعَلَ',
+            options: ['فَعَلَ', 'انْفَعَلَ', 'أَفْعَلَ', 'اسْتَفْعَلَ'],
+            hint: 'فعل سداسي مزيد بثلاثة أحرف',
+            analysis: 'ا = زيادة، س = زيادة، ت = زيادة، غ = ف، ف = ع، ر = ل',
+            level: 3
+        },
+        {
+            word: 'مُسْلِمٌ',
+            fa: 'س',
+            ain: 'ل',
+            lam: 'م',
+            correct: 'مُفْعِلٌ',
+            options: ['مُفْعِلٌ', 'فَاعِلٌ', 'مَفْعُولٌ', 'فَعَلَ'],
+            hint: 'اسم فاعل من أسلم',
+            analysis: 'م = زيادة، س = ف، ل = ع، م = ل',
+            level: 2
+        },
+        {
+            word: 'مَسْجِدٌ',
+            fa: 'س',
+            ain: 'ج',
+            lam: 'د',
+            correct: 'مَفْعِلٌ',
+            options: ['مَفْعِلٌ', 'فَاعِلٌ', 'مَفْعُولٌ', 'فَعَلَ'],
+            hint: 'اسم مكان من سجد',
+            analysis: 'م = زيادة، س = ف، ج = ع، د = ل',
+            level: 2
+        },
+        {
+            word: 'مِفْتَاحٌ',
+            fa: 'ف',
+            ain: 'ت',
+            lam: 'ح',
+            correct: 'مِفْعَالٌ',
+            options: ['مِفْعَالٌ', 'فَاعِلٌ', 'مَفْعُولٌ', 'فَعَّالٌ'],
+            hint: 'اسم آلة من فتح',
+            analysis: 'م = زيادة، ف = ف، ت = ع، ا = زيادة، ح = ل',
+            level: 2
+        },
+        {
+            word: 'كَتَّابٌ',
+            fa: 'ك',
+            ain: 'ت',
+            lam: 'ب',
+            correct: 'فَعَّالٌ',
+            options: ['فَعَّالٌ', 'فَاعِلٌ', 'مَفْعُولٌ', 'فَعُولٌ'],
+            hint: 'صيغة مبالغة من كتب',
+            analysis: 'ك = ف، ت = ع، ا = زيادة، ب = ل',
+            level: 3
+        }
+    ];
+
+    // =============================================
+    // متغيرات اللعبة
+    // =============================================
+    let currentIndex = 0;
+    let score = 0;
+    let level = 1;
+    let correctAnswers = 0;
+    let totalQuestions = wordsData.length;
+    let timer = 0;
+    let timerInterval = null;
+    let gameActive = true;
+    let selectedWeight = null;
+    let hintsUsed = 0;
+
+    // =============================================
+    // تهيئة اللعبة
+    // =============================================
+    function initGame() {
+        currentIndex = 0;
+        score = 0;
+        correctAnswers = 0;
+        level = 1;
+        hintsUsed = 0;
+        updateScore();
+        loadWord(currentIndex);
+        startTimer();
+    }
+
+    // =============================================
+    // تحميل الكلمة
+    // =============================================
+    function loadWord(index) {
+        const wordData = wordsData[index];
+        
+        // عرض الكلمة
+        document.getElementById('wordDisplay').innerText = wordData.word;
+        document.getElementById('weightDisplay').innerText = '؟؟؟';
+        
+        // عرض التحليل
+        document.getElementById('faDisplay').innerText = wordData.fa;
+        document.getElementById('ainDisplay').innerText = wordData.ain;
+        document.getElementById('lamDisplay').innerText = wordData.lam;
+        
+        // إنشاء خيارات الوزن
+        createWeightOptions(wordData);
+        
+        // إعادة تعيين التحديد
+        selectedWeight = null;
+        
+        // تحديث التغذية الراجعة
+        document.getElementById('feedbackText').innerHTML = '⚖️ زن الكلمة على الميزان الصرفي';
+        document.getElementById('hintText').innerHTML = '💡 ' + wordData.hint;
+        
+        // تحديث شريط التقدم
+        const progress = ((index + 1) / totalQuestions) * 100;
+        document.getElementById('progressFill').style.width = progress + '%';
+        document.getElementById('progressCount').innerText = `${index + 1}/${totalQuestions}`;
+        
+        // تحديث المستوى
+        updateLevel();
+    }
+
+    // =============================================
+    // إنشاء خيارات الوزن
+    // =============================================
+    function createWeightOptions(wordData) {
+        const container = document.getElementById('weightOptions');
+        container.innerHTML = '';
+        
+        // خلط الخيارات
+        const shuffledOptions = [...wordData.options].sort(() => Math.random() - 0.5);
+        
+        shuffledOptions.forEach(option => {
+            const card = document.createElement('div');
+            card.className = 'weight-card';
+            card.onclick = () => selectWeight(card, option, wordData.correct);
+            
+            // إضافة محتوى البطاقة
+            card.innerHTML = `
+                <div class="weight-symbol">⚖️</div>
+                <div class="weight-name">${option}</div>
+                <div class="weight-example">${getExampleForWeight(option)}</div>
+                <div class="weight-desc">${getDescForWeight(option)}</div>
+            `;
+            
+            container.appendChild(card);
+        });
+    }
+
+    // =============================================
+    // اختيار الوزن
+    // =============================================
+    function selectWeight(element, selected, correct) {
+        if (!gameActive) return;
+        
+        // إزالة التحديد من جميع البطاقات
+        document.querySelectorAll('.weight-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        
+        // تحديد البطاقة المختارة
+        element.classList.add('selected');
+        selectedWeight = selected;
+        
+        // عرض الوزن المختار
+        document.getElementById('weightDisplay').innerText = selected;
+        
+        // التحقق من الإجابة
+        checkAnswer(selected, correct);
+    }
+
+    // =============================================
+    // التحقق من الإجابة
+    // =============================================
+    function checkAnswer(selected, correct) {
+        const wordData = wordsData[currentIndex];
+        const feedback = document.getElementById('feedbackText');
+        const hint = document.getElementById('hintText');
+        
+        // تعطيل البطاقات بعد الإجابة
+        document.querySelectorAll('.weight-card').forEach(card => {
+            card.style.pointerEvents = 'none';
+        });
+        
+        if (selected === correct) {
+            // إجابة صحيحة
+            document.querySelector('.weight-card.selected').classList.add('correct');
+            
+            // حساب النقاط
+            let points = 10;
+            if (wordData.level === 2) points = 15;
+            if (wordData.level === 3) points = 20;
+            
+            score += points;
+            correctAnswers++;
+            
+            updateScore();
+            
+            // عرض التحليل
+            feedback.innerHTML = `✅ أحسنت! وزن "${wordData.word}" هو ${correct}`;
+            hint.innerHTML = `📝 التحليل: ${wordData.analysis}`;
+            
+            // تمييز الإجابة الصحيحة في جدول الأوزان
+            highlightCorrectWeight(correct);
+            
+            // تفعيل زر الكلمة التالية
+            document.getElementById('nextBtn').disabled = false;
+            
+        } else {
+            // إجابة خاطئة
+            document.querySelector('.weight-card.selected').classList.add('wrong');
+            
+            // عرض الإجابة الصحيحة
+            feedback.innerHTML = `❌ خطأ! الوزن الصحيح هو ${correct}`;
+            hint.innerHTML = `💡 ${wordData.hint}`;
+            
+            // خصم نقاط
+            score = Math.max(0, score - 2);
+            updateScore();
+            
+            // تعطيل زر الكلمة التالية
+            document.getElementById('nextBtn').disabled = true;
+        }
+    }
+
+    // =============================================
+    // الكلمة التالية
+    // =============================================
+    function nextWord() {
+        if (currentIndex < totalQuestions - 1) {
+            currentIndex++;
+            loadWord(currentIndex);
+            document.getElementById('nextBtn').disabled = true;
+        } else {
+            // انتهت الكلمات - عرض رسالة النصر
+            showVictory();
+        }
+    }
+
+    // =============================================
+    // إعادة اللعبة
+    // =============================================
+    function resetGame() {
+        currentIndex = 0;
+        score = 0;
+        correctAnswers = 0;
+        hintsUsed = 0;
+        gameActive = true;
+        
+        updateScore();
+        loadWord(0);
+        
+        // إخفاء رسالة النصر
+        document.getElementById('victoryMessage').classList.remove('show');
+        
+        // إعادة تعطيل زر الكلمة التالية
+        document.getElementById('nextBtn').disabled = true;
+        
+        // إعادة تعيين المؤقت
+        clearInterval(timerInterval);
+        timer = 0;
+        document.getElementById('timerDisplay').innerText = '00:00';
+        startTimer();
+    }
+
+    // =============================================
+    // إظهار تلميح
+    // =============================================
+    function showHint() {
+        const wordData = wordsData[currentIndex];
+        const hint = document.getElementById('hintText');
+        
+        hintsUsed++;
+        
+        // عرض التلميح مع إضاءة
+        hint.innerHTML = `💡 ${wordData.hint} - الحروف الأصلية: ${wordData.fa} - ${wordData.ain} - ${wordData.lam}`;
+        hint.style.color = '#ffd700';
+        hint.style.animation = 'none';
+        setTimeout(() => {
+            hint.style.animation = 'pulse 1s';
+        }, 10);
+        
+        // خصم نقطة واحدة مقابل التلميح
+        score = Math.max(0, score - 1);
+        updateScore();
+    }
+
+    // =============================================
+    // تحديث النقاط
+    // =============================================
+    function updateScore() {
+        document.getElementById('scoreDisplay').innerText = score;
+    }
+
+    // =============================================
+    // تحديث المستوى
+    // =============================================
+    function updateLevel() {
+        if (score < 50) level = 1;
+        else if (score < 100) level = 2;
+        else if (score < 200) level = 3;
+        else level = 4;
+        
+        document.getElementById('levelDisplay').innerText = `المستوى ${level}`;
+    }
+
+    // =============================================
+    // بدء المؤقت
+    // =============================================
+    function startTimer() {
+        timer = 0;
+        clearInterval(timerInterval);
+        
+        timerInterval = setInterval(() => {
+            timer++;
+            const minutes = Math.floor(timer / 60);
+            const seconds = timer % 60;
+            document.getElementById('timerDisplay').innerText = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }, 1000);
+    }
+
+    // =============================================
+    // إظهار النصر
+    // =============================================
+    function showVictory() {
+        gameActive = false;
+        clearInterval(timerInterval);
+        
+        // تحديث إحصائيات النصر
+        document.getElementById('victoryScore').innerText = score;
+        document.getElementById('victoryTime').innerText = document.getElementById('timerDisplay').innerText;
+        
+        const accuracy = Math.round((correctAnswers / totalQuestions) * 100);
+        document.getElementById('victoryAccuracy').innerText = `${accuracy}%`;
+        
+        // إظهار رسالة النصر
+        document.getElementById('victoryMessage').classList.add('show');
+    }
+
+    // =============================================
+    // تمييز الوزن الصحيح في الجدول
+    // =============================================
+    function highlightCorrectWeight(weight) {
+        const cells = document.querySelectorAll('.table-cell');
+        cells.forEach(cell => {
+            if (cell.innerText.includes(weight)) {
+                cell.style.background = 'rgba(255,215,0,0.3)';
+                cell.style.border = '3px solid #ffd700';
+            }
+        });
+    }
+
+    // =============================================
+    // الحصول على مثال للوزن
+    // =============================================
+    function getExampleForWeight(weight) {
+        const examples = {
+            'فَعَلَ': 'كَتَبَ',
+            'فَاعِلٌ': 'كَاتِبٌ',
+            'مَفْعُولٌ': 'مَكْتُوبٌ',
+            'أَفْعَلَ': 'أَكْرَمَ',
+            'انْفَعَلَ': 'انْطَلَقَ',
+            'اسْتَفْعَلَ': 'اسْتَغْفَرَ',
+            'مُفْعِلٌ': 'مُسْلِمٌ',
+            'مَفْعِلٌ': 'مَسْجِدٌ',
+            'مِفْعَالٌ': 'مِفْتَاحٌ',
+            'فَعَّالٌ': 'كَتَّابٌ'
+        };
+        return examples[weight] || '';
+    }
+
+    // =============================================
+    // الحصول على وصف الوزن
+    // =============================================
+    function getDescForWeight(weight) {
+        const desc = {
+            'فَعَلَ': 'فعل ثلاثي مجرد',
+            'فَاعِلٌ': 'اسم فاعل',
+            'مَفْعُولٌ': 'اسم مفعول',
+            'أَفْعَلَ': 'فعل رباعي',
+            'انْفَعَلَ': 'فعل خماسي',
+            'اسْتَفْعَلَ': 'فعل سداسي',
+            'مُفْعِلٌ': 'اسم فاعل',
+            'مَفْعِلٌ': 'اسم مكان',
+            'مِفْعَالٌ': 'اسم آلة',
+            'فَعَّالٌ': 'صيغة مبالغة'
+        };
+        return desc[weight] || '';
+    }
+
+    // =============================================
+    // إنشاء نجوم متحركة
+    // =============================================
+    function createStars() {
+        const bg = document.querySelector('.game-bg');
+        for (let i = 0; i < 100; i++) {
+            const star = document.createElement('div');
+            star.style.position = 'absolute';
+            star.style.width = Math.random() * 3 + 'px';
+            star.style.height = star.style.width;
+            star.style.background = 'white';
+            star.style.borderRadius = '50%';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.boxShadow = '0 0 10px white';
+            star.style.animation = `twinkle ${Math.random() * 3 + 2}s infinite`;
+            bg.appendChild(star);
+        }
+    }
+
+    // =============================================
+    // إضافة تأثيرات حركية
+    // =============================================
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+    `;
+    document.head.appendChild(style);
+
+    // =============================================
+    // تهيئة اللعبة
+    // =============================================
+    window.onload = function() {
+        createStars();
+        initGame();
+        
+        // رسالة ترحيب
+        setTimeout(() => {
+            document.getElementById('feedbackText').innerHTML = '⚖️ مرحباً بك في لعبة ميزان الكلمات! زن الكلمات على الميزان الصرفي';
+        }, 500);
+    };
+</script>
+
+</body>
+</html>

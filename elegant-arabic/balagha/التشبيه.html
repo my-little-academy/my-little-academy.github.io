@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 رسام التشبيه - لعبة البلاغة التفاعلية</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&family=Tajawal:wght@300;400;700;900&family=Amiri:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Tajawal', 'Cairo', 'Amiri', sans-serif;
+            background: radial-gradient(ellipse at bottom, #3a2a1a, #1a150a);
+            min-height: 100vh;
+            padding: 30px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .game-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(255,140,0,0.1) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(255,140,0,0.1) 0%, transparent 40%),
+                radial-gradient(circle at 40% 50%, rgba(255,215,0,0.1) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* ===== شريط التنقل ===== */
+        .game-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 80px;
+            padding: 15px 30px;
+            margin-bottom: 40px;
+            border: 3px solid #ff8c00;
+            box-shadow: 0 15px 0 #4a2a1a;
+        }
+
+        .nav-btn {
+            background: rgba(255,140,0,0.2);
+            color: white;
+            text-decoration: none;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            border: 2px solid #ff8c00;
+        }
+
+        .nav-btn:hover {
+            background: #ff8c00;
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(255,140,0,0.5);
+        }
+
+        .imperial-btn {
+            background: linear-gradient(45deg, #d4af37, #ffd700);
+            color: #1a0f07;
+            text-decoration: none;
+            padding: 12px 35px;
+            border-radius: 50px;
+            font-size: 22px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            border: 3px solid white;
+            box-shadow: 0 8px 0 #6b3f1a;
+        }
+
+        .imperial-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 13px 0 #6b3f1a;
+            background: linear-gradient(45deg, #ffd700, #ffa500);
+        }
+
+        /* ===== رأس اللعبة ===== */
+        .game-header {
+            background: linear-gradient(145deg, rgba(255,140,0,0.2), rgba(139,69,19,0.3));
+            backdrop-filter: blur(10px);
+            border: 5px solid #ff8c00;
+            border-radius: 80px;
+            padding: 50px;
+            margin-bottom: 50px;
+            box-shadow: 0 20px 0 #4a2a1a, 0 0 100px rgba(255,140,0,0.4);
+            display: flex;
+            align-items: center;
+            gap: 50px;
+            flex-wrap: wrap;
+        }
+
+        .game-icon {
+            font-size: 120px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 50%;
+            padding: 25px;
+            border: 5px solid #ffd700;
+            animation: artistFloat 4s infinite;
+            box-shadow: 0 0 50px rgba(255,215,0,0.5);
+        }
+
+        @keyframes artistFloat {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        .game-title-area {
+            flex: 1;
+        }
+
+        .game-badge {
+            display: inline-block;
+            background: linear-gradient(45deg, #ff8c00, #cd6600);
+            color: white;
+            padding: 12px 35px;
+            border-radius: 60px;
+            font-size: 26px;
+            margin-bottom: 20px;
+            border: 3px solid white;
+            box-shadow: 0 6px 0 #4a2a1a;
+        }
+
+        .game-title {
+            font-size: 70px;
+            font-weight: 900;
+            color: white;
+            text-shadow: 4px 4px 0 #4a2a1a, 6px 6px 0 #000, 8px 8px 0 rgba(255,140,0,0.5);
+            margin-bottom: 20px;
+            line-height: 1.3;
+        }
+
+        .game-subtitle {
+            font-size: 32px;
+            color: #ffd700;
+            font-weight: bold;
+            text-shadow: 2px 2px 0 #4a2a1a;
+            background: rgba(0,0,0,0.5);
+            padding: 15px 30px;
+            border-radius: 60px;
+            display: inline-block;
+        }
+
+        /* ===== لوحة المعلومات ===== */
+        .info-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            border: 3px solid #ff8c00;
+            border-radius: 60px;
+            padding: 25px 40px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .score-box {
+            background: rgba(0,0,0,0.8);
+            border: 4px solid #ffd700;
+            border-radius: 60px;
+            padding: 15px 35px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .score-text {
+            font-size: 36px;
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .level-box {
+            background: rgba(255,140,0,0.2);
+            border: 4px solid #ff8c00;
+            border-radius: 60px;
+            padding: 15px 35px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .level-text {
+            font-size: 36px;
+            color: #ffb347;
+            font-weight: bold;
+        }
+
+        .streak-box {
+            background: rgba(255,105,180,0.2);
+            border: 4px solid #ff69b4;
+            border-radius: 60px;
+            padding: 15px 35px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .streak-text {
+            font-size: 36px;
+            color: #ffb6c1;
+            font-weight: bold;
+        }
+
+        /* ===== مرسم التشبيه ===== */
+        .art-studio {
+            background: linear-gradient(145deg, rgba(255,140,0,0.2), rgba(139,69,19,0.2));
+            border: 6px solid #ffd700;
+            border-radius: 100px;
+            padding: 60px;
+            margin: 50px 0;
+            box-shadow: 0 25px 0 #4a2a1a, inset 0 0 50px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .studio-title {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ffd700;
+            color: #4a2a1a;
+            padding: 15px 50px;
+            border-radius: 60px;
+            font-size: 40px;
+            font-weight: bold;
+            border: 5px solid white;
+            box-shadow: 0 12px 0 #b8860b;
+            white-space: nowrap;
+        }
+
+        .easel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .painting {
+            background: linear-gradient(145deg, #8b4513, #5d3a1a);
+            border: 10px solid #deb887;
+            border-radius: 40px;
+            padding: 40px;
+            text-align: center;
+            flex: 1;
+            min-width: 350px;
+            box-shadow: 0 20px 0 #3a2a1a;
+            position: relative;
+        }
+
+        .painting::before {
+            content: '🖼️';
+            position: absolute;
+            top: -25px;
+            right: -25px;
+            font-size: 50px;
+            transform: rotate(15deg);
+        }
+
+        .simile-display {
+            font-size: 60px;
+            font-weight: 900;
+            color: #ffd700;
+            font-family: 'Amiri', serif;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            text-shadow: 2px 2px 0 #4a2a1a;
+        }
+
+        .artist-palette {
+            font-size: 80px;
+            color: #ffd700;
+            animation: paletteSpin 10s infinite linear;
+        }
+
+        @keyframes paletteSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* ===== أركان التشبيه ===== */
+        .pillars-showcase {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+            margin: 60px 0;
+        }
+
+        .pillar-card {
+            background: linear-gradient(145deg, #8b4513, #5d3a1a);
+            border: 6px solid #deb887;
+            border-radius: 40px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 15px 0 #3a2a1a;
+            transition: all 0.4s;
+        }
+
+        .pillar-card:hover {
+            transform: translateY(-15px);
+            border-color: #ffd700;
+            box-shadow: 0 25px 0 #3a2a1a;
+        }
+
+        .pillar-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+
+        .pillar-name {
+            font-size: 32px;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        .pillar-desc {
+            font-size: 24px;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .pillar-example {
+            font-size: 28px;
+            color: #ffb347;
+            background: rgba(0,0,0,0.5);
+            padding: 10px;
+            border-radius: 30px;
+            border: 2px solid #ffd700;
+        }
+
+        /* ===== خيارات أركان التشبيه ===== */
+        .pillar-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin: 50px 0;
+        }
+
+        .option-card {
+            background: linear-gradient(145deg, #2a4a6a, #1a2f4f);
+            border: 5px solid #ff8c00;
+            border-radius: 60px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s;
+            box-shadow: 0 15px 0 #0f1a2a;
+        }
+
+        .option-card:hover {
+            transform: translateY(-15px) scale(1.05);
+            box-shadow: 0 25px 0 #0f1a2a;
+            border-color: #ffd700;
+            background: linear-gradient(145deg, #3a6a8a, #2a4f6a);
+        }
+
+        .option-card.selected {
+            border: 8px solid #ffd700;
+            background: linear-gradient(145deg, #4a8aaa, #3a6f8a);
+            box-shadow: 0 15px 0 #0f1a2a, 0 0 80px rgba(255,215,0,0.6);
+        }
+
+        .option-card.correct {
+            background: linear-gradient(145deg, #28a745, #1e7e34);
+            border-color: white;
+        }
+
+        .option-card.wrong {
+            background: linear-gradient(145deg, #dc3545, #b02a37);
+            border-color: white;
+        }
+
+        .option-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        .option-title {
+            font-size: 40px;
+            font-weight: 900;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .option-desc {
+            font-size: 26px;
+            color: #ffb347;
+        }
+
+        /* ===== لوحة الرسام ===== */
+        .artist-panel {
+            background: rgba(0,0,0,0.7);
+            border: 4px solid #ff8c00;
+            border-radius: 60px;
+            padding: 40px;
+            margin: 50px 0;
+        }
+
+        .panel-title {
+            font-size: 40px;
+            color: #ffd700;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .pillar-analysis {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+        }
+
+        .analysis-slot {
+            background: rgba(255,255,255,0.1);
+            border: 3px dashed #ffd700;
+            border-radius: 40px;
+            padding: 25px;
+            text-align: center;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slot-label {
+            font-size: 28px;
+            color: #ffb347;
+            margin-bottom: 10px;
+        }
+
+        .slot-value {
+            font-size: 36px;
+            font-weight: 900;
+            color: white;
+            background: rgba(255,215,0,0.2);
+            padding: 10px 20px;
+            border-radius: 40px;
+            border: 2px solid #ffd700;
+        }
+
+        .slot-empty {
+            font-size: 28px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* ===== لوحة الألوان ===== */
+        .color-palette {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .color-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 5px solid white;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 0 #4a2a1a;
+        }
+
+        .color-btn:hover {
+            transform: scale(1.2);
+            box-shadow: 0 15px 0 #4a2a1a;
+        }
+
+        .color-btn.selected {
+            border: 8px solid #ffd700;
+            transform: scale(1.1);
+        }
+
+        /* ===== شريط التقدم ===== */
+        .progress-section {
+            margin: 40px 0;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .progress-text {
+            font-size: 28px;
+            color: white;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 50px;
+            overflow: hidden;
+            border: 3px solid #ffd700;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff8c00, #ffd700);
+            width: 0%;
+            transition: width 0.5s;
+            border-radius: 50px;
+        }
+
+        /* ===== التغذية الراجعة ===== */
+        .feedback-area {
+            background: rgba(0,0,0,0.8);
+            border: 4px solid #ff8c00;
+            border-radius: 60px;
+            padding: 35px;
+            margin: 40px 0;
+            text-align: center;
+        }
+
+        .feedback-text {
+            font-size: 36px;
+            color: white;
+            line-height: 1.6;
+        }
+
+        .feedback-hint {
+            font-size: 32px;
+            color: #ffd700;
+            margin-top: 20px;
+        }
+
+        /* ===== أزرار التحكم ===== */
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 60px 0;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: linear-gradient(45deg, #ff8c00, #cd6600);
+            border: none;
+            color: white;
+            padding: 25px 60px;
+            border-radius: 80px;
+            font-size: 36px;
+            font-weight: bold;
+            border: 6px solid white;
+            box-shadow: 0 15px 0 #4a2a1a;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 23px 0 #4a2a1a;
+            background: linear-gradient(45deg, #ffa500, #ff8c00);
+        }
+
+        .control-btn.secondary {
+            background: linear-gradient(45deg, #d4af37, #ffd700);
+            color: #1a0f07;
+            box-shadow: 0 15px 0 #6b3f1a;
+        }
+
+        .control-btn:disabled {
+            opacity: 0.5;
+            transform: translateY(0);
+            box-shadow: 0 15px 0 #4a2a1a;
+            pointer-events: none;
+        }
+
+        /* ===== جدول التشبيه ===== */
+        .simile-table {
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            border: 4px solid #ff8c00;
+            border-radius: 70px;
+            padding: 50px;
+            margin: 60px 0;
+        }
+
+        .table-title {
+            font-size: 48px;
+            color: #ffd700;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .table-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .table-header {
+            background: #ff8c00;
+            color: white;
+            padding: 20px;
+            border-radius: 40px;
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            border: 3px solid white;
+        }
+
+        .table-cell {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            padding: 20px;
+            border-radius: 40px;
+            font-size: 28px;
+            text-align: center;
+            border: 2px solid #ff8c00;
+        }
+
+        .table-highlight {
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        /* ===== رسالة النصر ===== */
+        .victory-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: linear-gradient(145deg, rgba(255,140,0,0.95), rgba(139,69,19,0.95));
+            backdrop-filter: blur(10px);
+            border: 10px solid #ffd700;
+            border-radius: 80px;
+            padding: 80px;
+            text-align: center;
+            z-index: 1000;
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 40px 0 #4a2a1a, 0 0 200px rgba(255,215,0,0.8);
+        }
+
+        .victory-message.show {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .victory-title {
+            font-size: 80px;
+            font-weight: 900;
+            color: #ffd700;
+            text-shadow: 5px 5px 0 #4a2a1a;
+            margin-bottom: 30px;
+        }
+
+        .victory-stats {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin: 40px 0;
+        }
+
+        .victory-stat {
+            text-align: center;
+        }
+
+        .victory-stat-value {
+            font-size: 60px;
+            font-weight: 900;
+            color: white;
+        }
+
+        .victory-stat-label {
+            font-size: 28px;
+            color: #ffd700;
+        }
+
+        @media (max-width: 1200px) {
+            .pillars-showcase { grid-template-columns: repeat(2, 1fr); }
+            .pillar-analysis { grid-template-columns: repeat(2, 1fr); }
+            .table-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .game-title { font-size: 50px; }
+            .simile-display { font-size: 45px; }
+            .pillars-showcase { grid-template-columns: 1fr; }
+            .pillar-analysis { grid-template-columns: 1fr; }
+            .table-grid { grid-template-columns: 1fr; }
+            .pillar-options { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-bg"></div>
+
+<div class="container">
+
+    <!-- ===== شريط التنقل ===== -->
+    <div class="game-nav">
+        <div class="nav-links">
+            <a href="index.html" class="nav-btn">
+                <span>🏰</span> الإمبراطورية
+            </a>
+            <a href="kingdom_balagha.html" class="nav-btn">
+                <span>🌸</span> مملكة البلاغة
+            </a>
+            <a href="games_city.html" class="nav-btn">
+                <span>🎮</span> مدينة الألعاب
+            </a>
+        </div>
+        <a href="games_city.html" class="imperial-btn">
+            <span>🎮</span> العودة للمدينة
+        </a>
+    </div>
+
+    <!-- ===== رأس اللعبة ===== -->
+    <div class="game-header">
+        <div class="game-icon">🎨🖼️</div>
+        <div class="game-title-area">
+            <span class="game-badge">🌸 لعبة البلاغة</span>
+            <h1 class="game-title">رسام التشبيه</h1>
+            <div class="game-subtitle">ارسم لوحات التشبيه بأركانها الأربعة</div>
+        </div>
+    </div>
+
+    <!-- ===== لوحة المعلومات ===== -->
+    <div class="info-panel">
+        <div class="score-box">
+            <span style="font-size: 40px; color: #ffd700;">🏆</span>
+            <span class="score-text" id="scoreDisplay">0</span>
+        </div>
+        <div class="level-box">
+            <span style="font-size: 40px; color: #ffb347;">🎨</span>
+            <span class="level-text" id="levelDisplay">رسام مبتدئ</span>
+        </div>
+        <div class="streak-box">
+            <span style="font-size: 40px; color: #ffb6c1;">🔥</span>
+            <span class="streak-text" id="streakDisplay">0</span>
+        </div>
+    </div>
+
+    <!-- ===== مرسم التشبيه ===== -->
+    <div class="art-studio">
+        <div class="studio-title">🎨 مرسم التشبيه 🎨</div>
+        
+        <div class="easel">
+            <div class="painting">
+                <div class="simile-display" id="simileDisplay">
+                    كَأَنَّ الْعِلْمَ نُورٌ
+                </div>
+                <div style="font-size: 28px; color: #ffb347; margin-top: 20px;" id="simileSource">
+                    من القرآن الكريم
+                </div>
+            </div>
+            <div class="artist-palette">🎨</div>
+        </div>
+    </div>
+
+    <!-- ===== أركان التشبيه الأربعة ===== -->
+    <h2 style="font-size: 55px; color: #ffd700; text-align: center; margin: 40px 0;">🏛️ أركان التشبيه الأربعة</h2>
+    
+    <div class="pillars-showcase">
+        <div class="pillar-card">
+            <div class="pillar-icon">👑</div>
+            <div class="pillar-name">المُشَبَّهُ</div>
+            <div class="pillar-desc">الركن الأول</div>
+            <div class="pillar-example">العلمُ</div>
+        </div>
+        <div class="pillar-card">
+            <div class="pillar-icon">🏆</div>
+            <div class="pillar-name">المُشَبَّهُ بِهِ</div>
+            <div class="pillar-desc">الركن الثاني</div>
+            <div class="pillar-example">النورُ</div>
+        </div>
+        <div class="pillar-card">
+            <div class="pillar-icon">🔧</div>
+            <div class="pillar-name">أداة التشبيه</div>
+            <div class="pillar-desc">الركن الثالث</div>
+            <div class="pillar-example">كَأَنَّ</div>
+        </div>
+        <div class="pillar-card">
+            <div class="pillar-icon">✨</div>
+            <div class="pillar-name">وجه الشبه</div>
+            <div class="pillar-desc">الركن الرابع</div>
+            <div class="pillar-example">الإضاءة والهداية</div>
+        </div>
+    </div>
+
+    <!-- ===== لوحة الرسام ===== -->
+    <div class="artist-panel">
+        <div class="panel-title">
+            <span>🖌️</span> لوحة التحليل - استخرج أركان التشبيه
+        </div>
+        
+        <div class="pillar-analysis" id="pillarAnalysis">
+            <div class="analysis-slot" id="slot1">
+                <div class="slot-label">👑 المُشَبَّهُ</div>
+                <div class="slot-value" id="mushabbahValue">؟؟؟</div>
+            </div>
+            <div class="analysis-slot" id="slot2">
+                <div class="slot-label">🏆 المُشَبَّهُ بِهِ</div>
+                <div class="slot-value" id="mushabbahBihValue">؟؟؟</div>
+            </div>
+            <div class="analysis-slot" id="slot3">
+                <div class="slot-label">🔧 أداة التشبيه</div>
+                <div class="slot-value" id="toolValue">؟؟؟</div>
+            </div>
+            <div class="analysis-slot" id="slot4">
+                <div class="slot-label">✨ وجه الشبه</div>
+                <div class="slot-value" id="wajhValue">؟؟؟</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== خيارات أركان التشبيه ===== -->
+    <h2 style="font-size: 48px; color: #ffd700; text-align: center; margin: 40px 0;">🖼️ اختر ركن التشبيه الصحيح</h2>
+    
+    <div class="pillar-options" id="pillarOptions">
+        <!-- سيتم إضافة الخيارات ديناميكياً -->
+    </div>
+
+    <!-- ===== التغذية الراجعة ===== -->
+    <div class="feedback-area" id="feedbackArea">
+        <div class="feedback-text" id="feedbackText">🎨 استخرج أركان التشبيه من الجملة</div>
+        <div class="feedback-hint" id="hintText">💡 ابدأ باختيار الركن المطلوب</div>
+    </div>
+
+    <!-- ===== شريط التقدم ===== -->
+    <div class="progress-section">
+        <div class="progress-info">
+            <span class="progress-text">التقدم في اللوحة</span>
+            <span class="progress-text" id="progressCount">1/8</span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 12.5%;"></div>
+        </div>
+    </div>
+
+    <!-- ===== أزرار التحكم ===== -->
+    <div class="control-buttons">
+        <button class="control-btn" onclick="nextSimile()" id="nextBtn">
+            <span>⬅️</span> اللوحة التالية
+        </button>
+        <button class="control-btn secondary" onclick="resetGame()">
+            <span>🔄</span> إعادة الرسم
+        </button>
+        <button class="control-btn secondary" onclick="showHint()" id="hintBtn">
+            <span>💡</span> تلميح
+        </button>
+    </div>
+
+    <!-- ===== جدول أنواع التشبيه ===== -->
+    <div class="simile-table">
+        <div class="table-title">📋 أنواع التشبيه وأركانها</div>
+        <div class="table-grid">
+            <div class="table-header">نوع التشبيه</div>
+            <div class="table-header">المشبه</div>
+            <div class="table-header">المشبه به</div>
+            <div class="table-header">الأداة</div>
+            
+            <div class="table-cell">تشبيه مرسل</div>
+            <div class="table-cell"><span class="table-highlight">العلمُ</span></div>
+            <div class="table-cell"><span class="table-highlight">النورُ</span></div>
+            <div class="table-cell">كأنَّ</div>
+            
+            <div class="table-cell">تشبيه مؤكد</div>
+            <div class="table-cell"><span class="table-highlight">زيدٌ</span></div>
+            <div class="table-cell"><span class="table-highlight">الأسدُ</span></div>
+            <div class="table-cell">محذوفة</div>
+            
+            <div class="table-cell">تشبيه مجمل</div>
+            <div class="table-cell"><span class="table-highlight">الخدُّ</span></div>
+            <div class="table-cell"><span class="table-highlight">الوردُ</span></div>
+            <div class="table-cell">كـ</div>
+            
+            <div class="table-cell">تشبيه بليغ</div>
+            <div class="table-cell"><span class="table-highlight">هو</span></div>
+            <div class="table-cell"><span class="table-highlight">القمر</span></div>
+            <div class="table-cell">محذوفة</div>
+        </div>
+    </div>
+
+    <!-- ===== رسالة النصر ===== -->
+    <div class="victory-message" id="victoryMessage">
+        <div class="victory-title">🎨 لوحة رائعة! 🎨</div>
+        <div style="font-size: 100px; margin: 30px 0;">🏆🖼️🏆</div>
+        <div style="font-size: 48px; color: white; margin-bottom: 30px;">
+            لقد أتقنت رسم أركان التشبيه!
+        </div>
+        <div class="victory-stats">
+            <div class="victory-stat">
+                <div class="victory-stat-value" id="victoryScore">0</div>
+                <div class="victory-stat-label">النقاط</div>
+            </div>
+            <div class="victory-stat">
+                <div class="victory-stat-value" id="victoryStreak">8</div>
+                <div class="victory-stat-label">الإجابات المتتالية</div>
+            </div>
+            <div class="victory-stat">
+                <div class="victory-stat-value" id="victoryAccuracy">100%</div>
+                <div class="victory-stat-label">الدقة</div>
+            </div>
+        </div>
+        <button class="control-btn" onclick="resetGame()" style="margin-top: 40px; background: linear-gradient(45deg, #ffd700, #ffa500); color: #1a0f07;">
+            <span>🔄</span> ارسم لوحة جديدة
+        </button>
+    </div>
+
+</div>
+
+<script>
+    // =============================================
+    // قائمة التشبيهات - 8 جمل تشبيهية
+    // =============================================
+    const simileData = [
+        {
+            sentence: 'كَأَنَّ الْعِلْمَ نُورٌ',
+            mushabbah: 'الْعِلْمَ',
+            mushabbahBih: 'نُورٌ',
+            tool: 'كَأَنَّ',
+            wajh: 'الإضاءة والهداية',
+            source: 'من القرآن الكريم',
+            hint: 'العلم يضيء كالنور',
+            level: 1,
+            options: {
+                mushabbah: ['الْعِلْمَ', 'نُورٌ', 'كَأَنَّ', 'الْعِلْمُ'],
+                mushabbahBih: ['نُورٌ', 'الْعِلْمَ', 'كَأَنَّ', 'الضَّوْءُ'],
+                tool: ['كَأَنَّ', 'كـ', 'مِثْلَ', 'حذفت'],
+                wajh: ['الإضاءة والهداية', 'النور', 'العلم', 'البيان']
+            }
+        },
+        {
+            sentence: 'زَيْدٌ كَالْأَسَدِ فِي الشَّجَاعَةِ',
+            mushabbah: 'زَيْدٌ',
+            mushabbahBih: 'الْأَسَدِ',
+            tool: 'كـ',
+            wajh: 'الشجاعة والقوة',
+            source: 'من أمثال العرب',
+            hint: 'زيد شجاع كالأسد',
+            level: 1,
+            options: {
+                mushabbah: ['زَيْدٌ', 'الْأَسَدِ', 'كَالْأَسَدِ', 'الشَّجَاعَةِ'],
+                mushabbahBih: ['الْأَسَدِ', 'زَيْدٌ', 'كَالْأَسَدِ', 'الشُّجْعَانِ'],
+                tool: ['كـ', 'كَأَنَّ', 'مِثْلَ', 'حذفت'],
+                wajh: ['الشجاعة والقوة', 'الأسد', 'زيد', 'البأس']
+            }
+        },
+        {
+            sentence: 'أَنْتِ كَالزَّهْرَةِ فِي الرَّبِيعِ',
+            mushabbah: 'أَنْتِ',
+            mushabbahBih: 'الزَّهْرَةِ',
+            tool: 'كـ',
+            wajh: 'الجمال والبهجة',
+            source: 'من الشعر العربي',
+            hint: 'أنت جميلة كالزهرة',
+            level: 1,
+            options: {
+                mushabbah: ['أَنْتِ', 'الزَّهْرَةِ', 'كَالزَّهْرَةِ', 'الرَّبِيعِ'],
+                mushabbahBih: ['الزَّهْرَةِ', 'أَنْتِ', 'كَالزَّهْرَةِ', 'الوَرْدَةِ'],
+                tool: ['كـ', 'كَأَنَّ', 'مِثْلَ', 'حذفت'],
+                wajh: ['الجمال والبهجة', 'الزهرة', 'الربيع', 'النضارة']
+            }
+        },
+        {
+            sentence: 'الْقَمَرُ وَجْهُهَا',
+            mushabbah: 'وَجْهُهَا',
+            mushabbahBih: 'الْقَمَرُ',
+            tool: 'محذوفة',
+            wajh: 'الجمال والإضاءة',
+            source: 'تشبيه بليغ',
+            hint: 'وجهها جميل كالقمر',
+            level: 2,
+            options: {
+                mushabbah: ['وَجْهُهَا', 'الْقَمَرُ', 'جَمِيلٌ', 'الْوَجْهُ'],
+                mushabbahBih: ['الْقَمَرُ', 'وَجْهُهَا', 'الْبَدْرُ', 'النُّورُ'],
+                tool: ['محذوفة', 'كـ', 'كَأَنَّ', 'مِثْلَ'],
+                wajh: ['الجمال والإضاءة', 'القمر', 'الوجه', 'النور']
+            }
+        },
+        {
+            sentence: 'مَثَلُ نُورِهِ كَمِشْكَاةٍ فِيهَا مِصْبَاحٌ',
+            mushabbah: 'نُورِهِ',
+            mushabbahBih: 'مِشْكَاةٍ',
+            tool: 'كـ',
+            wajh: 'الإضاءة والصفاء',
+            source: 'سورة النور',
+            hint: 'نور الله كمشكاة فيها مصباح',
+            level: 3,
+            options: {
+                mushabbah: ['نُورِهِ', 'مِشْكَاةٍ', 'مِصْبَاحٌ', 'اللَّهُ'],
+                mushabbahBih: ['مِشْكَاةٍ', 'نُورِهِ', 'مِصْبَاحٌ', 'زُجَاجَةٌ'],
+                tool: ['كـ', 'مَثَلُ', 'كَأَنَّ', 'مِثْلَ'],
+                wajh: ['الإضاءة والصفاء', 'النور', 'المشكاة', 'الضياء']
+            }
+        },
+        {
+            sentence: 'هُوَ كَالْبَدْرِ فِي الْإِشْرَاقِ',
+            mushabbah: 'هُوَ',
+            mushabbahBih: 'الْبَدْرِ',
+            tool: 'كـ',
+            wajh: 'الإشراق والبهاء',
+            source: 'من الشعر العربي',
+            hint: 'هو منير كالبدر',
+            level: 1,
+            options: {
+                mushabbah: ['هُوَ', 'الْبَدْرِ', 'كَالْبَدْرِ', 'الْإِشْرَاقِ'],
+                mushabbahBih: ['الْبَدْرِ', 'هُوَ', 'كَالْبَدْرِ', 'الْقَمَرِ'],
+                tool: ['كـ', 'كَأَنَّ', 'مِثْلَ', 'حذفت'],
+                wajh: ['الإشراق والبهاء', 'البدر', 'النور', 'الضياء']
+            }
+        },
+        {
+            sentence: 'وَالَّذِينَ يُنْفِقُونَ أَمْوَالَهُمْ رِئَاءَ النَّاسِ كَالَّذِي يُنْفِقُ مَالَهُ رِئَاءَ النَّاسِ',
+            mushabbah: 'الَّذِينَ يُنْفِقُونَ',
+            mushabbahBih: 'الَّذِي يُنْفِقُ',
+            tool: 'كـ',
+            wajh: 'الرياء وعدم الإخلاص',
+            source: 'سورة البقرة',
+            hint: 'المراؤون كمن ينفق ماله رئاء الناس',
+            level: 3,
+            options: {
+                mushabbah: ['الَّذِينَ يُنْفِقُونَ', 'الَّذِي يُنْفِقُ', 'رِئَاءَ', 'النَّاسِ'],
+                mushabbahBih: ['الَّذِي يُنْفِقُ', 'الَّذِينَ يُنْفِقُونَ', 'الْمُرَائِي', 'الْمُنَافِقُ'],
+                tool: ['كـ', 'مَثَلُ', 'كَأَنَّ', 'مِثْلَ'],
+                wajh: ['الرياء وعدم الإخلاص', 'النفاق', 'السمعة', 'التظاهر']
+            }
+        },
+        {
+            sentence: 'الْجَنَّةُ تَحْتَ أَقْدَامِ الْأُمَّهَاتِ',
+            mushabbah: 'الْجَنَّةُ',
+            mushabbahBih: 'تَحْتَ أَقْدَامِ الْأُمَّهَاتِ',
+            tool: 'محذوفة',
+            wajh: 'العظمة والبركة',
+            source: 'حديث نبوي',
+            hint: 'الجنة في بر الوالدين',
+            level: 2,
+            options: {
+                mushabbah: ['الْجَنَّةُ', 'تَحْتَ أَقْدَامِ', 'الْأُمَّهَاتِ', 'الْبِرُّ'],
+                mushabbahBih: ['تَحْتَ أَقْدَامِ الْأُمَّهَاتِ', 'الْجَنَّةُ', 'الْجَنَّةِ', 'الْفِرْدَوْسُ'],
+                tool: ['محذوفة', 'كـ', 'كَأَنَّ', 'مِثْلَ'],
+                wajh: ['العظمة والبركة', 'الجنة', 'بر الوالدين', 'الكرامة']
+            }
+        }
+    ];
+
+    // =============================================
+    // متغيرات اللعبة
+    // =============================================
+    let currentIndex = 0;
+    let currentPillar = null;
+    let score = 0;
+    let streak = 0;
+    let correctAnswers = 0;
+    let totalQuestions = simileData.length * 4; // 8 جمل × 4 أركان = 32 سؤال
+    let answeredPillars = {
+        mushabbah: false,
+        mushabbahBih: false,
+        tool: false,
+        wajh: false
+    };
+
+    // =============================================
+    // تهيئة اللعبة
+    // =============================================
+    function initGame() {
+        currentIndex = 0;
+        score = 0;
+        streak = 0;
+        correctAnswers = 0;
+        updateScore();
+        loadSimile(currentIndex);
+    }
+
+    // =============================================
+    // تحميل التشبيه
+    // =============================================
+    function loadSimile(index) {
+        const simile = simileData[index];
+        
+        // عرض الجملة
+        document.getElementById('simileDisplay').innerText = simile.sentence;
+        document.getElementById('simileSource').innerText = simile.source;
+        
+        // إعادة تعيين لوحة التحليل
+        resetAnalysisBoard();
+        
+        // إعادة تعيين الأركان المجابة
+        answeredPillars = {
+            mushabbah: false,
+            mushabbahBih: false,
+            tool: false,
+            wajh: false
+        };
+        
+        // عرض خيارات الركن الأول (المشبه)
+        showPillarOptions('mushabbah');
+        
+        // تحديث شريط التقدم
+        const progress = (currentIndex / simileData.length) * 100;
+        document.getElementById('progressFill').style.width = progress + '%';
+        document.getElementById('progressCount').innerText = `${currentIndex + 1}/${simileData.length}`;
+        
+        // تحديث التغذية الراجعة
+        document.getElementById('feedbackText').innerHTML = '🎨 اختر المشبه (الركن الأول)';
+        document.getElementById('hintText').innerHTML = '💡 ' + simile.hint;
+        
+        // تمكين زر التالي
+        document.getElementById('nextBtn').disabled = true;
+    }
+
+    // =============================================
+    // إعادة تعيين لوحة التحليل
+    // =============================================
+    function resetAnalysisBoard() {
+        document.getElementById('mushabbahValue').innerHTML = '؟؟؟';
+        document.getElementById('mushabbahBihValue').innerHTML = '؟؟؟';
+        document.getElementById('toolValue').innerHTML = '؟؟؟';
+        document.getElementById('wajhValue').innerHTML = '؟؟؟';
+    }
+
+    // =============================================
+    // عرض خيارات الركن
+    // =============================================
+    function showPillarOptions(pillar) {
+        const simile = simileData[currentIndex];
+        const container = document.getElementById('pillarOptions');
+        container.innerHTML = '';
+        
+        currentPillar = pillar;
+        
+        let title = '';
+        let options = [];
+        
+        switch(pillar) {
+            case 'mushabbah':
+                title = '👑 اختر المشبه';
+                options = simile.options.mushabbah;
+                break;
+            case 'mushabbahBih':
+                title = '🏆 اختر المشبه به';
+                options = simile.options.mushabbahBih;
+                break;
+            case 'tool':
+                title = '🔧 اختر أداة التشبيه';
+                options = simile.options.tool;
+                break;
+            case 'wajh':
+                title = '✨ اختر وجه الشبه';
+                options = simile.options.wajh;
+                break;
+        }
+        
+        // إضافة عنوان
+        const titleElement = document.createElement('h3');
+        titleElement.style.cssText = 'grid-column: 1/-1; font-size: 40px; color: #ffd700; margin-bottom: 20px;';
+        titleElement.innerText = title;
+        container.appendChild(titleElement);
+        
+        // خلط الخيارات
+        const shuffledOptions = [...options].sort(() => Math.random() - 0.5);
+        
+        shuffledOptions.forEach(option => {
+            const card = document.createElement('div');
+            card.className = 'option-card';
+            card.onclick = () => selectPillarOption(card, option, pillar, simile);
+            
+            card.innerHTML = `
+                <div class="option-icon">${getPillarIcon(pillar)}</div>
+                <div class="option-title">${option}</div>
+                <div class="option-desc">${getPillarDesc(pillar)}</div>
+            `;
+            
+            container.appendChild(card);
+        });
+    }
+
+    // =============================================
+    // اختيار ركن التشبيه
+    // =============================================
+    function selectPillarOption(element, selected, pillar, simile) {
+        // إزالة التحديد من جميع البطاقات
+        document.querySelectorAll('.option-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        
+        // تحديد البطاقة المختارة
+        element.classList.add('selected');
+        
+        // التحقق من الإجابة
+        let isCorrect = false;
+        let correctValue = '';
+        
+        switch(pillar) {
+            case 'mushabbah':
+                isCorrect = (selected === simile.mushabbah);
+                correctValue = simile.mushabbah;
+                break;
+            case 'mushabbahBih':
+                isCorrect = (selected === simile.mushabbahBih);
+                correctValue = simile.mushabbahBih;
+                break;
+            case 'tool':
+                isCorrect = (selected === simile.tool);
+                correctValue = simile.tool;
+                break;
+            case 'wajh':
+                isCorrect = (selected === simile.wajh);
+                correctValue = simile.wajh;
+                break;
+        }
+        
+        // تعطيل البطاقات بعد الاختيار
+        document.querySelectorAll('.option-card').forEach(card => {
+            card.style.pointerEvents = 'none';
+        });
+        
+        if (isCorrect) {
+            // إجابة صحيحة
+            element.classList.add('correct');
+            
+            // تحديث لوحة التحليل
+            updateAnalysisBoard(pillar, selected);
+            
+            // تحديث النقاط
+            let points = 10;
+            if (simile.level === 2) points = 15;
+            if (simile.level === 3) points = 20;
+            
+            score += points;
+            streak++;
+            correctAnswers++;
+            
+            updateScore();
+            
+            // تمييز الإجابة الصحيحة في لوحة التحليل
+            highlightCorrectPillar(pillar);
+            
+            // تسجيل أن هذا الركن تمت الإجابة عليه
+            answeredPillars[pillar] = true;
+            
+            // التحقق من اكتمال جميع الأركان
+            checkAllPillarsAnswered();
+            
+        } else {
+            // إجابة خاطئة
+            element.classList.add('wrong');
+            
+            // خصم نقاط
+            score = Math.max(0, score - 5);
+            streak = 0;
+            updateScore();
+            
+            // عرض الإجابة الصحيحة
+            const feedback = document.getElementById('feedbackText');
+            feedback.innerHTML = `❌ خطأ! ${getPillarName(pillar)} الصحيح هو "${correctValue}"`;
+            feedback.style.color = '#dc3545';
+        }
+    }
+
+    // =============================================
+    // تحديث لوحة التحليل
+    // =============================================
+    function updateAnalysisBoard(pillar, value) {
+        switch(pillar) {
+            case 'mushabbah':
+                document.getElementById('mushabbahValue').innerHTML = value;
+                break;
+            case 'mushabbahBih':
+                document.getElementById('mushabbahBihValue').innerHTML = value;
+                break;
+            case 'tool':
+                document.getElementById('toolValue').innerHTML = value;
+                break;
+            case 'wajh':
+                document.getElementById('wajhValue').innerHTML = value;
+                break;
+        }
+    }
+
+    // =============================================
+    // التحقق من اكتمال جميع الأركان
+    // =============================================
+    function checkAllPillarsAnswered() {
+        if (answeredPillars.mushabbah && answeredPillars.mushabbahBih && 
+            answeredPillars.tool && answeredPillars.wajh) {
+            
+            // اكتملت جميع الأركان
+            document.getElementById('feedbackText').innerHTML = '✅ أحسنت! أكملت جميع أركان التشبيه';
+            document.getElementById('feedbackText').style.color = '#28a745';
+            
+            // تفعيل زر الكلمة التالية
+            document.getElementById('nextBtn').disabled = false;
+            
+            // إذا كانت هذه آخر جملة، عرض رسالة النصر
+            if (currentIndex === simileData.length - 1) {
+                showVictory();
+            }
+        } else {
+            // الانتقال إلى الركن التالي
+            if (!answeredPillars.mushabbah) {
+                showPillarOptions('mushabbah');
+                document.getElementById('feedbackText').innerHTML = '🎨 اختر المشبه (الركن الأول)';
+            } else if (!answeredPillars.mushabbahBih) {
+                showPillarOptions('mushabbahBih');
+                document.getElementById('feedbackText').innerHTML = '🏆 اختر المشبه به (الركن الثاني)';
+            } else if (!answeredPillars.tool) {
+                showPillarOptions('tool');
+                document.getElementById('feedbackText').innerHTML = '🔧 اختر أداة التشبيه (الركن الثالث)';
+            } else if (!answeredPillars.wajh) {
+                showPillarOptions('wajh');
+                document.getElementById('feedbackText').innerHTML = '✨ اختر وجه الشبه (الركن الرابع)';
+            }
+            
+            document.getElementById('feedbackText').style.color = 'white';
+        }
+    }
+
+    // =============================================
+    // الكلمة التالية
+    // =============================================
+    function nextSimile() {
+        if (currentIndex < simileData.length - 1) {
+            currentIndex++;
+            loadSimile(currentIndex);
+            document.getElementById('nextBtn').disabled = true;
+            document.getElementById('feedbackText').style.color = 'white';
+        }
+    }
+
+    // =============================================
+    // إعادة اللعبة
+    // =============================================
+    function resetGame() {
+        currentIndex = 0;
+        score = 0;
+        streak = 0;
+        correctAnswers = 0;
+        
+        updateScore();
+        loadSimile(0);
+        
+        // إخفاء رسالة النصر
+        document.getElementById('victoryMessage').classList.remove('show');
+        
+        // إعادة تعطيل زر الكلمة التالية
+        document.getElementById('nextBtn').disabled = true;
+    }
+
+    // =============================================
+    // إظهار تلميح
+    // =============================================
+    function showHint() {
+        const simile = simileData[currentIndex];
+        const hint = document.getElementById('hintText');
+        
+        hint.innerHTML = `💡 ${simile.hint}`;
+        hint.style.color = '#ffd700';
+        hint.style.animation = 'none';
+        setTimeout(() => {
+            hint.style.animation = 'pulse 1s';
+        }, 10);
+        
+        // خصم نقطة واحدة مقابل التلميح
+        score = Math.max(0, score - 1);
+        updateScore();
+    }
+
+    // =============================================
+    // تحديث النقاط
+    // =============================================
+    function updateScore() {
+        document.getElementById('scoreDisplay').innerText = score;
+        document.getElementById('streakDisplay').innerText = streak;
+        
+        // تحديث المستوى
+        let level = 'رسام مبتدئ';
+        if (score >= 200) level = 'رسام محترف';
+        else if (score >= 100) level = 'فنان تشبيه';
+        else if (score >= 50) level = 'رسام متمرن';
+        
+        document.getElementById('levelDisplay').innerText = level;
+    }
+
+    // =============================================
+    // إظهار النصر
+    // =============================================
+    function showVictory() {
+        // تحديث إحصائيات النصر
+        document.getElementById('victoryScore').innerText = score;
+        document.getElementById('victoryStreak').innerText = streak;
+        
+        const accuracy = Math.round((correctAnswers / (simileData.length * 4)) * 100);
+        document.getElementById('victoryAccuracy').innerText = `${accuracy}%`;
+        
+        // إظهار رسالة النصر
+        document.getElementById('victoryMessage').classList.add('show');
+    }
+
+    // =============================================
+    // تمييز الركن الصحيح
+    // =============================================
+    function highlightCorrectPillar(pillar) {
+        const slotIds = {
+            'mushabbah': 'slot1',
+            'mushabbahBih': 'slot2',
+            'tool': 'slot3',
+            'wajh': 'slot4'
+        };
+        
+        const slot = document.getElementById(slotIds[pillar]);
+        slot.style.background = 'rgba(40,167,69,0.3)';
+        slot.style.border = '3px solid #28a745';
+    }
+
+    // =============================================
+    // الحصول على اسم الركن
+    // =============================================
+    function getPillarName(pillar) {
+        const names = {
+            'mushabbah': 'المشبه',
+            'mushabbahBih': 'المشبه به',
+            'tool': 'أداة التشبيه',
+            'wajh': 'وجه الشبه'
+        };
+        return names[pillar];
+    }
+
+    // =============================================
+    // الحصول على أيقونة الركن
+    // =============================================
+    function getPillarIcon(pillar) {
+        const icons = {
+            'mushabbah': '👑',
+            'mushabbahBih': '🏆',
+            'tool': '🔧',
+            'wajh': '✨'
+        };
+        return icons[pillar];
+    }
+
+    // =============================================
+    // الحصول على وصف الركن
+    // =============================================
+    function getPillarDesc(pillar) {
+        const desc = {
+            'mushabbah': 'الركن الأول',
+            'mushabbahBih': 'الركن الثاني',
+            'tool': 'الركن الثالث',
+            'wajh': 'الركن الرابع'
+        };
+        return desc[pillar];
+    }
+
+    // =============================================
+    // إنشاء نجوم متحركة
+    // =============================================
+    function createStars() {
+        const bg = document.querySelector('.game-bg');
+        for (let i = 0; i < 100; i++) {
+            const star = document.createElement('div');
+            star.style.position = 'absolute';
+            star.style.width = Math.random() * 3 + 'px';
+            star.style.height = star.style.width;
+            star.style.background = 'white';
+            star.style.borderRadius = '50%';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.boxShadow = '0 0 10px white';
+            star.style.animation = `twinkle ${Math.random() * 3 + 2}s infinite`;
+            bg.appendChild(star);
+        }
+    }
+
+    // =============================================
+    // إضافة تأثيرات حركية
+    // =============================================
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+    `;
+    document.head.appendChild(style);
+
+    // =============================================
+    // تهيئة اللعبة
+    // =============================================
+    window.onload = function() {
+        createStars();
+        initGame();
+        
+        // رسالة ترحيب
+        setTimeout(() => {
+            document.getElementById('feedbackText').innerHTML = '🎨 مرحباً بك يا رسام التشبيه! استخرج أركان التشبيه الأربعة';
+        }, 500);
+    };
+</script>
+
+</body>
+</html>
